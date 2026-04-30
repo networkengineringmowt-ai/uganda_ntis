@@ -1,0 +1,235 @@
+import { Bell, Search, RefreshCw, ChevronLeft, ChevronRight } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { useBMS } from '../../store/BMSContext';
+
+const VIEW_TITLES: Record<string, { title: string; sub: string; color?: string }> = {
+  // Platform
+  platform:      { title: 'Platform Overview',            sub: 'Uganda National Roads Management Platform',             color: '#00f5ff' },
+  networkstory:  { title: 'Network Story 1986–',          sub: 'Road network development since liberation · 40-year arc', color: '#b967ff' },
+  roadnetwork:   { title: 'Road Network Map',             sub: '1,014 national road links · 21,292 km total network',   color: '#00ff88' },
+  roadvideoview: { title: 'Road Survey Video',             sub: 'Road surface video archive · 2021–2026',               color: '#ff6b35' },
+  traffic:       { title: 'Traffic & Demand',             sub: 'Network traffic counts · AADT surveys 2017–2025',       color: '#ffd23f' },
+  roadcondition: { title: 'Road Condition',               sub: 'Pavement condition, IRI & paved stock growth',          color: '#4d9fff' },
+  atc:           { title: 'ATC Live Dashboard',           sub: 'Automatic Traffic Counters · 10 permanent mother stations · Jul 2025–present', color: '#ffd23f' },
+  projects:      { title: 'Projects & Road Development',  sub: 'Ongoing upgrading & construction contracts · FY 2024/25', color: '#ff2d78' },
+  // BMS
+  gismap:        { title: 'Structure Map',                   sub: 'GIS structure map · All bridges & major culverts · 2018–2024 time series', color: '#00ff88' },
+  dashboard:     { title: 'BMS Dashboard',                sub: 'Bridge Management System · DNR',                        color: '#00f5ff' },
+  registry:      { title: 'Structure Registry',           sub: 'All 740+ bridges and major culverts',                   color: '#4d9fff' },
+  inspections:   { title: 'Inspection Management',        sub: 'Schedule, record and track field inspections',          color: '#ffd23f' },
+  condition:     { title: 'Condition Assessment',         sub: 'Component ratings and defect analysis',                 color: '#ff6b35' },
+  maintenance:   { title: 'Maintenance & Works',          sub: 'Work orders, contracts and maintenance records',        color: '#b967ff' },
+  analytics:     { title: 'Analytics & Reports',          sub: 'Condition trends, cost analysis and network insights',  color: '#00f5ff' },
+  priority:      { title: 'Priority Ranking',             sub: 'Risk-based intervention priority scores',               color: '#ff2d78' },
+  documents:     { title: 'Document Store',               sub: 'Drawings, reports, contracts and records',             color: '#4d9fff' },
+  phototwin:     { title: 'Photo Gallery & Digital Twin', sub: 'Inspection photos and structural schematics',          color: '#00ff88' },
+};
+
+export default function Header({ showSearch }: { showSearch?: boolean }) {
+  const { state, navigate, goBack, goForward, canGoBack, canGoForward } = useBMS();
+  const [query, setQuery] = useState('');
+  const [now, setNow]     = useState(new Date());
+
+  useEffect(() => {
+    const t = setInterval(() => setNow(new Date()), 60_000);
+    return () => clearInterval(t);
+  }, []);
+
+  const meta        = VIEW_TITLES[state.activeView] ?? { title: state.activeView, sub: 'DNR · Ministry of Works & Transport', color: '#00f5ff' };
+  const accent      = meta.color ?? '#00f5ff';
+  const accentRgb   = hexToRgb(accent);
+
+  const criticalCount = state.structures.filter(s => s.conditionRating === 1).length;
+  const dueCount      = state.structures.filter(s => s.inspectionDue).length;
+  const alertCount    = criticalCount + dueCount;
+
+  return (
+    <header
+      className="flex items-center gap-3 flex-shrink-0"
+      style={{
+        padding: '8px 20px',
+        background: 'rgba(2,5,8,0.88)',
+        backdropFilter: 'blur(20px) saturate(160%)',
+        WebkitBackdropFilter: 'blur(20px) saturate(160%)',
+        borderBottom: `1px solid rgba(${accentRgb},0.12)`,
+        boxShadow: `0 1px 0 rgba(${accentRgb},0.06), 0 4px 24px rgba(0,0,0,0.4)`,
+        transition: 'border-color 0.4s, box-shadow 0.4s',
+        zIndex: 10,
+      }}
+    >
+      {/* Accent stripe */}
+      <div style={{
+        position: 'absolute', left: 0, top: 0, bottom: 0, width: 2,
+        background: `linear-gradient(to bottom, transparent, ${accent}, transparent)`,
+        opacity: 0.7,
+      }}/>
+
+      {/* Back / Forward navigation */}
+      <div style={{ display: 'flex', gap: 3, flexShrink: 0 }}>
+        <button
+          onClick={goBack}
+          disabled={!canGoBack}
+          title="Go back"
+          style={{
+            padding: '5px 7px', borderRadius: 7, cursor: canGoBack ? 'pointer' : 'default',
+            background: canGoBack ? 'rgba(255,255,255,0.06)' : 'rgba(255,255,255,0.02)',
+            border: `1px solid ${canGoBack ? `rgba(${accentRgb},0.25)` : 'rgba(255,255,255,0.05)'}`,
+            color: canGoBack ? accent : 'rgba(100,116,139,0.3)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            transition: 'all 0.2s',
+            opacity: canGoBack ? 1 : 0.4,
+          }}
+          onMouseEnter={e => {
+            if (canGoBack) {
+              (e.currentTarget as HTMLButtonElement).style.background = `rgba(${accentRgb},0.12)`;
+            }
+          }}
+          onMouseLeave={e => {
+            (e.currentTarget as HTMLButtonElement).style.background =
+              canGoBack ? 'rgba(255,255,255,0.06)' : 'rgba(255,255,255,0.02)';
+          }}
+        >
+          <ChevronLeft size={14}/>
+        </button>
+        <button
+          onClick={goForward}
+          disabled={!canGoForward}
+          title="Go forward"
+          style={{
+            padding: '5px 7px', borderRadius: 7, cursor: canGoForward ? 'pointer' : 'default',
+            background: canGoForward ? 'rgba(255,255,255,0.06)' : 'rgba(255,255,255,0.02)',
+            border: `1px solid ${canGoForward ? `rgba(${accentRgb},0.25)` : 'rgba(255,255,255,0.05)'}`,
+            color: canGoForward ? accent : 'rgba(100,116,139,0.3)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            transition: 'all 0.2s',
+            opacity: canGoForward ? 1 : 0.4,
+          }}
+          onMouseEnter={e => {
+            if (canGoForward) {
+              (e.currentTarget as HTMLButtonElement).style.background = `rgba(${accentRgb},0.12)`;
+            }
+          }}
+          onMouseLeave={e => {
+            (e.currentTarget as HTMLButtonElement).style.background =
+              canGoForward ? 'rgba(255,255,255,0.06)' : 'rgba(255,255,255,0.02)';
+          }}
+        >
+          <ChevronRight size={14}/>
+        </button>
+      </div>
+
+      {/* Page title */}
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <h1 style={{
+          fontSize: 15, fontWeight: 800, lineHeight: 1.2,
+          color: accent,
+          textShadow: `0 0 20px rgba(${accentRgb},0.4)`,
+          overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+          transition: 'color 0.3s',
+        }}>
+          {meta.title}
+        </h1>
+        <p style={{
+          fontSize: 10, color: 'rgba(100,116,139,0.8)', marginTop: 1,
+          overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+        }}>
+          {meta.sub} &mdash;{' '}
+          {now.toLocaleDateString('en-UG', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })}
+        </p>
+      </div>
+
+      {/* Search */}
+      {showSearch && (
+        <div style={{ position: 'relative', width: 260, flexShrink: 0 }}>
+          <Search size={12} style={{
+            position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)',
+            color: 'rgba(0,245,255,0.4)',
+          }}/>
+          <input
+            className="bms-input"
+            style={{ paddingLeft: 28, paddingTop: 6, paddingBottom: 6, fontSize: 12 }}
+            placeholder="Search structures, roads, IDs…"
+            value={query}
+            onChange={e => setQuery(e.target.value)}
+          />
+        </div>
+      )}
+
+      {/* Alert bell */}
+      <button
+        onClick={() => navigate('priority')}
+        title={`${alertCount} alerts`}
+        style={{
+          position: 'relative',
+          padding: '6px', borderRadius: 8, flexShrink: 0,
+          background: 'rgba(255,255,255,0.04)',
+          border: '1px solid rgba(255,255,255,0.08)',
+          color: 'rgba(148,163,184,0.7)',
+          cursor: 'pointer', transition: 'all 0.2s',
+        }}
+        onMouseEnter={e => {
+          (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.08)';
+          (e.currentTarget as HTMLButtonElement).style.color = '#e2eaf4';
+        }}
+        onMouseLeave={e => {
+          (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.04)';
+          (e.currentTarget as HTMLButtonElement).style.color = 'rgba(148,163,184,0.7)';
+        }}
+      >
+        <Bell size={14}/>
+        {alertCount > 0 && (
+          <span style={{
+            position: 'absolute', top: -4, right: -4,
+            width: 15, height: 15, borderRadius: '50%',
+            background: '#ff3366', boxShadow: '0 0 8px #ff3366',
+            fontSize: 8, fontWeight: 800, color: '#fff',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}>
+            {alertCount > 9 ? '9+' : alertCount}
+          </span>
+        )}
+      </button>
+
+      {/* Refresh */}
+      <button
+        onClick={() => window.location.reload()}
+        title="Reload"
+        style={{
+          padding: '6px', borderRadius: 8, flexShrink: 0,
+          background: 'rgba(255,255,255,0.04)',
+          border: '1px solid rgba(255,255,255,0.08)',
+          color: 'rgba(148,163,184,0.7)',
+          cursor: 'pointer', transition: 'all 0.2s',
+        }}
+        onMouseEnter={e => {
+          (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.08)';
+          (e.currentTarget as HTMLButtonElement).style.color = '#e2eaf4';
+        }}
+        onMouseLeave={e => {
+          (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.04)';
+          (e.currentTarget as HTMLButtonElement).style.color = 'rgba(148,163,184,0.7)';
+        }}
+      >
+        <RefreshCw size={14}/>
+      </button>
+
+      {/* User avatar */}
+      <div style={{
+        width: 28, height: 28, borderRadius: 8, flexShrink: 0,
+        background: `linear-gradient(135deg, rgba(${accentRgb},0.2), rgba(77,159,255,0.1))`,
+        border: `1px solid rgba(${accentRgb},0.3)`,
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        fontSize: 9, fontWeight: 900, color: accent,
+        boxShadow: `0 0 10px rgba(${accentRgb},0.15)`,
+        transition: 'all 0.3s',
+      }}>
+        DNR
+      </div>
+    </header>
+  );
+}
+
+function hexToRgb(hex: string): string {
+  const h = hex.replace('#', '');
+  return `${parseInt(h.slice(0,2),16)},${parseInt(h.slice(2,4),16)},${parseInt(h.slice(4,6),16)}`;
+}
