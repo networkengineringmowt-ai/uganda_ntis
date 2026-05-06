@@ -108,14 +108,100 @@ function KpiCard({ label, value, unit, sub, color, icon }: {
   );
 }
 
+// ─── Region colour map ────────────────────────────────────────────────────────
+const REGION_CLR: Record<string,string> = {
+  Central:'#00f5ff', Eastern:'#ff6b35', East:'#ff6b35',
+  Northern:'#b967ff', North:'#b967ff', 'North East':'#ff2d78',
+  Western:'#00ff88', West:'#00ff88', South:'#ffd23f',
+};
+
+// ─── Station Map Panel ────────────────────────────────────────────────────────
+function StationMapPanel({ allStations }: { allStations: any[] }) {
+  const regions = [...new Set(allStations.map(f => f.properties?.REGION||'').filter(Boolean))].sort();
+  const [filter, setFilter] = useState<string>('ALL');
+
+  const visible = filter === 'ALL' ? allStations
+    : allStations.filter(f => f.properties?.REGION === filter);
+
+  return (
+    <div style={{ ...glass(C.green), padding:14 }}>
+      {sectionHead(`Traffic Count Station Network · ${allStations.length} Stations`, <MapPin size={15}/>, C.green)}
+      <div style={{ fontSize:10, color:'rgba(148,163,184,0.55)', marginBottom:8 }}>
+        National road network · Hover/click marker for details · Coloured by region
+      </div>
+
+      {/* Region filter pills */}
+      <div style={{ display:'flex', flexWrap:'wrap', gap:5, marginBottom:10 }}>
+        {['ALL',...regions].map(r => {
+          const col = r === 'ALL' ? '#94a3b8' : (REGION_CLR[r]||'#94a3b8');
+          return (
+            <button key={r} onClick={()=>setFilter(r)} style={{
+              fontSize:9, fontWeight:800, padding:'3px 10px', borderRadius:5, cursor:'pointer',
+              background: filter===r ? `rgba(${hexRgb(col)},0.18)` : 'rgba(255,255,255,0.04)',
+              border:`1px solid ${filter===r ? col : 'rgba(255,255,255,0.08)'}`,
+              color: filter===r ? col : 'rgba(148,163,184,0.5)', transition:'all 0.12s',
+            }}>{r === 'ALL' ? `All (${allStations.length})` : r}</button>
+          );
+        })}
+      </div>
+
+      <div style={{ borderRadius:10, overflow:'hidden', height:520,
+        boxShadow:'0 0 24px rgba(0,255,136,0.12)' }}>
+        {allStations.length > 0 && (
+          <MapContainer center={[1.37,32.3]} zoom={6} zoomControl={false}
+            style={{ height:'100%', width:'100%', background:'#020508' }}>
+            <TileLayer url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+              attribution="&copy; CartoDB" />
+            <TileLayer
+              url="https://server.arcgisonline.com/ArcGIS/rest/services/Elevation/World_Hillshade_Dark/MapServer/tile/{z}/{y}/{x}"
+              opacity={0.18} />
+            <ZoomControl position="bottomright"/>
+            {visible.map((f, i) => {
+              const [lng, lat] = f.geometry?.coordinates || [0,0];
+              const props = f.properties || {};
+              const col = REGION_CLR[props.REGION||''] || '#94a3b8';
+              return (
+                <CircleMarker key={i} center={[lat, lng]} radius={4}
+                  pathOptions={{ color:col, fillColor:col, fillOpacity:0.78, weight:0.8 }}>
+                  <LeafletTooltip>
+                    <div style={{
+                      background:'rgba(2,5,8,0.96)', color:col,
+                      border:`1px solid ${col}55`, borderRadius:6,
+                      padding:'5px 9px', fontSize:9, fontWeight:800, maxWidth:220,
+                    }}>
+                      <div style={{ marginBottom:2 }}>{props.TCS_NAME}</div>
+                      <div style={{ color:'rgba(226,234,244,0.85)', fontWeight:400 }}>
+                        {props.Link_Name}
+                      </div>
+                      <div style={{ color:'rgba(148,163,184,0.55)', marginTop:1 }}>
+                        {props.STATION} · {props.REGION}
+                      </div>
+                    </div>
+                  </LeafletTooltip>
+                </CircleMarker>
+              );
+            })}
+          </MapContainer>
+        )}
+      </div>
+
+      <div style={{ marginTop:10, fontSize:10, color:'rgba(148,163,184,0.45)', textAlign:'center' }}>
+        {visible.length} stations shown · Uganda National Road Network · Source: UNRA/DNR Traffic Survey Programme
+      </div>
+    </div>
+  );
+}
+
 // ─── Main Component ───────────────────────────────────────────────────────────
 export default function ATCView() {
   const [sites,   setSites]   = useState<Site[]>([]);
   const [flow,    setFlow]    = useState<FlowData|null>(null);
   const [speed,   setSpeed]   = useState<SpeedRow[]>([]);
   const [cls,     setCls]     = useState<ClassRow[]>([]);
-  const [selSite, setSelSite] = useState<string>('U0001');
-  const [now,     setNow]     = useState(new Date());
+  const [selSite,    setSelSite]    = useState<string>('STA-A00107');
+  const [activeTab,  setActiveTab]  = useState<'dashboard'|'stationmap'>('dashboard');
+  const [allStations,setAllStations]= useState<any[]>([]);
+  const [now,        setNow]        = useState(new Date());
 
   // Live clock
   useEffect(() => {
@@ -129,6 +215,8 @@ export default function ATCView() {
     fetch(`${import.meta.env.BASE_URL}atc_flow.json`).then(r=>r.json()).then(setFlow);
     fetch(`${import.meta.env.BASE_URL}atc_speed.json`).then(r=>r.json()).then(setSpeed);
     fetch(`${import.meta.env.BASE_URL}atc_class.json`).then(r=>r.json()).then(setCls);
+    fetch(`${import.meta.env.BASE_URL}atc_stations.geojson`).then(r=>r.json())
+      .then(d => setAllStations(d.features || []));
   }, []);
 
   // ── Derived data ────────────────────────────────────────────────────────────
@@ -210,6 +298,23 @@ export default function ATCView() {
     }}>
       <style>{pulseStyle}</style>
 
+      {/* ── TAB BAR ──────────────────────────────────────────────────────── */}
+      <div style={{ display:'flex', gap:8, alignItems:'center' }}>
+        {(['dashboard','stationmap'] as const).map(tab => {
+          const label = tab === 'dashboard' ? 'Live Dashboard' : `Station Map (${allStations.length||298} sites)`;
+          return (
+            <button key={tab} onClick={()=>setActiveTab(tab)} style={{
+              fontSize:11, fontWeight:800, padding:'6px 16px', borderRadius:8, cursor:'pointer',
+              background: activeTab===tab ? `rgba(0,245,255,0.15)` : 'rgba(255,255,255,0.04)',
+              border:`1px solid ${activeTab===tab ? C.cyan : 'rgba(255,255,255,0.1)'}`,
+              color: activeTab===tab ? C.cyan : 'rgba(148,163,184,0.6)', transition:'all 0.15s',
+              letterSpacing:'0.05em',
+            }}>{label}</button>
+          );
+        })}
+      </div>
+
+      {activeTab === 'dashboard' && (<>
       {/* ── TOP BAR ──────────────────────────────────────────────────────── */}
       <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', flexWrap:'wrap', gap:12 }}>
         <div>
@@ -255,7 +360,7 @@ export default function ATCView() {
           unit="%" sub="Buses + trucks + semis"
           color={C.orange} icon={<Truck size={16}/>}/>
         <KpiCard label="Stations Online"
-          value={String(sites.length)} unit="/ 10"
+          value={String(sites.length)} unit="active"
           sub="Permanent mother stations"
           color={C.purple} icon={<Zap size={16}/>}/>
       </div>
@@ -570,11 +675,17 @@ export default function ATCView() {
       {/* ── FOOTER ─────────────────────────────────────────────────────── */}
       <div style={{ textAlign:'center', paddingTop:8, paddingBottom:4 }}>
         <div style={{ fontSize:9, color:'rgba(100,116,139,0.4)', letterSpacing:'0.08em' }}>
-          ATC NETWORK · DNR / UNRA · Data: Jul 2025 – present ·{' '}
-          Permanent mother stations: U0001–U0010 · 10 active sites ·{' '}
-          Hourly vehicle classification · AASTHO 18-class scheme
+          ATC NETWORK · DNR / UNRA · Data: 2017–2022 · {sites.length} permanent mother stations ·{' '}
+          6-class vehicle scheme (TIS data capture) · Source: UNRA Traffic Management Unit
         </div>
       </div>
+      </>)} {/* end dashboard tab */}
+
+      {/* ── STATION MAP TAB (all 298 traffic count stations) ─────────────── */}
+      {activeTab === 'stationmap' && (
+        <StationMapPanel allStations={allStations} />
+      )}
+
     </div>
   );
 }

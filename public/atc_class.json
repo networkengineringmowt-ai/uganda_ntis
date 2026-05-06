@@ -1,1 +1,527 @@
-[{"id": "U0001", "classes": [{"cls": 0, "label": "Unknown", "count": 2392}, {"cls": 1, "label": "Motorcycle", "count": 1667707}, {"cls": 2, "label": "Light Motor", "count": 1571004}, {"cls": 3, "label": "LMV Towing", "count": 30538}, {"cls": 4, "label": "2-Axle Bus", "count": 18486}, {"cls": 5, "label": "3-Axle Bus", "count": 214829}, {"cls": 6, "label": "2-Axle Rigid", "count": 5634}, {"cls": 7, "label": "3-Axle Rigid", "count": 2134}, {"cls": 8, "label": "4-Axle Rigid", "count": 50210}, {"cls": 9, "label": "2-Axle Semi", "count": 46465}, {"cls": 10, "label": "3-Axle Semi", "count": 9}, {"cls": 11, "label": "4-Axle Semi", "count": 7}, {"cls": 12, "label": "5-Axle Semi", "count": 20043}, {"cls": 13, "label": "6-Axle Semi", "count": 56538}, {"cls": 14, "label": "7-Axle Semi", "count": 114}, {"cls": 15, "label": "2+2 Double", "count": 433}, {"cls": 16, "label": "3+2 Double", "count": 8679}, {"cls": 17, "label": "3+3 Double", "count": 459}]}, {"id": "U0002", "classes": [{"cls": 0, "label": "Unknown", "count": 41458}, {"cls": 1, "label": "Motorcycle", "count": 2092733}, {"cls": 2, "label": "Light Motor", "count": 2271798}, {"cls": 3, "label": "LMV Towing", "count": 178754}, {"cls": 4, "label": "2-Axle Bus", "count": 21481}, {"cls": 5, "label": "3-Axle Bus", "count": 359227}, {"cls": 6, "label": "2-Axle Rigid", "count": 5769}, {"cls": 7, "label": "3-Axle Rigid", "count": 16170}, {"cls": 8, "label": "4-Axle Rigid", "count": 86078}, {"cls": 9, "label": "2-Axle Semi", "count": 107975}, {"cls": 10, "label": "3-Axle Semi", "count": 159}, {"cls": 11, "label": "4-Axle Semi", "count": 352}, {"cls": 12, "label": "5-Axle Semi", "count": 81743}, {"cls": 13, "label": "6-Axle Semi", "count": 321899}, {"cls": 14, "label": "7-Axle Semi", "count": 3088}, {"cls": 15, "label": "2+2 Double", "count": 5635}, {"cls": 16, "label": "3+2 Double", "count": 19131}, {"cls": 17, "label": "3+3 Double", "count": 10821}]}, {"id": "U0003", "classes": [{"cls": 0, "label": "Unknown", "count": 1027}, {"cls": 1, "label": "Motorcycle", "count": 764845}, {"cls": 2, "label": "Light Motor", "count": 1199558}, {"cls": 3, "label": "LMV Towing", "count": 8288}, {"cls": 4, "label": "2-Axle Bus", "count": 14038}, {"cls": 5, "label": "3-Axle Bus", "count": 170757}, {"cls": 6, "label": "2-Axle Rigid", "count": 4371}, {"cls": 7, "label": "3-Axle Rigid", "count": 1088}, {"cls": 8, "label": "4-Axle Rigid", "count": 43406}, {"cls": 9, "label": "2-Axle Semi", "count": 51162}, {"cls": 10, "label": "3-Axle Semi", "count": 21}, {"cls": 11, "label": "4-Axle Semi", "count": 8}, {"cls": 12, "label": "5-Axle Semi", "count": 75582}, {"cls": 13, "label": "6-Axle Semi", "count": 355671}, {"cls": 14, "label": "7-Axle Semi", "count": 146}, {"cls": 15, "label": "2+2 Double", "count": 936}, {"cls": 16, "label": "3+2 Double", "count": 4945}, {"cls": 17, "label": "3+3 Double", "count": 1785}]}, {"id": "U0004", "classes": [{"cls": 0, "label": "Unknown", "count": 412}, {"cls": 1, "label": "Motorcycle", "count": 328464}, {"cls": 2, "label": "Light Motor", "count": 1126475}, {"cls": 3, "label": "LMV Towing", "count": 3271}, {"cls": 4, "label": "2-Axle Bus", "count": 26140}, {"cls": 5, "label": "3-Axle Bus", "count": 154926}, {"cls": 6, "label": "2-Axle Rigid", "count": 7107}, {"cls": 7, "label": "3-Axle Rigid", "count": 729}, {"cls": 8, "label": "4-Axle Rigid", "count": 37803}, {"cls": 9, "label": "2-Axle Semi", "count": 86603}, {"cls": 10, "label": "3-Axle Semi", "count": 12}, {"cls": 11, "label": "4-Axle Semi", "count": 3}, {"cls": 12, "label": "5-Axle Semi", "count": 22584}, {"cls": 13, "label": "6-Axle Semi", "count": 99792}, {"cls": 14, "label": "7-Axle Semi", "count": 64}, {"cls": 15, "label": "2+2 Double", "count": 315}, {"cls": 16, "label": "3+2 Double", "count": 4673}, {"cls": 17, "label": "3+3 Double", "count": 246}]}, {"id": "U0005", "classes": [{"cls": 0, "label": "Unknown", "count": 268}, {"cls": 1, "label": "Motorcycle", "count": 791513}, {"cls": 2, "label": "Light Motor", "count": 262390}, {"cls": 3, "label": "LMV Towing", "count": 1814}, {"cls": 4, "label": "2-Axle Bus", "count": 1696}, {"cls": 5, "label": "3-Axle Bus", "count": 24219}, {"cls": 6, "label": "2-Axle Rigid", "count": 234}, {"cls": 7, "label": "3-Axle Rigid", "count": 241}, {"cls": 8, "label": "4-Axle Rigid", "count": 4455}, {"cls": 9, "label": "2-Axle Semi", "count": 3425}, {"cls": 11, "label": "4-Axle Semi", "count": 4}, {"cls": 12, "label": "5-Axle Semi", "count": 3541}, {"cls": 13, "label": "6-Axle Semi", "count": 14573}, {"cls": 14, "label": "7-Axle Semi", "count": 13}, {"cls": 15, "label": "2+2 Double", "count": 30}, {"cls": 16, "label": "3+2 Double", "count": 1276}, {"cls": 17, "label": "3+3 Double", "count": 50}]}, {"id": "U0006", "classes": [{"cls": 0, "label": "Unknown", "count": 288}, {"cls": 1, "label": "Motorcycle", "count": 731061}, {"cls": 2, "label": "Light Motor", "count": 340729}, {"cls": 3, "label": "LMV Towing", "count": 6003}, {"cls": 4, "label": "2-Axle Bus", "count": 659}, {"cls": 5, "label": "3-Axle Bus", "count": 26365}, {"cls": 6, "label": "2-Axle Rigid", "count": 462}, {"cls": 7, "label": "3-Axle Rigid", "count": 840}, {"cls": 8, "label": "4-Axle Rigid", "count": 20069}, {"cls": 9, "label": "2-Axle Semi", "count": 2275}, {"cls": 10, "label": "3-Axle Semi", "count": 2}, {"cls": 11, "label": "4-Axle Semi", "count": 1}, {"cls": 12, "label": "5-Axle Semi", "count": 2050}, {"cls": 13, "label": "6-Axle Semi", "count": 2631}, {"cls": 14, "label": "7-Axle Semi", "count": 41}, {"cls": 15, "label": "2+2 Double", "count": 75}, {"cls": 16, "label": "3+2 Double", "count": 243}, {"cls": 17, "label": "3+3 Double", "count": 114}]}, {"id": "U0007", "classes": [{"cls": 0, "label": "Unknown", "count": 76}, {"cls": 1, "label": "Motorcycle", "count": 237477}, {"cls": 2, "label": "Light Motor", "count": 115948}, {"cls": 3, "label": "LMV Towing", "count": 544}, {"cls": 4, "label": "2-Axle Bus", "count": 3885}, {"cls": 5, "label": "3-Axle Bus", "count": 21157}, {"cls": 6, "label": "2-Axle Rigid", "count": 1114}, {"cls": 7, "label": "3-Axle Rigid", "count": 111}, {"cls": 8, "label": "4-Axle Rigid", "count": 3775}, {"cls": 9, "label": "2-Axle Semi", "count": 3077}, {"cls": 10, "label": "3-Axle Semi", "count": 8}, {"cls": 12, "label": "5-Axle Semi", "count": 12136}, {"cls": 13, "label": "6-Axle Semi", "count": 31188}, {"cls": 14, "label": "7-Axle Semi", "count": 2}, {"cls": 15, "label": "2+2 Double", "count": 300}, {"cls": 16, "label": "3+2 Double", "count": 2190}, {"cls": 17, "label": "3+3 Double", "count": 179}]}, {"id": "U0008", "classes": [{"cls": 0, "label": "Unknown", "count": 16}, {"cls": 1, "label": "Motorcycle", "count": 72958}, {"cls": 2, "label": "Light Motor", "count": 53801}, {"cls": 3, "label": "LMV Towing", "count": 178}, {"cls": 4, "label": "2-Axle Bus", "count": 4047}, {"cls": 5, "label": "3-Axle Bus", "count": 15955}, {"cls": 6, "label": "2-Axle Rigid", "count": 1047}, {"cls": 7, "label": "3-Axle Rigid", "count": 32}, {"cls": 8, "label": "4-Axle Rigid", "count": 4133}, {"cls": 9, "label": "2-Axle Semi", "count": 4958}, {"cls": 10, "label": "3-Axle Semi", "count": 2}, {"cls": 11, "label": "4-Axle Semi", "count": 2}, {"cls": 12, "label": "5-Axle Semi", "count": 4374}, {"cls": 13, "label": "6-Axle Semi", "count": 23451}, {"cls": 14, "label": "7-Axle Semi", "count": 21}, {"cls": 15, "label": "2+2 Double", "count": 57}, {"cls": 16, "label": "3+2 Double", "count": 3005}, {"cls": 17, "label": "3+3 Double", "count": 462}]}, {"id": "U0009", "classes": [{"cls": 0, "label": "Unknown", "count": 328}, {"cls": 1, "label": "Motorcycle", "count": 444799}, {"cls": 2, "label": "Light Motor", "count": 584576}, {"cls": 3, "label": "LMV Towing", "count": 3557}, {"cls": 4, "label": "2-Axle Bus", "count": 4377}, {"cls": 5, "label": "3-Axle Bus", "count": 81577}, {"cls": 6, "label": "2-Axle Rigid", "count": 630}, {"cls": 7, "label": "3-Axle Rigid", "count": 469}, {"cls": 8, "label": "4-Axle Rigid", "count": 12468}, {"cls": 9, "label": "2-Axle Semi", "count": 10366}, {"cls": 10, "label": "3-Axle Semi", "count": 1}, {"cls": 12, "label": "5-Axle Semi", "count": 6614}, {"cls": 13, "label": "6-Axle Semi", "count": 23329}, {"cls": 14, "label": "7-Axle Semi", "count": 16}, {"cls": 15, "label": "2+2 Double", "count": 42}, {"cls": 16, "label": "3+2 Double", "count": 1420}, {"cls": 17, "label": "3+3 Double", "count": 109}]}, {"id": "U0010", "classes": [{"cls": 0, "label": "Unknown", "count": 1906}, {"cls": 1, "label": "Motorcycle", "count": 675100}, {"cls": 2, "label": "Light Motor", "count": 1299803}, {"cls": 3, "label": "LMV Towing", "count": 17380}, {"cls": 4, "label": "2-Axle Bus", "count": 4452}, {"cls": 5, "label": "3-Axle Bus", "count": 44626}, {"cls": 6, "label": "2-Axle Rigid", "count": 295}, {"cls": 7, "label": "3-Axle Rigid", "count": 1177}, {"cls": 8, "label": "4-Axle Rigid", "count": 5235}, {"cls": 9, "label": "2-Axle Semi", "count": 7763}, {"cls": 10, "label": "3-Axle Semi", "count": 3}, {"cls": 11, "label": "4-Axle Semi", "count": 3}, {"cls": 12, "label": "5-Axle Semi", "count": 1046}, {"cls": 13, "label": "6-Axle Semi", "count": 3446}, {"cls": 14, "label": "7-Axle Semi", "count": 50}, {"cls": 15, "label": "2+2 Double", "count": 49}, {"cls": 16, "label": "3+2 Double", "count": 92}, {"cls": 17, "label": "3+3 Double", "count": 47}]}]
+[
+  {
+    "id": "STA-C19402",
+    "classes": [
+      {
+        "cls": 1,
+        "label": "Motorcycles & Bicycles",
+        "count": 671
+      },
+      {
+        "cls": 2,
+        "label": "Saloon Cars",
+        "count": 1503
+      },
+      {
+        "cls": 3,
+        "label": "Minibuses / Pickups / Vans / 4WD",
+        "count": 836
+      },
+      {
+        "cls": 4,
+        "label": "Medium Buses & Light Trucks",
+        "count": 357
+      },
+      {
+        "cls": 5,
+        "label": "Buses & Heavy Trucks",
+        "count": 96
+      },
+      {
+        "cls": 6,
+        "label": "Trailers",
+        "count": 14
+      }
+    ]
+  },
+  {
+    "id": "STA-B10102",
+    "classes": [
+      {
+        "cls": 1,
+        "label": "Motorcycles & Bicycles",
+        "count": 1131
+      },
+      {
+        "cls": 2,
+        "label": "Saloon Cars",
+        "count": 1249
+      },
+      {
+        "cls": 3,
+        "label": "Minibuses / Pickups / Vans / 4WD",
+        "count": 1046
+      },
+      {
+        "cls": 4,
+        "label": "Medium Buses & Light Trucks",
+        "count": 412
+      },
+      {
+        "cls": 5,
+        "label": "Buses & Heavy Trucks",
+        "count": 360
+      },
+      {
+        "cls": 6,
+        "label": "Trailers",
+        "count": 55
+      }
+    ]
+  },
+  {
+    "id": "STA-B10202",
+    "classes": [
+      {
+        "cls": 1,
+        "label": "Motorcycles & Bicycles",
+        "count": 1383
+      },
+      {
+        "cls": 2,
+        "label": "Saloon Cars",
+        "count": 778
+      },
+      {
+        "cls": 3,
+        "label": "Minibuses / Pickups / Vans / 4WD",
+        "count": 740
+      },
+      {
+        "cls": 4,
+        "label": "Medium Buses & Light Trucks",
+        "count": 433
+      },
+      {
+        "cls": 5,
+        "label": "Buses & Heavy Trucks",
+        "count": 215
+      },
+      {
+        "cls": 6,
+        "label": "Trailers",
+        "count": 55
+      }
+    ]
+  },
+  {
+    "id": "STA-A00107",
+    "classes": [
+      {
+        "cls": 1,
+        "label": "Motorcycles & Bicycles",
+        "count": 9551
+      },
+      {
+        "cls": 2,
+        "label": "Saloon Cars",
+        "count": 8935
+      },
+      {
+        "cls": 3,
+        "label": "Minibuses / Pickups / Vans / 4WD",
+        "count": 6065
+      },
+      {
+        "cls": 4,
+        "label": "Medium Buses & Light Trucks",
+        "count": 2946
+      },
+      {
+        "cls": 5,
+        "label": "Buses & Heavy Trucks",
+        "count": 1045
+      },
+      {
+        "cls": 6,
+        "label": "Trailers",
+        "count": 1007
+      }
+    ]
+  },
+  {
+    "id": "STA-A00211",
+    "classes": [
+      {
+        "cls": 1,
+        "label": "Motorcycles & Bicycles",
+        "count": 1011
+      },
+      {
+        "cls": 2,
+        "label": "Saloon Cars",
+        "count": 1934
+      },
+      {
+        "cls": 3,
+        "label": "Minibuses / Pickups / Vans / 4WD",
+        "count": 1232
+      },
+      {
+        "cls": 4,
+        "label": "Medium Buses & Light Trucks",
+        "count": 814
+      },
+      {
+        "cls": 5,
+        "label": "Buses & Heavy Trucks",
+        "count": 706
+      },
+      {
+        "cls": 6,
+        "label": "Trailers",
+        "count": 283
+      }
+    ]
+  },
+  {
+    "id": "STA-C22702",
+    "classes": [
+      {
+        "cls": 1,
+        "label": "Motorcycles & Bicycles",
+        "count": 125
+      },
+      {
+        "cls": 2,
+        "label": "Saloon Cars",
+        "count": 305
+      },
+      {
+        "cls": 3,
+        "label": "Minibuses / Pickups / Vans / 4WD",
+        "count": 92
+      },
+      {
+        "cls": 4,
+        "label": "Medium Buses & Light Trucks",
+        "count": 46
+      },
+      {
+        "cls": 5,
+        "label": "Buses & Heavy Trucks",
+        "count": 11
+      },
+      {
+        "cls": 6,
+        "label": "Trailers",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "id": "STA-B15203",
+    "classes": [
+      {
+        "cls": 1,
+        "label": "Motorcycles & Bicycles",
+        "count": 346
+      },
+      {
+        "cls": 2,
+        "label": "Saloon Cars",
+        "count": 463
+      },
+      {
+        "cls": 3,
+        "label": "Minibuses / Pickups / Vans / 4WD",
+        "count": 318
+      },
+      {
+        "cls": 4,
+        "label": "Medium Buses & Light Trucks",
+        "count": 147
+      },
+      {
+        "cls": 5,
+        "label": "Buses & Heavy Trucks",
+        "count": 91
+      },
+      {
+        "cls": 6,
+        "label": "Trailers",
+        "count": 93
+      }
+    ]
+  },
+  {
+    "id": "STA-A00522",
+    "classes": [
+      {
+        "cls": 1,
+        "label": "Motorcycles & Bicycles",
+        "count": 338
+      },
+      {
+        "cls": 2,
+        "label": "Saloon Cars",
+        "count": 576
+      },
+      {
+        "cls": 3,
+        "label": "Minibuses / Pickups / Vans / 4WD",
+        "count": 596
+      },
+      {
+        "cls": 4,
+        "label": "Medium Buses & Light Trucks",
+        "count": 230
+      },
+      {
+        "cls": 5,
+        "label": "Buses & Heavy Trucks",
+        "count": 162
+      },
+      {
+        "cls": 6,
+        "label": "Trailers",
+        "count": 92
+      }
+    ]
+  },
+  {
+    "id": "STA-B15005",
+    "classes": [
+      {
+        "cls": 1,
+        "label": "Motorcycles & Bicycles",
+        "count": 1000
+      },
+      {
+        "cls": 2,
+        "label": "Saloon Cars",
+        "count": 813
+      },
+      {
+        "cls": 3,
+        "label": "Minibuses / Pickups / Vans / 4WD",
+        "count": 280
+      },
+      {
+        "cls": 4,
+        "label": "Medium Buses & Light Trucks",
+        "count": 101
+      },
+      {
+        "cls": 5,
+        "label": "Buses & Heavy Trucks",
+        "count": 38
+      },
+      {
+        "cls": 6,
+        "label": "Trailers",
+        "count": 15
+      }
+    ]
+  },
+  {
+    "id": "STA-A01204",
+    "classes": [
+      {
+        "cls": 1,
+        "label": "Motorcycles & Bicycles",
+        "count": 1412
+      },
+      {
+        "cls": 2,
+        "label": "Saloon Cars",
+        "count": 1608
+      },
+      {
+        "cls": 3,
+        "label": "Minibuses / Pickups / Vans / 4WD",
+        "count": 865
+      },
+      {
+        "cls": 4,
+        "label": "Medium Buses & Light Trucks",
+        "count": 575
+      },
+      {
+        "cls": 5,
+        "label": "Buses & Heavy Trucks",
+        "count": 205
+      },
+      {
+        "cls": 6,
+        "label": "Trailers",
+        "count": 34
+      }
+    ]
+  },
+  {
+    "id": "STA-B30502",
+    "classes": [
+      {
+        "cls": 1,
+        "label": "Motorcycles & Bicycles",
+        "count": 1012
+      },
+      {
+        "cls": 2,
+        "label": "Saloon Cars",
+        "count": 808
+      },
+      {
+        "cls": 3,
+        "label": "Minibuses / Pickups / Vans / 4WD",
+        "count": 94
+      },
+      {
+        "cls": 4,
+        "label": "Medium Buses & Light Trucks",
+        "count": 63
+      },
+      {
+        "cls": 5,
+        "label": "Buses & Heavy Trucks",
+        "count": 15
+      },
+      {
+        "cls": 6,
+        "label": "Trailers",
+        "count": 4
+      }
+    ]
+  },
+  {
+    "id": "STA-C92001",
+    "classes": [
+      {
+        "cls": 1,
+        "label": "Motorcycles & Bicycles",
+        "count": 1181
+      },
+      {
+        "cls": 2,
+        "label": "Saloon Cars",
+        "count": 952
+      },
+      {
+        "cls": 3,
+        "label": "Minibuses / Pickups / Vans / 4WD",
+        "count": 218
+      },
+      {
+        "cls": 4,
+        "label": "Medium Buses & Light Trucks",
+        "count": 112
+      },
+      {
+        "cls": 5,
+        "label": "Buses & Heavy Trucks",
+        "count": 23
+      },
+      {
+        "cls": 6,
+        "label": "Trailers",
+        "count": 4
+      }
+    ]
+  },
+  {
+    "id": "STA-B25202",
+    "classes": [
+      {
+        "cls": 1,
+        "label": "Motorcycles & Bicycles",
+        "count": 650
+      },
+      {
+        "cls": 2,
+        "label": "Saloon Cars",
+        "count": 723
+      },
+      {
+        "cls": 3,
+        "label": "Minibuses / Pickups / Vans / 4WD",
+        "count": 77
+      },
+      {
+        "cls": 4,
+        "label": "Medium Buses & Light Trucks",
+        "count": 98
+      },
+      {
+        "cls": 5,
+        "label": "Buses & Heavy Trucks",
+        "count": 35
+      },
+      {
+        "cls": 6,
+        "label": "Trailers",
+        "count": 5
+      }
+    ]
+  },
+  {
+    "id": "STA-C68601",
+    "classes": [
+      {
+        "cls": 1,
+        "label": "Motorcycles & Bicycles",
+        "count": 616
+      },
+      {
+        "cls": 2,
+        "label": "Saloon Cars",
+        "count": 417
+      },
+      {
+        "cls": 3,
+        "label": "Minibuses / Pickups / Vans / 4WD",
+        "count": 110
+      },
+      {
+        "cls": 4,
+        "label": "Medium Buses & Light Trucks",
+        "count": 61
+      },
+      {
+        "cls": 5,
+        "label": "Buses & Heavy Trucks",
+        "count": 38
+      },
+      {
+        "cls": 6,
+        "label": "Trailers",
+        "count": 10
+      }
+    ]
+  },
+  {
+    "id": "STA-A00806",
+    "classes": [
+      {
+        "cls": 1,
+        "label": "Motorcycles & Bicycles",
+        "count": 177
+      },
+      {
+        "cls": 2,
+        "label": "Saloon Cars",
+        "count": 200
+      },
+      {
+        "cls": 3,
+        "label": "Minibuses / Pickups / Vans / 4WD",
+        "count": 188
+      },
+      {
+        "cls": 4,
+        "label": "Medium Buses & Light Trucks",
+        "count": 85
+      },
+      {
+        "cls": 5,
+        "label": "Buses & Heavy Trucks",
+        "count": 158
+      },
+      {
+        "cls": 6,
+        "label": "Trailers",
+        "count": 107
+      }
+    ]
+  }
+]
