@@ -9,6 +9,8 @@ import {
   DollarSign, Wrench, Activity, Download, X, ChevronDown,
   BarChart2, Filter, Camera,
 } from 'lucide-react';
+import { hexRgb, lightenHex, darkenHex, TICK, TICK_SM, AX_LINE } from '../../lib/chart3d';
+import { loadPlatformAnalytics, type PlatformAnalytics } from '../../data/platformData';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 interface StoryData {
@@ -62,16 +64,16 @@ const MAINTENANCE_FY = [
   { fy: '2024/25', required: 920, allocated: 580, received: 540 },
 ];
 
-// Real traffic AADT from analytics.json
-const TRAFFIC_AADT = [
+// Real traffic AADT from analytics.json (fallback when analytics hasn't loaded)
+const TRAFFIC_AADT_FALLBACK = [
   { year: 2017, motorised: 1733.2, non_motorised: 280.1 },
   { year: 2020, motorised: 2084.7, non_motorised: 350.9 },
   { year: 2021, motorised: 2184.4, non_motorised: 189.5 },
   { year: 2025, motorised: 2562.3, non_motorised: 384.5 },
 ];
 
-// Real traffic by region 2025 from analytics.json
-const TRAFFIC_REGION_2025 = [
+// Real traffic by region 2025 from analytics.json (fallback)
+const TRAFFIC_REGION_2025_FALLBACK = [
   { region: 'Central',  motorised: 4894.4, length: 4436.0 },
   { region: 'Eastern',  motorised: 2489.7, length: 5292.3 },
   { region: 'Southern', motorised: 1769.6, length: 3297.7 },
@@ -97,8 +99,8 @@ const VCI_BANDS = [
   { band: 'Very Poor', pct:  0.93, km:   56.1, color: C.pink   },
 ];
 
-// Real WTSS from analytics.json wtss_2015_2023
-const WTSS = [
+// Real WTSS from analytics.json wtss_2015_2023 (fallback)
+const WTSS_FALLBACK = [
   { fy: '2015/16', stock: 4066.9, increase: 163.0, pct: 19.7, ndp: 'NDP II' },
   { fy: '2016/17', stock: 4168.9, increase: 102.0, pct: 20.3, ndp: 'NDP II' },
   { fy: '2017/18', stock: 4521.9, increase: 353.0, pct: 22.0, ndp: 'NDP II' },
@@ -150,21 +152,7 @@ const WORST_LINKS = [
 ];
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
-function hexRgb(hex: string) {
-  return `${parseInt(hex.slice(1,3),16)},${parseInt(hex.slice(3,5),16)},${parseInt(hex.slice(5,7),16)}`;
-}
-function lightenHex(hex: string, amt: number) {
-  const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
-  return `rgb(${Math.min(255,Math.round(r+(255-r)*amt))},${Math.min(255,Math.round(g+(255-g)*amt))},${Math.min(255,Math.round(b+(255-b)*amt))})`;
-}
-function darkenHex(hex: string, amt: number) {
-  const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
-  return `rgb(${Math.max(0,Math.round(r*(1-amt)))},${Math.max(0,Math.round(g*(1-amt)))},${Math.max(0,Math.round(b*(1-amt)))})`;
-}
 const fmtT = (ugx: number) => `UGX ${(ugx/1e12).toFixed(1)} T`;
-const TICK    = { fill: 'rgba(148,163,184,0.5)', fontSize: 10 } as const;
-const TICK_SM = { fill: 'rgba(148,163,184,0.45)', fontSize: 9 } as const;
-const AX_LINE = { stroke: 'rgba(148,163,184,0.08)' } as const;
 
 function downloadPng(ref: React.RefObject<HTMLDivElement>, fname: string) {
   if (!ref.current) return;
@@ -813,9 +801,10 @@ const PROJECT_GALLERY = [
 
 // ── MAIN COMPONENT ────────────────────────────────────────────────────────────
 export default function NetworkStory() {
-  const [data,    setData]    = useState<StoryData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error,   setError]   = useState(false);
+  const [data,      setData]      = useState<StoryData | null>(null);
+  const [analytics, setAnalytics] = useState<PlatformAnalytics | null>(null);
+  const [loading,   setLoading]   = useState(true);
+  const [error,     setError]     = useState(false);
   const [filters, setFilters] = useState<Filters>({
     regions: [], yearRange: [1986, 2026], decade: null, surfaceType: 'all',
   });
@@ -830,6 +819,8 @@ export default function NetworkStory() {
       .then(r => { if (!r.ok) throw new Error(); return r.json(); })
       .then((d: StoryData) => { setData(d); setLoading(false); })
       .catch(() => { setError(true); setLoading(false); });
+
+    loadPlatformAnalytics().then(setAnalytics).catch(console.error);
 
     const style = document.createElement('style');
     style.textContent = `
@@ -925,9 +916,41 @@ export default function NetworkStory() {
     [activeRegions],
   );
 
-  const filteredTrafficRegions = useMemo(
-    () => TRAFFIC_REGION_2025.filter(r => activeRegions.includes(r.region)),
-    [activeRegions],
+  const trafficRegionData = useMemo(() => {
+    const src = analytics?.regionTraffic2025?.length
+      ? analytics.regionTraffic2025.map(r => ({
+          region:    r.region,
+          motorised: r.network_weighted_motorised_aadt,
+          length:    r.covered_length_km,
+        }))
+      : TRAFFIC_REGION_2025_FALLBACK;
+    return src.filter(r => activeRegions.includes(r.region));
+  }, [analytics, activeRegions]);
+
+  const filteredTrafficRegions = trafficRegionData;
+
+  const trafficChartData = useMemo(() =>
+    analytics?.trafficYears?.length
+      ? analytics.trafficYears.map(t => ({
+          year:          t.year,
+          motorised:     t.network_weighted_motorised_aadt,
+          non_motorised: t.network_weighted_non_motorised_aadt ?? 0,
+        }))
+      : TRAFFIC_AADT_FALLBACK,
+    [analytics],
+  );
+
+  const wtssChartData = useMemo(() =>
+    analytics?.wtssTimeline?.length
+      ? analytics.wtssTimeline.map(w => ({
+          fy:       w.financial_year,
+          stock:    w.stock_of_paved_roads_km,
+          increase: w.annual_increase_km,
+          pct:      w.percent_paved_network,
+          ndp:      w.ndp,
+        }))
+      : WTSS_FALLBACK,
+    [analytics],
   );
 
   const filteredStations = useMemo(
@@ -1198,7 +1221,7 @@ export default function NetworkStory() {
           note="Work Tool for Sector Statistics official paved stock figures by financial year · NDP II → NDP III transition shown" minHeight={260}>
           <div style={{ transform: 'perspective(1200px) rotateX(1deg)', transformOrigin: 'center top' }}>
             <ResponsiveContainer width="100%" height={240}>
-              <LineChart data={WTSS} margin={{ top: 12, right: 24, bottom: 0, left: 10 }}>
+              <LineChart data={wtssChartData} margin={{ top: 12, right: 24, bottom: 0, left: 10 }}>
                 <defs>
                   <filter id="wtssGlow"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
                 </defs>
@@ -1245,7 +1268,7 @@ export default function NetworkStory() {
           note="Length-weighted AADT from traffic surveys · 2021 survey covers partial network (450 links)" minHeight={260}>
           <div style={{ transform: 'perspective(1000px) rotateX(1deg)', transformOrigin: 'center top' }}>
             <ResponsiveContainer width="100%" height={240}>
-              <LineChart data={TRAFFIC_AADT} margin={{ top: 12, right: 24, bottom: 0, left: 10 }}>
+              <LineChart data={trafficChartData} margin={{ top: 12, right: 24, bottom: 0, left: 10 }}>
                 <defs>
                   <filter id="trafficGlow"><feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
                   <linearGradient id="trafficFill" x1="0" y1="0" x2="0" y2="1">

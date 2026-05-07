@@ -1,32 +1,21 @@
-import { useEffect, useState, useMemo } from 'react';
-import { Construction, AlertTriangle, CheckCircle2, Search } from 'lucide-react';
+import { useEffect, useRef, useState, useMemo, useCallback } from 'react';
+import { MapContainer, TileLayer, CircleMarker, Popup, useMap } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
 import {
-  ResponsiveContainer, BarChart, Bar, XAxis, YAxis,
-  CartesianGrid, Tooltip, Cell,
-} from 'recharts';
-import { loadProjects } from '../../data/platformData';
-import type { OngoingProject } from '../../types';
+  Construction, AlertTriangle, CheckCircle2, Clock,
+  Search, X, ChevronLeft, ChevronRight, Camera,
+} from 'lucide-react';
+import { loadEnhancedProjects, type Project } from '../../data/appStore';
 
-const TT = {
-  contentStyle: { background: '#0f172a', border: '1px solid #334155', borderRadius: 8 },
-  labelStyle:   { color: '#f1f5f9', fontSize: 11 },
-  itemStyle:    { color: '#94a3b8', fontSize: 10 },
-};
-
+// ── Colour helpers ────────────────────────────────────────────────────────────
 const FUNDER_COLORS: Record<string, string> = {
-  'GOU':      '#3b82f6',
-  'GoU':      '#3b82f6',
-  'AFDB':     '#10b981',
-  'AfDB':     '#10b981',
-  'BADEA/OFID': '#f59e0b',
+  GOU: '#3b82f6', GoU: '#3b82f6',
+  AFDB: '#10b981', AfDB: '#10b981',
+  'BADEA': '#f59e0b', 'OFID': '#f59e0b',
   'World Bank': '#8b5cf6',
-  'ADB':      '#06b6d4',
-  'JICA':     '#ec4899',
-  'EU':       '#f97316',
-  'EXIM':     '#a855f7',
-  'CHINA EXIM': '#a855f7',
+  ADB: '#06b6d4', JICA: '#ec4899', EU: '#f97316',
+  EXIM: '#a855f7', 'CHINA EXIM': '#a855f7',
 };
-
 function funderColor(agency: string): string {
   for (const [key, color] of Object.entries(FUNDER_COLORS)) {
     if (agency.toUpperCase().includes(key.toUpperCase())) return color;
@@ -34,13 +23,37 @@ function funderColor(agency: string): string {
   return '#64748b';
 }
 
-function ProgressBar({ planned, actual, financial }: { planned: number|null; actual: number|null; financial: number|null }) {
+const STATUS_STYLE = {
+  planned:  { border: '#3b82f6', badge: 'text-blue-400 bg-blue-900/30 border-blue-800/50' },
+  ongoing:  { border: '#f59e0b', badge: 'text-amber-400 bg-amber-900/30 border-amber-800/50' },
+  complete: { border: '#22c55e', badge: 'text-green-400 bg-green-900/30 border-green-800/50' },
+} as const;
+
+const MARKER_COLOR: Record<Project['status'], string> = {
+  planned:  '#3b82f6',
+  ongoing:  '#f59e0b',
+  complete: '#22c55e',
+};
+
+// ── Map controller: flies to target on change ─────────────────────────────────
+function MapController({ target }: { target: [number, number] | null }) {
+  const map = useMap();
+  useEffect(() => {
+    if (target) map.flyTo(target, 10, { duration: 0.8 });
+  }, [target, map]);
+  return null;
+}
+
+// ── Progress bar strip ────────────────────────────────────────────────────────
+function ProgressBar({ planned, actual, financial }: {
+  planned: number | null; actual: number | null; financial: number | null;
+}) {
   return (
-    <div className="space-y-1">
+    <div className="space-y-1 mt-2">
       {[
-        { label:'Physical', val: actual,    color:'#3b82f6' },
-        { label:'Financial', val: financial, color:'#10b981' },
-        { label:'Planned',   val: planned,   color:'#475569' },
+        { label: 'Physical',  val: actual,    color: '#3b82f6' },
+        { label: 'Financial', val: financial, color: '#10b981' },
+        { label: 'Planned',   val: planned,   color: '#475569' },
       ].map(b => (
         <div key={b.label}>
           <div className="flex justify-between text-[8px] text-slate-500 mb-0.5">
@@ -50,7 +63,7 @@ function ProgressBar({ planned, actual, financial }: { planned: number|null; act
           <div className="bg-slate-700 rounded-full h-1.5">
             {b.val !== null && (
               <div className="rounded-full h-1.5 transition-all"
-                style={{ width:`${Math.min(b.val,100)}%`, background: b.color }}/>
+                style={{ width: `${Math.min(b.val, 100)}%`, background: b.color }} />
             )}
           </div>
         </div>
@@ -59,17 +72,121 @@ function ProgressBar({ planned, actual, financial }: { planned: number|null; act
   );
 }
 
+// ── Photo strip ───────────────────────────────────────────────────────────────
+function PhotoStrip({ photos, onPhotoClick }: {
+  photos: string[];
+  onPhotoClick: (src: string) => void;
+}) {
+  if (!photos.length) return null;
+  return (
+    <div className="mt-2 flex gap-1.5 overflow-x-auto pb-1" style={{ scrollbarWidth: 'thin' }}>
+      {photos.map((src, i) => (
+        <button
+          key={i}
+          onClick={e => { e.stopPropagation(); onPhotoClick(src); }}
+          className="flex-shrink-0 relative"
+          style={{ width: 72, height: 52 }}
+        >
+          <img
+            src={src}
+            alt=""
+            className="w-full h-full object-cover rounded"
+            style={{ background: '#1e293b' }}
+            onError={e => {
+              const t = e.currentTarget;
+              t.style.display = 'none';
+              const ph = t.nextElementSibling as HTMLElement | null;
+              if (ph) ph.style.display = 'flex';
+            }}
+          />
+          {/* Placeholder shown when img fails */}
+          <div
+            className="absolute inset-0 rounded flex items-center justify-center bg-slate-800 border border-slate-700"
+            style={{ display: 'none' }}
+          >
+            <Camera size={14} className="text-slate-600" />
+          </div>
+        </button>
+      ))}
+    </div>
+  );
+}
+
+// ── Lightbox overlay ──────────────────────────────────────────────────────────
+function Lightbox({ src, caption, onClose, onPrev, onNext, hasPrev, hasNext }: {
+  src: string; caption: string; onClose: () => void;
+  onPrev: () => void; onNext: () => void; hasPrev: boolean; hasNext: boolean;
+}) {
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+      if (e.key === 'ArrowLeft' && hasPrev) onPrev();
+      if (e.key === 'ArrowRight' && hasNext) onNext();
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [onClose, onPrev, onNext, hasPrev, hasNext]);
+
+  return (
+    <div
+      className="fixed inset-0 z-[9999] flex items-center justify-center"
+      style={{ background: 'rgba(0,0,0,0.92)' }}
+      onClick={onClose}
+    >
+      <button
+        onClick={onClose}
+        className="absolute top-4 right-4 text-white/70 hover:text-white bg-black/40 rounded-full p-1.5"
+      >
+        <X size={20} />
+      </button>
+      {hasPrev && (
+        <button
+          onClick={e => { e.stopPropagation(); onPrev(); }}
+          className="absolute left-4 text-white/70 hover:text-white bg-black/40 rounded-full p-2"
+        >
+          <ChevronLeft size={24} />
+        </button>
+      )}
+      {hasNext && (
+        <button
+          onClick={e => { e.stopPropagation(); onNext(); }}
+          className="absolute right-4 text-white/70 hover:text-white bg-black/40 rounded-full p-2"
+        >
+          <ChevronRight size={24} />
+        </button>
+      )}
+      <img
+        src={src}
+        alt={caption}
+        className="max-w-[90vw] max-h-[85vh] object-contain rounded-lg shadow-2xl"
+        onClick={e => e.stopPropagation()}
+      />
+      <div className="absolute bottom-4 text-xs text-white/60 text-center px-4 max-w-xl">
+        {caption}
+      </div>
+    </div>
+  );
+}
+
+// ── Main component ────────────────────────────────────────────────────────────
+const UGANDA_CENTER: [number, number] = [1.37, 32.3];
+
 export default function ProjectsView() {
-  const [projects, setProjects] = useState<OngoingProject[]>([]);
-  const [loading,  setLoading]  = useState(true);
-  const [search,   setSearch]   = useState('');
-  const [regionF,  setRegionF]  = useState('all');
-  const [behindF,  setBehindF]  = useState<'all'|'yes'|'no'>('all');
-  const [sortCol,  setSortCol]  = useState<'length'|'actual'|'financial'>('actual');
-  const [view,     setView]     = useState<'table'|'cards'>('cards');
+  const [projects,   setProjects]   = useState<Project[]>([]);
+  const [loading,    setLoading]    = useState(true);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [flyTarget,  setFlyTarget]  = useState<[number, number] | null>(null);
+  const [search,     setSearch]     = useState('');
+  const [regionF,    setRegionF]    = useState('all');
+  const [statusF,    setStatusF]    = useState<'all' | 'planned' | 'ongoing' | 'complete'>('all');
+  const [lightbox,   setLightbox]   = useState<{ photos: string[]; idx: number; caption: string } | null>(null);
+
+  const cardListRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    loadProjects().then(p => { setProjects(p); setLoading(false); }).catch(() => setLoading(false));
+    loadEnhancedProjects()
+      .then(p => { setProjects(p); setLoading(false); })
+      .catch(() => setLoading(false));
   }, []);
 
   const regions = useMemo(() => {
@@ -78,53 +195,49 @@ export default function ProjectsView() {
     return [...s].filter(Boolean).sort();
   }, [projects]);
 
-  const filtered = useMemo(() => {
-    return projects
-      .filter(p => {
-        if (search && !p.project_name.toLowerCase().includes(search.toLowerCase()) &&
-            !p.location.toLowerCase().includes(search.toLowerCase()) &&
-            !p.contractor.toLowerCase().includes(search.toLowerCase())) return false;
-        if (regionF !== 'all' && !p.regions.includes(regionF)) return false;
-        if (behindF === 'yes' && !p.behind_schedule) return false;
-        if (behindF === 'no' && p.behind_schedule) return false;
-        return true;
-      })
-      .sort((a, b) => {
-        if (sortCol === 'length') return b.parsed_length_km - a.parsed_length_km;
-        if (sortCol === 'actual') return (b.actual_progress_pct ?? 0) - (a.actual_progress_pct ?? 0);
-        return (b.financial_progress_pct ?? 0) - (a.financial_progress_pct ?? 0);
-      });
-  }, [projects, search, regionF, behindF, sortCol]);
+  const filtered = useMemo(() => projects.filter(p => {
+    if (search) {
+      const q = search.toLowerCase();
+      if (!p.project_name.toLowerCase().includes(q) &&
+          !p.location.toLowerCase().includes(q)) return false;
+    }
+    if (regionF !== 'all' && !p.regions.includes(regionF)) return false;
+    if (statusF !== 'all' && p.status !== statusF) return false;
+    return true;
+  }), [projects, search, regionF, statusF]);
 
-  // Stats
   const stats = useMemo(() => ({
-    total:      projects.length,
-    behindSch:  projects.filter(p => p.behind_schedule).length,
-    totalKm:    projects.reduce((sum, p) => sum + p.parsed_length_km, 0),
-    avgActual:  projects.filter(p => p.actual_progress_pct !== null).reduce((sum,p) => sum + (p.actual_progress_pct??0), 0) /
-                Math.max(1, projects.filter(p => p.actual_progress_pct !== null).length),
+    planned:  projects.filter(p => p.status === 'planned').length,
+    ongoing:  projects.filter(p => p.status === 'ongoing').length,
+    complete: projects.filter(p => p.status === 'complete').length,
+    totalKm:  projects.reduce((s, p) => s + p.parsed_length_km, 0),
   }), [projects]);
 
-  // Funder breakdown
-  const funderBreakdown = useMemo(() => {
-    const map: Record<string, { count: number; km: number }> = {};
-    projects.forEach(p => {
-      const key = p.funding_agency;
-      if (!map[key]) map[key] = { count: 0, km: 0 };
-      map[key].count++;
-      map[key].km += p.parsed_length_km;
-    });
-    return Object.entries(map)
-      .map(([agency, v]) => ({ agency, ...v }))
-      .sort((a, b) => b.km - a.km)
-      .slice(0, 8);
-  }, [projects]);
+  const scrollToCard = useCallback((id: string) => {
+    if (!cardListRef.current) return;
+    const el = cardListRef.current.querySelector(`[data-project-id="${id}"]`) as HTMLElement | null;
+    el?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }, []);
+
+  function selectFromCard(p: Project) {
+    setSelectedId(p.id);
+    setFlyTarget([p.lat, p.lng]);
+  }
+
+  function selectFromMap(p: Project) {
+    setSelectedId(p.id);
+    scrollToCard(p.id);
+  }
+
+  function openLightbox(photos: string[], idx: number, caption: string) {
+    setLightbox({ photos, idx, caption });
+  }
 
   if (loading) {
     return (
-      <div className="flex-1 flex items-center justify-center">
+      <div className="flex-1 flex items-center justify-center p-8">
         <div className="text-center space-y-3">
-          <div className="w-8 h-8 rounded-full border-2 border-slate-700 border-t-blue-500 animate-spin mx-auto"/>
+          <div className="w-8 h-8 rounded-full border-2 border-slate-700 border-t-amber-500 animate-spin mx-auto" />
           <div className="text-sm text-slate-400">Loading projects…</div>
         </div>
       </div>
@@ -132,198 +245,233 @@ export default function ProjectsView() {
   }
 
   return (
-    <div className="flex-1 overflow-y-auto p-5 space-y-5 animate-fade-in">
+    <div className="flex flex-col h-full">
 
-      {/* ── Header ── */}
-      <div className="flex items-center gap-3">
-        <div className="w-10 h-10 rounded-xl bg-amber-500/20 flex items-center justify-center">
-          <Construction size={20} className="text-amber-400"/>
+      {/* ── Header + KPIs ── */}
+      <div className="p-4 space-y-3 flex-shrink-0">
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-xl bg-amber-500/20 flex items-center justify-center">
+            <Construction size={18} className="text-amber-400" />
+          </div>
+          <div>
+            <h1 className="text-base font-bold text-white">Projects & Road Development</h1>
+            <p className="text-[10px] text-slate-400">
+              Ongoing road upgrading &amp; construction · FY 2024/25
+            </p>
+          </div>
         </div>
-        <div>
-          <h1 className="text-lg font-bold text-white">Projects & Road Development</h1>
-          <p className="text-xs text-slate-400">Ongoing road upgrading & construction · FY 2024/25</p>
-        </div>
-      </div>
 
-      {/* ── KPIs ── */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bms-card">
-          <div className="text-2xl font-black text-amber-400">{stats.total}</div>
-          <div className="text-xs font-semibold text-slate-300 mt-1">Ongoing Projects</div>
-          <div className="text-[10px] text-slate-500">Road development contracts</div>
-        </div>
-        <div className="bms-card">
-          <div className="text-2xl font-black text-blue-400">{stats.totalKm.toFixed(0)} km</div>
-          <div className="text-xs font-semibold text-slate-300 mt-1">Total Project Scope</div>
-          <div className="text-[10px] text-slate-500">Combined road length</div>
-        </div>
-        <div className="bms-card">
-          <div className="text-2xl font-black text-red-400">{stats.behindSch}</div>
-          <div className="text-xs font-semibold text-slate-300 mt-1">Behind Schedule</div>
-          <div className="text-[10px] text-slate-500">{((stats.behindSch/stats.total)*100).toFixed(0)}% of active projects</div>
-        </div>
-        <div className="bms-card">
-          <div className="text-2xl font-black text-green-400">{stats.avgActual.toFixed(0)}%</div>
-          <div className="text-xs font-semibold text-slate-300 mt-1">Avg. Physical Progress</div>
-          <div className="text-[10px] text-slate-500">Across all projects</div>
-        </div>
-      </div>
-
-      {/* ── Funder breakdown ── */}
-      <div className="bms-card">
-        <div className="text-sm font-bold text-white mb-4">Projects by Funding Agency (km scope)</div>
-        <ResponsiveContainer width="100%" height={180}>
-          <BarChart data={funderBreakdown} layout="vertical" margin={{ top: 0, right: 16, left: 100, bottom: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" horizontal={false}/>
-            <XAxis type="number" tick={{ fill:'#64748b', fontSize:9 }} axisLine={false} tickLine={false}/>
-            <YAxis type="category" dataKey="agency" tick={{ fill:'#94a3b8', fontSize:9 }} axisLine={false} tickLine={false} width={98}/>
-            <Tooltip {...TT} formatter={(v:number, name:string) => [name === 'km' ? `${v.toFixed(0)} km` : v, name]}/>
-            <Bar dataKey="km" radius={[0,4,4,0]} animationDuration={600}>
-              {funderBreakdown.map(f => <Cell key={f.agency} fill={funderColor(f.agency)}/>)}
-            </Bar>
-          </BarChart>
-        </ResponsiveContainer>
-      </div>
-
-      {/* ── Filters + view toggle ── */}
-      <div className="flex flex-wrap gap-3 items-center">
-        <div className="relative flex-1 min-w-[200px]">
-          <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500"/>
-          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search projects, location, contractor…"
-            className="bms-input pl-8 w-full text-xs"/>
-        </div>
-        <select value={regionF} onChange={e => setRegionF(e.target.value)}
-          className="bms-input text-xs">
-          <option value="all">All Regions</option>
-          {regions.map(r => <option key={r} value={r}>{r}</option>)}
-        </select>
-        <select value={behindF} onChange={e => setBehindF(e.target.value as 'all'|'yes'|'no')}
-          className="bms-input text-xs">
-          <option value="all">All status</option>
-          <option value="yes">Behind schedule</option>
-          <option value="no">On schedule</option>
-        </select>
-        <select value={sortCol} onChange={e => setSortCol(e.target.value as 'length'|'actual'|'financial')}
-          className="bms-input text-xs">
-          <option value="actual">Sort: Physical %</option>
-          <option value="financial">Sort: Financial %</option>
-          <option value="length">Sort: Length</option>
-        </select>
-        <div className="flex gap-1">
-          {(['cards','table'] as const).map(v => (
-            <button key={v} onClick={() => setView(v)}
-              className={`text-xs px-3 py-1.5 rounded capitalize ${view === v ? 'bg-blue-600 text-white' : 'bg-slate-700 text-slate-400 hover:text-white'}`}>
-              {v}
-            </button>
-          ))}
-        </div>
-        <span className="text-xs text-slate-500">{filtered.length} of {stats.total}</span>
-      </div>
-
-      {/* ── Projects cards ── */}
-      {view === 'cards' && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-          {filtered.map((p, i) => (
-            <div key={i} className={`bms-card border-l-4 ${p.behind_schedule ? 'border-red-500' : 'border-green-500'}`}>
-              {/* Title row */}
-              <div className="flex items-start gap-2 mb-3">
-                <div className="flex-1 min-w-0">
-                  <div className="text-xs font-bold text-white leading-snug line-clamp-2">{p.project_name}</div>
-                  <div className="text-[10px] text-slate-400 mt-0.5 flex items-center gap-2 flex-wrap">
-                    <span>{p.location}</span>
-                    <span>·</span>
-                    <span>{p.parsed_length_km.toFixed(0)} km</span>
-                  </div>
-                </div>
-                <div className="flex-shrink-0">
-                  {p.behind_schedule
-                    ? <span className="flex items-center gap-1 text-[9px] text-red-400 font-semibold bg-red-900/30 border border-red-800/50 px-1.5 py-0.5 rounded"><AlertTriangle size={9}/> Behind</span>
-                    : <span className="flex items-center gap-1 text-[9px] text-green-400 font-semibold bg-green-900/30 border border-green-800/50 px-1.5 py-0.5 rounded"><CheckCircle2 size={9}/> On Track</span>
-                  }
-                </div>
-              </div>
-
-              {/* Progress bars */}
-              <ProgressBar planned={p.planned_progress_pct} actual={p.actual_progress_pct} financial={p.financial_progress_pct}/>
-
-              {/* Footer */}
-              <div className="mt-3 pt-2 border-t border-slate-700 grid grid-cols-2 gap-2">
-                <div>
-                  <div className="text-[9px] text-slate-500">Funding</div>
-                  <div className="text-[10px] font-semibold" style={{ color: funderColor(p.funding_agency) }}>
-                    {p.funding_agency.length > 24 ? p.funding_agency.slice(0, 24)+'…' : p.funding_agency}
-                  </div>
-                </div>
-                <div>
-                  <div className="text-[9px] text-slate-500">Target Completion</div>
-                  <div className="text-[10px] font-semibold text-slate-300">{p.target_completion_date || '—'}</div>
-                </div>
-                <div className="col-span-2">
-                  <div className="text-[9px] text-slate-500">Contractor</div>
-                  <div className="text-[10px] text-slate-300 truncate">{p.contractor || '—'}</div>
-                </div>
-              </div>
+        {/* KPI strip */}
+        <div className="grid grid-cols-4 gap-2">
+          {[
+            { label: 'Total km',  value: `${stats.totalKm.toFixed(0)}`, unit: 'km',    color: '#f59e0b' },
+            { label: 'Planned',   value: `${stats.planned}`,            unit: 'proj',  color: '#3b82f6' },
+            { label: 'Ongoing',   value: `${stats.ongoing}`,            unit: 'proj',  color: '#f59e0b' },
+            { label: 'Complete',  value: `${stats.complete}`,           unit: 'proj',  color: '#22c55e' },
+          ].map(k => (
+            <div key={k.label} className="bms-card py-2 px-3 text-center">
+              <div className="text-lg font-black" style={{ color: k.color }}>{k.value}</div>
+              <div className="text-[9px] text-slate-400 font-semibold uppercase tracking-wide">{k.label}</div>
             </div>
           ))}
         </div>
-      )}
 
-      {/* ── Projects table ── */}
-      {view === 'table' && (
-        <div className="bms-card overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-xs">
-              <thead>
-                <tr className="border-b border-slate-700">
-                  {['Project','Location','Length','Physical%','Financial%','Funding','Target','Status'].map(h => (
-                    <th key={h} className="text-left py-2 px-3 text-[10px] font-semibold text-slate-500 uppercase tracking-wide whitespace-nowrap">{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {filtered.map((p, i) => (
-                  <tr key={i} className="border-b border-slate-800 hover:bg-slate-800/40">
-                    <td className="py-2.5 px-3 max-w-[200px]">
-                      <div className="text-slate-200 font-semibold text-[10px] leading-snug line-clamp-2">{p.project_name}</div>
-                    </td>
-                    <td className="py-2.5 px-3 text-slate-400 text-[10px] whitespace-nowrap">{p.regions}</td>
-                    <td className="py-2.5 px-3 text-blue-400 font-mono whitespace-nowrap">{p.parsed_length_km.toFixed(0)} km</td>
-                    <td className="py-2.5 px-3">
-                      <div className="flex items-center gap-1.5">
-                        <div className="w-12 bg-slate-700 rounded-full h-1.5">
-                          <div className="h-1.5 rounded-full bg-blue-500" style={{ width:`${Math.min(p.actual_progress_pct??0,100)}%`}}/>
-                        </div>
-                        <span className="text-[10px] text-slate-300 font-mono">{p.actual_progress_pct?.toFixed(0) ?? '—'}%</span>
+        {/* Filters */}
+        <div className="flex flex-wrap gap-2 items-center">
+          <div className="relative flex-1 min-w-[160px]">
+            <Search size={12} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-500" />
+            <input
+              value={search} onChange={e => setSearch(e.target.value)}
+              placeholder="Search projects, location…"
+              className="bms-input pl-7 w-full text-xs"
+            />
+          </div>
+          <select value={regionF} onChange={e => setRegionF(e.target.value)} className="bms-input text-xs">
+            <option value="all">All Regions</option>
+            {regions.map(r => <option key={r} value={r}>{r}</option>)}
+          </select>
+          <select value={statusF} onChange={e => setStatusF(e.target.value as typeof statusF)} className="bms-input text-xs">
+            <option value="all">All Status</option>
+            <option value="planned">Planned</option>
+            <option value="ongoing">Ongoing</option>
+            <option value="complete">Complete</option>
+          </select>
+          <span className="text-[10px] text-slate-500">{filtered.length} / {projects.length}</span>
+        </div>
+      </div>
+
+      {/* ── Map + Cards split ── */}
+      <div className="flex flex-1 min-h-0 overflow-hidden border-t border-slate-800">
+
+        {/* Left: Leaflet map */}
+        <div className="flex-shrink-0" style={{ width: '40%', position: 'relative' }}>
+          <MapContainer
+            center={UGANDA_CENTER}
+            zoom={7}
+            style={{ width: '100%', height: '100%' }}
+            zoomControl
+          >
+            <TileLayer
+              attribution='&copy; <a href="https://carto.com">CARTO</a>'
+              url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+            />
+            <MapController target={flyTarget} />
+
+            {filtered.map(p => {
+              const isSelected = selectedId === p.id;
+              const color = MARKER_COLOR[p.status];
+              return (
+                <CircleMarker
+                  key={p.id}
+                  center={[p.lat, p.lng]}
+                  radius={isSelected ? 10 : 7}
+                  pathOptions={{
+                    color:       isSelected ? '#fff' : color,
+                    fillColor:   color,
+                    fillOpacity: isSelected ? 0.95 : 0.75,
+                    weight:      isSelected ? 2 : 1,
+                  }}
+                  eventHandlers={{ click: () => selectFromMap(p) }}
+                >
+                  <Popup>
+                    <div style={{ fontSize: 11, maxWidth: 200 }}>
+                      <div style={{ fontWeight: 700, marginBottom: 2 }}>{p.project_name}</div>
+                      <div style={{ color: '#94a3b8', fontSize: 10 }}>{p.location}</div>
+                      <div style={{ marginTop: 4, display: 'flex', gap: 8 }}>
+                        <span style={{ color: '#f59e0b' }}>{p.parsed_length_km.toFixed(0)} km</span>
+                        <span style={{ color: color, textTransform: 'capitalize' }}>{p.status}</span>
                       </div>
-                    </td>
-                    <td className="py-2.5 px-3">
-                      <div className="flex items-center gap-1.5">
-                        <div className="w-12 bg-slate-700 rounded-full h-1.5">
-                          <div className="h-1.5 rounded-full bg-green-500" style={{ width:`${Math.min(p.financial_progress_pct??0,100)}%`}}/>
+                      {p.actual_progress_pct !== null && (
+                        <div style={{ marginTop: 4 }}>
+                          <div style={{ fontSize: 9, color: '#64748b' }}>Physical progress</div>
+                          <div style={{ background: '#1e293b', borderRadius: 4, height: 5, marginTop: 2 }}>
+                            <div style={{ background: '#3b82f6', width: `${Math.min(p.actual_progress_pct, 100)}%`, height: '100%', borderRadius: 4 }} />
+                          </div>
+                          <div style={{ fontSize: 9, color: '#94a3b8', marginTop: 1 }}>{p.actual_progress_pct.toFixed(0)}%</div>
                         </div>
-                        <span className="text-[10px] text-slate-300 font-mono">{p.financial_progress_pct?.toFixed(0) ?? '—'}%</span>
-                      </div>
-                    </td>
-                    <td className="py-2.5 px-3 text-[10px]">
-                      <span style={{ color: funderColor(p.funding_agency) }}>
-                        {p.funding_agency.length > 18 ? p.funding_agency.slice(0,18)+'…' : p.funding_agency}
-                      </span>
-                    </td>
-                    <td className="py-2.5 px-3 text-slate-400 text-[10px] whitespace-nowrap">{p.target_completion_date || '—'}</td>
-                    <td className="py-2.5 px-3">
-                      {p.behind_schedule
-                        ? <span className="text-[9px] text-red-400 font-semibold bg-red-900/30 px-1.5 py-0.5 rounded border border-red-800/50">Behind</span>
-                        : <span className="text-[9px] text-green-400 font-semibold bg-green-900/30 px-1.5 py-0.5 rounded border border-green-800/50">On Track</span>
-                      }
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                      )}
+                    </div>
+                  </Popup>
+                </CircleMarker>
+              );
+            })}
+          </MapContainer>
+
+          {/* Map legend */}
+          <div style={{
+            position: 'absolute', bottom: 20, left: 8, zIndex: 1000,
+            background: 'rgba(2,5,8,0.85)', backdropFilter: 'blur(8px)',
+            border: '1px solid rgba(255,255,255,0.08)',
+            borderRadius: 8, padding: '6px 10px',
+          }}>
+            {(['planned', 'ongoing', 'complete'] as const).map(s => (
+              <div key={s} className="flex items-center gap-1.5 mb-1 last:mb-0">
+                <div style={{ width: 8, height: 8, borderRadius: '50%', background: MARKER_COLOR[s] }} />
+                <span style={{ fontSize: 9, color: '#94a3b8', textTransform: 'capitalize' }}>{s}</span>
+              </div>
+            ))}
           </div>
         </div>
+
+        {/* Right: scrollable card list */}
+        <div
+          ref={cardListRef}
+          className="flex-1 min-w-0 overflow-y-auto p-3 space-y-2"
+          style={{ background: '#020508' }}
+        >
+          {filtered.length === 0 && (
+            <div className="text-center text-slate-500 text-xs py-12">No projects match the current filters.</div>
+          )}
+
+          {filtered.map(p => {
+            const isSelected = selectedId === p.id;
+            const ss = STATUS_STYLE[p.status];
+            return (
+              <div
+                key={p.id}
+                data-project-id={p.id}
+                onClick={() => selectFromCard(p)}
+                className="rounded-lg p-3 cursor-pointer transition-all"
+                style={{
+                  background:    isSelected ? 'rgba(245,158,11,0.06)' : 'rgba(15,23,42,0.8)',
+                  border:        `1px solid ${isSelected ? ss.border : 'rgba(51,65,85,0.6)'}`,
+                  borderLeft:    `3px solid ${ss.border}`,
+                  boxShadow:     isSelected ? `0 0 0 1px ${ss.border}40, 0 4px 20px ${ss.border}12` : 'none',
+                }}
+              >
+                {/* Title row */}
+                <div className="flex items-start gap-2">
+                  <div className="flex-1 min-w-0">
+                    <div className="text-[11px] font-bold text-white leading-snug line-clamp-2">
+                      {p.project_name}
+                    </div>
+                    <div className="text-[9px] text-slate-400 mt-0.5 flex flex-wrap gap-x-2">
+                      <span>{p.location}</span>
+                      <span>·</span>
+                      <span className="text-amber-400 font-semibold">{p.parsed_length_km.toFixed(0)} km</span>
+                    </div>
+                  </div>
+                  <div className="flex-shrink-0 flex flex-col items-end gap-1">
+                    <span className={`text-[8px] font-semibold px-1.5 py-0.5 rounded border capitalize ${ss.badge}`}>
+                      {p.status}
+                    </span>
+                    {p.behind_schedule && (
+                      <span className="flex items-center gap-0.5 text-[8px] text-red-400 font-semibold">
+                        <AlertTriangle size={8} /> Behind
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Progress bars */}
+                <ProgressBar
+                  planned={p.planned_progress_pct}
+                  actual={p.actual_progress_pct}
+                  financial={p.financial_progress_pct}
+                />
+
+                {/* Photo strip */}
+                <PhotoStrip
+                  photos={p.progressPhotos}
+                  onPhotoClick={src => {
+                    const idx = p.progressPhotos.indexOf(src);
+                    openLightbox(p.progressPhotos, idx >= 0 ? idx : 0, p.project_name);
+                  }}
+                />
+
+                {/* Footer */}
+                <div className="mt-2 pt-2 border-t border-slate-800 flex justify-between text-[9px]">
+                  <div>
+                    <span className="text-slate-500">Funder · </span>
+                    <span style={{ color: funderColor(p.funding_agency) }}>
+                      {p.funding_agency.length > 20 ? p.funding_agency.slice(0, 20) + '…' : p.funding_agency}
+                    </span>
+                  </div>
+                  {p.target_completion_date && (
+                    <div className="flex items-center gap-1 text-slate-400">
+                      <Clock size={8} />
+                      {p.target_completion_date}
+                    </div>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* ── Lightbox ── */}
+      {lightbox && (
+        <Lightbox
+          src={lightbox.photos[lightbox.idx]}
+          caption={lightbox.caption}
+          onClose={() => setLightbox(null)}
+          hasPrev={lightbox.idx > 0}
+          hasNext={lightbox.idx < lightbox.photos.length - 1}
+          onPrev={() => setLightbox(lb => lb ? { ...lb, idx: lb.idx - 1 } : lb)}
+          onNext={() => setLightbox(lb => lb ? { ...lb, idx: lb.idx + 1 } : lb)}
+        />
       )}
     </div>
   );
 }
-

@@ -13,6 +13,7 @@ import {
   Camera, Search, X, Download, ChevronLeft, ChevronRight, ImageOff,
 } from 'lucide-react';
 import { useBMS } from '../../store/BMSContext';
+import { hexRgb } from '../../lib/chart3d';
 import { conditionColor, conditionLabel } from '../../utils/helpers';
 import { usePhotoLoader } from '../../modules/PhotoTwin/usePhotoLoader';
 import type { Structure } from '../../types';
@@ -428,7 +429,3 @@ function Lightbox({ structure: s, onClose }: { structure: Structure; onClose: ()
   );
 }
 
-function hexRgb(hex: string): string {
-  const h = hex.replace('#', '');
-  return `${parseInt(h.slice(0,2),16)},${parseInt(h.slice(2,4),16)},${parseInt(h.slice(4,6),16)}`;
-}
