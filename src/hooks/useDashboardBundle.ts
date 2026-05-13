@@ -175,7 +175,7 @@ export function useDashboardBundle(pollIntervalMs = 120_000) {
 
       // Fallback to static bundle for GitHub Pages / offline
       if (!bundle) {
-        bundle = await safeFetch<DashboardBundle>('/data/bundle.json');
+        bundle = await safeFetch<DashboardBundle>(`${import.meta.env.BASE_URL}data/bundle.json`);
       }
 
       setState({
