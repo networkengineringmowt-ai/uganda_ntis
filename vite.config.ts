@@ -80,7 +80,6 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: {
-          'vendor-react':    ['react', 'react-dom'],
           'vendor-leaflet':  ['leaflet', 'react-leaflet'],
           'vendor-recharts': ['recharts'],
           'vendor-uuid':     ['uuid'],
