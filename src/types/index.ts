@@ -143,7 +143,6 @@ export type ActiveView =
   | 'phototwin'      // Photo & digital twin
   | 'networkstory'   // Uganda Road Network historical story (1986–present)
   | 'roadvideoview'  // Road survey video + frame player
-  | 'atc'            // Automatic Traffic Counter live dashboard
   | 'downloads';     // Downloads & Exports
 
 // ─── Road network types ───────────────────────────────────────────────────────

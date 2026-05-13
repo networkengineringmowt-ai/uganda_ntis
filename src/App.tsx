@@ -7,7 +7,7 @@ import Header  from './components/Layout/Header';
 const PlatformDashboard = lazy(() => import('./modules/PlatformDashboard/PlatformDashboard'));
 const NetworkStory      = lazy(() => import('./modules/NetworkStory/NetworkStory'));
 const RoadNetworkView   = lazy(() => import('./modules/RoadNetwork/RoadNetworkView'));
-const TrafficView       = lazy(() => import('./modules/Traffic/TrafficView'));
+const TrafficSection    = lazy(() => import('./modules/Traffic/TrafficSection'));
 const RoadConditionView = lazy(() => import('./modules/RoadCondition/RoadConditionView'));
 const ProjectsView      = lazy(() => import('./modules/Projects/ProjectsView'));
 
@@ -23,7 +23,6 @@ const PriorityRanking      = lazy(() => import('./modules/Priority/PriorityRanki
 const DocumentStore        = lazy(() => import('./modules/Documents/DocumentStore'));
 const PhotoTwin            = lazy(() => import('./modules/PhotoTwin/PhotoTwin'));
 const RoadVideoView        = lazy(() => import('./modules/RoadVideoView/RoadVideoView'));
-const ATCView              = lazy(() => import('./modules/ATC/ATCView'));
 const DownloadsView        = lazy(() => import('./modules/Downloads/DownloadsView'));
 
 // Views that hide the header and own the full content rectangle
@@ -112,10 +111,9 @@ function AppShell() {
             {!isFullView && !SELF_SCROLL_VIEWS.has(activeView) && (
               <div style={{ position: 'absolute', inset: 0, overflowY: 'auto', overflowX: 'hidden' }}>
                 {activeView === 'platform'      && <PlatformDashboard />}
-                {activeView === 'traffic'       && <TrafficView />}
+                {activeView === 'traffic'       && <TrafficSection />}
                 {activeView === 'roadcondition' && <RoadConditionView />}
                 {activeView === 'projects'      && <ProjectsView />}
-                {activeView === 'atc'           && <ATCView />}
                 {activeView === 'dashboard'     && <Dashboard />}
                 {activeView === 'registry'      && <StructureRegistry />}
                 {activeView === 'inspections'   && <InspectionManagement />}
