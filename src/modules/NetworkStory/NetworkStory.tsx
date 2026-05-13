@@ -749,7 +749,7 @@ const PROJECT_GALLERY = [
     year: '2018',
     stat: '51 km · USD 476M',
     desc: "Uganda's first expressway. The 2.3 km Nambigirwa viaduct soars over pristine papyrus wetlands connecting Kampala to Entebbe International Airport.",
-    img: '/media/kee_nambigirwa.jpg',
+    img: `${import.meta.env.BASE_URL}media/kee_nambigirwa.jpg`,
     accent: '#00f5ff',
   },
   {
@@ -758,7 +758,7 @@ const PROJECT_GALLERY = [
     year: '2018',
     stat: '2.3 km elevated span',
     desc: 'The elevated viaduct crosses ecologically sensitive Lake Victoria wetlands on reinforced concrete piers — the longest bridge-road in Uganda.',
-    img: '/media/kee_aerial2.png',
+    img: `${import.meta.env.BASE_URL}media/kee_aerial2.png`,
     accent: '#00ff88',
   },
   {
@@ -767,7 +767,7 @@ const PROJECT_GALLERY = [
     year: '2009–2014',
     stat: '22 km · USD 108M',
     desc: 'Dual-carriageway ring road diverting heavy through-traffic from the Kampala CBD, with four major interchanges and grade separations.',
-    img: '/media/northern_bypass.png',
+    img: `${import.meta.env.BASE_URL}media/northern_bypass.png`,
     accent: '#b967ff',
   },
   {
@@ -776,7 +776,7 @@ const PROJECT_GALLERY = [
     year: '2019',
     stat: 'Jinja Rd · USD 34M',
     desc: 'Grade-separated interchange in the heart of Kampala CBD managing the confluence of Jinja Road and Kampala Road serving 3.5 million daily users.',
-    img: '/media/kampala_flyover.png',
+    img: `${import.meta.env.BASE_URL}media/kampala_flyover.png`,
     accent: '#ffd23f',
   },
   {
@@ -785,7 +785,7 @@ const PROJECT_GALLERY = [
     year: '2020s',
     stat: 'Urban road upgrades',
     desc: "Aerial view of Kampala's upgraded arterial network — a city transformed by two decades of sustained investment in road infrastructure.",
-    img: '/media/kampala_flyover2.png',
+    img: `${import.meta.env.BASE_URL}media/kampala_flyover2.png`,
     accent: '#ff6b35',
   },
   {
@@ -794,7 +794,7 @@ const PROJECT_GALLERY = [
     year: 'UAV Survey 2021–24',
     stat: 'Bukakata – Bussi Island',
     desc: 'Drone survey of the Bukakata ferry terminal — the critical water-road interface connecting the mainland to the Ssese Islands on Lake Victoria.',
-    img: '/media/bukakata_lake.jpg',
+    img: `${import.meta.env.BASE_URL}media/bukakata_lake.jpg`,
     accent: '#4d9fff',
   },
 ] as const;
