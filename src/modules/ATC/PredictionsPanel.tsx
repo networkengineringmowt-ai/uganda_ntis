@@ -4,6 +4,8 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { TrendingUp, Zap, AlertTriangle, Activity, Clock } from 'lucide-react';
 import { hexRgb } from '../../lib/chart3d';
+import FeatureAnalyticsPanel from '../../shared/FeatureAnalyticsPanel';
+import { ESRI_TILE_URLS, ESRI_ATTRIBUTIONS } from '../../shared/mapSymbols';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface PredProps {
@@ -642,14 +644,8 @@ export default function PredictionsPanel() {
             {features.length > 0 && (
               <MapContainer center={[1.37, 32.3]} zoom={6} zoomControl={false}
                 style={{ height:'100%', width:'100%', background:'#020508' }}>
-                <TileLayer
-                  url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
-                  attribution="&copy; CartoDB"
-                />
-                <TileLayer
-                  url="https://server.arcgisonline.com/ArcGIS/rest/services/Elevation/World_Hillshade_Dark/MapServer/tile/{z}/{y}/{x}"
-                  opacity={0.18}
-                />
+                <TileLayer url={ESRI_TILE_URLS.imagery} attribution={ESRI_ATTRIBUTIONS.imagery}/>
+                <TileLayer url={ESRI_TILE_URLS.labels}  attribution={ESRI_ATTRIBUTIONS.labels} opacity={0.7}/>
                 <ZoomControl position="bottomright"/>
                 <PredLayer
                   features={features}
@@ -671,12 +667,21 @@ export default function PredictionsPanel() {
 
         {/* Link detail panel */}
         {selLink && (
-          <LinkPopup
-            p={selLink}
-            year={forecastYr}
-            liveMode={liveMode}
-            now={now}
+          <FeatureAnalyticsPanel
+            feature={{
+              type: 'road-link',
+              name: selLink.link_name ?? selLink.link_id,
+              roadClass: selLink.road_class ?? '',
+              lengthKm: selLink.length_km ?? 0,
+              surface: 'Bituminous',
+              region: selLink.region ?? undefined,
+              aadt: selLink.aadt_predicted ?? undefined,
+              congestionRisk: selLink.congestion_risk ?? undefined,
+              forecast2030: selLink.growth_2030 ?? undefined,
+              forecast2040: selLink.growth_2040 ?? undefined,
+            }}
             onClose={() => setSelLink(null)}
+            width={300}
           />
         )}
       </div>

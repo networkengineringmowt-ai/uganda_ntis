@@ -20,6 +20,9 @@ import {
 } from '../../lib/chart3d';
 import { Activity, Gauge, MapPin, Truck, Zap, TrendingUp, Wind, BarChart3 } from 'lucide-react';
 import PredictionsPanel from './PredictionsPanel';
+import FeatureAnalyticsPanel from '../../shared/FeatureAnalyticsPanel';
+import type { AtcStationFeature } from '../../shared/FeatureAnalyticsPanel';
+import { ESRI_TILE_URLS, ESRI_ATTRIBUTIONS } from '../../shared/mapSymbols';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface Site   { id: string; road: string; lat: number; lng: number; }
@@ -117,9 +120,14 @@ const REGION_CLR: Record<string,string> = {
 };
 
 // ─── Station Map Panel ────────────────────────────────────────────────────────
-function StationMapPanel({ allStations }: { allStations: any[] }) {
+function StationMapPanel({ allStations, aadtRows, monthlyRows }: {
+  allStations: any[];
+  aadtRows: AadtRow[];
+  monthlyRows: MonthlyRow[];
+}) {
   const regions = [...new Set(allStations.map(f => f.properties?.REGION||'').filter(Boolean))].sort();
-  const [filter, setFilter] = useState<string>('ALL');
+  const [filter,      setFilter]      = useState<string>('ALL');
+  const [selectedFtr, setSelectedFtr] = useState<AtcStationFeature | null>(null);
 
   const visible = filter === 'ALL' ? allStations
     : allStations.filter(f => f.properties?.REGION === filter);
@@ -128,7 +136,7 @@ function StationMapPanel({ allStations }: { allStations: any[] }) {
     <div style={{ ...glass(C.green), padding:14 }}>
       {sectionHead(`Traffic Count Station Network · ${allStations.length} Stations`, <MapPin size={15}/>, C.green)}
       <div style={{ fontSize:10, color:'rgba(148,163,184,0.55)', marginBottom:8 }}>
-        National road network · Hover/click marker for details · Coloured by region
+        National road network · Click marker for details · Coloured by region
       </div>
 
       {/* Region filter pills */}
@@ -146,43 +154,70 @@ function StationMapPanel({ allStations }: { allStations: any[] }) {
         })}
       </div>
 
-      <div style={{ borderRadius:10, overflow:'hidden', height:520,
-        boxShadow:'0 0 24px rgba(0,255,136,0.12)' }}>
-        {allStations.length > 0 && (
-          <MapContainer center={[1.37,32.3]} zoom={6} zoomControl={false}
-            style={{ height:'100%', width:'100%', background:'#020508' }}>
-            <TileLayer url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
-              attribution="&copy; CartoDB" />
-            <TileLayer
-              url="https://server.arcgisonline.com/ArcGIS/rest/services/Elevation/World_Hillshade_Dark/MapServer/tile/{z}/{y}/{x}"
-              opacity={0.18} />
-            <ZoomControl position="bottomright"/>
-            {visible.map((f, i) => {
-              const [lng, lat] = f.geometry?.coordinates || [0,0];
-              const props = f.properties || {};
-              const col = REGION_CLR[props.REGION||''] || '#94a3b8';
-              return (
-                <CircleMarker key={i} center={[lat, lng]} radius={4}
-                  pathOptions={{ color:col, fillColor:col, fillOpacity:0.78, weight:0.8 }}>
-                  <LeafletTooltip>
-                    <div style={{
-                      background:'rgba(2,5,8,0.96)', color:col,
-                      border:`1px solid ${col}55`, borderRadius:6,
-                      padding:'5px 9px', fontSize:9, fontWeight:800, maxWidth:220,
-                    }}>
-                      <div style={{ marginBottom:2 }}>{props.TCS_NAME}</div>
-                      <div style={{ color:'rgba(226,234,244,0.85)', fontWeight:400 }}>
-                        {props.Link_Name}
+      <div style={{ display:'flex', gap:12, alignItems:'flex-start' }}>
+        <div style={{ flex:1, borderRadius:10, overflow:'hidden', height:520,
+          boxShadow:'0 0 24px rgba(0,255,136,0.12)' }}>
+          {allStations.length > 0 && (
+            <MapContainer center={[1.37,32.3]} zoom={6} zoomControl={false}
+              style={{ height:'100%', width:'100%' }}>
+              <TileLayer url={ESRI_TILE_URLS.imagery} attribution={ESRI_ATTRIBUTIONS.imagery}/>
+              <TileLayer url={ESRI_TILE_URLS.labels}  attribution={ESRI_ATTRIBUTIONS.labels} opacity={0.7}/>
+              <ZoomControl position="bottomright"/>
+              {visible.map((f, i) => {
+                const [lng, lat] = f.geometry?.coordinates || [0,0];
+                const props = f.properties || {};
+                const col = REGION_CLR[props.REGION||''] || '#94a3b8';
+                const stationId = props.STATION as string;
+                const aRow = aadtRows.find(r => r.id === stationId);
+                return (
+                  <CircleMarker key={i} center={[lat, lng]} radius={5}
+                    pathOptions={{ color:col, fillColor:col, fillOpacity:0.85, weight:1.2 }}
+                    eventHandlers={{ click: () => {
+                      const monthly = monthlyRows
+                        .filter(m => m.id === stationId)
+                        .map(m => ({ month: m.month, total: m.total }));
+                      setSelectedFtr({
+                        type: 'atc-station',
+                        id: stationId,
+                        name: props.TCS_NAME as string || stationId,
+                        road: props.Link_Name as string,
+                        region: props.REGION as string,
+                        aadt: aRow?.aadt ?? 0,
+                        lightPct: aRow?.light_pct,
+                        heavyPct: aRow?.heavy_pct,
+                        monthly: monthly.length ? monthly : undefined,
+                      });
+                    }}}>
+                    <LeafletTooltip>
+                      <div style={{
+                        background:'rgba(2,5,8,0.96)', color:col,
+                        border:`1px solid ${col}55`, borderRadius:6,
+                        padding:'5px 9px', fontSize:9, fontWeight:800, maxWidth:220,
+                      }}>
+                        <div style={{ marginBottom:2 }}>{props.TCS_NAME}</div>
+                        <div style={{ color:'rgba(226,234,244,0.85)', fontWeight:400 }}>
+                          {props.Link_Name}
+                        </div>
+                        <div style={{ color:'rgba(148,163,184,0.55)', marginTop:1 }}>
+                          {props.STATION} · {props.REGION}
+                        </div>
                       </div>
-                      <div style={{ color:'rgba(148,163,184,0.55)', marginTop:1 }}>
-                        {props.STATION} · {props.REGION}
-                      </div>
-                    </div>
-                  </LeafletTooltip>
-                </CircleMarker>
-              );
-            })}
-          </MapContainer>
+                    </LeafletTooltip>
+                  </CircleMarker>
+                );
+              })}
+            </MapContainer>
+          )}
+        </div>
+
+        {selectedFtr && (
+          <div style={{ flexShrink:0, alignSelf:'flex-start', maxHeight:520, overflowY:'auto' }}>
+            <FeatureAnalyticsPanel
+              feature={selectedFtr}
+              onClose={() => setSelectedFtr(null)}
+              width={260}
+            />
+          </div>
         )}
       </div>
 
@@ -381,14 +416,8 @@ export default function ATCView() {
               zoomControl={false}
               style={{ height:'100%', width:'100%', background:'#020508' }}
             >
-              <TileLayer
-                url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
-                attribution='&copy; CartoDB'
-              />
-              <TileLayer
-                url="https://server.arcgisonline.com/ArcGIS/rest/services/Elevation/World_Hillshade_Dark/MapServer/tile/{z}/{y}/{x}"
-                opacity={0.22}
-              />
+              <TileLayer url={ESRI_TILE_URLS.imagery} attribution={ESRI_ATTRIBUTIONS.imagery}/>
+              <TileLayer url={ESRI_TILE_URLS.labels}  attribution={ESRI_ATTRIBUTIONS.labels} opacity={0.7}/>
               <ZoomControl position="bottomright"/>
               {sites.map((s,i)=>{
                 const aRow = aadtRows.find(r=>r.id===s.id);
@@ -685,7 +714,7 @@ export default function ATCView() {
 
       {/* ── STATION MAP TAB (all 298 traffic count stations) ─────────────── */}
       {activeTab === 'stationmap' && (
-        <StationMapPanel allStations={allStations} />
+        <StationMapPanel allStations={allStations} aadtRows={aadtRows} monthlyRows={monthly} />
       )}
 
       {/* ── TRAFFIC FORECAST PREDICTIONS TAB ────────────────────────────── */}

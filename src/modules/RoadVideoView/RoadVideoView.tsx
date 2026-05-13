@@ -1,5 +1,6 @@
 ﻿import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { MapContainer, TileLayer, GeoJSON, ZoomControl } from 'react-leaflet';
+import { ESRI_TILE_URLS, ESRI_ATTRIBUTIONS } from '../../shared/mapSymbols';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import {
@@ -38,8 +39,8 @@ const ACCENT      = '#ff6b35';
 const ACCENT_RGB  = '255,107,53';
 const MAP_CENTER: [number, number] = [1.3733, 32.2903];
 const MAP_ZOOM    = 8;
-const TILE_URL    = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
-const ATTRIBUTION = '© OpenStreetMap contributors © CARTO';
+const TILE_URL    = ESRI_TILE_URLS.imagery;
+const ATTRIBUTION = ESRI_ATTRIBUTIONS.imagery;
 const PROBE_KEY   = 'ACHOLIBUR_ASWA';
 const PROBE_YEAR  = '2021-22';
 const SURVEY_YEARS = ['2025-26', '2023-24', '2022-23', '2021-22'];
@@ -330,6 +331,7 @@ export default function RoadVideoView() {
           attributionControl={true}
         >
           <TileLayer url={TILE_URL} attribution={ATTRIBUTION}/>
+          <TileLayer url={ESRI_TILE_URLS.labels} attribution={ESRI_ATTRIBUTIONS.labels} opacity={0.7}/>
           <ZoomControl position="bottomright"/>
 
           {enrichedGeoJson && (

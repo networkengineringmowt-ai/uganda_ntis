@@ -23,6 +23,8 @@ import {
 } from 'recharts';
 import { useBMS } from '../../store/BMSContext';
 import type { Structure } from '../../types';
+import FeatureAnalyticsPanel from '../../shared/FeatureAnalyticsPanel';
+import type { FeatureData } from '../../shared/FeatureAnalyticsPanel';
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 interface LinkProps {
@@ -231,8 +233,9 @@ export default function RoadNetworkView() {
   const [clsFilter,  setClsFilter]  = useState<string>('all');
   const [regFilter,  setRegFilter]  = useState<string>('all');
 
-  // Selected link
-  const [selected,   setSelected]   = useState<LinkProps | null>(null);
+  // Selected link / structure
+  const [selected,          setSelected]          = useState<LinkProps | null>(null);
+  const [selectedStructure, setSelectedStructure] = useState<Structure | null>(null);
 
   // Infra overlay toggles
   const [showFerries,     setShowFerries]     = useState(true);
@@ -368,7 +371,7 @@ export default function RoadNetworkView() {
   const onEachFeature = useCallback((feature: GeoJSON.Feature, layer: L.Layer) => {
     const p = feature.properties as LinkProps;
     layer.on({
-      click: () => setSelected(p),
+      click: () => { setSelected(p); setSelectedStructure(null); },
       mouseover: (e: { target: L.Polyline }) => e.target.setStyle({ weight: 6, opacity: 1 }),
       mouseout:  (e: { target: L.Polyline }) => e.target.setStyle(styleFeature(feature)),
     });
@@ -504,7 +507,8 @@ export default function RoadNetworkView() {
               ? makeRNBridgeIcon(isCritical, 12)
               : makeRNCulvertIcon(isCritical, 12);
             return (
-              <Marker key={s.id} position={[s.lat, s.lng]} icon={icon}>
+              <Marker key={s.id} position={[s.lat, s.lng]} icon={icon}
+                eventHandlers={{ click: () => { setSelectedStructure(s); setSelected(null); } }}>
                 <LeafletTooltip direction="top" offset={[0, -8]} opacity={1}>
                   <div style={{fontSize:12,fontWeight:900,color:'#111827',marginBottom:2}}>{s.name}</div>
                   <div style={{fontSize:10,fontWeight:700,color: isBridge ? '#0891b2' : '#b45309'}}>
@@ -729,35 +733,41 @@ export default function RoadNetworkView() {
           </div>
         )}
 
-        {/* ── Selected link panel ── */}
-        {selected && (
-          <div style={{ position:'absolute', top:12, right: sideOpen ? 436+12 : 12, zIndex:1001,
-            ...glassStyle, padding:16, width:280,
-            boxShadow:'0 8px 40px rgba(0,0,0,0.6)', animation:'slideInRight 0.2s ease-out' }}>
-            <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:10 }}>
-              <div>
-                <div style={{ fontSize:12, fontWeight:800, color: selected.surface==='Bituminous'?C.paved:C.unsealed }}>
-                  {selected.link_name || selected.link_id}
-                </div>
-                <div style={{ fontSize:9, color:'rgba(100,116,139,0.6)', marginTop:2 }}>{selected.link_id}</div>
-              </div>
-              <button onClick={() => setSelected(null)} style={{ background:'none', border:'none', cursor:'pointer', color:'#64748b', padding:2 }}>
-                <X size={14}/>
-              </button>
+        {/* ── Selected feature panel (road-link or structure) ── */}
+        {(selected || selectedStructure) && (() => {
+          const featureData: FeatureData | null = selected
+            ? {
+                type: 'road-link',
+                name: selected.link_name || selected.link_id,
+                roadClass: selected.road_class,
+                lengthKm: Number(selected.length_km),
+                surface: selected.surface,
+                region: selected.region,
+              }
+            : selectedStructure
+            ? {
+                type: selectedStructure.type as 'bridge' | 'culvert',
+                id: selectedStructure.id,
+                name: selectedStructure.name,
+                road: selectedStructure.road,
+                spanLength: selectedStructure.spanLength,
+                conditionRating: selectedStructure.conditionRating,
+                lastInspection: selectedStructure.lastInspection,
+                material: selectedStructure.material,
+                crossingType: selectedStructure.crossingType,
+              }
+            : null;
+          if (!featureData) return null;
+          return (
+            <div style={{ position:'absolute', top:12, right: sideOpen ? 436+12 : 12, zIndex:1001 }}>
+              <FeatureAnalyticsPanel
+                feature={featureData}
+                onClose={() => { setSelected(null); setSelectedStructure(null); }}
+                width={270}
+              />
             </div>
-            <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'6px 12px' }}>
-              <PField l="Road No." v={selected.road}/>
-              <PField l="Class"    v={`Class ${selected.road_class}`} c={CLASS_COLORS[selected.road_class]}/>
-              <PField l="Surface"  v={selected.surface} c={selected.surface==='Bituminous'?C.paved:C.unsealed}/>
-              <PField l="Length"   v={`${Number(selected.length_km).toFixed(2)} km`}/>
-              <PField l="Region"   v={selected.region}/>
-              <PField l="Station"  v={selected.station}/>
-              {paveYears[selected.road] && (
-                <PField l="Paved Year" v={String(paveYears[selected.road])} c="#ffd23f" span/>
-              )}
-            </div>
-          </div>
-        )}
+          );
+        })()}
       </div>
 
       {/* ══ COLLAPSE TOGGLE ══════════════════════════════════════════════════ */}

@@ -1,8 +1,9 @@
 ﻿import React, { useState, useEffect, useMemo, useRef, memo, useCallback } from 'react';
 import {
   MapContainer, TileLayer, Marker, Tooltip,
-  LayersControl, ZoomControl, GeoJSON, useMap,
+  ZoomControl, GeoJSON, useMap,
 } from 'react-leaflet';
+import { ESRI_TILE_URLS, ESRI_ATTRIBUTIONS } from '../../shared/mapSymbols';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import {
@@ -191,51 +192,14 @@ export default function GISMapView() {
         <ZoomControl position="bottomright" />
         <ZoomTracker onZoom={handleZoom} />
 
-        <LayersControl position="topright">
-          <LayersControl.BaseLayer checked name="Dark + Hillshade (default)">
-            <TileLayer
-              attribution='&copy; <a href="https://carto.com">CARTO</a> &amp; Esri'
-              url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
-            />
-          </LayersControl.BaseLayer>
-          <LayersControl.BaseLayer name="Satellite (Esri)">
-            <TileLayer
-              attribution="Esri, Maxar, GeoEye, Earthstar Geographics, CNES/Airbus DS"
-              url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
-            />
-          </LayersControl.BaseLayer>
-          <LayersControl.BaseLayer name="OpenStreetMap">
-            <TileLayer
-              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            />
-          </LayersControl.BaseLayer>
-          <LayersControl.BaseLayer name="Topo">
-            <TileLayer
-              attribution='&copy; OpenTopoMap'
-              url="https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png"
-            />
-          </LayersControl.BaseLayer>
-
-          {/* Hillshade overlay — add depth to the dark basemap */}
-          <LayersControl.Overlay checked name="Hillshade (terrain depth)">
-            <TileLayer
-              attribution='Esri World Hillshade'
-              url="https://server.arcgisonline.com/ArcGIS/rest/services/Elevation/World_Hillshade_Dark/MapServer/tile/{z}/{y}/{x}"
-              opacity={0.25}
-            />
-          </LayersControl.Overlay>
-
-          {/* Road network overlay */}
-          {roadGeo && (
-            <LayersControl.Overlay checked name="Road Network (Paved=cyan · Unsealed=amber)">
-              <GeoJSON
-                data={roadGeo as GeoJSON.GeoJsonObject}
-                style={(f: unknown) => roadStyle(f as GeoJSON.Feature)}
-              />
-            </LayersControl.Overlay>
-          )}
-        </LayersControl>
+        <TileLayer url={ESRI_TILE_URLS.imagery} attribution={ESRI_ATTRIBUTIONS.imagery}/>
+        <TileLayer url={ESRI_TILE_URLS.labels}  attribution={ESRI_ATTRIBUTIONS.labels} opacity={0.7}/>
+        {roadGeo && (
+          <GeoJSON
+            data={roadGeo as GeoJSON.GeoJsonObject}
+            style={(f: unknown) => roadStyle(f as GeoJSON.Feature)}
+          />
+        )}
 
         {/* ── Structures — type-based 3D icons (condition only in filter/panel) ── */}
         {displayStructures.map(s => (
