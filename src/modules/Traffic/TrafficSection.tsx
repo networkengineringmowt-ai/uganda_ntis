@@ -9,10 +9,10 @@ import { Activity, AlertTriangle, Clock, MapPin, TrendingUp, Zap } from 'lucide-
 import { hexRgb } from '../../lib/chart3d';
 import FeatureAnalyticsPanel from '../../shared/FeatureAnalyticsPanel';
 import type { FeatureData, RoadLinkFeature, AtcStationFeature } from '../../shared/FeatureAnalyticsPanel';
-import { CONGESTION_COLORS } from '../../shared/mapSymbols';
+import { CONGESTION_COLORS, ESRI_TILE_URLS, ESRI_ATTRIBUTIONS, ROAD_STYLES } from '../../shared/mapSymbols';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
-type AttrMode = 'live' | 'aadt' | 'heavy' | 'surface' | 'forecast2030' | 'forecast2040' | 'stations';
+type AttrMode = 'live' | 'aadt' | 'heavy' | 'congestion' | 'surface' | 'forecast2030' | 'forecast2040' | 'stations';
 
 interface PredProps {
   link_id: string;
@@ -90,13 +90,14 @@ const glass = (accent: string): React.CSSProperties => ({
 // ─── Attribute mode config ────────────────────────────────────────────────────
 interface ModeConf { label: string; color: string; desc: string }
 const MODES: Record<AttrMode, ModeConf> = {
-  live:         { label: 'Live Now',       color: C.green,  desc: 'Current-hour vph' },
-  aadt:         { label: 'AADT',           color: C.cyan,   desc: 'Annual avg traffic' },
-  heavy:        { label: 'Heavy %',        color: C.orange, desc: '% heavy vehicles' },
-  surface:      { label: 'Surface',        color: C.yellow, desc: 'Paved / unpaved' },
-  forecast2030: { label: 'Forecast 2030',  color: C.purple, desc: 'Projected congestion' },
-  forecast2040: { label: 'Forecast 2040',  color: C.pink,   desc: 'Long-term forecast' },
-  stations:     { label: 'Count Stations', color: C.teal,   desc: '298 ATC station network' },
+  live:         { label: 'Live Now',        color: C.green,  desc: 'Current-hour vph' },
+  aadt:         { label: 'AADT',            color: C.cyan,   desc: 'Annual avg traffic' },
+  heavy:        { label: 'Heavy %',         color: C.orange, desc: '% heavy vehicles' },
+  congestion:   { label: 'Congestion Risk', color: C.pink,   desc: 'ML-predicted risk level' },
+  surface:      { label: 'Surface',         color: C.yellow, desc: 'Paved / unpaved' },
+  forecast2030: { label: 'Forecast 2030',   color: C.purple, desc: 'Projected congestion' },
+  forecast2040: { label: 'Forecast 2040',   color: C.pink,   desc: 'Long-term forecast' },
+  stations:     { label: 'Count Stations',  color: C.teal,   desc: '298 ATC station network' },
 };
 
 // ─── Per-feature color function ───────────────────────────────────────────────
@@ -123,9 +124,12 @@ function featureColor(
       if (pct < 40) return C.orange;
       return C.pink;
     }
+    case 'congestion':
+      return CONG[p.congestion_risk ?? 'Low'] ?? '#94a3b8';
     case 'surface': {
       const s = surfMap[p.link_id] ?? 'unknown';
-      return s === 'paved' ? C.cyan : s === 'unpaved' ? '#ff8c00' : '#6B7280';
+      // Use mapSymbols colours: paved = black shimmer, unpaved = brown
+      return s === 'paved' ? ROAD_STYLES.paved.color : s === 'unpaved' ? ROAD_STYLES.unpaved.color : ROAD_STYLES.unknown.color;
     }
     case 'forecast2030': {
       const a = p.growth_2030 ?? aadt;
@@ -164,12 +168,20 @@ function TrafficLayer({
   const styleFeat = useCallback(
     (feat?: PredFeature) => {
       if (!feat?.properties) return {};
-      const color = featureColor(feat.properties, mode, now, surfMap);
+      const p     = feat.properties;
+      const color = featureColor(p, mode, now, surfMap);
+      // In surface mode, apply dashed lines for unpaved roads (from ROAD_STYLES)
+      const dashArray = mode === 'surface'
+        ? (surfMap[p.link_id] === 'unpaved'
+            ? ROAD_STYLES.unpaved.dashArray
+            : undefined)
+        : undefined;
       return {
         color,
-        weight: roadWeight(feat.properties.road_class),
-        opacity: mode === 'stations' ? 0.25 : 0.9,
+        weight:    roadWeight(p.road_class),
+        opacity:   mode === 'stations' ? 0.25 : 0.9,
         fillOpacity: 0,
+        dashArray,
       };
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -229,7 +241,7 @@ function Legend({ mode }: { mode: AttrMode }) {
     );
   }
   if (mode === 'surface') {
-    const items = [['Paved',C.cyan],['Unpaved','#ff8c00'],['Unknown','#6B7280']];
+    const items = [['Paved', ROAD_STYLES.paved.color], ['Unpaved', ROAD_STYLES.unpaved.color], ['Unknown', ROAD_STYLES.unknown.color]];
     return (
       <div style={{ display: 'flex', gap: 8 }}>
         {items.map(([l, c]) => (
@@ -252,7 +264,7 @@ function Legend({ mode }: { mode: AttrMode }) {
       </div>
     );
   }
-  // live / forecast → congestion palette
+  // live / congestion / forecast → congestion palette
   return (
     <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
       {['Low','Medium','High','Critical'].map(r => (
@@ -322,6 +334,8 @@ export default function TrafficSection() {
         risk = vcr2risk((p.growth_2030 ?? aadt) / cap);
       } else if (mode === 'forecast2040') {
         risk = vcr2risk((p.growth_2040 ?? aadt) / cap);
+      } else if (mode === 'congestion') {
+        risk = p.congestion_risk ?? vcr2risk(aadt / cap);
       } else {
         risk = vcr2risk(aadt / cap);
       }
@@ -403,14 +417,8 @@ export default function TrafficSection() {
           center={[1.37, 32.3]} zoom={7} zoomControl={false}
           style={{ height: '100%', width: '100%', background: '#020508' }}
         >
-          <TileLayer
-            url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
-            attribution="&copy; CartoDB"
-          />
-          <TileLayer
-            url="https://server.arcgisonline.com/ArcGIS/rest/services/Elevation/World_Hillshade_Dark/MapServer/tile/{z}/{y}/{x}"
-            opacity={0.14}
-          />
+          <TileLayer url={ESRI_TILE_URLS.imagery} attribution={ESRI_ATTRIBUTIONS.imagery}/>
+          <TileLayer url={ESRI_TILE_URLS.labels}  attribution={ESRI_ATTRIBUTIONS.labels} opacity={0.7}/>
           <ZoomControl position="bottomright"/>
 
           {features.length > 0 && (
