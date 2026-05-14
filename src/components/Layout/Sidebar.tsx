@@ -1,6 +1,6 @@
 import {
   LayoutDashboard, Map, Table2, ClipboardCheck, Activity,
-  Wrench, BarChart3, AlertTriangle, FolderOpen, ChevronRight,
+  Wrench, BarChart3, BarChart2, AlertTriangle, FolderOpen, ChevronRight,
   Shield, Camera, Globe, Construction, Layers, Network, BookOpen,
   Video, Download,
 } from 'lucide-react';
@@ -46,7 +46,8 @@ export default function Sidebar() {
         { id: 'networkstory',  label: 'Network Story 1986–', icon: <BookOpen size={15}/>,     color: N.purple },
         { id: 'roadnetwork',   label: 'Road Network Map',    icon: <Map size={15}/>,           color: N.green  },
         { id: 'roadvideoview', label: 'Road Survey Video',   icon: <Video size={15}/>,         color: N.orange },
-        { id: 'traffic',       label: 'Traffic',             icon: <Layers size={15}/>,        color: N.yellow },
+        { id: 'traffic',           label: 'Traffic Map',       icon: <Layers size={15}/>,    color: N.yellow },
+        { id: 'trafficanalytics', label: 'Traffic Analytics', icon: <BarChart2 size={15}/>, color: N.yellow },
         { id: 'roadcondition', label: 'Road Condition',      icon: <Activity size={15}/>,      color: N.blue   },
         { id: 'projects',      label: 'Projects & Works',    icon: <Construction size={15}/>,  color: N.pink   },
         { id: 'media',         label: 'Media Gallery',       icon: <Camera size={15}/>,        color: N.purple },

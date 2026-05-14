@@ -142,9 +142,10 @@ export type ActiveView =
   | 'documents'      // Document store
   | 'phototwin'      // Photo & digital twin
   | 'networkstory'   // Uganda Road Network historical story (1986–present)
-  | 'roadvideoview'  // Road survey video + frame player
-  | 'downloads'      // Downloads & Exports
-  | 'media';         // Media gallery — images + videos
+  | 'roadvideoview'      // Road survey video + frame player
+  | 'downloads'          // Downloads & Exports
+  | 'media'              // Media gallery — images + videos
+  | 'trafficanalytics';  // Traffic demand analytics dashboard
 
 // ─── Road network types ───────────────────────────────────────────────────────
 export type RoadClass   = 'A' | 'B' | 'C' | 'M';
