@@ -64,6 +64,7 @@ export default function Sidebar() {
         { id: 'priority',    label: 'Priority Ranking',      icon: <AlertTriangle size={15}/>,    color: N.pink   },
         { id: 'documents',   label: 'Document Store',        icon: <FolderOpen size={15}/>,       color: N.blue   },
         { id: 'phototwin',   label: 'Photo & Digital Twin',  icon: <Camera size={15}/>,           color: N.green  },
+        { id: 'media',       label: 'Media Gallery',         icon: <Camera size={15}/>,            color: N.purple },
         { id: 'downloads',   label: 'Downloads & Exports',   icon: <Download size={15}/>,          color: N.yellow },
       ],
     },
