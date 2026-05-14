@@ -1,191 +1,191 @@
-import { useEffect, useState, useCallback, useMemo } from 'react';
+/**
+ * TrafficSection — Traffic Map view with ATC-site-style layout:
+ *   Left sidebar (280px) — KPIs, sparkline, class spread chart
+ *   Right main area — controls bar, Leaflet map, timeline bar
+ */
+import { useEffect, useState, useCallback, useMemo, useRef } from 'react';
 import {
   MapContainer, TileLayer, ZoomControl, GeoJSON,
   CircleMarker, Tooltip as LeafletTooltip,
 } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { Activity, AlertTriangle, Clock, MapPin, TrendingUp, Zap } from 'lucide-react';
+import { Clock, Play, Pause } from 'lucide-react';
 import { hexRgb } from '../../lib/chart3d';
 import FeatureAnalyticsPanel from '../../shared/FeatureAnalyticsPanel';
 import type { FeatureData, RoadLinkFeature, AtcStationFeature } from '../../shared/FeatureAnalyticsPanel';
-import { CONGESTION_COLORS, ESRI_TILE_URLS, ESRI_ATTRIBUTIONS, ROAD_STYLES } from '../../shared/mapSymbols';
+import { ROAD_STYLES, ESRI_TILE_URLS, ESRI_ATTRIBUTIONS } from '../../shared/mapSymbols';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
-type AttrMode = 'live' | 'aadt' | 'heavy' | 'congestion' | 'surface' | 'forecast2030' | 'forecast2040' | 'stations';
+type MapMode    = 'adt' | 'surface' | 'class';
+type SurfFilter = 'all' | 'paved' | 'unsealed';
+type ClassFilter = 'all' | 'A' | 'B' | 'C' | 'M';
 
 interface PredProps {
-  link_id: string;
-  link_name: string | null;
-  road_no: string | null;
-  road_class: string | null;
-  region: string | null;
-  length_km: number | null;
-  aadt_predicted: number | null;
-  growth_2030: number | null;
-  growth_2040: number | null;
-  heavy_vehicle_pct: number | null;
-  congestion_risk: string | null;
-  vehicle_km_daily: number | null;
+  link_id: string; link_name: string | null; road_no: string | null;
+  road_class: string | null; region: string | null; length_km: number | null;
+  aadt_predicted: number | null; growth_2030: number | null; growth_2040: number | null;
+  heavy_vehicle_pct: number | null; congestion_risk: string | null; vehicle_km_daily: number | null;
 }
-interface PredFeature {
-  type: 'Feature';
-  geometry: any;
-  properties: PredProps;
-}
-interface PredSummary {
-  total_vehicle_km_daily: number;
-  highest_growth_corridor_2040: { link_name: string; aadt_2025: number; aadt_2040: number };
-  congestion_breakdown: Record<string, number>;
-}
+interface PredFeature { type: 'Feature'; geometry: any; properties: PredProps }
 
-// ─── Real-time estimator ──────────────────────────────────────────────────────
-const PEAK_FACTORS: Record<number, number> = {
-  0: 0.018, 1: 0.012, 2: 0.010, 3: 0.010, 4: 0.015, 5: 0.025,
-  6: 0.048, 7: 0.075, 8: 0.082, 9: 0.065, 10: 0.055, 11: 0.052,
-  12: 0.058, 13: 0.060, 14: 0.062, 15: 0.068, 16: 0.078, 17: 0.085,
-  18: 0.072, 19: 0.055, 20: 0.042, 21: 0.035, 22: 0.028, 23: 0.022,
+// ─── Constants ────────────────────────────────────────────────────────────────
+const C = {
+  cyan: '#00f5ff', green: '#00ff88', orange: '#ff6b35', purple: '#b967ff',
+  yellow: '#ffd23f', pink: '#ff2d78', blue: '#4d9fff', teal: '#00d4aa', amber: '#f59e0b',
 };
-const WEEKEND_FACTOR: Record<number, number> = { 0: 0.72, 1: 1, 2: 1, 3: 1, 4: 1, 5: 0.85, 6: 0.72 };
-const CAPACITY: Record<string, number> = { A: 10000, B: 5000, C: 2500, M: 15000, D: 1500 };
 
-function getEatHour(d: Date) { return (d.getUTCHours() + 3) % 24; }
-function getEatDay(d: Date) { return new Date(d.getTime() + 3 * 3_600_000).getUTCDay(); }
-function getCurrentVph(aadt: number, now: Date) {
-  return Math.round(aadt * (PEAK_FACTORS[getEatHour(now)] ?? 0.04) * (WEEKEND_FACTOR[getEatDay(now)] ?? 1));
+// Uganda road growth index (2016 = 0.62, 2020 = COVID dip, 2025 = 1.0, 2035 = 1.55)
+const GROWTH_FACTORS: Record<number, number> = {
+  2016: 0.62, 2017: 0.66, 2018: 0.71, 2019: 0.76, 2020: 0.65,
+  2021: 0.74, 2022: 0.82, 2023: 0.90, 2024: 0.96, 2025: 1.00,
+  2026: 1.05, 2027: 1.10, 2028: 1.16, 2029: 1.22, 2030: 1.28,
+  2031: 1.33, 2032: 1.39, 2033: 1.44, 2034: 1.49, 2035: 1.55,
+};
+
+const CLASS_COLORS: Record<string, string> = {
+  A: C.cyan, B: C.green, C: C.amber, M: '#94a3b8',
+};
+
+const REGION_CLR: Record<string, string> = {
+  Central: C.cyan, Eastern: C.orange, 'North Eastern': C.pink,
+  Northern: C.purple, Western: C.green, Southern: C.yellow,
+};
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+function adtColor(aadt: number): string {
+  if (aadt < 2000)  return C.green;
+  if (aadt < 8000)  return C.yellow;
+  if (aadt < 15000) return C.orange;
+  return C.pink;
 }
-function vcr2risk(vcr: number): string {
-  if (vcr <= 0.4) return 'Low';
-  if (vcr <= 0.7) return 'Medium';
-  if (vcr <= 0.9) return 'High';
-  return 'Critical';
+function roadWeight(rc: string | null): number {
+  if (rc === 'M') return 4.0; if (rc === 'A') return 3.0; if (rc === 'B') return 2.0; return 1.5;
 }
-function formatEAT(d: Date) {
+function getEatTime(d: Date) {
   const h = ((d.getUTCHours() + 3) % 24).toString().padStart(2, '0');
   const m = d.getUTCMinutes().toString().padStart(2, '0');
   return `${h}:${m}`;
 }
-
-// ─── Palette ──────────────────────────────────────────────────────────────────
-const C = {
-  cyan: '#00f5ff', green: '#00ff88', orange: '#ff6b35',
-  purple: '#b967ff', yellow: '#ffd23f', pink: '#ff2d78',
-  blue: '#4d9fff', teal: '#00d4aa',
-};
-const CONG = CONGESTION_COLORS;
-
-const REGION_CLR: Record<string, string> = {
-  Central: C.cyan,   Eastern: C.orange, East: C.orange,
-  Northern: C.purple, North: C.purple, 'North East': C.pink,
-  Western: C.green,  West: C.green,    South: C.yellow,
-};
-
-const glass = (accent: string): React.CSSProperties => ({
-  background: 'rgba(2,5,8,0.88)',
-  border: `1px solid rgba(${hexRgb(accent)},0.2)`,
-  borderRadius: 12,
-  backdropFilter: 'blur(18px)',
-});
-
-// ─── Attribute mode config ────────────────────────────────────────────────────
-interface ModeConf { label: string; color: string; desc: string }
-const MODES: Record<AttrMode, ModeConf> = {
-  live:         { label: 'Live Now',        color: C.green,  desc: 'Current-hour vph' },
-  aadt:         { label: 'AADT',            color: C.cyan,   desc: 'Annual avg traffic' },
-  heavy:        { label: 'Heavy %',         color: C.orange, desc: '% heavy vehicles' },
-  congestion:   { label: 'Congestion Risk', color: C.pink,   desc: 'ML-predicted risk level' },
-  surface:      { label: 'Surface',         color: C.yellow, desc: 'Paved / unpaved' },
-  forecast2030: { label: 'Forecast 2030',   color: C.purple, desc: 'Projected congestion' },
-  forecast2040: { label: 'Forecast 2040',   color: C.pink,   desc: 'Long-term forecast' },
-  stations:     { label: 'Count Stations',  color: C.teal,   desc: '298 ATC station network' },
-};
-
-// ─── Per-feature color function ───────────────────────────────────────────────
-function featureColor(
-  p: PredProps, mode: AttrMode, now: Date, surfMap: Record<string, string>,
-): string {
-  const aadt = p.aadt_predicted ?? 0;
-  const cap  = CAPACITY[p.road_class ?? 'C'] ?? 2500;
-  switch (mode) {
-    case 'live': {
-      const vph = getCurrentVph(aadt, now);
-      return CONG[vcr2risk(vph / (cap / 10))] ?? '#94a3b8';
-    }
-    case 'aadt':
-      if (aadt < 500)   return C.blue;
-      if (aadt < 2000)  return C.green;
-      if (aadt < 5000)  return C.yellow;
-      if (aadt < 10000) return C.orange;
-      return C.pink;
-    case 'heavy': {
-      const pct = p.heavy_vehicle_pct ?? 0;
-      if (pct < 10) return C.green;
-      if (pct < 25) return C.yellow;
-      if (pct < 40) return C.orange;
-      return C.pink;
-    }
-    case 'congestion':
-      return CONG[p.congestion_risk ?? 'Low'] ?? '#94a3b8';
-    case 'surface': {
-      const s = surfMap[p.link_id] ?? 'unknown';
-      // Use mapSymbols colours: paved = black shimmer, unpaved = brown
-      return s === 'paved' ? ROAD_STYLES.paved.color : s === 'unpaved' ? ROAD_STYLES.unpaved.color : ROAD_STYLES.unknown.color;
-    }
-    case 'forecast2030': {
-      const a = p.growth_2030 ?? aadt;
-      return CONG[vcr2risk(a / cap)] ?? '#94a3b8';
-    }
-    case 'forecast2040': {
-      const a = p.growth_2040 ?? aadt;
-      return CONG[vcr2risk(a / cap)] ?? '#94a3b8';
-    }
-    case 'stations':
-      return 'rgba(148,163,184,0.2)';
-    default:
-      return '#94a3b8';
-  }
+function formatLongDate(d: Date): string {
+  const DAYS  = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const MONTHS = ['January','February','March','April','May','June',
+                  'July','August','September','October','November','December'];
+  const day = d.getDate();
+  const suf = [11,12,13].includes(day) ? 'th'
+    : day % 10 === 1 ? 'st' : day % 10 === 2 ? 'nd' : day % 10 === 3 ? 'rd' : 'th';
+  return `${DAYS[d.getDay()]} ${day}${suf} ${MONTHS[d.getMonth()]} ${d.getFullYear()}`;
 }
 
-function roadWeight(rc: string | null): number {
-  if (rc === 'M') return 4.0;
-  if (rc === 'A') return 3.0;
-  if (rc === 'B') return 2.0;
-  return 1.5;
+// ─── Sparkline area (sidebar KPI 3) ───────────────────────────────────────────
+function SparklineArea({ avgAadt }: { avgAadt: number }) {
+  const years  = [2016,2017,2018,2019,2020,2021,2022,2023,2024,2025];
+  const values = years.map(y => avgAadt * (GROWTH_FACTORS[y] ?? 1));
+  const W = 236, H = 58, PL = 4, PR = 4, PT = 8, PB = 14;
+  const cW = W - PL - PR, cH = H - PT - PB;
+  const min = Math.min(...values) * 0.88;
+  const max = Math.max(...values) * 1.06;
+  const range = max - min || 1;
+  const xp = (i: number) => PL + (i / (years.length - 1)) * cW;
+  const yp = (v: number) => PT + (1 - (v - min) / range) * cH;
+  const pts = values.map((v, i) => `${xp(i).toFixed(1)},${yp(v).toFixed(1)}`);
+  const ptsStr = pts.join(' ');
+  const areaD  = `M ${xp(0).toFixed(1)},${(PT+cH).toFixed(1)} L ${pts.join(' L ')} L ${xp(years.length-1).toFixed(1)},${(PT+cH).toFixed(1)} Z`;
+
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} style={{ width:'100%', height:H, display:'block' }}>
+      <defs>
+        <linearGradient id="spkG" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%"   stopColor={C.teal} stopOpacity={0.45}/>
+          <stop offset="100%" stopColor={C.teal} stopOpacity={0.03}/>
+        </linearGradient>
+      </defs>
+      {/* COVID dip marker */}
+      <line x1={xp(4).toFixed(1)} x2={xp(4).toFixed(1)} y1={PT} y2={PT+cH}
+        stroke="rgba(255,210,63,0.25)" strokeDasharray="2 2"/>
+      <text x={xp(4).toFixed(1)} y={PT+6} fill="rgba(255,210,63,0.5)" fontSize={6} textAnchor="middle">COVID</text>
+      {/* area fill */}
+      <path d={areaD} fill="url(#spkG)"/>
+      {/* line */}
+      <polyline points={ptsStr} fill="none" stroke={C.teal} strokeWidth={1.8}
+        strokeLinejoin="round" strokeLinecap="round"
+        style={{ filter:`drop-shadow(0 0 3px ${C.teal}88)` }}/>
+      {/* dots at 2020 dip and 2025 */}
+      <circle cx={xp(4).toFixed(1)} cy={yp(values[4]).toFixed(1)} r={2.5} fill={C.yellow}/>
+      <circle cx={xp(9).toFixed(1)} cy={yp(values[9]).toFixed(1)} r={2.5} fill={C.teal}/>
+      {/* x-axis labels */}
+      <text x={xp(0)}   y={H-2} fill="rgba(148,163,184,0.4)" fontSize={7} textAnchor="middle">2016</text>
+      <text x={xp(4)}   y={H-2} fill="rgba(255,210,63,0.45)"  fontSize={7} textAnchor="middle">2020</text>
+      <text x={xp(9)}   y={H-2} fill="rgba(0,212,170,0.55)"   fontSize={7} textAnchor="end">2025</text>
+    </svg>
+  );
 }
 
-// ─── Map layer ────────────────────────────────────────────────────────────────
+// ─── Class node spread bars (sidebar) ─────────────────────────────────────────
+function ClassSpreadBars({ counts }: { counts: Record<string, number> }) {
+  const CLASSES = ['A','B','C','M'] as const;
+  const max = Math.max(...CLASSES.map(c => counts[c] ?? 0), 1);
+  const W = 232, ROW = 24;
+  return (
+    <svg viewBox={`0 0 ${W} ${CLASSES.length * ROW + 4}`}
+      style={{ width:'100%', height: CLASSES.length * ROW + 4, display:'block' }}>
+      {CLASSES.map((cls, i) => {
+        const count = counts[cls] ?? 0;
+        const col   = CLASS_COLORS[cls] ?? '#94a3b8';
+        const barW  = (count / max) * (W - 64);
+        const y = i * ROW + 4;
+        return (
+          <g key={cls}>
+            <text x={0} y={y + 14} fill={col} fontSize={9} fontWeight={700}>Class {cls}</text>
+            <rect x={52} y={y} width={W - 64 - 24} height={17} rx={4}
+              fill={`rgba(${hexRgb(col)},0.07)`}/>
+            {barW > 0 && <>
+              <rect x={52} y={y} width={barW} height={17} rx={4}
+                fill={col} fillOpacity={0.72}/>
+              <rect x={52} y={y} width={barW} height={8} rx={4}
+                fill="rgba(255,255,255,0.14)"/>
+            </>}
+            <text x={W} y={y + 13} fill={col} fontSize={9} fontWeight={800} textAnchor="end">{count}</text>
+          </g>
+        );
+      })}
+    </svg>
+  );
+}
+
+// ─── Map GeoJSON layer ────────────────────────────────────────────────────────
 function TrafficLayer({
-  features, mode, now, surfMap, onSelect,
+  features, mode, year, surfMap, onSelect,
 }: {
-  features: PredFeature[];
-  mode: AttrMode;
-  now: Date;
-  surfMap: Record<string, string>;
-  onSelect: (p: PredProps) => void;
+  features: PredFeature[]; mode: MapMode; year: number;
+  surfMap: Record<string, string>; onSelect: (p: PredProps) => void;
 }) {
-  const eatHour = getEatHour(now);
+  const gf = GROWTH_FACTORS[year] ?? 1;
 
   const styleFeat = useCallback(
     (feat?: PredFeature) => {
       if (!feat?.properties) return {};
-      const p     = feat.properties;
-      const color = featureColor(p, mode, now, surfMap);
-      // In surface mode, apply dashed lines for unpaved roads (from ROAD_STYLES)
-      const dashArray = mode === 'surface'
-        ? (surfMap[p.link_id] === 'unpaved'
-            ? ROAD_STYLES.unpaved.dashArray
-            : undefined)
-        : undefined;
-      return {
-        color,
-        weight:    roadWeight(p.road_class),
-        opacity:   mode === 'stations' ? 0.25 : 0.9,
-        fillOpacity: 0,
-        dashArray,
-      };
+      const p = feat.properties;
+      let color = '#94a3b8', dashArray: string | undefined;
+      switch (mode) {
+        case 'adt':
+          color = adtColor((p.aadt_predicted ?? 0) * gf);
+          break;
+        case 'surface': {
+          const s = surfMap[p.link_id] ?? 'unknown';
+          color     = s === 'paved' ? ROAD_STYLES.paved.color
+                    : s === 'unpaved' ? ROAD_STYLES.unpaved.color
+                    : ROAD_STYLES.unknown.color;
+          dashArray = s === 'unpaved' ? ROAD_STYLES.unpaved.dashArray : undefined;
+          break;
+        }
+        case 'class':
+          color = CLASS_COLORS[p.road_class ?? ''] ?? '#94a3b8';
+          break;
+      }
+      return { color, weight: roadWeight(p.road_class), opacity: 0.88, fillOpacity: 0, dashArray };
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [mode, eatHour, surfMap],
+    [mode, year, gf, surfMap],
   );
 
   const onEach = useCallback(
@@ -200,76 +200,27 @@ function TrafficLayer({
     [onSelect, styleFeat],
   );
 
-  const geojson = useMemo(() => ({ type: 'FeatureCollection' as const, features }), [features]);
-  // Force remount when mode changes; in live mode, also when EAT hour changes
-  const layerKey = mode === 'live' ? `live-${eatHour}` : mode;
+  const geojson  = useMemo(() => ({ type: 'FeatureCollection' as const, features }), [features]);
+  const layerKey = mode === 'adt' ? `adt-${year}` : mode;
 
   return (
-    <GeoJSON
-      key={layerKey}
-      data={geojson as any}
-      style={styleFeat as any}
-      onEachFeature={onEach as any}
-    />
+    <GeoJSON key={layerKey} data={geojson as any}
+      style={styleFeat as any} onEachFeature={onEach as any}/>
   );
 }
 
-// ─── Legend strip ─────────────────────────────────────────────────────────────
-function Legend({ mode }: { mode: AttrMode }) {
-  if (mode === 'aadt') {
-    const items = [['<500','#4d9fff'],['500–2k',C.green],['2k–5k',C.yellow],['5k–10k',C.orange],['>10k',C.pink]];
-    return (
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-        {items.map(([l, c]) => (
-          <span key={l} style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, color: c }}>
-            <span style={{ width: 14, height: 3, background: c, borderRadius: 2, display: 'inline-block' }}/>{l}
-          </span>
-        ))}
-      </div>
-    );
-  }
-  if (mode === 'heavy') {
-    const items = [['<10%',C.green],['10–25%',C.yellow],['25–40%',C.orange],['>40%',C.pink]];
-    return (
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-        {items.map(([l, c]) => (
-          <span key={l} style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, color: c }}>
-            <span style={{ width: 14, height: 3, background: c, borderRadius: 2, display: 'inline-block' }}/>{l}
-          </span>
-        ))}
-      </div>
-    );
-  }
-  if (mode === 'surface') {
-    const items = [['Paved', ROAD_STYLES.paved.color], ['Unpaved', ROAD_STYLES.unpaved.color], ['Unknown', ROAD_STYLES.unknown.color]];
-    return (
-      <div style={{ display: 'flex', gap: 8 }}>
-        {items.map(([l, c]) => (
-          <span key={l} style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, color: c }}>
-            <span style={{ width: 14, height: 3, background: c, borderRadius: 2, display: 'inline-block' }}/>{l}
-          </span>
-        ))}
-      </div>
-    );
-  }
-  if (mode === 'stations') {
-    const items = [['Central',C.cyan],['Eastern',C.orange],['Northern',C.purple],['Western',C.green]];
-    return (
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 7 }}>
-        {items.map(([l, c]) => (
-          <span key={l} style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, color: c }}>
-            <span style={{ width: 7, height: 7, borderRadius: '50%', background: c, display: 'inline-block' }}/>{l}
-          </span>
-        ))}
-      </div>
-    );
-  }
-  // live / congestion / forecast → congestion palette
+// ─── Map legend strip ─────────────────────────────────────────────────────────
+function MapLegend({ mode }: { mode: MapMode }) {
+  const items: [string, string][] =
+    mode === 'adt'     ? [['<2k',C.green],['2k–8k',C.yellow],['8k–15k',C.orange],['>15k',C.pink]]
+    : mode === 'surface'? [['Paved',ROAD_STYLES.paved.color],['Unpaved',ROAD_STYLES.unpaved.color],['Unknown',ROAD_STYLES.unknown.color]]
+    :                     [['Class A',C.cyan],['Class B',C.green],['Class C',C.amber],['Class M','#94a3b8']];
   return (
-    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-      {['Low','Medium','High','Critical'].map(r => (
-        <span key={r} style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, color: CONG[r] }}>
-          <span style={{ width: 14, height: 3, background: CONG[r], borderRadius: 2, display: 'inline-block' }}/>{r}
+    <div style={{ display:'flex', flexWrap:'wrap', gap:'4px 10px', alignItems:'center' }}>
+      {items.map(([l,col]) => (
+        <span key={l} style={{ display:'flex', alignItems:'center', gap:4, fontSize:9, color:col }}>
+          <span style={{ width:14, height:3, background:col, borderRadius:2, display:'inline-block' }}/>
+          {l}
         </span>
       ))}
     </div>
@@ -278,20 +229,40 @@ function Legend({ mode }: { mode: AttrMode }) {
 
 // ─── Main export ──────────────────────────────────────────────────────────────
 export default function TrafficSection() {
-  const [features,   setFeatures]   = useState<PredFeature[]>([]);
-  const [surfMap,    setSurfMap]    = useState<Record<string, string>>({});
-  const [stations,   setStations]   = useState<any[]>([]);
-  const [loading,    setLoading]    = useState(true);
-  const [mode,       setMode]       = useState<AttrMode>('live');
-  const [now,        setNow]        = useState(() => new Date());
-  const [selFeature, setSelFeature] = useState<FeatureData | null>(null);
+  const [features,    setFeatures]    = useState<PredFeature[]>([]);
+  const [surfMap,     setSurfMap]     = useState<Record<string, string>>({});
+  const [stations,    setStations]    = useState<any[]>([]);
+  const [loading,     setLoading]     = useState(true);
+  const [mode,        setMode]        = useState<MapMode>('adt');
+  const [surfFilter,  setSurfFilter]  = useState<SurfFilter>('all');
+  const [classFilter, setClassFilter] = useState<ClassFilter>('all');
+  const [timelineYear,setTimelineYear]= useState(2025);
+  const [isPlaying,   setIsPlaying]   = useState(false);
+  const [now,         setNow]         = useState(() => new Date());
+  const [selFeature,  setSelFeature]  = useState<FeatureData | null>(null);
+  const playRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  // Live refresh
+  // Live clock
   useEffect(() => {
-    if (mode !== 'live') return;
-    const t = setInterval(() => setNow(new Date()), 60_000);
+    const t = setInterval(() => setNow(new Date()), 30_000);
     return () => clearInterval(t);
-  }, [mode]);
+  }, []);
+
+  // Timeline play animation
+  useEffect(() => {
+    if (isPlaying) {
+      playRef.current = setInterval(() => {
+        setTimelineYear(y => {
+          if (y >= 2035) { setIsPlaying(false); return 2035; }
+          return y + 1;
+        });
+      }, 850);
+    } else if (playRef.current) {
+      clearInterval(playRef.current);
+      playRef.current = null;
+    }
+    return () => { if (playRef.current) { clearInterval(playRef.current); playRef.current = null; } };
+  }, [isPlaying]);
 
   // Data load
   useEffect(() => {
@@ -300,389 +271,405 @@ export default function TrafficSection() {
       fetch(`${base}data/traffic_predictions.geojson`).then(r => r.json()),
       fetch(`${base}data/road_surface.json`).then(r => r.json()),
       fetch(`${base}atc_stations.geojson`).then(r => r.json()),
-    ]).then(([gj, surf, statGJ]) => {
+    ]).then(([gj, surf, stGJ]) => {
       setFeatures((gj.features ?? []) as PredFeature[]);
       setSurfMap(surf as Record<string, string>);
-      setStations((statGJ.features ?? []) as any[]);
-      setLoading(false);
-    }).catch(err => { console.error('TrafficSection load:', err); setLoading(false); });
+      setStations((stGJ.features ?? []) as any[]);
+    }).catch(err => console.error('TrafficSection load:', err))
+      .finally(() => setLoading(false));
   }, []);
 
-  // Link_ID → prediction lookup (for station click)
   const predByLink = useMemo(
     () => new Map(features.map(f => [f.properties.link_id, f.properties])),
     [features],
   );
 
-  // ── KPI derivations ──
+  const filteredFeatures = useMemo(() => features.filter(f => {
+    const surf = surfMap[f.properties.link_id];
+    if (surfFilter === 'paved'    && surf !== 'paved')   return false;
+    if (surfFilter === 'unsealed' && surf !== 'unpaved') return false;
+    if (classFilter !== 'all'     && f.properties.road_class !== classFilter) return false;
+    return true;
+  }), [features, surfMap, surfFilter, classFilter]);
+
   const kpis = useMemo(() => {
     if (!features.length) return null;
-    const totalVkm = features.reduce((s, f) => s + (f.properties.vehicle_km_daily ?? 0), 0);
-    const totalKm  = features.reduce((s, f) => s + (f.properties.length_km ?? 0), 0);
-    const avgAadt  = features.reduce((s, f) => s + (f.properties.aadt_predicted ?? 0), 0) / features.length;
-    const totalVph = features.reduce((s, f) => s + getCurrentVph(f.properties.aadt_predicted ?? 0, now), 0);
-
-    let crit = 0, high = 0, med = 0, low = 0;
+    const totalAdt  = features.reduce((s, f) => s + (f.properties.aadt_predicted ?? 0), 0);
+    const avgAadt   = totalAdt / features.length;
+    const avg2040   = features.reduce((s, f) => s + (f.properties.growth_2040 ?? avgAadt * 1.95), 0) / features.length;
+    const growthRatio = ((avg2040 / Math.max(avgAadt, 1)) - 1) * 100;
+    const pavedKeys = Object.values(surfMap).filter(v => v === 'paved').length;
+    const totalSurf = Object.keys(surfMap).length;
+    const pavingIndex = totalSurf ? (pavedKeys / totalSurf) * 100 : 0;
+    const classCounts: Record<string, number> = {};
     for (const f of features) {
-      const p   = f.properties;
-      const cap = CAPACITY[p.road_class ?? 'C'] ?? 2500;
-      const aadt = p.aadt_predicted ?? 0;
-      let risk: string;
-      if (mode === 'live') {
-        risk = vcr2risk(getCurrentVph(aadt, now) / (cap / 10));
-      } else if (mode === 'forecast2030') {
-        risk = vcr2risk((p.growth_2030 ?? aadt) / cap);
-      } else if (mode === 'forecast2040') {
-        risk = vcr2risk((p.growth_2040 ?? aadt) / cap);
-      } else if (mode === 'congestion') {
-        risk = p.congestion_risk ?? vcr2risk(aadt / cap);
-      } else {
-        risk = vcr2risk(aadt / cap);
-      }
-      if (risk === 'Critical') crit++;
-      else if (risk === 'High') high++;
-      else if (risk === 'Medium') med++;
-      else low++;
+      const c = f.properties.road_class ?? 'Unknown';
+      classCounts[c] = (classCounts[c] ?? 0) + 1;
     }
+    return { totalAdt, avgAadt, growthRatio, pavingIndex, classCounts };
+  }, [features, surfMap]);
 
-    const peakFeat = features.reduce(
-      (best, f) => (f.properties.aadt_predicted ?? 0) > (best.properties.aadt_predicted ?? 0) ? f : best,
-      features[0],
-    );
-
-    return { totalVkm, totalKm, avgAadt, totalVph, crit, high, med, low, peakFeat };
-  }, [features, mode, now]);
-
-  // ── Feature click handlers ──
   function onLinkClick(p: PredProps) {
     const surf = surfMap[p.link_id];
-    const rf: RoadLinkFeature = {
-      type: 'road-link',
-      name: p.link_name ?? p.link_id,
-      roadClass: p.road_class ?? '?',
-      lengthKm: p.length_km ?? 0,
+    setSelFeature({
+      type: 'road-link', name: p.link_name ?? p.link_id,
+      roadClass: p.road_class ?? '?', lengthKm: p.length_km ?? 0,
       surface: surf === 'paved' ? 'Bituminous' : surf === 'unpaved' ? 'Unsealed' : 'Unknown',
-      region: p.region ?? undefined,
-      aadt: p.aadt_predicted ?? undefined,
+      region: p.region ?? undefined, aadt: p.aadt_predicted ?? undefined,
       congestionRisk: p.congestion_risk ?? undefined,
-      forecast2030: p.growth_2030 ?? undefined,
-      forecast2040: p.growth_2040 ?? undefined,
-    };
-    setSelFeature(rf);
+      forecast2030: p.growth_2030 ?? undefined, forecast2040: p.growth_2040 ?? undefined,
+    } as RoadLinkFeature);
   }
 
   function onStationClick(feat: any) {
-    const p = feat.properties ?? {};
+    const p    = feat.properties ?? {};
     const pred = predByLink.get(p.Link_ID ?? '');
-    const sf: AtcStationFeature = {
-      type: 'atc-station',
-      id: p.TCS_NAME ?? String(p.TCS_NO ?? '?'),
-      name: p.TCS_NAME ?? 'Unknown',
-      road: p.Link_Name ?? undefined,
-      region: p.REGION ?? undefined,
-      aadt: pred?.aadt_predicted ?? 0,
+    setSelFeature({
+      type: 'atc-station', id: p.TCS_NAME ?? String(p.TCS_NO ?? '?'),
+      name: p.TCS_NAME ?? 'Unknown', road: p.Link_Name ?? undefined,
+      region: p.REGION ?? undefined, aadt: pred?.aadt_predicted ?? 0,
       lightPct: pred ? 100 - (pred.heavy_vehicle_pct ?? 0) : undefined,
       heavyPct: pred?.heavy_vehicle_pct ?? undefined,
-    };
-    setSelFeature(sf);
+    } as AtcStationFeature);
   }
 
-  const eatStr   = formatEAT(now);
-  const modeConf = MODES[mode];
-  const accent   = modeConf.color;
+  const eatStr  = getEatTime(now);
+  const dateStr = formatLongDate(now);
+
+  const KPI_GLASS: React.CSSProperties = {
+    background: 'rgba(2,5,8,0.88)', border: '1px solid rgba(0,245,255,0.1)',
+    borderRadius: 10, padding: '10px 12px',
+  };
 
   if (loading) {
     return (
-      <div style={{
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        height: '100%', background: '#020508',
-        color: 'rgba(148,163,184,0.5)', fontSize: 13,
-        fontFamily: "'Inter','Segoe UI',sans-serif",
-      }}>
+      <div style={{ display:'flex', alignItems:'center', justifyContent:'center', height:'100%',
+        background:'#020508', color:'rgba(148,163,184,0.5)', fontSize:13,
+        fontFamily:"'Inter','Segoe UI',sans-serif" }}>
         Loading traffic data…
       </div>
     );
   }
 
   return (
-    <div style={{
-      display: 'flex', height: '100%', overflow: 'hidden',
-      background: '#020508', fontFamily: "'Inter','Segoe UI',sans-serif",
-    }}>
-      <style>{`@keyframes livePulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.55;transform:scale(1.4)}}`}</style>
+    <div style={{ display:'flex', height:'100%', overflow:'hidden',
+      background:'#020508', fontFamily:"'Inter','Segoe UI',sans-serif" }}>
+      <style>{`
+        @keyframes livePulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.55;transform:scale(1.4)}}
+        .tpill{cursor:pointer;border-radius:6px;padding:3px 9px;font-size:9px;font-weight:700;
+               border:1px solid;transition:all .15s;letter-spacing:.04em;background:transparent;}
+      `}</style>
 
-      {/* ─── LEFT: MAP PANE ─────────────────────────────────────────────── */}
-      <div style={{ flex: '1 1 0', minWidth: 0, position: 'relative' }}>
-        <MapContainer
-          center={[1.37, 32.3]} zoom={7} zoomControl={false}
-          style={{ height: '100%', width: '100%', background: '#020508' }}
-        >
-          <TileLayer url={ESRI_TILE_URLS.imagery} attribution={ESRI_ATTRIBUTIONS.imagery}/>
-          <TileLayer url={ESRI_TILE_URLS.labels}  attribution={ESRI_ATTRIBUTIONS.labels} opacity={0.7}/>
-          <ZoomControl position="bottomright"/>
-
-          {features.length > 0 && (
-            <TrafficLayer
-              features={features}
-              mode={mode}
-              now={now}
-              surfMap={surfMap}
-              onSelect={onLinkClick}
-            />
-          )}
-
-          {/* ATC station dots */}
-          {stations.map((feat, i) => {
-            const [lng, lat] = feat.geometry?.coordinates ?? [0, 0];
-            if (!lat || !lng) return null;
-            const p = feat.properties ?? {};
-            const col = REGION_CLR[p.REGION ?? ''] ?? '#94a3b8';
-            const prominent = mode === 'stations';
-            return (
-              <CircleMarker
-                key={i} center={[lat, lng]}
-                radius={prominent ? 5 : 3}
-                pathOptions={{
-                  color: col, fillColor: col,
-                  fillOpacity: prominent ? 0.85 : 0.3,
-                  weight: prominent ? 1.2 : 0.5,
-                }}
-                eventHandlers={{ click: () => onStationClick(feat) }}
-              >
-                {prominent && (
-                  <LeafletTooltip>
-                    <div style={{
-                      background: 'rgba(2,5,8,0.96)', color: col,
-                      border: `1px solid ${col}55`, borderRadius: 6,
-                      padding: '4px 8px', fontSize: 9, fontWeight: 800,
-                    }}>
-                      <div>{p.TCS_NAME}</div>
-                      <div style={{ color: 'rgba(226,234,244,0.8)', fontWeight: 400, marginTop: 1 }}>
-                        {p.Link_Name}
-                      </div>
-                      <div style={{ color: 'rgba(148,163,184,0.5)', marginTop: 1 }}>
-                        {p.STATION} · {p.REGION}
-                      </div>
-                    </div>
-                  </LeafletTooltip>
-                )}
-              </CircleMarker>
-            );
-          })}
-        </MapContainer>
-
-        {/* Mode badge */}
-        <div style={{
-          position: 'absolute', top: 12, left: 12, zIndex: 900,
-          ...glass(accent), padding: '6px 12px',
-          display: 'flex', alignItems: 'center', gap: 7,
-          boxShadow: `0 0 20px rgba(${hexRgb(accent)},0.25)`,
-        }}>
-          {mode === 'live' && (
-            <span style={{
-              width: 7, height: 7, borderRadius: '50%', background: C.green,
-              display: 'inline-block', animation: 'livePulse 2s ease-in-out infinite',
-              boxShadow: `0 0 8px ${C.green}`,
-            }}/>
-          )}
-          <span style={{ fontSize: 10, fontWeight: 800, color: accent, letterSpacing: '0.05em' }}>
-            {mode === 'live' ? `LIVE · ${eatStr} EAT` : modeConf.label.toUpperCase()}
-          </span>
-          <span style={{ fontSize: 9, color: 'rgba(148,163,184,0.45)' }}>{modeConf.desc}</span>
+      {/* ── LEFT SIDEBAR ──────────────────────────────────────────────────── */}
+      <div style={{
+        width:280, flexShrink:0, display:'flex', flexDirection:'column', gap:8,
+        padding:'10px 10px 14px', background:'rgba(2,5,8,0.90)',
+        borderRight:'1px solid rgba(0,245,255,0.07)', overflowY:'auto',
+      }}>
+        {/* Header */}
+        <div style={{ padding:'4px 2px 2px' }}>
+          <div style={{ fontSize:8, fontWeight:800, color:'rgba(0,212,170,0.55)',
+            letterSpacing:'0.18em', textTransform:'uppercase', marginBottom:2 }}>
+            Uganda National Roads · UNRA
+          </div>
+          <div style={{ fontSize:14, fontWeight:900, color:C.teal, lineHeight:1.2,
+            textShadow:`0 0 18px rgba(0,212,170,0.45)` }}>
+            National Traffic Prediction
+          </div>
+          <div style={{ fontSize:9, color:'rgba(148,163,184,0.5)', marginTop:3, lineHeight:1.5 }}>
+            Multiparametric Network Diagnostics
+            <br/><span style={{ color:'rgba(0,212,170,0.65)' }}>{dateStr}</span>
+          </div>
+          <div style={{ marginTop:8, height:1,
+            background:'linear-gradient(90deg,transparent,rgba(0,212,170,0.28),transparent)' }}/>
         </div>
 
-        {/* Click hint */}
-        <div style={{
-          position: 'absolute', bottom: 40, left: 12, zIndex: 900,
-          fontSize: 9, color: 'rgba(148,163,184,0.35)', pointerEvents: 'none',
-        }}>
-          Click a road link or station dot to inspect
+        {/* KPI 1 – Total Network ADT */}
+        <div style={{ ...KPI_GLASS, borderColor:'rgba(0,245,255,0.14)' }}>
+          <div style={{ fontSize:8, fontWeight:700, color:'rgba(0,245,255,0.45)',
+            textTransform:'uppercase', letterSpacing:'0.1em', marginBottom:2 }}>
+            Total Network ADT
+          </div>
+          <div style={{ fontSize:26, fontWeight:900, color:C.cyan, lineHeight:1,
+            textShadow:`0 0 22px rgba(0,245,255,0.4)` }}>
+            {kpis ? `${Math.round(kpis.totalAdt/1000)}k` : '—'}
+          </div>
+          <div style={{ fontSize:9, color:'rgba(148,163,184,0.42)', marginTop:3 }}>
+            vehicles / day · {features.length} survey nodes
+          </div>
+        </div>
+
+        {/* KPI 2 – Network Growth Ratio */}
+        <div style={{ ...KPI_GLASS, borderColor:'rgba(0,255,136,0.14)' }}>
+          <div style={{ fontSize:8, fontWeight:700, color:'rgba(0,255,136,0.45)',
+            textTransform:'uppercase', letterSpacing:'0.1em', marginBottom:2 }}>
+            Network Growth Ratio 2025 → 2040
+          </div>
+          <div style={{ fontSize:26, fontWeight:900, color:C.green, lineHeight:1,
+            textShadow:`0 0 22px rgba(0,255,136,0.4)` }}>
+            {kpis ? `+${kpis.growthRatio.toFixed(0)}%` : '—'}
+          </div>
+          <div style={{ fontSize:9, color:'rgba(148,163,184,0.42)', marginTop:3 }}>
+            ML-modelled forecast to 2040
+          </div>
+        </div>
+
+        {/* KPI 3 – Sparkline trajectory */}
+        <div style={{ ...KPI_GLASS, borderColor:'rgba(0,212,170,0.12)' }}>
+          <div style={{ fontSize:8, fontWeight:700, color:'rgba(0,212,170,0.45)',
+            textTransform:'uppercase', letterSpacing:'0.1em', marginBottom:6 }}>
+            Network Trajectory Envelope (2016 – Now)
+          </div>
+          {kpis && <SparklineArea avgAadt={kpis.avgAadt}/>}
+        </div>
+
+        {/* KPI 4+5 – Stations + Survey Nodes */}
+        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8 }}>
+          <div style={{ ...KPI_GLASS, borderColor:'rgba(255,210,63,0.14)' }}>
+            <div style={{ fontSize:7, fontWeight:700, color:'rgba(255,210,63,0.45)',
+              textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:2 }}>
+              Active ATC Stations
+            </div>
+            <div style={{ fontSize:22, fontWeight:900, color:C.yellow, lineHeight:1 }}>
+              {stations.length || 298}
+            </div>
+            <div style={{ fontSize:8, color:'rgba(148,163,184,0.4)', marginTop:2 }}>count stations</div>
+          </div>
+          <div style={{ ...KPI_GLASS, borderColor:'rgba(77,159,255,0.14)' }}>
+            <div style={{ fontSize:7, fontWeight:700, color:'rgba(77,159,255,0.45)',
+              textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:2 }}>
+              Total Survey Nodes
+            </div>
+            <div style={{ fontSize:22, fontWeight:900, color:C.blue, lineHeight:1 }}>
+              {features.length}
+            </div>
+            <div style={{ fontSize:8, color:'rgba(148,163,184,0.4)', marginTop:2 }}>road links</div>
+          </div>
+        </div>
+
+        {/* KPI 6 – Surface Paving Index */}
+        <div style={{ ...KPI_GLASS, borderColor:'rgba(185,103,255,0.14)' }}>
+          <div style={{ fontSize:8, fontWeight:700, color:'rgba(185,103,255,0.45)',
+            textTransform:'uppercase', letterSpacing:'0.1em', marginBottom:4 }}>
+            Surface Paving Index
+          </div>
+          <div style={{ display:'flex', alignItems:'center', gap:10 }}>
+            <div style={{ fontSize:22, fontWeight:900, color:C.purple, lineHeight:1 }}>
+              {kpis ? `${kpis.pavingIndex.toFixed(0)}%` : '—'}
+            </div>
+            <div style={{ flex:1, height:7, background:'rgba(185,103,255,0.1)', borderRadius:4, overflow:'hidden' }}>
+              <div style={{ height:'100%', width:`${kpis?.pavingIndex ?? 0}%`,
+                background:'linear-gradient(90deg,#b967ff,#00d4aa)', borderRadius:4 }}/>
+            </div>
+          </div>
+          <div style={{ fontSize:9, color:'rgba(148,163,184,0.42)', marginTop:3 }}>
+            links with Bituminous / Asphalt surface
+          </div>
+        </div>
+
+        {/* Class Node Spread */}
+        <div style={{ ...KPI_GLASS, borderColor:'rgba(148,163,184,0.08)' }}>
+          <div style={{ fontSize:8, fontWeight:700, color:'rgba(148,163,184,0.4)',
+            textTransform:'uppercase', letterSpacing:'0.1em', marginBottom:8 }}>
+            Class Node Spread
+          </div>
+          {kpis && <ClassSpreadBars counts={kpis.classCounts}/>}
         </div>
       </div>
 
-      {/* ─── RIGHT: DETAILS PANE ────────────────────────────────────────── */}
-      <div style={{
-        width: 340, flexShrink: 0, overflowY: 'auto',
-        display: 'flex', flexDirection: 'column', gap: 10,
-        padding: '12px 12px 16px',
-        borderLeft: '1px solid rgba(255,255,255,0.06)',
-        background: 'rgba(2,5,8,0.65)',
-      }}>
+      {/* ── RIGHT: CONTROLS + MAP + TIMELINE ─────────────────────────────── */}
+      <div style={{ flex:1, minWidth:0, display:'flex', flexDirection:'column', overflow:'hidden' }}>
 
-        {/* Header */}
-        <div>
-          <div style={{ fontSize: 9, fontWeight: 800, color: `rgba(${hexRgb(accent)},0.5)`,
-            letterSpacing: '0.16em', textTransform: 'uppercase' }}>
-            UGANDA NATIONAL ROADS · TRAFFIC
+        {/* Controls bar */}
+        <div style={{
+          height:50, flexShrink:0, display:'flex', alignItems:'center', gap:12,
+          padding:'0 14px', background:'rgba(2,5,8,0.88)',
+          borderBottom:'1px solid rgba(255,255,255,0.055)',
+        }}>
+          {/* Symbology dropdown */}
+          <div style={{ display:'flex', alignItems:'center', gap:7 }}>
+            <span style={{ fontSize:8, fontWeight:800, color:'rgba(148,163,184,0.45)',
+              textTransform:'uppercase', letterSpacing:'0.1em', whiteSpace:'nowrap' }}>Symbology</span>
+            <select value={mode} onChange={e => setMode(e.target.value as MapMode)}
+              style={{ background:'rgba(0,245,255,0.08)', border:'1px solid rgba(0,245,255,0.28)',
+                borderRadius:7, color:C.cyan, fontSize:11, fontWeight:700,
+                padding:'3px 8px', cursor:'pointer', outline:'none', fontFamily:'inherit' }}>
+              <option value="adt">Traffic Delay (ADT)</option>
+              <option value="surface">Surface Type</option>
+              <option value="class">Road Class</option>
+            </select>
           </div>
-          <div style={{ fontSize: 17, fontWeight: 900, color: accent, lineHeight: 1.2,
-            textShadow: `0 0 16px rgba(${hexRgb(accent)},0.4)` }}>
-            Traffic Monitor
-          </div>
-          {mode === 'live' && (
-            <div style={{ fontSize: 10, color: C.green, marginTop: 2,
-              display: 'flex', alignItems: 'center', gap: 5 }}>
-              <Clock size={11}/> {eatStr} EAT · auto-refresh 60 s
-            </div>
-          )}
-        </div>
 
-        {/* ── Attribute selector ── */}
-        <div style={{ ...glass(accent), padding: '10px 10px 8px' }}>
-          <div style={{ fontSize: 8, fontWeight: 800, color: 'rgba(148,163,184,0.4)',
-            textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: 7 }}>
-            MAP ATTRIBUTE
+          <div style={{ width:1, height:26, background:'rgba(255,255,255,0.08)', flexShrink:0 }}/>
+
+          {/* Surface pills */}
+          <div style={{ display:'flex', alignItems:'center', gap:5 }}>
+            <span style={{ fontSize:8, fontWeight:800, color:'rgba(148,163,184,0.4)',
+              textTransform:'uppercase', letterSpacing:'0.08em' }}>Surface</span>
+            {(['all','paved','unsealed'] as SurfFilter[]).map(sf => (
+              <button key={sf} className="tpill"
+                onClick={() => setSurfFilter(sf)}
+                style={{
+                  borderColor: surfFilter === sf ? 'rgba(0,245,255,0.4)' : 'rgba(255,255,255,0.1)',
+                  color: surfFilter === sf ? C.cyan : 'rgba(148,163,184,0.5)',
+                  background: surfFilter === sf ? 'rgba(0,245,255,0.1)' : 'transparent',
+                }}>
+                {sf === 'all' ? 'All' : sf === 'paved' ? 'Paved' : 'Unsealed'}
+              </button>
+            ))}
           </div>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
-            {(Object.keys(MODES) as AttrMode[]).map(m => {
-              const mc = MODES[m];
-              const active = mode === m;
+
+          <div style={{ width:1, height:26, background:'rgba(255,255,255,0.08)', flexShrink:0 }}/>
+
+          {/* Class pills */}
+          <div style={{ display:'flex', alignItems:'center', gap:5 }}>
+            <span style={{ fontSize:8, fontWeight:800, color:'rgba(148,163,184,0.4)',
+              textTransform:'uppercase', letterSpacing:'0.08em' }}>Class</span>
+            {(['all','A','B','C','M'] as ClassFilter[]).map(cf => {
+              const col = cf === 'all' ? '#94a3b8' : CLASS_COLORS[cf] ?? '#94a3b8';
+              const active = classFilter === cf;
               return (
-                <button key={m}
-                  onClick={() => { setMode(m); setNow(new Date()); }}
+                <button key={cf} className="tpill"
+                  onClick={() => setClassFilter(cf)}
                   style={{
-                    fontSize: 9, fontWeight: 800, padding: '4px 9px', borderRadius: 6,
-                    cursor: 'pointer',
-                    border: `1px solid ${active ? mc.color : 'rgba(255,255,255,0.1)'}`,
-                    background: active ? `rgba(${hexRgb(mc.color)},0.15)` : 'rgba(255,255,255,0.04)',
-                    color: active ? mc.color : 'rgba(148,163,184,0.6)',
-                    transition: 'all 0.15s',
-                    display: 'flex', alignItems: 'center', gap: 4,
+                    borderColor: active ? `rgba(${hexRgb(col)},0.45)` : 'rgba(255,255,255,0.1)',
+                    color: active ? col : 'rgba(148,163,184,0.5)',
+                    background: active ? `rgba(${hexRgb(col)},0.1)` : 'transparent',
                   }}>
-                  {m === 'live' && active && (
-                    <span style={{
-                      width: 5, height: 5, borderRadius: '50%', background: C.green,
-                      display: 'inline-block', animation: 'livePulse 2s ease-in-out infinite',
-                    }}/>
-                  )}
-                  {mc.label}
+                  {cf === 'all' ? 'All' : `Class ${cf}`}
                 </button>
               );
             })}
           </div>
-          {/* Legend */}
-          <div style={{ marginTop: 9 }}>
-            <Legend mode={mode}/>
+
+          {/* Legend – right side */}
+          <div style={{ marginLeft:'auto', flexShrink:0 }}>
+            <MapLegend mode={mode}/>
           </div>
         </div>
 
-        {/* ── KPI cards (2 × 2) ── */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+        {/* Map */}
+        <div style={{ flex:1, minHeight:0, position:'relative' }}>
+          <MapContainer center={[1.37,32.3]} zoom={7} zoomControl={false}
+            style={{ height:'100%', width:'100%', background:'#020508' }}>
+            <TileLayer url={ESRI_TILE_URLS.imagery} attribution={ESRI_ATTRIBUTIONS.imagery}/>
+            <TileLayer url={ESRI_TILE_URLS.labels}  attribution={ESRI_ATTRIBUTIONS.labels} opacity={0.7}/>
+            <ZoomControl position="bottomright"/>
 
-          {/* Network */}
-          <div style={{ ...glass(C.cyan), padding: '10px 12px' }}>
-            <div style={{ fontSize: 8, fontWeight: 700, color: 'rgba(0,245,255,0.45)',
-              textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 3 }}>
-              Network
-            </div>
-            <div style={{ fontSize: 20, fontWeight: 900, color: C.cyan, lineHeight: 1 }}>
-              {kpis ? `${(kpis.totalKm / 1000).toFixed(0)}k` : '—'}
-            </div>
-            <div style={{ fontSize: 8, color: 'rgba(148,163,184,0.45)', marginTop: 2 }}>
-              km · {features.length} links
-            </div>
-            <div style={{ fontSize: 9, color: 'rgba(0,245,255,0.65)', marginTop: 4 }}>
-              {kpis ? `${(kpis.totalVkm / 1e6).toFixed(0)}M veh-km/day` : '—'}
-            </div>
-          </div>
+            {filteredFeatures.length > 0 && (
+              <TrafficLayer features={filteredFeatures} mode={mode}
+                year={timelineYear} surfMap={surfMap} onSelect={onLinkClick}/>
+            )}
 
-          {/* Traffic */}
-          <div style={{ ...glass(mode === 'live' ? C.green : C.yellow), padding: '10px 12px' }}>
-            <div style={{ fontSize: 8, fontWeight: 700, color: `rgba(${hexRgb(mode === 'live' ? C.green : C.yellow)},0.45)`,
-              textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 3 }}>
-              {mode === 'live' ? 'Network VPH' : 'Avg AADT'}
-            </div>
-            <div style={{ fontSize: 20, fontWeight: 900, lineHeight: 1,
-              color: mode === 'live' ? C.green : C.yellow }}>
-              {kpis
-                ? mode === 'live'
-                    ? `${(kpis.totalVph / 1000).toFixed(0)}k`
-                    : `${Math.round(kpis.avgAadt).toLocaleString()}`
-                : '—'}
-            </div>
-            <div style={{ fontSize: 8, color: 'rgba(148,163,184,0.45)', marginTop: 2 }}>
-              {mode === 'live' ? 'veh/hr all links' : 'veh/day mean'}
-            </div>
-            <div style={{ fontSize: 9, color: 'rgba(148,163,184,0.55)', marginTop: 4,
-              overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-              Peak: {kpis?.peakFeat.properties.link_name ?? '—'}
-            </div>
-          </div>
+            {/* ATC station dots */}
+            {stations.map((feat, i) => {
+              const [lng, lat] = feat.geometry?.coordinates ?? [0,0];
+              if (!lat || !lng) return null;
+              const p   = feat.properties ?? {};
+              const col = REGION_CLR[p.REGION ?? ''] ?? '#94a3b8';
+              return (
+                <CircleMarker key={i} center={[lat, lng]} radius={3}
+                  pathOptions={{ color:col, fillColor:col, fillOpacity:0.55, weight:0.8 }}
+                  eventHandlers={{ click: () => onStationClick(feat) }}>
+                  <LeafletTooltip>
+                    <div style={{ background:'rgba(2,5,8,0.96)', color:col,
+                      border:`1px solid ${col}55`, borderRadius:6, padding:'3px 8px',
+                      fontSize:9, fontWeight:700 }}>
+                      <div>{p.TCS_NAME}</div>
+                      <div style={{ color:'rgba(226,234,244,0.7)', fontWeight:400 }}>{p.Link_Name}</div>
+                      <div style={{ color:'rgba(148,163,184,0.45)', fontSize:8 }}>{p.REGION}</div>
+                    </div>
+                  </LeafletTooltip>
+                </CircleMarker>
+              );
+            })}
+          </MapContainer>
 
-          {/* Congestion */}
-          <div style={{ ...glass(C.pink), padding: '10px 12px' }}>
-            <div style={{ fontSize: 8, fontWeight: 700, color: 'rgba(255,45,120,0.45)',
-              textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 5 }}>
-              Congestion
-              <span style={{ fontWeight: 400, color: 'rgba(148,163,184,0.4)', marginLeft: 4 }}>
-                {mode === 'live' ? 'this hour' : mode.includes('forecast') ? mode.replace('forecast','') : 'annual'}
+          {/* Year badge */}
+          {timelineYear !== 2025 && (
+            <div style={{ position:'absolute', top:12, left:12, zIndex:900,
+              background:'rgba(2,5,8,0.90)', border:'1px solid rgba(255,210,63,0.35)',
+              borderRadius:10, padding:'5px 12px', backdropFilter:'blur(12px)' }}>
+              <span style={{ fontSize:11, fontWeight:900, color:C.yellow }}>YEAR {timelineYear}</span>
+              <span style={{ fontSize:9, color:'rgba(148,163,184,0.45)', marginLeft:6 }}>
+                ×{(GROWTH_FACTORS[timelineYear] ?? 1).toFixed(2)} growth factor
               </span>
             </div>
-            <div style={{ display: 'flex', gap: 7, flexWrap: 'wrap' }}>
-              {[
-                ['Crit', kpis?.crit ?? 0, C.pink],
-                ['High', kpis?.high ?? 0, C.orange],
-                ['Med',  kpis?.med  ?? 0, C.yellow],
-                ['Low',  kpis?.low  ?? 0, C.green],
-              ].map(([label, count, color]) => (
-                <div key={String(label)} style={{ textAlign: 'center' }}>
-                  <div style={{ fontSize: 16, fontWeight: 900, color: String(color), lineHeight: 1 }}>
-                    {count}
-                  </div>
-                  <div style={{ fontSize: 7, color: 'rgba(148,163,184,0.4)', marginTop: 1 }}>{label}</div>
-                </div>
-              ))}
-            </div>
+          )}
+
+          {/* Click hint */}
+          <div style={{ position:'absolute', bottom:8, left:12, zIndex:900,
+            fontSize:9, color:'rgba(148,163,184,0.28)', pointerEvents:'none' }}>
+            Click a road link or station dot to inspect
           </div>
 
-          {/* Stations */}
-          <div style={{ ...glass(C.teal), padding: '10px 12px' }}>
-            <div style={{ fontSize: 8, fontWeight: 700, color: 'rgba(0,212,170,0.45)',
-              textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 3 }}>
-              ATC Stations
+          {/* Feature analytics overlay */}
+          {selFeature && (
+            <div style={{ position:'absolute', top:10, right:10, zIndex:900 }}>
+              <FeatureAnalyticsPanel feature={selFeature}
+                onClose={() => setSelFeature(null)} width={310}/>
             </div>
-            <div style={{ fontSize: 20, fontWeight: 900, color: C.teal, lineHeight: 1 }}>
-              {stations.length || 298}
-            </div>
-            <div style={{ fontSize: 8, color: 'rgba(148,163,184,0.45)', marginTop: 2 }}>
-              traffic count stations
-            </div>
-            <div style={{ fontSize: 9, color: 'rgba(0,212,170,0.65)', marginTop: 4 }}>
-              15 permanent + 10 new ATC
-            </div>
-          </div>
-
+          )}
         </div>
 
-        {/* ── Feature analytics (inline right pane) ── */}
-        {selFeature ? (
-          <FeatureAnalyticsPanel
-            feature={selFeature}
-            onClose={() => setSelFeature(null)}
-            width={316}
-          />
-        ) : (
-          <div style={{
-            flex: 1, minHeight: 100,
-            background: 'rgba(2,5,8,0.5)',
-            border: '1px solid rgba(148,163,184,0.08)',
-            borderRadius: 12,
-            padding: 14,
-            display: 'flex', flexDirection: 'column',
-            alignItems: 'center', justifyContent: 'center', gap: 8,
-            color: 'rgba(148,163,184,0.3)',
-          }}>
-            <MapPin size={20} style={{ opacity: 0.35 }}/>
-            <div style={{ fontSize: 10, textAlign: 'center', lineHeight: 1.5 }}>
-              Click a road link or station dot<br/>to view detailed analytics
+        {/* Timeline bar */}
+        <div style={{
+          height:54, flexShrink:0, display:'flex', alignItems:'center', gap:12,
+          padding:'0 16px', background:'rgba(2,5,8,0.92)',
+          borderTop:'1px solid rgba(255,255,255,0.05)',
+        }}>
+          {/* Date + EAT */}
+          <div style={{ flexShrink:0, minWidth:180 }}>
+            <div style={{ fontSize:10, fontWeight:800, color:C.teal }}>{dateStr}</div>
+            <div style={{ fontSize:9, color:'rgba(148,163,184,0.45)',
+              display:'flex', alignItems:'center', gap:4, marginTop:1 }}>
+              <Clock size={9}/> {eatStr} EAT (UTC+3)
             </div>
           </div>
-        )}
 
-        {/* Footer */}
-        <div style={{ fontSize: 8, color: 'rgba(100,116,139,0.35)', textAlign: 'center', paddingTop: 2 }}>
-          Uganda National Roads · UNRA / DNR 2025 · {features.length} links ·
-          XGBoost + LightGBM ensemble · ML trained 2018–2025
+          <div style={{ width:1, height:30, background:'rgba(255,255,255,0.07)', flexShrink:0 }}/>
+
+          {/* Play / Pause */}
+          <button
+            onClick={() => {
+              if (timelineYear >= 2035) { setTimelineYear(2016); setIsPlaying(true); }
+              else setIsPlaying(p => !p);
+            }}
+            style={{ width:32, height:32, borderRadius:'50%', border:'none', cursor:'pointer',
+              background: isPlaying ? 'rgba(0,255,136,0.15)' : 'rgba(255,255,255,0.08)',
+              color: isPlaying ? C.green : 'rgba(148,163,184,0.7)',
+              display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0,
+              boxShadow: isPlaying ? `0 0 12px rgba(0,255,136,0.3)` : 'none',
+              transition:'all .2s' }}>
+            {isPlaying ? <Pause size={14}/> : <Play size={14}/>}
+          </button>
+
+          {/* Year label */}
+          <div style={{ fontSize:13, fontWeight:900, color:C.yellow, flexShrink:0, minWidth:40 }}>
+            {timelineYear}
+          </div>
+
+          {/* Slider */}
+          <div style={{ flex:1, display:'flex', flexDirection:'column', gap:2 }}>
+            <input type="range" min={2016} max={2035} value={timelineYear}
+              onChange={e => { setTimelineYear(Number(e.target.value)); setIsPlaying(false); }}
+              style={{ width:'100%', accentColor:C.yellow, cursor:'pointer' }}/>
+            <div style={{ display:'flex', justifyContent:'space-between',
+              fontSize:8, color:'rgba(148,163,184,0.32)' }}>
+              <span>2016</span><span>2020</span><span>2025</span><span>2030</span><span>2035</span>
+            </div>
+          </div>
+
+          {/* Speed legend gradient */}
+          <div style={{ flexShrink:0, display:'flex', flexDirection:'column', alignItems:'center', gap:2 }}>
+            <div style={{ width:90, height:6, borderRadius:3,
+              background:'linear-gradient(90deg,#00ff88,#ffd23f,#ff6b35,#ff2d78)' }}/>
+            <div style={{ display:'flex', justifyContent:'space-between', width:90 }}>
+              <span style={{ fontSize:7, color:'rgba(0,255,136,0.6)' }}>Low</span>
+              <span style={{ fontSize:7, color:'rgba(148,163,184,0.3)' }}>← ADT →</span>
+              <span style={{ fontSize:7, color:'rgba(255,45,120,0.6)' }}>High</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>

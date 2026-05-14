@@ -145,7 +145,8 @@ export type ActiveView =
   | 'roadvideoview'      // Road survey video + frame player
   | 'downloads'          // Downloads & Exports
   | 'media'              // Media gallery — images + videos
-  | 'trafficanalytics';  // Traffic demand analytics dashboard
+  | 'trafficanalytics'  // Traffic demand analytics dashboard
+  | 'trafficsummary';   // Traffic summary tables (Road Links + Stations)
 
 // ─── Road network types ───────────────────────────────────────────────────────
 export type RoadClass   = 'A' | 'B' | 'C' | 'M';

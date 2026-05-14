@@ -48,6 +48,7 @@ export default function Sidebar() {
         { id: 'roadvideoview', label: 'Road Survey Video',   icon: <Video size={15}/>,         color: N.orange },
         { id: 'traffic',           label: 'Traffic Map',       icon: <Layers size={15}/>,    color: N.yellow },
         { id: 'trafficanalytics', label: 'Traffic Analytics', icon: <BarChart2 size={15}/>, color: N.yellow },
+        { id: 'trafficsummary',  label: 'Traffic Tables',   icon: <Table2 size={15}/>,   color: N.yellow },
         { id: 'roadcondition', label: 'Road Condition',      icon: <Activity size={15}/>,      color: N.blue   },
         { id: 'projects',      label: 'Projects & Works',    icon: <Construction size={15}/>,  color: N.pink   },
         { id: 'media',         label: 'Media Gallery',       icon: <Camera size={15}/>,        color: N.purple },
