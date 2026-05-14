@@ -464,7 +464,353 @@ function YearRangeSlider({
   );
 }
 
-// ── Project Gallery Card ───────────────────────────────────────────────────────
+// ── Media Gallery ─────────────────────────────────────────────────────────────
+
+interface MediaItem {
+  id: string; file: string; type: 'image' | 'video' | 'pdf';
+  title: string; source: string; category: string;
+}
+
+const FILTER_LABELS: Record<string, string> = {
+  all: 'All', image: 'Images', video: 'Videos', pdf: 'PDFs',
+  drone: 'Drone', landmark: 'Landmark', structures: 'Structures',
+  condition: 'Condition', reports: 'Reports', 'field-video': 'Field Video',
+  traffic: 'Traffic', documents: 'Documents', investment: 'Investment',
+};
+
+function Lightbox({ items, index, onClose, onPrev, onNext }: {
+  items: MediaItem[]; index: number;
+  onClose: () => void; onPrev: () => void; onNext: () => void;
+}) {
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+      if (e.key === 'ArrowLeft') onPrev();
+      if (e.key === 'ArrowRight') onNext();
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [onClose, onPrev, onNext]);
+
+  const item = items[index];
+  const url = `${import.meta.env.BASE_URL}media/${item.file}`;
+
+  return (
+    <div
+      style={{ position: 'fixed', inset: 0, zIndex: 9999,
+        background: 'rgba(0,0,0,0.94)', display: 'flex',
+        alignItems: 'center', justifyContent: 'center' }}
+      onClick={onClose}
+    >
+      <div onClick={e => e.stopPropagation()}
+        style={{ position: 'relative', maxWidth: '90vw', maxHeight: '90vh', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+
+        {/* Media */}
+        {item.type === 'video' ? (
+          <video src={url} controls autoPlay
+            style={{ maxWidth: '88vw', maxHeight: '82vh', borderRadius: 12, outline: 'none',
+              boxShadow: '0 0 60px rgba(0,0,0,0.8)' }} />
+        ) : (
+          <img src={url} alt={item.title}
+            style={{ maxWidth: '88vw', maxHeight: '82vh', borderRadius: 12, objectFit: 'contain',
+              boxShadow: '0 0 60px rgba(0,0,0,0.8)' }} />
+        )}
+
+        {/* Caption */}
+        <div style={{ marginTop: 12, fontSize: 12, fontWeight: 700, color: '#e2eaf4',
+          textAlign: 'center', maxWidth: 600, textShadow: '0 1px 4px rgba(0,0,0,0.8)' }}>
+          {item.title}
+          <span style={{ marginLeft: 8, fontSize: 10, color: 'rgba(148,163,184,0.6)',
+            fontWeight: 400 }}>{index + 1} / {items.length}</span>
+        </div>
+
+        {/* Prev */}
+        <button onClick={e => { e.stopPropagation(); onPrev(); }}
+          style={{ position: 'absolute', left: -56, top: '40%', transform: 'translateY(-50%)',
+            background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.15)',
+            borderRadius: '50%', width: 44, height: 44, cursor: 'pointer',
+            color: 'white', fontSize: 22, display: 'flex', alignItems: 'center', justifyContent: 'center',
+            backdropFilter: 'blur(8px)', transition: 'background 0.2s' }}
+          onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.25)')}
+          onMouseLeave={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.12)')}>
+          ‹
+        </button>
+
+        {/* Next */}
+        <button onClick={e => { e.stopPropagation(); onNext(); }}
+          style={{ position: 'absolute', right: -56, top: '40%', transform: 'translateY(-50%)',
+            background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.15)',
+            borderRadius: '50%', width: 44, height: 44, cursor: 'pointer',
+            color: 'white', fontSize: 22, display: 'flex', alignItems: 'center', justifyContent: 'center',
+            backdropFilter: 'blur(8px)', transition: 'background 0.2s' }}
+          onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.25)')}
+          onMouseLeave={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.12)')}>
+          ›
+        </button>
+
+        {/* Download */}
+        <a href={url} download={item.file} onClick={e => e.stopPropagation()}
+          style={{ position: 'absolute', top: 8, right: 8,
+            background: 'rgba(0,0,0,0.65)', borderRadius: 8, padding: '5px 12px',
+            color: '#e2eaf4', fontSize: 11, textDecoration: 'none', fontWeight: 700,
+            border: '1px solid rgba(255,255,255,0.12)', backdropFilter: 'blur(6px)',
+            display: 'flex', alignItems: 'center', gap: 5 }}>
+          <Download size={11}/> Download
+        </a>
+
+        {/* Close */}
+        <button onClick={onClose}
+          style={{ position: 'absolute', top: 8, left: 8,
+            background: 'rgba(0,0,0,0.65)', border: '1px solid rgba(255,255,255,0.12)',
+            borderRadius: 8, padding: '5px 12px', color: '#e2eaf4', cursor: 'pointer',
+            fontSize: 11, fontWeight: 700, backdropFilter: 'blur(6px)',
+            display: 'flex', alignItems: 'center', gap: 5 }}>
+          <X size={11}/> Close
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function MediaCard({ item, onOpen, accent }: { item: MediaItem; onOpen: () => void; accent: string }) {
+  const [hov, setHov] = useState(false);
+  const rgb = hexRgb(accent);
+  const url = `${import.meta.env.BASE_URL}media/${item.file}`;
+  const isPdf = item.type === 'pdf';
+  const isVideo = item.type === 'video';
+
+  return (
+    <div
+      onMouseEnter={() => setHov(true)}
+      onMouseLeave={() => setHov(false)}
+      onClick={onOpen}
+      style={{
+        position: 'relative', borderRadius: 12, overflow: 'hidden', height: isPdf ? 120 : 190,
+        border: `1px solid rgba(${rgb},${hov ? 0.6 : 0.18})`,
+        boxShadow: hov ? `0 0 32px rgba(${rgb},0.25), 0 8px 32px rgba(0,0,0,0.6)` : '0 4px 20px rgba(0,0,0,0.45)',
+        transform: hov ? 'translateY(-3px)' : 'translateY(0)',
+        transition: 'all 0.25s ease',
+        cursor: 'pointer',
+        background: 'rgba(2,5,8,0.9)',
+      }}>
+
+      {/* Image/video background */}
+      {!isPdf && (
+        <img src={url} alt={item.title} loading="lazy"
+          style={{ position: 'absolute', inset: 0, width: '100%', height: '100%',
+            objectFit: 'cover', filter: `brightness(${hov ? 0.7 : 0.55}) saturate(1.2)`,
+            transform: hov ? 'scale(1.06)' : 'scale(1)', transition: 'all 0.4s ease' }}
+          onError={e => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }} />
+      )}
+
+      {/* PDF icon bg */}
+      {isPdf && (
+        <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center',
+          background: `linear-gradient(135deg, rgba(${rgb},0.12), rgba(2,5,8,0.95))` }}>
+          <span style={{ fontSize: 36, opacity: 0.4 }}>📄</span>
+        </div>
+      )}
+
+      {/* Gradient overlay */}
+      <div style={{ position: 'absolute', inset: 0,
+        background: 'linear-gradient(to top, rgba(2,5,8,0.96) 0%, rgba(2,5,8,0.4) 50%, rgba(2,5,8,0.05) 100%)' }} />
+
+      {/* Top accent bar */}
+      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 2,
+        background: `linear-gradient(90deg, ${accent}, rgba(${rgb},0))`,
+        opacity: hov ? 1 : 0.4, transition: 'opacity 0.2s' }} />
+
+      {/* Video play icon */}
+      {isVideo && (
+        <div style={{ position: 'absolute', top: '50%', left: '50%',
+          transform: 'translate(-50%, -60%)',
+          width: 40, height: 40, borderRadius: '50%',
+          background: 'rgba(255,255,255,0.18)', border: '2px solid rgba(255,255,255,0.4)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          backdropFilter: 'blur(4px)' }}>
+          <span style={{ color: 'white', fontSize: 18, marginLeft: 3 }}>▶</span>
+        </div>
+      )}
+
+      {/* Type badge */}
+      <div style={{ position: 'absolute', top: 8, right: 8,
+        fontSize: 8, fontWeight: 800, color: accent, letterSpacing: '0.08em', textTransform: 'uppercase',
+        background: `rgba(${rgb},0.15)`, border: `1px solid rgba(${rgb},0.3)`,
+        padding: '2px 7px', borderRadius: 5, backdropFilter: 'blur(6px)' }}>
+        {item.type}
+      </div>
+
+      {/* Download on hover */}
+      {hov && (
+        <a href={url} download={item.file}
+          onClick={e => e.stopPropagation()}
+          style={{ position: 'absolute', top: 8, left: 8,
+            background: 'rgba(0,0,0,0.6)', borderRadius: 6, padding: '4px 8px',
+            color: '#e2eaf4', fontSize: 10, textDecoration: 'none',
+            border: '1px solid rgba(255,255,255,0.1)',
+            display: 'flex', alignItems: 'center', gap: 4, fontWeight: 700 }}>
+          <Download size={10}/> Save
+        </a>
+      )}
+
+      {/* Bottom info */}
+      <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '10px 12px' }}>
+        <div style={{ fontSize: 11, fontWeight: 800, color: '#e2eaf4', lineHeight: 1.3,
+          textShadow: '0 1px 4px rgba(0,0,0,0.9)', marginBottom: 3 }}>
+          {item.title.length > 50 ? item.title.slice(0, 48) + '…' : item.title}
+        </div>
+        <div style={{ fontSize: 9, color: `rgba(${rgb},0.75)`, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+          {item.category} · {item.source === '12.Media' ? 'Field Photography' : 'Annual Monitoring'}
+        </div>
+        {isPdf && (
+          <a href={url} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()}
+            style={{ marginTop: 5, display: 'inline-flex', alignItems: 'center', gap: 4,
+              fontSize: 9, fontWeight: 800, color: accent, textDecoration: 'none',
+              background: `rgba(${rgb},0.12)`, border: `1px solid rgba(${rgb},0.25)`,
+              padding: '2px 8px', borderRadius: 4 }}>
+            Open PDF ↗
+          </a>
+        )}
+      </div>
+    </div>
+  );
+}
+
+const CAT_ACCENT: Record<string, string> = {
+  drone: '#00f5ff', landmark: '#ff6b35', structures: '#3B82F6',
+  condition: '#ffd23f', reports: '#b967ff', 'field-video': '#00ff88',
+  traffic: '#4d9fff', documents: '#94a3b8', investment: '#ffd23f',
+  admin: '#94a3b8', general: '#64748b', image: '#00f5ff', video: '#00ff88', pdf: '#ff6b35',
+};
+
+function MediaGallery() {
+  const [items,      setItems]      = useState<MediaItem[]>([]);
+  const [filter,     setFilter]     = useState<string>('all');
+  const [typeFilter, setTypeFilter] = useState<string>('all');
+  const [lbIndex,    setLbIndex]    = useState<number | null>(null);
+  const [loading,    setLoading]    = useState(true);
+
+  useEffect(() => {
+    fetch(`${import.meta.env.BASE_URL}media/manifest.json`)
+      .then(r => r.json())
+      .then((data: MediaItem[]) => { setItems(data); setLoading(false); })
+      .catch(() => setLoading(false));
+  }, []);
+
+  const categories = useMemo(() =>
+    ['all', ...Array.from(new Set(items.map(i => i.category))).sort()],
+    [items]
+  );
+
+  const filtered = useMemo(() => {
+    let list = items;
+    if (typeFilter !== 'all') list = list.filter(i => i.type === typeFilter);
+    if (filter !== 'all') list = list.filter(i => i.category === filter);
+    return list;
+  }, [items, filter, typeFilter]);
+
+  const lbItems = filtered.filter(i => i.type !== 'pdf');
+  const lbIndex2 = lbIndex !== null ? lbIndex : 0;
+
+  if (loading) return (
+    <div style={{ textAlign: 'center', padding: '40px 0', color: 'rgba(148,163,184,0.4)', fontSize: 12 }}>
+      Loading media gallery…
+    </div>
+  );
+
+  if (items.length === 0) return (
+    <div style={{ textAlign: 'center', padding: '40px 0', color: 'rgba(148,163,184,0.4)', fontSize: 12 }}>
+      No media files found. Run the media copy script to populate public/media/.
+    </div>
+  );
+
+  return (
+    <div>
+      {/* Stats row */}
+      <div style={{ display: 'flex', gap: 16, marginBottom: 14, flexWrap: 'wrap' }}>
+        {[
+          { label: 'Total', count: items.length, color: '#00f5ff' },
+          { label: 'Images', count: items.filter(i=>i.type==='image').length, color: '#00f5ff' },
+          { label: 'Videos', count: items.filter(i=>i.type==='video').length, color: '#00ff88' },
+          { label: 'PDFs', count: items.filter(i=>i.type==='pdf').length, color: '#ff6b35' },
+        ].map(s => (
+          <div key={s.label} style={{ fontSize: 10, color: 'rgba(148,163,184,0.5)' }}>
+            <span style={{ fontWeight: 900, color: s.color, marginRight: 3 }}>{s.count}</span>{s.label}
+          </div>
+        ))}
+      </div>
+
+      {/* Type filter row */}
+      <div style={{ display: 'flex', gap: 5, marginBottom: 8, flexWrap: 'wrap' }}>
+        {['all', 'image', 'video', 'pdf'].map(t => {
+          const active = typeFilter === t;
+          const col = CAT_ACCENT[t] ?? '#94a3b8';
+          const rgb = hexRgb(col);
+          return (
+            <button key={t} onClick={() => setTypeFilter(t)} style={{
+              fontSize: 9, fontWeight: 800, padding: '3px 10px', borderRadius: 5, cursor: 'pointer',
+              background: active ? `rgba(${rgb},0.18)` : 'rgba(255,255,255,0.04)',
+              border: `1px solid ${active ? col : 'rgba(255,255,255,0.08)'}`,
+              color: active ? col : 'rgba(148,163,184,0.5)', transition: 'all 0.12s',
+              textTransform: 'uppercase', letterSpacing: '0.05em',
+            }}>{FILTER_LABELS[t] ?? t}</button>
+          );
+        })}
+      </div>
+
+      {/* Category filter row */}
+      <div style={{ display: 'flex', gap: 5, marginBottom: 16, flexWrap: 'wrap' }}>
+        {categories.map(cat => {
+          const active = filter === cat;
+          const col = CAT_ACCENT[cat] ?? '#94a3b8';
+          const rgb = hexRgb(col);
+          return (
+            <button key={cat} onClick={() => setFilter(cat)} style={{
+              fontSize: 9, fontWeight: 800, padding: '3px 10px', borderRadius: 5, cursor: 'pointer',
+              background: active ? `rgba(${rgb},0.18)` : 'rgba(255,255,255,0.04)',
+              border: `1px solid ${active ? col : 'rgba(255,255,255,0.08)'}`,
+              color: active ? col : 'rgba(148,163,184,0.5)', transition: 'all 0.12s',
+            }}>{FILTER_LABELS[cat] ?? cat} {cat !== 'all' && `(${items.filter(i=>i.category===cat).length})`}</button>
+          );
+        })}
+      </div>
+
+      {/* Grid */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 14 }}>
+        {filtered.map((item, idx) => {
+          const accent = CAT_ACCENT[item.category] ?? '#94a3b8';
+          const lbIdx = lbItems.indexOf(item);
+          return (
+            <MediaCard key={item.id} item={item} accent={accent}
+              onOpen={() => {
+                if (item.type !== 'pdf') setLbIndex(lbIdx >= 0 ? lbIdx : 0);
+                else window.open(`${import.meta.env.BASE_URL}media/${item.file}`, '_blank');
+              }} />
+          );
+        })}
+      </div>
+
+      {filtered.length === 0 && (
+        <div style={{ textAlign: 'center', padding: '32px 0', color: 'rgba(148,163,184,0.35)', fontSize: 11 }}>
+          No items match the selected filter.
+        </div>
+      )}
+
+      {/* Lightbox */}
+      {lbIndex !== null && lbItems.length > 0 && (
+        <Lightbox
+          items={lbItems}
+          index={lbIndex2}
+          onClose={() => setLbIndex(null)}
+          onPrev={() => setLbIndex(i => ((i ?? 0) - 1 + lbItems.length) % lbItems.length)}
+          onNext={() => setLbIndex(i => ((i ?? 0) + 1) % lbItems.length)}
+        />
+      )}
+    </div>
+  );
+}
+
+// ── Project Gallery Card (kept for reference, replaced by MediaGallery) ────────
 function ProjectCard({ p }: { p: typeof PROJECT_GALLERY[number] }) {
   const [hov, setHov] = useState(false);
   const rgb = hexRgb(p.accent);
@@ -1105,7 +1451,7 @@ export default function NetworkStory() {
           </div>
         </Section>
 
-        {/* ── LANDMARK PROJECTS GALLERY ── */}
+        {/* ── MEDIA GALLERY ── */}
         <div style={{ marginBottom: 32 }}>
           {/* Section header */}
           <div style={{
@@ -1123,20 +1469,15 @@ export default function NetworkStory() {
             </div>
             <div>
               <div style={{ fontSize: 14, fontWeight: 900, color: C.orange, letterSpacing: '0.04em' }}>
-                Landmark Projects · Aerial &amp; Drone Photography
+                Media Gallery · Photography, Video &amp; Reports
               </div>
               <div style={{ fontSize: 10, color: 'rgba(148,163,184,0.5)', marginTop: 2 }}>
-                Real drone and aerial imagery from Uganda's signature road infrastructure projects
+                Drone imagery, field photographs, video surveys, and annual monitoring reports from Uganda's national road network
               </div>
             </div>
           </div>
 
-          {/* 3-column grid */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
-            {PROJECT_GALLERY.map(proj => (
-              <ProjectCard key={proj.id} p={proj} />
-            ))}
-          </div>
+          <MediaGallery />
         </div>
 
         {/* ── ASSET REPLACEMENT VALUE ── */}
