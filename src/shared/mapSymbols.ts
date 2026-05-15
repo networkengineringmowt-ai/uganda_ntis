@@ -13,8 +13,8 @@ export const ESRI_ATTRIBUTIONS = {
 // Road line symbology — matches the dark-tarmac shimmer style on satellite imagery.
 export const ROAD_STYLES = {
   paved:   { color: '#111111', weight: 3.5, opacity: 0.95, dashArray: undefined as string | undefined },
-  unpaved: { color: '#A16207', weight: 1.5, opacity: 0.75, dashArray: '4 3'  as string | undefined },
-  unknown: { color: '#6B7280', weight: 1.5, opacity: 0.65, dashArray: '2 4'  as string | undefined },
+  unpaved: { color: '#8B5E3C', weight: 2.5, opacity: 1.0,  dashArray: '4 3'  as string | undefined },
+  unknown: { color: '#6B7280', weight: 2.0, opacity: 0.85, dashArray: '2 4'  as string | undefined },
   shimmer: { color: '#555555', weight: 1.5, opacity: 0.5 },
 };
 
