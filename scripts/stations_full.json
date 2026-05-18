@@ -1,0 +1,2747 @@
+[
+  {
+    "station_id": "1",
+    "station_name": "A00623",
+    "link_id": "A006_Link11",
+    "link_name": "Minakulu - Bobi - Gulu",
+    "latitude": 32.378133,
+    "longitude": 2.460853,
+    "region": "North"
+  },
+  {
+    "station_id": "2",
+    "station_name": "A00721",
+    "link_id": "A007_Link10",
+    "link_name": "Ayer - Kamdini",
+    "latitude": 32.507782,
+    "longitude": 2.239118,
+    "region": "North"
+  },
+  {
+    "station_id": "3",
+    "station_name": "A00801",
+    "link_id": "A008_Link01",
+    "link_name": "Karuma - Olwiyo",
+    "latitude": 32.05125,
+    "longitude": 2.383744,
+    "region": "North"
+  },
+  {
+    "station_id": "4",
+    "station_name": "A00804",
+    "link_id": "A008_Link03",
+    "link_name": "Packwach - Nebbi",
+    "latitude": 31.481604,
+    "longitude": 2.460245,
+    "region": "North"
+  },
+  {
+    "station_id": "5",
+    "station_name": "A00810",
+    "link_id": "A008_Link07",
+    "link_name": "Koboko - Oraba(Uganda/Sudan border)",
+    "latitude": 30.938964,
+    "longitude": 3.493313,
+    "region": "North"
+  },
+  {
+    "station_id": "6",
+    "station_name": "B25002",
+    "link_id": "B250_Link01",
+    "link_name": "Atiak - Moyo",
+    "latitude": 31.839033,
+    "longitude": 3.360951,
+    "region": "North"
+  },
+  {
+    "station_id": "7",
+    "station_name": "B25005",
+    "link_id": "B250_Link02",
+    "link_name": "Moyo - Yumbe",
+    "latitude": 31.409521,
+    "longitude": 3.556128,
+    "region": "North"
+  },
+  {
+    "station_id": "8",
+    "station_name": "B25001",
+    "link_id": "B250_Link01",
+    "link_name": "Atiak - Moyo",
+    "latitude": 32.078262,
+    "longitude": 3.301995,
+    "region": "North"
+  },
+  {
+    "station_id": "9",
+    "station_name": "B25207",
+    "link_id": "B252_Link03",
+    "link_name": "Acholibur - Kitgum",
+    "latitude": 32.885703,
+    "longitude": 3.287627,
+    "region": "North"
+  },
+  {
+    "station_id": "10",
+    "station_name": "B25302",
+    "link_id": "B253_Link02",
+    "link_name": "Masindi Port-Akokoro-Apac-Aduku",
+    "latitude": 32.36627,
+    "longitude": 1.822429,
+    "region": "North"
+  },
+  {
+    "station_id": "11",
+    "station_name": "B25303",
+    "link_id": "B253_Link03",
+    "link_name": "Aduku - Lira",
+    "latitude": 32.795815,
+    "longitude": 2.127102,
+    "region": "North"
+  },
+  {
+    "station_id": "12",
+    "station_name": "B30203",
+    "link_id": "B302_Link02",
+    "link_name": "Abim - Kilak",
+    "latitude": 33.241919,
+    "longitude": 2.767392,
+    "region": "North"
+  },
+  {
+    "station_id": "13",
+    "station_name": "C65001",
+    "link_id": "C650_Link01",
+    "link_name": "Lira - Akia",
+    "latitude": 33.237418,
+    "longitude": 2.405071,
+    "region": "North"
+  },
+  {
+    "station_id": "14",
+    "station_name": "C66101",
+    "link_id": "C661_Link01",
+    "link_name": "Apac-Cegere",
+    "latitude": 32.52059,
+    "longitude": 2.038383,
+    "region": "North"
+  },
+  {
+    "station_id": "15",
+    "station_name": "C67101",
+    "link_id": "C671_Link01",
+    "link_name": "Aloi - Aboko - Bata - Dokolo",
+    "latitude": 33.206423,
+    "longitude": 2.0293,
+    "region": "North"
+  },
+  {
+    "station_id": "16",
+    "station_name": "C65301",
+    "link_id": "C653_Link01",
+    "link_name": "Dokolo-Ochero",
+    "latitude": 33.099465,
+    "longitude": 1.821397,
+    "region": "North"
+  },
+  {
+    "station_id": "17",
+    "station_name": "C66502",
+    "link_id": "C665_Link02",
+    "link_name": "Anyeke-Minakulu",
+    "latitude": 32.516017,
+    "longitude": 2.335687,
+    "region": "North"
+  },
+  {
+    "station_id": "18",
+    "station_name": "C65601",
+    "link_id": "C656_Link01",
+    "link_name": "Namasale - Alemere",
+    "latitude": 32.697394,
+    "longitude": 1.657852,
+    "region": "North"
+  },
+  {
+    "station_id": "19",
+    "station_name": "C66901",
+    "link_id": "C669_Link01",
+    "link_name": "Lira Railway Access",
+    "latitude": 32.914734,
+    "longitude": 2.254235,
+    "region": "North"
+  },
+  {
+    "station_id": "20",
+    "station_name": "C68102",
+    "link_id": "C681_Link02",
+    "link_name": "Aswa - Gulu",
+    "latitude": 32.432623,
+    "longitude": 2.880954,
+    "region": "North"
+  },
+  {
+    "station_id": "21",
+    "station_name": "C67001",
+    "link_id": "C670_Link01",
+    "link_name": "Lira - Boroboro - Abako - Okude",
+    "latitude": 33.040724,
+    "longitude": 2.128526,
+    "region": "North"
+  },
+  {
+    "station_id": "22",
+    "station_name": "C67301",
+    "link_id": "C673_Link01",
+    "link_name": "Ngetta-Apala",
+    "latitude": 32.977097,
+    "longitude": 2.342636,
+    "region": "North"
+  },
+  {
+    "station_id": "23",
+    "station_name": "C67703",
+    "link_id": "C677_Link02",
+    "link_name": "Kalongo - Kitgum Matidi",
+    "latitude": 33.258229,
+    "longitude": 3.104025,
+    "region": "North"
+  },
+  {
+    "station_id": "24",
+    "station_name": "C67502",
+    "link_id": "C675_Link02",
+    "link_name": "Pader - Kwonkwic (Palwo)",
+    "latitude": 33.018038,
+    "longitude": 2.920284,
+    "region": "North"
+  },
+  {
+    "station_id": "25",
+    "station_name": "C67802",
+    "link_id": "C678_Link02",
+    "link_name": "Lokapel - Adilang",
+    "latitude": 33.448003,
+    "longitude": 3.23503,
+    "region": "North"
+  },
+  {
+    "station_id": "26",
+    "station_name": "C68001",
+    "link_id": "C680_Link01",
+    "link_name": "Gulu-Opit",
+    "latitude": 32.477746,
+    "longitude": 2.615778,
+    "region": "North"
+  },
+  {
+    "station_id": "27",
+    "station_name": "C68501",
+    "link_id": "C685_Link01",
+    "link_name": "Katikati - Tenumu - Nwoya",
+    "latitude": 32.091341,
+    "longitude": 2.73164,
+    "region": "North"
+  },
+  {
+    "station_id": "28",
+    "station_name": "C72602",
+    "link_id": "C726_Link01",
+    "link_name": "Adjumani - Sinyanya Ferry landing",
+    "latitude": 31.688425,
+    "longitude": 3.297278,
+    "region": "North"
+  },
+  {
+    "station_id": "29",
+    "station_name": "C68901",
+    "link_id": "C689_Link01",
+    "link_name": "Pakele - Pabbo",
+    "latitude": 32.071465,
+    "longitude": 3.116529,
+    "region": "North"
+  },
+  {
+    "station_id": "30",
+    "station_name": "C70001",
+    "link_id": "C700_Link01",
+    "link_name": "Atiak-Palabek",
+    "latitude": 32.272349,
+    "longitude": 3.260528,
+    "region": "North"
+  },
+  {
+    "station_id": "31",
+    "station_name": "C70502",
+    "link_id": "C705_Link02",
+    "link_name": "Paloga - Madiopei",
+    "latitude": 32.879807,
+    "longitude": 3.535938,
+    "region": "North"
+  },
+  {
+    "station_id": "32",
+    "station_name": "C70301",
+    "link_id": "C703_Link01",
+    "link_name": "Kitgum - Orom",
+    "latitude": 33.222132,
+    "longitude": 3.273647,
+    "region": "North"
+  },
+  {
+    "station_id": "33",
+    "station_name": "C72201",
+    "link_id": "C722_Link01",
+    "link_name": "Moyo - Obongi",
+    "latitude": 31.621765,
+    "longitude": 3.441716,
+    "region": "North"
+  },
+  {
+    "station_id": "34",
+    "station_name": "C75802",
+    "link_id": "C758_Link02",
+    "link_name": "Midigo - Kerwa",
+    "latitude": 31.286321,
+    "longitude": 3.676747,
+    "region": "North"
+  },
+  {
+    "station_id": "35",
+    "station_name": "C74001",
+    "link_id": "C740_Link01",
+    "link_name": "Koboko - Yumbe",
+    "latitude": 31.100868,
+    "longitude": 3.406444,
+    "region": "North"
+  },
+  {
+    "station_id": "36",
+    "station_name": "C74302",
+    "link_id": "C743_Link02",
+    "link_name": "Inde-Ocoko",
+    "latitude": 31.088542,
+    "longitude": 2.900401,
+    "region": "North"
+  },
+  {
+    "station_id": "37",
+    "station_name": "C74701",
+    "link_id": "C747_Link01",
+    "link_name": "Panyimur - Paidha Via Erusi-Goli",
+    "latitude": 31.150803,
+    "longitude": 2.320146,
+    "region": "North"
+  },
+  {
+    "station_id": "38",
+    "station_name": "C74401",
+    "link_id": "C744_Link01",
+    "link_name": "Eruba - Vurra",
+    "latitude": 30.889242,
+    "longitude": 2.926435,
+    "region": "North"
+  },
+  {
+    "station_id": "39",
+    "station_name": "C74501",
+    "link_id": "C745_Link01",
+    "link_name": "Nebbi - Goli",
+    "latitude": 31.049571,
+    "longitude": 2.438181,
+    "region": "North"
+  },
+  {
+    "station_id": "40",
+    "station_name": "C75201",
+    "link_id": "C752_Link01",
+    "link_name": "Arua - Lia",
+    "latitude": 30.852252,
+    "longitude": 3.053662,
+    "region": "North"
+  },
+  {
+    "station_id": "41",
+    "station_name": "C75701",
+    "link_id": "C757_Link01",
+    "link_name": "Keri - Lima - Midigo - Kerila",
+    "latitude": 31.082759,
+    "longitude": 3.56471,
+    "region": "North"
+  },
+  {
+    "station_id": "42",
+    "station_name": "C76203",
+    "link_id": "C762_Link02",
+    "link_name": "Biliafe - Otrevu",
+    "latitude": 31.087811,
+    "longitude": 3.123189,
+    "region": "North"
+  },
+  {
+    "station_id": "43",
+    "station_name": "C76301",
+    "link_id": "C763_Link01",
+    "link_name": "Paidha-Zombo",
+    "latitude": 30.928623,
+    "longitude": 2.56814,
+    "region": "North"
+  },
+  {
+    "station_id": "44",
+    "station_name": "B25202",
+    "link_id": "B252_Link01",
+    "link_name": "Lira - Puranga Bridge",
+    "latitude": 32.935763,
+    "longitude": 2.481173,
+    "region": "North"
+  },
+  {
+    "station_id": "45",
+    "station_name": "A00806",
+    "link_id": "A008_LINK04",
+    "link_name": "Nebbi - Eruba",
+    "latitude": 31.082228,
+    "longitude": 2.71155,
+    "region": "North"
+  },
+  {
+    "station_id": "46",
+    "station_name": "C68601",
+    "link_id": "C686_Link01",
+    "link_name": "Lamogi - Amuru Junction",
+    "latitude": 32.058582,
+    "longitude": 2.827651,
+    "region": "North"
+  },
+  {
+    "station_id": "47",
+    "station_name": "B250_LINK03",
+    "link_id": "B250_Link03",
+    "link_name": "Yumbe - Manibe",
+    "latitude": 31.114355,
+    "longitude": 3.274894,
+    "region": "North"
+  },
+  {
+    "station_id": "48",
+    "station_name": "A008_LINK06",
+    "link_id": "A008_Link06",
+    "link_name": "Manibe - Maracha - Koboko",
+    "latitude": 30.919381,
+    "longitude": 3.23488,
+    "region": "North"
+  },
+  {
+    "station_id": "49",
+    "station_name": "B252_LINK02",
+    "link_id": "B252_Link02",
+    "link_name": "Puranga Bridge - Corner Kilak - Pejule - Acholibur",
+    "latitude": 32.9406356,
+    "longitude": 2.9493592,
+    "region": "North"
+  },
+  {
+    "station_id": "50",
+    "station_name": "A008_LINK05",
+    "link_id": "A008_Link05",
+    "link_name": "Eruba - Arua - Manibe",
+    "latitude": 30.915265,
+    "longitude": 2.985421,
+    "region": "North"
+  },
+  {
+    "station_id": "51",
+    "station_name": "C758_LINK01",
+    "link_id": "C758_Link01",
+    "link_name": "Keriri - Midigo",
+    "latitude": 31.252246,
+    "longitude": 3.551795,
+    "region": "North"
+  },
+  {
+    "station_id": "52",
+    "station_name": "C677_LINK03",
+    "link_id": "C677_Link03",
+    "link_name": "Kalongo - Kitgum Matidi",
+    "latitude": 33.090625,
+    "longitude": 3.215927,
+    "region": "North"
+  },
+  {
+    "station_id": "53",
+    "station_name": "C705_LINK01",
+    "link_id": "C705_Link01",
+    "link_name": "Padibe - Paloga",
+    "latitude": 33.013591,
+    "longitude": 3.615427,
+    "region": "North"
+  },
+  {
+    "station_id": "54",
+    "station_name": "C65302",
+    "link_id": "C653_Link02",
+    "link_name": "Ochero-Namasale",
+    "latitude": 32.7552909,
+    "longitude": 1.61158889,
+    "region": "North"
+  },
+  {
+    "station_id": "55",
+    "station_name": "A00121",
+    "link_id": "A001N2_Link01",
+    "link_name": "Jinja - Kakira Junction(Dual section)",
+    "latitude": 33.235366,
+    "longitude": 0.465198,
+    "region": "East"
+  },
+  {
+    "station_id": "56",
+    "station_name": "A00122",
+    "link_id": "A001_Link06",
+    "link_name": "Kakira junction - Iganga",
+    "latitude": 33.333223,
+    "longitude": 0.51135,
+    "region": "East"
+  },
+  {
+    "station_id": "57",
+    "station_name": "A00704",
+    "link_id": "A007_Link02",
+    "link_name": "Tororo - Magodes - Nabumali",
+    "latitude": 34.160358,
+    "longitude": 0.923931,
+    "region": "East"
+  },
+  {
+    "station_id": "58",
+    "station_name": "A00711",
+    "link_id": "A007_Link04",
+    "link_name": "Mbale - Namunsi - Kumi",
+    "latitude": 34.16464,
+    "longitude": 1.14575,
+    "region": "East"
+  },
+  {
+    "station_id": "59",
+    "station_name": "B30001",
+    "link_id": "B300_Link01",
+    "link_name": "Namunsi - Sironko",
+    "latitude": 34.182165,
+    "longitude": 1.138424,
+    "region": "East"
+  },
+  {
+    "station_id": "60",
+    "station_name": "B30005",
+    "link_id": "B300_Link03",
+    "link_name": "Muyembe - Namalu",
+    "latitude": 34.411237,
+    "longitude": 1.475982,
+    "region": "East"
+  },
+  {
+    "station_id": "61",
+    "station_name": "B30401",
+    "link_id": "B304_Link01",
+    "link_name": "Muyembe - Kaserem - Kapchorwa",
+    "latitude": 34.319641,
+    "longitude": 1.339773,
+    "region": "East"
+  },
+  {
+    "station_id": "62",
+    "station_name": "B30501",
+    "link_id": "B305_Link01",
+    "link_name": "Tirinyi - Pallisa",
+    "latitude": 33.749118,
+    "longitude": 1.088482,
+    "region": "East"
+  },
+  {
+    "station_id": "63",
+    "station_name": "B30601",
+    "link_id": "B306_Link01",
+    "link_name": "Tororo(Malaba junction) - Busia",
+    "latitude": 34.131228,
+    "longitude": 0.564168,
+    "region": "East"
+  },
+  {
+    "station_id": "64",
+    "station_name": "B30702",
+    "link_id": "B307_Link02",
+    "link_name": "Buwenge - Kamuli",
+    "latitude": 33.146631,
+    "longitude": 0.763143,
+    "region": "East"
+  },
+  {
+    "station_id": "65",
+    "station_name": "B30801",
+    "link_id": "B308_Link01",
+    "link_name": "Namutere - Busia",
+    "latitude": 34.019887,
+    "longitude": 0.480938,
+    "region": "East"
+  },
+  {
+    "station_id": "66",
+    "station_name": "C31001",
+    "link_id": "C310_Link01",
+    "link_name": "Kamuli - Namasagali",
+    "latitude": 33.026061,
+    "longitude": 0.958745,
+    "region": "East"
+  },
+  {
+    "station_id": "67",
+    "station_name": "C79203",
+    "link_id": "C792_Link02",
+    "link_name": "Namagera - Lubanyi",
+    "latitude": 33.078342,
+    "longitude": 0.734108,
+    "region": "East"
+  },
+  {
+    "station_id": "68",
+    "station_name": "C78103",
+    "link_id": "C781_Link02",
+    "link_name": "Mayuge - Kaluuba",
+    "latitude": 33.493992,
+    "longitude": 0.420334,
+    "region": "East"
+  },
+  {
+    "station_id": "69",
+    "station_name": "C78203",
+    "link_id": "C782_Link02",
+    "link_name": "Nankoma-Namayingo-Lumino",
+    "latitude": 33.936703,
+    "longitude": 0.319814,
+    "region": "East"
+  },
+  {
+    "station_id": "70",
+    "station_name": "C78401",
+    "link_id": "C784_Link01",
+    "link_name": "Iganga-Kaliro",
+    "latitude": 33.507558,
+    "longitude": 0.751834,
+    "region": "East"
+  },
+  {
+    "station_id": "71",
+    "station_name": "C80901",
+    "link_id": "C809_Link01",
+    "link_name": "Kaliro - Namwiwa",
+    "latitude": 33.518067,
+    "longitude": 0.996526,
+    "region": "East"
+  },
+  {
+    "station_id": "72",
+    "station_name": "C80301",
+    "link_id": "C803_Link01",
+    "link_name": "Idudi - Busembatya",
+    "latitude": 33.642046,
+    "longitude": 0.685383,
+    "region": "East"
+  },
+  {
+    "station_id": "73",
+    "station_name": "C79202",
+    "link_id": "C792_Link01",
+    "link_name": "Kaitabawaala - Buyala - Namagera",
+    "latitude": 33.155255,
+    "longitude": 0.522596,
+    "region": "East"
+  },
+  {
+    "station_id": "74",
+    "station_name": "C79703",
+    "link_id": "C797_Link02",
+    "link_name": "Kakira - Namasiga",
+    "latitude": 33.315337,
+    "longitude": 0.585291,
+    "region": "East"
+  },
+  {
+    "station_id": "75",
+    "station_name": "C80001",
+    "link_id": "C800_Link01",
+    "link_name": "Bugiri - Nankoma",
+    "latitude": 33.728199,
+    "longitude": 0.502031,
+    "region": "East"
+  },
+  {
+    "station_id": "76",
+    "station_name": "C80601",
+    "link_id": "C806_Link01",
+    "link_name": "Bugiri - Kiseitaka - Nabukalu - Naigaga",
+    "latitude": 33.688172,
+    "longitude": 0.806054,
+    "region": "East"
+  },
+  {
+    "station_id": "77",
+    "station_name": "C81101",
+    "link_id": "C811_Link01",
+    "link_name": "Kamuli - Nabirumba",
+    "latitude": 33.153909,
+    "longitude": 0.98417,
+    "region": "East"
+  },
+  {
+    "station_id": "78",
+    "station_name": "C81701",
+    "link_id": "C817_Link01",
+    "link_name": "Nankoma - Kaluba",
+    "latitude": 33.627001,
+    "longitude": 0.402527,
+    "region": "East"
+  },
+  {
+    "station_id": "79",
+    "station_name": "C83001",
+    "link_id": "C830_Link01",
+    "link_name": "Busia - Majanji",
+    "latitude": 34.030027,
+    "longitude": 0.402872,
+    "region": "East"
+  },
+  {
+    "station_id": "80",
+    "station_name": "C84002",
+    "link_id": "C840_Link02",
+    "link_name": "Apokor - Kwapa - Tuba",
+    "latitude": 34.22404,
+    "longitude": 0.761605,
+    "region": "East"
+  },
+  {
+    "station_id": "81",
+    "station_name": "C83201",
+    "link_id": "C832_Link01",
+    "link_name": "Tororo-Nagongera",
+    "latitude": 34.044244,
+    "longitude": 0.759378,
+    "region": "East"
+  },
+  {
+    "station_id": "82",
+    "station_name": "C83701",
+    "link_id": "C837_Link01",
+    "link_name": "Nagongera - Merikit - Kidoko",
+    "latitude": 34.087433,
+    "longitude": 0.806075,
+    "region": "East"
+  },
+  {
+    "station_id": "83",
+    "station_name": "C84401",
+    "link_id": "C844_Link01",
+    "link_name": "Rubongi - Mulanda",
+    "latitude": 34.083566,
+    "longitude": 0.685011,
+    "region": "East"
+  },
+  {
+    "station_id": "84",
+    "station_name": "C86201",
+    "link_id": "C862_Link01",
+    "link_name": "Namagumba - Budadiri",
+    "latitude": 34.264365,
+    "longitude": 1.147174,
+    "region": "East"
+  },
+  {
+    "station_id": "85",
+    "station_name": "C87801",
+    "link_id": "C878_Link01",
+    "link_name": "Nakaloke-Kabwangasi-Butebo",
+    "latitude": 34.138713,
+    "longitude": 1.141863,
+    "region": "East"
+  },
+  {
+    "station_id": "86",
+    "station_name": "C86502",
+    "link_id": "C865_Link02",
+    "link_name": "Busumbu-Munamba",
+    "latitude": 34.238734,
+    "longitude": 0.823911,
+    "region": "East"
+  },
+  {
+    "station_id": "87",
+    "station_name": "C92702",
+    "link_id": "C927_Link02",
+    "link_name": "Korir - Malera - Kumi",
+    "latitude": 34.09247,
+    "longitude": 1.440615,
+    "region": "East"
+  },
+  {
+    "station_id": "88",
+    "station_name": "C87201",
+    "link_id": "C872_Link01",
+    "link_name": "Budaka - Kaderuna",
+    "latitude": 33.933242,
+    "longitude": 1.065014,
+    "region": "East"
+  },
+  {
+    "station_id": "89",
+    "station_name": "C87601",
+    "link_id": "C876_Link01",
+    "link_name": "Nabiganda -Nambale - Kamoto - Malukhu",
+    "latitude": 34.129963,
+    "longitude": 1.051926,
+    "region": "East"
+  },
+  {
+    "station_id": "90",
+    "station_name": "C88202",
+    "link_id": "C882_Link01",
+    "link_name": "Korir - Sironko",
+    "latitude": 34.195733,
+    "longitude": 1.284688,
+    "region": "East"
+  },
+  {
+    "station_id": "91",
+    "station_name": "A01204",
+    "link_id": "A012_Link04",
+    "link_name": "Kamonkoli - Mbale",
+    "latitude": 33.933866,
+    "longitude": 1.013585,
+    "region": "East"
+  },
+  {
+    "station_id": "92",
+    "station_name": "B30502",
+    "link_id": "B305_Link02",
+    "link_name": "Pallisa - Kanyago Bridge",
+    "latitude": 33.794974,
+    "longitude": 1.216074,
+    "region": "East"
+  },
+  {
+    "station_id": "93",
+    "station_name": "B300_LINK02",
+    "link_id": "B300_Link02",
+    "link_name": "Sironko - Muyembe",
+    "latitude": null,
+    "longitude": null,
+    "region": "East"
+  },
+  {
+    "station_id": "94",
+    "station_name": "A001_LINK11",
+    "link_id": "A001_Link11",
+    "link_name": "Tororo junction - Malaba(Uganda/Kenya border)",
+    "latitude": null,
+    "longitude": null,
+    "region": "East"
+  },
+  {
+    "station_id": "95",
+    "station_name": "C782_LINK01",
+    "link_id": "C782_Link01",
+    "link_name": "Musita-Mayuge - Nankoma",
+    "latitude": null,
+    "longitude": null,
+    "region": "East"
+  },
+  {
+    "station_id": "96",
+    "station_name": "C840_LINK01",
+    "link_id": "C840_Link01",
+    "link_name": "Malaba - Mella - Apokor",
+    "latitude": null,
+    "longitude": null,
+    "region": "East"
+  },
+  {
+    "station_id": "97",
+    "station_name": "B30009",
+    "link_id": "B300_Link05",
+    "link_name": "Lokapel - Ariamoi",
+    "latitude": 34.602362,
+    "longitude": 2.320386,
+    "region": "North East"
+  },
+  {
+    "station_id": "98",
+    "station_name": "B30103",
+    "link_id": "B301_Link02",
+    "link_name": "Kapelimoru - Kotido",
+    "latitude": 34.115303,
+    "longitude": 2.972008,
+    "region": "North East"
+  },
+  {
+    "station_id": "99",
+    "station_name": "B30105",
+    "link_id": "B301_Link03",
+    "link_name": "Kotido - Apaan - Kabong",
+    "latitude": 34.121318,
+    "longitude": 3.538836,
+    "region": "North East"
+  },
+  {
+    "station_id": "100",
+    "station_name": "B30301",
+    "link_id": "B303_Link01",
+    "link_name": "Soroti - Arapai",
+    "latitude": 33.61628,
+    "longitude": 1.746355,
+    "region": "North East"
+  },
+  {
+    "station_id": "101",
+    "station_name": "B30302",
+    "link_id": "B303_Link01",
+    "link_name": "Soroti - Arapai",
+    "latitude": 33.628538,
+    "longitude": 1.779603,
+    "region": "North East"
+  },
+  {
+    "station_id": "102",
+    "station_name": "C96401",
+    "link_id": "C964_Link01",
+    "link_name": "Soroti-Toroma",
+    "latitude": 33.799291,
+    "longitude": 1.721511,
+    "region": "North East"
+  },
+  {
+    "station_id": "103",
+    "station_name": "C92401",
+    "link_id": "C924_Link01",
+    "link_name": "Katine to Ochero",
+    "latitude": 33.268813,
+    "longitude": 1.723948,
+    "region": "North East"
+  },
+  {
+    "station_id": "104",
+    "station_name": "C92501",
+    "link_id": "C925_Link01",
+    "link_name": "Soroti - Serere",
+    "latitude": 33.531421,
+    "longitude": 1.61685,
+    "region": "North East"
+  },
+  {
+    "station_id": "105",
+    "station_name": "C93201",
+    "link_id": "C932_Link01",
+    "link_name": "Serere-Pingire",
+    "latitude": 33.353595,
+    "longitude": 1.447302,
+    "region": "North East"
+  },
+  {
+    "station_id": "106",
+    "station_name": "C93802",
+    "link_id": "C938_Link02",
+    "link_name": "Katakwi - Toroma",
+    "latitude": 33.945743,
+    "longitude": 1.836107,
+    "region": "North East"
+  },
+  {
+    "station_id": "107",
+    "station_name": "C93901",
+    "link_id": "C939_Link01",
+    "link_name": "Arapai-Amuria",
+    "latitude": 33.630621,
+    "longitude": 1.905648,
+    "region": "North East"
+  },
+  {
+    "station_id": "108",
+    "station_name": "C96501",
+    "link_id": "C965_Link01",
+    "link_name": "Apeitolim - Iriri",
+    "latitude": 34.055852,
+    "longitude": 2.217853,
+    "region": "North East"
+  },
+  {
+    "station_id": "109",
+    "station_name": "C94402",
+    "link_id": "C944_Link01",
+    "link_name": "Kaberamaido - Dokolo",
+    "latitude": 33.168622,
+    "longitude": 1.826832,
+    "region": "North East"
+  },
+  {
+    "station_id": "110",
+    "station_name": "C96001",
+    "link_id": "C960_Link01",
+    "link_name": "Angatun-Nabilatuk-Lokapel",
+    "latitude": 34.569361,
+    "longitude": 2.038523,
+    "region": "North East"
+  },
+  {
+    "station_id": "111",
+    "station_name": "C96101",
+    "link_id": "C961_Link01",
+    "link_name": "Chosan to Amudat",
+    "latitude": 34.828089,
+    "longitude": 1.942511,
+    "region": "North East"
+  },
+  {
+    "station_id": "112",
+    "station_name": "C96302",
+    "link_id": "C963_Link02",
+    "link_name": "Lokitanyara-Loro-Amudat",
+    "latitude": 34.898627,
+    "longitude": 2.202535,
+    "region": "North East"
+  },
+  {
+    "station_id": "113",
+    "station_name": "C96303",
+    "link_id": "C963_Link03",
+    "link_name": "Amudat-Alakasi-Kalita",
+    "latitude": 34.953363,
+    "longitude": 1.796953,
+    "region": "North East"
+  },
+  {
+    "station_id": "114",
+    "station_name": "C96703",
+    "link_id": "C967_Link01",
+    "link_name": "Kokeris - Lopei",
+    "latitude": 34.366595,
+    "longitude": 2.513746,
+    "region": "North East"
+  },
+  {
+    "station_id": "115",
+    "station_name": "C98302",
+    "link_id": "C983_Link02",
+    "link_name": "Kotein - Kenya Border",
+    "latitude": 34.225536,
+    "longitude": 3.017955,
+    "region": "North East"
+  },
+  {
+    "station_id": "116",
+    "station_name": "C98001",
+    "link_id": "C980_Link01",
+    "link_name": "Akwanamoru - Opua - Orogom - Oreta",
+    "latitude": 33.883942,
+    "longitude": 2.6952,
+    "region": "North East"
+  },
+  {
+    "station_id": "117",
+    "station_name": "C98101",
+    "link_id": "C981_Link01",
+    "link_name": "Koputh-Koputh Junction (Lololia)",
+    "latitude": 34.095997,
+    "longitude": 3.364094,
+    "region": "North East"
+  },
+  {
+    "station_id": "118",
+    "station_name": "C98201",
+    "link_id": "C982_Link01",
+    "link_name": "Kotido - Loslang - Layoro",
+    "latitude": 34.186581,
+    "longitude": 3.159014,
+    "region": "North East"
+  },
+  {
+    "station_id": "119",
+    "station_name": "C98501",
+    "link_id": "C985_Link01",
+    "link_name": "Kaabong - Kalapata - Piire",
+    "latitude": 34.176601,
+    "longitude": 3.677369,
+    "region": "North East"
+  },
+  {
+    "station_id": "120",
+    "station_name": "C92001",
+    "link_id": "C920_Link01",
+    "link_name": "Kumi-Brooks corner",
+    "latitude": 33.9341,
+    "longitude": 1.48769,
+    "region": "North East"
+  },
+  {
+    "station_id": "121",
+    "station_name": "B302_LINK01",
+    "link_id": "B302_Link01",
+    "link_name": "Kotido - Abim",
+    "latitude": null,
+    "longitude": null,
+    "region": "North East"
+  },
+  {
+    "station_id": "122",
+    "station_name": "A00109",
+    "link_id": "A001_Link02",
+    "link_name": "Mukono - Lugazi",
+    "latitude": 32.75632,
+    "longitude": 0.354546,
+    "region": "Central"
+  },
+  {
+    "station_id": "123",
+    "station_name": "A00114",
+    "link_id": "A001_Link03",
+    "link_name": "Lugazi - Njeru",
+    "latitude": 33.179248,
+    "longitude": 0.44049,
+    "region": "Central"
+  },
+  {
+    "station_id": "124",
+    "station_name": "A00205",
+    "link_id": "A002_Link03",
+    "link_name": "Mpigi - Buwama",
+    "latitude": 32.3344,
+    "longitude": 0.220085,
+    "region": "Central"
+  },
+  {
+    "station_id": "125",
+    "station_name": "A00214",
+    "link_id": "A002_Link06",
+    "link_name": "Masaka  - Lyantonde",
+    "latitude": 31.434408,
+    "longitude": -0.393421,
+    "region": "Central"
+  },
+  {
+    "station_id": "126",
+    "station_name": "A00303",
+    "link_id": "A003_Link02",
+    "link_name": "Zana - Entebbe Airport",
+    "latitude": 32.541104,
+    "longitude": 0.140742,
+    "region": "Central"
+  },
+  {
+    "station_id": "127",
+    "station_name": "A00304",
+    "link_id": "A003_Link02",
+    "link_name": "Zana - Entebbe Airport",
+    "latitude": 32.459875,
+    "longitude": 0.042243,
+    "region": "Central"
+  },
+  {
+    "station_id": "128",
+    "station_name": "A00401",
+    "link_id": "A004_Link01",
+    "link_name": "Masaka round about - Kyotera",
+    "latitude": 31.728986,
+    "longitude": -0.336988,
+    "region": "Central"
+  },
+  {
+    "station_id": "129",
+    "station_name": "A00509",
+    "link_id": "A005_Link03",
+    "link_name": "Mityana - Naama - Myanzi",
+    "latitude": 31.987974,
+    "longitude": 0.416103,
+    "region": "Central"
+  },
+  {
+    "station_id": "130",
+    "station_name": "A00514",
+    "link_id": "A005_Link05",
+    "link_name": "Kiganda-Kitenga",
+    "latitude": 31.587595,
+    "longitude": 0.484048,
+    "region": "Central"
+  },
+  {
+    "station_id": "131",
+    "station_name": "A00515",
+    "link_id": "A005_Link06",
+    "link_name": "Kitenga-Mubende-Lusalira",
+    "latitude": 31.396642,
+    "longitude": 0.550429,
+    "region": "Central"
+  },
+  {
+    "station_id": "132",
+    "station_name": "A00516",
+    "link_id": "A005_Link07",
+    "link_name": "Lusalira - Nabingoola - Lubaale",
+    "latitude": 31.235609,
+    "longitude": 0.487317,
+    "region": "Central"
+  },
+  {
+    "station_id": "133",
+    "station_name": "A00606",
+    "link_id": "A006_Link03",
+    "link_name": "Matuga - Wobulenzi",
+    "latitude": 32.525945,
+    "longitude": 0.67852,
+    "region": "Central"
+  },
+  {
+    "station_id": "134",
+    "station_name": "A00610",
+    "link_id": "A006_Link05",
+    "link_name": "Luweero - Nakasongola",
+    "latitude": 32.467194,
+    "longitude": 1.048777,
+    "region": "Central"
+  },
+  {
+    "station_id": "135",
+    "station_name": "A00612",
+    "link_id": "A006_Link06",
+    "link_name": "Nakasongola - Kafu",
+    "latitude": 32.214069,
+    "longitude": 1.416181,
+    "region": "Central"
+  },
+  {
+    "station_id": "136",
+    "station_name": "A00902",
+    "link_id": "A009_Link02",
+    "link_name": "Nansana - Busunju",
+    "latitude": 32.469052,
+    "longitude": 0.406898,
+    "region": "Central"
+  },
+  {
+    "station_id": "137",
+    "station_name": "A00906",
+    "link_id": "A009_Link03",
+    "link_name": "Busunju - Kiboga - Lwamata",
+    "latitude": 32.142553,
+    "longitude": 0.60548,
+    "region": "Central"
+  },
+  {
+    "station_id": "138",
+    "station_name": "B10004",
+    "link_id": "B100_Link02",
+    "link_name": "Gayaza - Kalagi",
+    "latitude": 32.611877,
+    "longitude": 0.449001,
+    "region": "Central"
+  },
+  {
+    "station_id": "139",
+    "station_name": "B10105",
+    "link_id": "B101_Link03",
+    "link_name": "Kayunga - Busana - River Nile",
+    "latitude": 32.973489,
+    "longitude": 0.755185,
+    "region": "Central"
+  },
+  {
+    "station_id": "140",
+    "station_name": "B10302",
+    "link_id": "B103_Link02",
+    "link_name": "Villa Maria - Sembabule",
+    "latitude": 31.439757,
+    "longitude": -0.070925,
+    "region": "Central"
+  },
+  {
+    "station_id": "141",
+    "station_name": "B10304",
+    "link_id": "B103_Link03",
+    "link_name": "Nkonge - Kibula - Magege - Kasambya",
+    "latitude": 31.185256,
+    "longitude": 0.307506,
+    "region": "Central"
+  },
+  {
+    "station_id": "142",
+    "station_name": "B10305",
+    "link_id": "B103_Link04",
+    "link_name": "Kasambya - Lusalira",
+    "latitude": 31.289959,
+    "longitude": 0.424849,
+    "region": "Central"
+  },
+  {
+    "station_id": "143",
+    "station_name": "B20301",
+    "link_id": "B203_Link01",
+    "link_name": "Mubende - Kiboyo - Kakumiro",
+    "latitude": 31.374654,
+    "longitude": 0.646954,
+    "region": "Central"
+  },
+  {
+    "station_id": "144",
+    "station_name": "B20303",
+    "link_id": "B203_Link02",
+    "link_name": "Kakumiro - Nkondo - Kijaguza - Bulamagi- Kabaale swamp",
+    "latitude": 31.256477,
+    "longitude": 0.902313,
+    "region": "Central"
+  },
+  {
+    "station_id": "145",
+    "station_name": "C16001",
+    "link_id": "C160_Link01",
+    "link_name": "Mpigi-Kasanje-Buwaya",
+    "latitude": 32.392632,
+    "longitude": 0.159778,
+    "region": "Central"
+  },
+  {
+    "station_id": "146",
+    "station_name": "C04101",
+    "link_id": "C041_Link01",
+    "link_name": "Namataba - Kyampisi",
+    "latitude": 32.906525,
+    "longitude": 0.493977,
+    "region": "Central"
+  },
+  {
+    "station_id": "147",
+    "station_name": "C02902",
+    "link_id": "C029_Link01",
+    "link_name": "Njeru-Nyenga-Buikwe",
+    "latitude": 33.163594,
+    "longitude": 0.386987,
+    "region": "Central"
+  },
+  {
+    "station_id": "148",
+    "station_name": "C03601",
+    "link_id": "C036_Link01",
+    "link_name": "Nambole - Kampala Industrial Park - Mukono",
+    "latitude": 32.674404,
+    "longitude": 0.349804,
+    "region": "Central"
+  },
+  {
+    "station_id": "149",
+    "station_name": "C04501",
+    "link_id": "C045_Link01",
+    "link_name": "Kabimbiri - Misindye",
+    "latitude": 32.846684,
+    "longitude": 0.526095,
+    "region": "Central"
+  },
+  {
+    "station_id": "150",
+    "station_name": "C15003",
+    "link_id": "C150_Link01",
+    "link_name": "Najanankumbi - Busabala",
+    "latitude": 32.592027,
+    "longitude": 0.249396,
+    "region": "Central"
+  },
+  {
+    "station_id": "151",
+    "station_name": "C15204",
+    "link_id": "C152_Link01",
+    "link_name": "Kireka-Namugongo-Misindye-Seeta",
+    "latitude": 32.708525,
+    "longitude": 0.383341,
+    "region": "Central"
+  },
+  {
+    "station_id": "152",
+    "station_name": "C15301",
+    "link_id": "C153_Link01",
+    "link_name": "Lweza - Kigo Prison",
+    "latitude": 32.575616,
+    "longitude": 0.207,
+    "region": "Central"
+  },
+  {
+    "station_id": "153",
+    "station_name": "C15401",
+    "link_id": "C154_Link01",
+    "link_name": "Matugga - Semuto - Kapeka",
+    "latitude": 32.468461,
+    "longitude": 0.503904,
+    "region": "Central"
+  },
+  {
+    "station_id": "154",
+    "station_name": "C15404",
+    "link_id": "C154_Link02",
+    "link_name": "Kapeka-Butalangwa",
+    "latitude": 32.230805,
+    "longitude": 0.754602,
+    "region": "Central"
+  },
+  {
+    "station_id": "155",
+    "station_name": "C18002",
+    "link_id": "C180_Link01",
+    "link_name": "Nakawuka - Namutamala - Katende - Bujuko",
+    "latitude": 32.375647,
+    "longitude": 0.288863,
+    "region": "Central"
+  },
+  {
+    "station_id": "156",
+    "station_name": "C16201",
+    "link_id": "C162_Link01",
+    "link_name": "Mpigi - Kanoni",
+    "latitude": 32.116242,
+    "longitude": 0.180936,
+    "region": "Central"
+  },
+  {
+    "station_id": "157",
+    "station_name": "C16202",
+    "link_id": "C162_Link02",
+    "link_name": "Kanoni - Kabulasoke",
+    "latitude": 31.857702,
+    "longitude": 0.173679,
+    "region": "Central"
+  },
+  {
+    "station_id": "158",
+    "station_name": "C16204",
+    "link_id": "C162_Link04",
+    "link_name": "Madu - Kasambya",
+    "latitude": 31.511686,
+    "longitude": 0.182245,
+    "region": "Central"
+  },
+  {
+    "station_id": "159",
+    "station_name": "C16301",
+    "link_id": "C163_Link01",
+    "link_name": "MitalaMaria-Bulo-Kanoni",
+    "latitude": 32.00991,
+    "longitude": 0.113643,
+    "region": "Central"
+  },
+  {
+    "station_id": "160",
+    "station_name": "C16601",
+    "link_id": "C166_Link01",
+    "link_name": "Madu-Kisozi-R.Katonga",
+    "latitude": 31.614129,
+    "longitude": 0.137016,
+    "region": "Central"
+  },
+  {
+    "station_id": "161",
+    "station_name": "C16602",
+    "link_id": "C166_Link02",
+    "link_name": "R. Katonga - Sembabule",
+    "latitude": 31.508165,
+    "longitude": -0.001209,
+    "region": "Central"
+  },
+  {
+    "station_id": "162",
+    "station_name": "C16604",
+    "link_id": "C166_Link04",
+    "link_name": "Matete - Mbirizi",
+    "latitude": 31.474279,
+    "longitude": -0.318433,
+    "region": "Central"
+  },
+  {
+    "station_id": "163",
+    "station_name": "C26202",
+    "link_id": "C262_Link01",
+    "link_name": "Mityana-Misigi-Kanoni",
+    "latitude": 31.894334,
+    "longitude": 0.19725,
+    "region": "Central"
+  },
+  {
+    "station_id": "164",
+    "station_name": "C17501",
+    "link_id": "C175_Link01",
+    "link_name": "Abayita Ababiri - Kasenyi",
+    "latitude": 32.51606,
+    "longitude": 0.077184,
+    "region": "Central"
+  },
+  {
+    "station_id": "165",
+    "station_name": "C17803",
+    "link_id": "C178_Link01",
+    "link_name": "Natete - Nakawuka - Kisubi",
+    "latitude": 32.495108,
+    "longitude": 0.238627,
+    "region": "Central"
+  },
+  {
+    "station_id": "166",
+    "station_name": "C17901",
+    "link_id": "C179_Link01",
+    "link_name": "Old Masaka Road (Kyengera -Kabojja Secondary)",
+    "latitude": 32.516061,
+    "longitude": 0.299874,
+    "region": "Central"
+  },
+  {
+    "station_id": "167",
+    "station_name": "C18003",
+    "link_id": "C180_Link01",
+    "link_name": "Nakawuka - Namutamala - Katende - Bujuko",
+    "latitude": 32.421719,
+    "longitude": 0.221347,
+    "region": "Central"
+  },
+  {
+    "station_id": "168",
+    "station_name": "C18201",
+    "link_id": "C182_Link01",
+    "link_name": "Buloba - Wakiso",
+    "latitude": 32.470516,
+    "longitude": 0.365901,
+    "region": "Central"
+  },
+  {
+    "station_id": "169",
+    "station_name": "C18401",
+    "link_id": "C184_Link01",
+    "link_name": "Kakiri-Masulita-Danze-Mawale",
+    "latitude": 32.369254,
+    "longitude": 0.489692,
+    "region": "Central"
+  },
+  {
+    "station_id": "170",
+    "station_name": "C18603",
+    "link_id": "C186_Link01",
+    "link_name": "Namyumba-Kakonda-Wabikokoma-Semuto",
+    "latitude": 32.321237,
+    "longitude": 0.600388,
+    "region": "Central"
+  },
+  {
+    "station_id": "171",
+    "station_name": "C18701",
+    "link_id": "C187_Link01",
+    "link_name": "Namayumba - Kitalya Prison - Kamuli",
+    "latitude": 32.244426,
+    "longitude": 0.462876,
+    "region": "Central"
+  },
+  {
+    "station_id": "172",
+    "station_name": "C18801",
+    "link_id": "C188_Link01",
+    "link_name": "Kyabadaza - Kibibi",
+    "latitude": 32.188076,
+    "longitude": 0.176945,
+    "region": "Central"
+  },
+  {
+    "station_id": "173",
+    "station_name": "C19001",
+    "link_id": "C190_Link01",
+    "link_name": "Kayabwe - Nkozi - Kinyika - Ngando - Wab",
+    "latitude": 31.912953,
+    "longitude": 0.083083,
+    "region": "Central"
+  },
+  {
+    "station_id": "174",
+    "station_name": "C19301",
+    "link_id": "C193_Link01",
+    "link_name": "Wakiso-Kassengejja- Matugga",
+    "latitude": 32.498758,
+    "longitude": 0.434321,
+    "region": "Central"
+  },
+  {
+    "station_id": "175",
+    "station_name": "C19401",
+    "link_id": "C194_Link01",
+    "link_name": "Matugga - Kasangati",
+    "latitude": 32.56469,
+    "longitude": 0.455449,
+    "region": "Central"
+  },
+  {
+    "station_id": "176",
+    "station_name": "C19501",
+    "link_id": "C195_Link01",
+    "link_name": "Nakawuka Kasanje",
+    "latitude": 32.428015,
+    "longitude": 0.172569,
+    "region": "Central"
+  },
+  {
+    "station_id": "177",
+    "station_name": "C22301",
+    "link_id": "C223_Link01",
+    "link_name": "Taba -Kyeesiga-Ddimo Landing site",
+    "latitude": 31.710245,
+    "longitude": -0.574127,
+    "region": "Central"
+  },
+  {
+    "station_id": "178",
+    "station_name": "C21101",
+    "link_id": "C211_Link01",
+    "link_name": "Nyendo - Lambu port Junction",
+    "latitude": 31.87179,
+    "longitude": -0.31246,
+    "region": "Central"
+  },
+  {
+    "station_id": "179",
+    "station_name": "C21401",
+    "link_id": "C214_Link01",
+    "link_name": "Lyantonde - Lumbugu",
+    "latitude": 31.26532,
+    "longitude": -0.569819,
+    "region": "Central"
+  },
+  {
+    "station_id": "180",
+    "station_name": "C21601",
+    "link_id": "C216_Link01",
+    "link_name": "Lukaya - Miwuula",
+    "latitude": 31.841074,
+    "longitude": -0.041711,
+    "region": "Central"
+  },
+  {
+    "station_id": "181",
+    "station_name": "C22601",
+    "link_id": "C226_Link01",
+    "link_name": "Kyabakuza - Kyogya - Matete",
+    "latitude": 31.612846,
+    "longitude": -0.263429,
+    "region": "Central"
+  },
+  {
+    "station_id": "182",
+    "station_name": "C21801",
+    "link_id": "C218_Link01",
+    "link_name": "Masaka - Kidda - Buwunga - Nkuke - Kyana",
+    "latitude": 31.77043,
+    "longitude": -0.444723,
+    "region": "Central"
+  },
+  {
+    "station_id": "183",
+    "station_name": "C22103",
+    "link_id": "C221_Link02",
+    "link_name": "Lusakalwamese - Bikira",
+    "latitude": 31.649127,
+    "longitude": -0.649277,
+    "region": "Central"
+  },
+  {
+    "station_id": "184",
+    "station_name": "C22501",
+    "link_id": "C225_Link01",
+    "link_name": "Kyabakuza - Kiwangala - Ndagwe - Namabal",
+    "latitude": 31.51139,
+    "longitude": -0.486379,
+    "region": "Central"
+  },
+  {
+    "station_id": "185",
+    "station_name": "C22602",
+    "link_id": "C226_Link02",
+    "link_name": "Matete - Kakinga - Kaliro",
+    "latitude": 31.273725,
+    "longitude": -0.24354,
+    "region": "Central"
+  },
+  {
+    "station_id": "186",
+    "station_name": "C22901",
+    "link_id": "C229_Link01",
+    "link_name": "Luku Pier - Kalangala HQ",
+    "latitude": 32.155794,
+    "longitude": -0.315556,
+    "region": "Central"
+  },
+  {
+    "station_id": "187",
+    "station_name": "C23001",
+    "link_id": "C230_Link01",
+    "link_name": "Kalangala HQ - Mulabana",
+    "latitude": 32.278503,
+    "longitude": -0.417041,
+    "region": "Central"
+  },
+  {
+    "station_id": "188",
+    "station_name": "C26001",
+    "link_id": "C260_Link01",
+    "link_name": "Mityana - Busunju",
+    "latitude": 32.112133,
+    "longitude": 0.487025,
+    "region": "Central"
+  },
+  {
+    "station_id": "189",
+    "station_name": "C27302",
+    "link_id": "C273_Link02",
+    "link_name": "Kasanda - Bukuya",
+    "latitude": 31.834065,
+    "longitude": 0.608924,
+    "region": "Central"
+  },
+  {
+    "station_id": "190",
+    "station_name": "C27101",
+    "link_id": "C271_Link01",
+    "link_name": "Wakitundu - Bulera - Mutetema",
+    "latitude": 32.021063,
+    "longitude": 0.491971,
+    "region": "Central"
+  },
+  {
+    "station_id": "191",
+    "station_name": "C27102",
+    "link_id": "C271_Link02",
+    "link_name": "Mutetema-Kyamusisi - Bukuya",
+    "latitude": 31.903307,
+    "longitude": 0.60767,
+    "region": "Central"
+  },
+  {
+    "station_id": "192",
+    "station_name": "C27201",
+    "link_id": "C272_Link01",
+    "link_name": "Hoima Road/Kituuma-Kiryoka-Mutetema",
+    "latitude": 32.058627,
+    "longitude": 0.586722,
+    "region": "Central"
+  },
+  {
+    "station_id": "193",
+    "station_name": "C27401",
+    "link_id": "C274_Link01",
+    "link_name": "Kasanda - Madudu",
+    "latitude": 31.45595,
+    "longitude": 0.655179,
+    "region": "Central"
+  },
+  {
+    "station_id": "194",
+    "station_name": "C27402",
+    "link_id": "C274_Link02",
+    "link_name": "Madudu - Kiyuya",
+    "latitude": 31.659021,
+    "longitude": 0.58666,
+    "region": "Central"
+  },
+  {
+    "station_id": "195",
+    "station_name": "C27701",
+    "link_id": "C277_Link01",
+    "link_name": "Kitenga -Ikula-Kanyogoga",
+    "latitude": 31.422578,
+    "longitude": 0.360869,
+    "region": "Central"
+  },
+  {
+    "station_id": "196",
+    "station_name": "C30001",
+    "link_id": "C300_Link01",
+    "link_name": "Kayunga-Bale-Galiraya-Lake Kyoga",
+    "latitude": 32.888323,
+    "longitude": 1.077025,
+    "region": "Central"
+  },
+  {
+    "station_id": "197",
+    "station_name": "C30101",
+    "link_id": "C301_Link01",
+    "link_name": "Zirobwe -Kikyusa - Luweero",
+    "latitude": 32.645401,
+    "longitude": 0.832981,
+    "region": "Central"
+  },
+  {
+    "station_id": "198",
+    "station_name": "C30201",
+    "link_id": "C302_Link01",
+    "link_name": "Gayaza-Zirobwe",
+    "latitude": 32.617826,
+    "longitude": 0.512864,
+    "region": "Central"
+  },
+  {
+    "station_id": "199",
+    "station_name": "C31101",
+    "link_id": "C311_Link01",
+    "link_name": "Bombo - Ndejje - Kalasa",
+    "latitude": 32.466247,
+    "longitude": 0.615545,
+    "region": "Central"
+  },
+  {
+    "station_id": "200",
+    "station_name": "C30401",
+    "link_id": "C304_Link01",
+    "link_name": "Kisule - Nakaseke - Kapeeka",
+    "latitude": 32.387496,
+    "longitude": 0.716847,
+    "region": "Central"
+  },
+  {
+    "station_id": "201",
+    "station_name": "C30701",
+    "link_id": "C307_Link01",
+    "link_name": "Butalangwa - Ngoma - Bulyamusenyu",
+    "latitude": 32.034579,
+    "longitude": 1.081372,
+    "region": "Central"
+  },
+  {
+    "station_id": "202",
+    "station_name": "C32501",
+    "link_id": "C325_Link01",
+    "link_name": "Kikyusa- Bamugolode - Kazwama - Nakasongola",
+    "latitude": 32.741114,
+    "longitude": 1.188836,
+    "region": "Central"
+  },
+  {
+    "station_id": "203",
+    "station_name": "C31201",
+    "link_id": "C312_Link01",
+    "link_name": "Kalule - Bowa - Nakaseke",
+    "latitude": 32.450019,
+    "longitude": 0.669153,
+    "region": "Central"
+  },
+  {
+    "station_id": "204",
+    "station_name": "C31301",
+    "link_id": "C313_Link01",
+    "link_name": "Katikamu - Kikyusa",
+    "latitude": 32.576613,
+    "longitude": 0.782032,
+    "region": "Central"
+  },
+  {
+    "station_id": "205",
+    "station_name": "C31701",
+    "link_id": "C317_Link01",
+    "link_name": "Katuugo-Kinyogogga",
+    "latitude": 32.337544,
+    "longitude": 1.134985,
+    "region": "Central"
+  },
+  {
+    "station_id": "206",
+    "station_name": "C32601",
+    "link_id": "C326_Link01",
+    "link_name": "Nakasongola - Lwampanga - Zengebe Access",
+    "latitude": 32.514186,
+    "longitude": 1.460026,
+    "region": "Central"
+  },
+  {
+    "station_id": "207",
+    "station_name": "C55001",
+    "link_id": "C550_Link01",
+    "link_name": "Kakumiro-Kibale",
+    "latitude": 31.198825,
+    "longitude": 0.776754,
+    "region": "Central"
+  },
+  {
+    "station_id": "208",
+    "station_name": "C56701",
+    "link_id": "C567_Link01",
+    "link_name": "Kakumiro - Nkooko",
+    "latitude": 31.40123,
+    "longitude": 0.852378,
+    "region": "Central"
+  },
+  {
+    "station_id": "209",
+    "station_name": "C22702",
+    "link_id": "C227_Link01",
+    "link_name": "Lyantonde - Kaliro - Nabitanga - Ntusi",
+    "latitude": 31.1528,
+    "longitude": -0.201182,
+    "region": "Central"
+  },
+  {
+    "station_id": "210",
+    "station_name": "A00107",
+    "link_id": "A001_Link01",
+    "link_name": "Kampala - Mukono",
+    "latitude": 32.674175,
+    "longitude": 0.354184,
+    "region": "Central"
+  },
+  {
+    "station_id": "211",
+    "station_name": "B101_Link01",
+    "link_id": "B101_Link02",
+    "link_name": "Kalagi - Bukoloto - kayunga",
+    "latitude": 32.808814,
+    "longitude": 0.589747,
+    "region": "Central"
+  },
+  {
+    "station_id": "212",
+    "station_name": "C19402",
+    "link_id": "C194_Link02",
+    "link_name": "Kasangati - Kyaliwajala",
+    "latitude": 32.627893,
+    "longitude": 0.412133,
+    "region": "Central"
+  },
+  {
+    "station_id": "213",
+    "station_name": "B10202",
+    "link_id": "B102_Link01",
+    "link_name": "Njeru - Bukoloto",
+    "latitude": 33.000428,
+    "longitude": 0.618155,
+    "region": "Central"
+  },
+  {
+    "station_id": "214",
+    "station_name": "A00211",
+    "link_id": "A002_Link04",
+    "link_name": "Buwama - Lukaya",
+    "latitude": 31.843214,
+    "longitude": -0.206556,
+    "region": "Central"
+  },
+  {
+    "station_id": "215",
+    "station_name": "A005_LINK02",
+    "link_id": "A005_Link02",
+    "link_name": "Bujuuko - Mityana",
+    "latitude": null,
+    "longitude": null,
+    "region": "Central"
+  },
+  {
+    "station_id": "216",
+    "station_name": "A010_LINK01",
+    "link_id": "A010_Link01",
+    "link_name": "Nsambya-Kabalagala-Gaba",
+    "latitude": null,
+    "longitude": null,
+    "region": "Central"
+  },
+  {
+    "station_id": "217",
+    "station_name": "A002_LINK02",
+    "link_id": "A002_Link02",
+    "link_name": "Busega - Mpigi",
+    "latitude": null,
+    "longitude": null,
+    "region": "Central"
+  },
+  {
+    "station_id": "218",
+    "station_name": "B101_LINK01",
+    "link_id": "B101_Link01",
+    "link_name": "Mukono - Kalagi",
+    "latitude": null,
+    "longitude": null,
+    "region": "Central"
+  },
+  {
+    "station_id": "219",
+    "station_name": "B103_LINK01",
+    "link_id": "B103_Link01",
+    "link_name": "Nyendo - Villa Maria",
+    "latitude": null,
+    "longitude": null,
+    "region": "Central"
+  },
+  {
+    "station_id": "220",
+    "station_name": "C162_LINK03",
+    "link_id": "C162_Link03",
+    "link_name": "Kabulasoke - Madu",
+    "latitude": null,
+    "longitude": null,
+    "region": "Central"
+  },
+  {
+    "station_id": "221",
+    "station_name": "C312_LINK02",
+    "link_id": "C312_Link02",
+    "link_name": "Nakaseke - Kiwoko",
+    "latitude": null,
+    "longitude": null,
+    "region": "Central"
+  },
+  {
+    "station_id": "222",
+    "station_name": "A006_LINK02",
+    "link_id": "A006_Link02",
+    "link_name": "Kawempe - Matuga",
+    "latitude": null,
+    "longitude": null,
+    "region": "Central"
+  },
+  {
+    "station_id": "223",
+    "station_name": "A006_LINK04",
+    "link_id": "A006_Link04",
+    "link_name": "Wobulenzi - Kasana - L uweero",
+    "latitude": null,
+    "longitude": null,
+    "region": "Central"
+  },
+  {
+    "station_id": "224",
+    "station_name": "A00222",
+    "link_id": "A002_Link09",
+    "link_name": "Ntungamo - Rubaale",
+    "latitude": 30.223287,
+    "longitude": -0.927042,
+    "region": "South"
+  },
+  {
+    "station_id": "225",
+    "station_name": "B15005",
+    "link_id": "B150_Link03",
+    "link_name": "Ibanda - Muziza - Kamwenge",
+    "latitude": 30.440641,
+    "longitude": 0.140984,
+    "region": "South"
+  },
+  {
+    "station_id": "226",
+    "station_name": "B15202",
+    "link_id": "B152_Link02",
+    "link_name": "Kagamba - Ishaka",
+    "latitude": 30.162317,
+    "longitude": -0.679494,
+    "region": "South"
+  },
+  {
+    "station_id": "227",
+    "station_name": "C36702",
+    "link_id": "C367_Link01",
+    "link_name": "Biharwe - Rushozi - Ruhengere - Kikatsi",
+    "latitude": 30.810951,
+    "longitude": -0.363462,
+    "region": "South"
+  },
+  {
+    "station_id": "228",
+    "station_name": "C35001",
+    "link_id": "C350_Link01",
+    "link_name": "Katete-Isingiro",
+    "latitude": 30.720703,
+    "longitude": -0.714058,
+    "region": "South"
+  },
+  {
+    "station_id": "229",
+    "station_name": "C35901",
+    "link_id": "C359_Link01",
+    "link_name": "Rugaaga-Rushasha-Rwentaha",
+    "latitude": 31.106637,
+    "longitude": -0.689097,
+    "region": "South"
+  },
+  {
+    "station_id": "230",
+    "station_name": "C35301",
+    "link_id": "C353_Link01",
+    "link_name": "Nsongezi-Kyaka",
+    "latitude": 30.80971,
+    "longitude": -0.995063,
+    "region": "South"
+  },
+  {
+    "station_id": "231",
+    "station_name": "C35501",
+    "link_id": "C355_Link01",
+    "link_name": "Nyakahita-Rushere",
+    "latitude": 31.04145,
+    "longitude": -0.301855,
+    "region": "South"
+  },
+  {
+    "station_id": "232",
+    "station_name": "C35602",
+    "link_id": "C356_Link02",
+    "link_name": "Kazo-Buremba",
+    "latitude": 30.830342,
+    "longitude": 0.042202,
+    "region": "South"
+  },
+  {
+    "station_id": "233",
+    "station_name": "C36001",
+    "link_id": "C360_Link01",
+    "link_name": "Ekitindo - Ngarama - Kasheshe",
+    "latitude": 30.886715,
+    "longitude": -0.865288,
+    "region": "South"
+  },
+  {
+    "station_id": "234",
+    "station_name": "C36301",
+    "link_id": "C363_Link01",
+    "link_name": "Kabingo - Nyakitunda - Kabuyanda - Kyezi",
+    "latitude": 30.706505,
+    "longitude": -0.864157,
+    "region": "South"
+  },
+  {
+    "station_id": "235",
+    "station_name": "C36401",
+    "link_id": "C364_Link01",
+    "link_name": "Ruti - Mwizi - Kabuyanda - Kikagati",
+    "latitude": 30.606583,
+    "longitude": -0.783312,
+    "region": "South"
+  },
+  {
+    "station_id": "236",
+    "station_name": "C36501",
+    "link_id": "C365_Link01",
+    "link_name": "Nyakiraguju - Ruzinga (Bugamba) Chitwe",
+    "latitude": 30.51192,
+    "longitude": -0.741937,
+    "region": "South"
+  },
+  {
+    "station_id": "237",
+    "station_name": "C43102",
+    "link_id": "C431_Link02",
+    "link_name": "Kyempene - Rubirizi",
+    "latitude": 30.058603,
+    "longitude": -1.012911,
+    "region": "South"
+  },
+  {
+    "station_id": "238",
+    "station_name": "C36803",
+    "link_id": "C368_Link01",
+    "link_name": "Biharwe - Bwizibwera",
+    "latitude": 30.686824,
+    "longitude": -0.490537,
+    "region": "South"
+  },
+  {
+    "station_id": "239",
+    "station_name": "C37003",
+    "link_id": "C370_Link02",
+    "link_name": "Byanamira - Kashwa",
+    "latitude": 30.749957,
+    "longitude": -0.249794,
+    "region": "South"
+  },
+  {
+    "station_id": "240",
+    "station_name": "C57201",
+    "link_id": "C572_Link01",
+    "link_name": "Mbarara Bypass",
+    "latitude": 30.382213,
+    "longitude": 0.028417,
+    "region": "South"
+  },
+  {
+    "station_id": "241",
+    "station_name": "C41601",
+    "link_id": "C416_Link01",
+    "link_name": "Kikagati-Nsongezi",
+    "latitude": 30.452486,
+    "longitude": -0.424255,
+    "region": "South"
+  },
+  {
+    "station_id": "242",
+    "station_name": "C37304",
+    "link_id": "C373_Link02",
+    "link_name": "Kabujogera - Mahyoro Junction",
+    "latitude": 30.328925,
+    "longitude": -0.088715,
+    "region": "South"
+  },
+  {
+    "station_id": "243",
+    "station_name": "C41001",
+    "link_id": "C410_Link01",
+    "link_name": "Kagamba-Kebisoni",
+    "latitude": 30.082709,
+    "longitude": -0.832882,
+    "region": "South"
+  },
+  {
+    "station_id": "244",
+    "station_name": "C42901",
+    "link_id": "C429_Link01",
+    "link_name": "Butobere - Muyumbu - Rwamucucu",
+    "latitude": 30.035398,
+    "longitude": -1.202294,
+    "region": "South"
+  },
+  {
+    "station_id": "245",
+    "station_name": "C43602",
+    "link_id": "C436_Link02",
+    "link_name": "Nyabwishenya - Nteko",
+    "latitude": 29.673685,
+    "longitude": -1.138458,
+    "region": "South"
+  },
+  {
+    "station_id": "246",
+    "station_name": "C41401",
+    "link_id": "C414_Link01",
+    "link_name": "Katunguru - Ishasha",
+    "latitude": 29.858177,
+    "longitude": -0.433091,
+    "region": "South"
+  },
+  {
+    "station_id": "247",
+    "station_name": "C41501",
+    "link_id": "C415_Link01",
+    "link_name": "Nsiika -  Bihanga -Katerera(Ishaka T/C)",
+    "latitude": 30.39121,
+    "longitude": -0.49499,
+    "region": "South"
+  },
+  {
+    "station_id": "248",
+    "station_name": "C41503",
+    "link_id": "C415_Link02",
+    "link_name": "Kafunzo-Kikagati",
+    "latitude": 30.517604,
+    "longitude": -0.424468,
+    "region": "South"
+  },
+  {
+    "station_id": "249",
+    "station_name": "C41701",
+    "link_id": "C417_Link01",
+    "link_name": "Ntungamo-Kakukuru",
+    "latitude": 30.298435,
+    "longitude": -0.916506,
+    "region": "South"
+  },
+  {
+    "station_id": "250",
+    "station_name": "C42501",
+    "link_id": "C425_Link01",
+    "link_name": "Katuna - Rubaya - Muko",
+    "latitude": 29.888181,
+    "longitude": -1.396305,
+    "region": "South"
+  },
+  {
+    "station_id": "251",
+    "station_name": "C43002",
+    "link_id": "C430_Link01",
+    "link_name": "Rwashamaire - Rwahi",
+    "latitude": 30.144096,
+    "longitude": -0.92668,
+    "region": "South"
+  },
+  {
+    "station_id": "252",
+    "station_name": "C43201",
+    "link_id": "C432_Link01",
+    "link_name": "Kanungu - Rugyeyo - Kabaranga",
+    "latitude": 29.892419,
+    "longitude": -0.94286,
+    "region": "South"
+  },
+  {
+    "station_id": "253",
+    "station_name": "C43301",
+    "link_id": "C433_Link01",
+    "link_name": "Ikumba - Kanungu",
+    "latitude": 29.848275,
+    "longitude": -1.015023,
+    "region": "South"
+  },
+  {
+    "station_id": "254",
+    "station_name": "C43401",
+    "link_id": "C434_Link01",
+    "link_name": "Ikumba - Nfasha - Ruhija - Mpungu - Hama",
+    "latitude": 29.76228,
+    "longitude": -1.026009,
+    "region": "South"
+  },
+  {
+    "station_id": "255",
+    "station_name": "C44601",
+    "link_id": "C446_Link01",
+    "link_name": "Kihihi - Nyamirama - Kikongi - Burama",
+    "latitude": 29.773471,
+    "longitude": -0.694873,
+    "region": "South"
+  },
+  {
+    "station_id": "256",
+    "station_name": "C44503",
+    "link_id": "C445_Link02",
+    "link_name": "Bugangari - Bwambara",
+    "latitude": 29.793744,
+    "longitude": -0.583489,
+    "region": "South"
+  },
+  {
+    "station_id": "257",
+    "station_name": "C44702",
+    "link_id": "C447_Link02",
+    "link_name": "Kabira - Rukungiri",
+    "latitude": 30.014301,
+    "longitude": -0.696094,
+    "region": "South"
+  },
+  {
+    "station_id": "258",
+    "station_name": "C44901",
+    "link_id": "C449_Link01",
+    "link_name": "Buhindagye - Mahyoro",
+    "latitude": 30.320065,
+    "longitude": -0.428669,
+    "region": "South"
+  },
+  {
+    "station_id": "259",
+    "station_name": "C45201",
+    "link_id": "C452_Link01",
+    "link_name": "Rukungiri - Station Boundary",
+    "latitude": 29.973939,
+    "longitude": -0.639819,
+    "region": "South"
+  },
+  {
+    "station_id": "260",
+    "station_name": "C57801",
+    "link_id": "C578_Link01",
+    "link_name": "Accesses to Ibuga",
+    "latitude": 30.224375,
+    "longitude": 0.345257,
+    "region": "South"
+  },
+  {
+    "station_id": "261",
+    "station_name": "C51201",
+    "link_id": "C512_Link01",
+    "link_name": "Rugendabara - Kaswangali",
+    "latitude": 30.153141,
+    "longitude": 0.423809,
+    "region": "South"
+  },
+  {
+    "station_id": "262",
+    "station_name": "C51901",
+    "link_id": "C519_Link01",
+    "link_name": "Nkenda - Bugoye",
+    "latitude": 30.099932,
+    "longitude": 0.295868,
+    "region": "South"
+  },
+  {
+    "station_id": "263",
+    "station_name": "B15203",
+    "link_id": "B152_Link03",
+    "link_name": "Ishaka - Buhinda - Rugazi",
+    "latitude": 30.093253,
+    "longitude": -0.341037,
+    "region": "South"
+  },
+  {
+    "station_id": "264",
+    "station_name": "A002_LINK09",
+    "link_id": "A002_Link09",
+    "link_name": "Ntungamo - Rubaale",
+    "latitude": null,
+    "longitude": null,
+    "region": "South"
+  },
+  {
+    "station_id": "265",
+    "station_name": "C356_LINK01",
+    "link_id": "C356_Link01",
+    "link_name": "Ibanda-Kanoni-Kazo",
+    "latitude": null,
+    "longitude": null,
+    "region": "South"
+  },
+  {
+    "station_id": "266",
+    "station_name": "C419_LINK02",
+    "link_id": "C419_Link02",
+    "link_name": "Kikagati-Nsongezi",
+    "latitude": null,
+    "longitude": null,
+    "region": "South"
+  },
+  {
+    "station_id": "267",
+    "station_name": "A005_LINK12",
+    "link_id": "A005_Link12",
+    "link_name": "Rwimi(bridge)-Hima-Mubuku",
+    "latitude": null,
+    "longitude": null,
+    "region": "South"
+  },
+  {
+    "station_id": "268",
+    "station_name": "A00518",
+    "link_id": "A005_Link08",
+    "link_name": "Lubaale - kyegegwa",
+    "latitude": 31.098898,
+    "longitude": 0.481522,
+    "region": "West"
+  },
+  {
+    "station_id": "269",
+    "station_name": "A00617",
+    "link_id": "A006_Link08",
+    "link_name": "Kigumba - Karuma",
+    "latitude": 32.174714,
+    "longitude": 2.001194,
+    "region": "West"
+  },
+  {
+    "station_id": "270",
+    "station_name": "B20101",
+    "link_id": "B201_Link01",
+    "link_name": "Kigumba - Masindi",
+    "latitude": 31.871027,
+    "longitude": 1.785426,
+    "region": "West"
+  },
+  {
+    "station_id": "271",
+    "station_name": "B20203",
+    "link_id": "B202_Link02",
+    "link_name": "R. Muzizi - Muhooro - Kagadi",
+    "latitude": 30.732997,
+    "longitude": 0.86364,
+    "region": "West"
+  },
+  {
+    "station_id": "272",
+    "station_name": "B20205",
+    "link_id": "B202_Link03",
+    "link_name": "Kagadi - Mabale - Kabwoya",
+    "latitude": 31.037739,
+    "longitude": 1.188799,
+    "region": "West"
+  },
+  {
+    "station_id": "273",
+    "station_name": "B25301",
+    "link_id": "B253_Link01",
+    "link_name": "Rwekunye - Masindi Port",
+    "latitude": 32.0607,
+    "longitude": 1.7031,
+    "region": "West"
+  },
+  {
+    "station_id": "274",
+    "station_name": "C27106",
+    "link_id": "C271_Link04",
+    "link_name": "Kitumbi Bridge - Bukwiri",
+    "latitude": 31.58527,
+    "longitude": 1.002188,
+    "region": "West"
+  },
+  {
+    "station_id": "275",
+    "station_name": "C55601",
+    "link_id": "C556_Link01",
+    "link_name": "Bukuku - Rubona",
+    "latitude": 30.158426,
+    "longitude": 0.619333,
+    "region": "West"
+  },
+  {
+    "station_id": "276",
+    "station_name": "C54101",
+    "link_id": "C541_Link01",
+    "link_name": "Karugutu - Ntoroko",
+    "latitude": 30.371081,
+    "longitude": 0.92966,
+    "region": "West"
+  },
+  {
+    "station_id": "277",
+    "station_name": "C54201",
+    "link_id": "C542_Link01",
+    "link_name": "Fortportal - Kijura - Kabende Bridge-Sogahe-Kyarusozi",
+    "latitude": 30.426489,
+    "longitude": 0.839621,
+    "region": "West"
+  },
+  {
+    "station_id": "278",
+    "station_name": "C54901",
+    "link_id": "C549_Link01",
+    "link_name": "Kakabara-Bujuzo-Katooke",
+    "latitude": 30.868113,
+    "longitude": 0.690028,
+    "region": "West"
+  },
+  {
+    "station_id": "279",
+    "station_name": "C56301",
+    "link_id": "C563_Link01",
+    "link_name": "Muhooro-Ndaiga-L. Albert",
+    "latitude": 30.65075,
+    "longitude": 0.953045,
+    "region": "West"
+  },
+  {
+    "station_id": "280",
+    "station_name": "C56602",
+    "link_id": "C566_Link02",
+    "link_name": "Bugwara-Kikwaya",
+    "latitude": 30.976202,
+    "longitude": 0.962239,
+    "region": "West"
+  },
+  {
+    "station_id": "281",
+    "station_name": "C56801",
+    "link_id": "C568_Link01",
+    "link_name": "Kihura - Bwizi",
+    "latitude": 30.69529,
+    "longitude": 0.491474,
+    "region": "West"
+  },
+  {
+    "station_id": "282",
+    "station_name": "C57101",
+    "link_id": "C571_Link01",
+    "link_name": "Kamwenge - Kabambiro - Bigusyo - Bihanga",
+    "latitude": 30.510655,
+    "longitude": 0.157971,
+    "region": "West"
+  },
+  {
+    "station_id": "283",
+    "station_name": "C59001",
+    "link_id": "C590_Link01",
+    "link_name": "Hoima (Parajwoki) -Biso",
+    "latitude": 31.312852,
+    "longitude": 1.576503,
+    "region": "West"
+  },
+  {
+    "station_id": "284",
+    "station_name": "C62301",
+    "link_id": "C623_Link01",
+    "link_name": "Bukumi-Bulisa",
+    "latitude": 31.456133,
+    "longitude": 1.95643,
+    "region": "West"
+  },
+  {
+    "station_id": "285",
+    "station_name": "C59101",
+    "link_id": "C591_Link01",
+    "link_name": "Kabwoya - Kituti",
+    "latitude": 30.92587,
+    "longitude": 1.230394,
+    "region": "West"
+  },
+  {
+    "station_id": "286",
+    "station_name": "C59201",
+    "link_id": "C592_Link01",
+    "link_name": "Parajwoki-Buseruka",
+    "latitude": 31.255495,
+    "longitude": 1.507352,
+    "region": "West"
+  },
+  {
+    "station_id": "287",
+    "station_name": "C59401",
+    "link_id": "C594_Link01",
+    "link_name": "Bugambe-Kidoma",
+    "latitude": 31.299078,
+    "longitude": 1.429625,
+    "region": "West"
+  },
+  {
+    "station_id": "288",
+    "station_name": "C62101",
+    "link_id": "C621_Link01",
+    "link_name": "Rekunye - Masindi",
+    "latitude": 31.8861,
+    "longitude": 1.7328,
+    "region": "West"
+  },
+  {
+    "station_id": "289",
+    "station_name": "C60601",
+    "link_id": "C606_Link01",
+    "link_name": "Rwera-Kaseeta",
+    "latitude": 30.993897,
+    "longitude": 1.321774,
+    "region": "West"
+  },
+  {
+    "station_id": "290",
+    "station_name": "C62701",
+    "link_id": "C627_Link01",
+    "link_name": "Masoode-Nkooko",
+    "latitude": 31.669182,
+    "longitude": 0.947955,
+    "region": "West"
+  },
+  {
+    "station_id": "291",
+    "station_name": "C62201",
+    "link_id": "C622_Link01",
+    "link_name": "Masindi - Biiso",
+    "latitude": 31.530892,
+    "longitude": 1.632703,
+    "region": "West"
+  },
+  {
+    "station_id": "292",
+    "station_name": "C62501",
+    "link_id": "C625_Link01",
+    "link_name": "Kisanja-Park jctn - Buliisa",
+    "latitude": 31.723207,
+    "longitude": 2.020282,
+    "region": "West"
+  },
+  {
+    "station_id": "293",
+    "station_name": "C63501",
+    "link_id": "C635_Link01",
+    "link_name": "Katulikile - Mutunda - Atura / Nanda",
+    "latitude": 32.255722,
+    "longitude": 2.049141,
+    "region": "West"
+  },
+  {
+    "station_id": "294",
+    "station_name": "C63901",
+    "link_id": "C639_Link01",
+    "link_name": "Bukommero-Dwaniro-Kyankwanzi",
+    "latitude": 31.98052,
+    "longitude": 0.963066,
+    "region": "West"
+  },
+  {
+    "station_id": "295",
+    "station_name": "A00522",
+    "link_id": "A005_Link10",
+    "link_name": "Kyenjojo - Rugombe - Fortportal",
+    "latitude": 30.392845,
+    "longitude": 0.642924,
+    "region": "West"
+  },
+  {
+    "station_id": "296",
+    "station_name": "C57301",
+    "link_id": "C573_Link01",
+    "link_name": "Kamwenge Railway Access",
+    "latitude": 30.450401,
+    "longitude": 0.186708,
+    "region": "West"
+  },
+  {
+    "station_id": "297",
+    "station_name": "A005_LINK09",
+    "link_id": "A005_Link09",
+    "link_name": "Kyegegwa - Kakabala - Kyenjojo",
+    "latitude": null,
+    "longitude": null,
+    "region": "West"
+  },
+  {
+    "station_id": "298",
+    "station_name": "C548_LINK01",
+    "link_id": "C548_Link01",
+    "link_name": "Rugombe-Kyarusozi-Katooke",
+    "latitude": null,
+    "longitude": null,
+    "region": "West"
+  },
+  {
+    "station_id": "North",
+    "station_name": "1.0",
+    "link_id": "54",
+    "link_name": "54",
+    "latitude": null,
+    "longitude": null,
+    "region": null
+  },
+  {
+    "station_id": "East",
+    "station_name": "55.0",
+    "link_id": "96",
+    "link_name": "42",
+    "latitude": null,
+    "longitude": null,
+    "region": null
+  },
+  {
+    "station_id": "North East",
+    "station_name": "97.0",
+    "link_id": "121",
+    "link_name": "25",
+    "latitude": null,
+    "longitude": null,
+    "region": null
+  },
+  {
+    "station_id": "Central",
+    "station_name": "122.0",
+    "link_id": "223",
+    "link_name": "102",
+    "latitude": null,
+    "longitude": null,
+    "region": null
+  },
+  {
+    "station_id": "South",
+    "station_name": "224.0",
+    "link_id": "267",
+    "link_name": "44",
+    "latitude": null,
+    "longitude": null,
+    "region": null
+  },
+  {
+    "station_id": "West",
+    "station_name": "268.0",
+    "link_id": "298",
+    "link_name": "31",
+    "latitude": null,
+    "longitude": null,
+    "region": null
+  },
+  {
+    "station_id": "Total",
+    "station_name": "nan",
+    "link_id": "nan",
+    "link_name": "298",
+    "latitude": null,
+    "longitude": null,
+    "region": null
+  }
+]

@@ -1,0 +1,230 @@
+[
+  {
+    "link_id": "1",
+    "link_name": "Kasangati - Kyaliwajala",
+    "year": 4290,
+    "aadt": 4290
+  },
+  {
+    "link_id": "2",
+    "link_name": "Kalagi - Bukoloto - Kayunga",
+    "year": 4358,
+    "aadt": 4358
+  },
+  {
+    "link_id": "3",
+    "link_name": "Njeru - Bukoloto",
+    "year": 3635,
+    "aadt": 3635
+  },
+  {
+    "link_id": "4",
+    "link_name": "Kampala - Mukono",
+    "year": 28152,
+    "aadt": 28152
+  },
+  {
+    "link_id": "5",
+    "link_name": "Buwama - Nyendo",
+    "year": 7004,
+    "aadt": 7004
+  },
+  {
+    "link_id": "7",
+    "link_name": "Ishaka - Katunguru",
+    "year": 1563,
+    "aadt": 1563
+  },
+  {
+    "link_id": "8",
+    "link_name": "Kyenjojo - Fortportal",
+    "year": 737,
+    "aadt": 737
+  },
+  {
+    "link_id": "9",
+    "link_name": "Ibanda - Kamwenje Road",
+    "year": 2142,
+    "aadt": 2142
+  },
+  {
+    "link_id": "10",
+    "link_name": "Tirinyi - Budaka - Kamonkoli",
+    "year": 4880,
+    "aadt": 4880
+  },
+  {
+    "link_id": "11",
+    "link_name": "Palisa - Kanyago Bridge",
+    "year": 2147,
+    "aadt": 2147
+  },
+  {
+    "link_id": "12",
+    "link_name": "Kumi - Brooks corner",
+    "year": 2488,
+    "aadt": 2488
+  },
+  {
+    "link_id": "13",
+    "link_name": "Lira - Corner Kilak",
+    "year": 1597,
+    "aadt": 1597
+  },
+  {
+    "link_id": "14",
+    "link_name": "Lamogi - Amuru Junction",
+    "year": 1257,
+    "aadt": 1257
+  },
+  {
+    "link_id": "15",
+    "link_name": "Nebi - Olevu",
+    "year": 960,
+    "aadt": 960
+  },
+  {
+    "link_id": "2",
+    "link_name": "Kalagi - Bukoloto - Kayunga",
+    "year": 4358,
+    "aadt": 4061
+  },
+  {
+    "link_id": "5",
+    "link_name": "Lukaya - Masaka - bypass",
+    "year": 7004,
+    "aadt": 7695
+  },
+  {
+    "link_id": "7",
+    "link_name": "Ishaka - Buhinda - Rugazi",
+    "year": 1563,
+    "aadt": 1342
+  },
+  {
+    "link_id": "8",
+    "link_name": "Kyenjojo - Rugombe - Fortportal",
+    "year": 0,
+    "aadt": 2240
+  },
+  {
+    "link_id": "9",
+    "link_name": "Ibanda - Muziza - Kamwenge",
+    "year": 2142,
+    "aadt": 2080
+  },
+  {
+    "link_id": "11",
+    "link_name": "Pallisa - Kanyago Bridge",
+    "year": 2147,
+    "aadt": 2010
+  },
+  {
+    "link_id": "12",
+    "link_name": "Kumi-Brooks corner",
+    "year": 2488,
+    "aadt": 3125
+  },
+  {
+    "link_id": "14",
+    "link_name": "Lamogi - Amuru Junction",
+    "year": 1257,
+    "aadt": 1080
+  },
+  {
+    "link_id": "15",
+    "link_name": "Nebbi - Eruba",
+    "year": 960,
+    "aadt": 1064
+  },
+  {
+    "link_id": "1",
+    "link_name": "Kasangati - Kyaliwajala",
+    "year": 4417,
+    "aadt": 4541
+  },
+  {
+    "link_id": "2",
+    "link_name": "Kalagi - Bukoloto - Kayunga",
+    "year": 4312,
+    "aadt": 4453
+  },
+  {
+    "link_id": "3",
+    "link_name": "Njeru - Bukoloto",
+    "year": 3631,
+    "aadt": 3563
+  },
+  {
+    "link_id": "4",
+    "link_name": "Kampala - Mukono",
+    "year": 28650,
+    "aadt": 30236
+  },
+  {
+    "link_id": "5",
+    "link_name": "Lukaya - Masaka - bypass",
+    "year": 5969,
+    "aadt": 7257
+  },
+  {
+    "link_id": "6",
+    "link_name": "Lyantonde - Kaliro - Nabitanga - Ntusi",
+    "year": 578,
+    "aadt": 596
+  },
+  {
+    "link_id": "7",
+    "link_name": "Ishaka - Buhinda - Rugazi",
+    "year": 1487,
+    "aadt": 1500
+  },
+  {
+    "link_id": "8",
+    "link_name": "Kyenjojo - Rugombe - Fortportal",
+    "year": 2161,
+    "aadt": 2236
+  },
+  {
+    "link_id": "9",
+    "link_name": "Ibanda - Muziza - Kamwenge",
+    "year": 2351,
+    "aadt": 2226
+  },
+  {
+    "link_id": "10",
+    "link_name": "Tirinyi - Budaka - Kamonkoli",
+    "year": 5206,
+    "aadt": 4449
+  },
+  {
+    "link_id": "11",
+    "link_name": "Pallisa - Kanyago Bridge",
+    "year": 1894,
+    "aadt": 1990
+  },
+  {
+    "link_id": "12",
+    "link_name": "Kumi-Brooks corner",
+    "year": 2767,
+    "aadt": 2172
+  },
+  {
+    "link_id": "13",
+    "link_name": "Lira - Puranga Bridge",
+    "year": 1687,
+    "aadt": 1809
+  },
+  {
+    "link_id": "14",
+    "link_name": "Lamogi - Amuru Junction",
+    "year": 1235,
+    "aadt": 873
+  },
+  {
+    "link_id": "15",
+    "link_name": "Nebbi - Eruba",
+    "year": 947,
+    "aadt": 893
+  }
+]

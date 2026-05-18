@@ -1,0 +1,3644 @@
+[
+  {
+    "station_id": "Kasangati - Kyaliwajala",
+    "year": 2016,
+    "month": 8,
+    "aadt": 4290
+  },
+  {
+    "station_id": "Kasangati - Kyaliwajala",
+    "year": 2016,
+    "month": 11,
+    "aadt": 4910
+  },
+  {
+    "station_id": "Kasangati - Kyaliwajala",
+    "year": 2016,
+    "month": 12,
+    "aadt": 4053
+  },
+  {
+    "station_id": "Kasangati - Kyaliwajala",
+    "year": 2017,
+    "month": 1,
+    "aadt": 3509
+  },
+  {
+    "station_id": "Kasangati - Kyaliwajala",
+    "year": 2017,
+    "month": 2,
+    "aadt": 4246
+  },
+  {
+    "station_id": "Kasangati - Kyaliwajala",
+    "year": 2017,
+    "month": 3,
+    "aadt": 2666
+  },
+  {
+    "station_id": "Kasangati - Kyaliwajala",
+    "year": 2017,
+    "month": 4,
+    "aadt": 1989
+  },
+  {
+    "station_id": "Kasangati - Kyaliwajala",
+    "year": 2017,
+    "month": 5,
+    "aadt": 2600
+  },
+  {
+    "station_id": "Kasangati - Kyaliwajala",
+    "year": 2017,
+    "month": 9,
+    "aadt": 4783
+  },
+  {
+    "station_id": "Kasangati - Kyaliwajala",
+    "year": 2017,
+    "month": 10,
+    "aadt": 4952
+  },
+  {
+    "station_id": "Kasangati - Kyaliwajala",
+    "year": 2017,
+    "month": 11,
+    "aadt": 5232
+  },
+  {
+    "station_id": "Kasangati - Kyaliwajala",
+    "year": 2017,
+    "month": 12,
+    "aadt": 4529
+  },
+  {
+    "station_id": "Kasangati - Kyaliwajala",
+    "year": 2018,
+    "month": 1,
+    "aadt": 4296
+  },
+  {
+    "station_id": "Kasangati - Kyaliwajala",
+    "year": 2018,
+    "month": 2,
+    "aadt": 4997
+  },
+  {
+    "station_id": "Kasangati - Kyaliwajala",
+    "year": 2018,
+    "month": 3,
+    "aadt": 5223
+  },
+  {
+    "station_id": "Kasangati - Kyaliwajala",
+    "year": 2018,
+    "month": 5,
+    "aadt": 4745
+  },
+  {
+    "station_id": "Kasangati - Kyaliwajala",
+    "year": 2018,
+    "month": 6,
+    "aadt": 5075
+  },
+  {
+    "station_id": "Kasangati - Kyaliwajala",
+    "year": 2018,
+    "month": 8,
+    "aadt": 4383
+  },
+  {
+    "station_id": "Kasangati - Kyaliwajala",
+    "year": 2018,
+    "month": 9,
+    "aadt": 4801
+  },
+  {
+    "station_id": "Kasangati - Kyaliwajala",
+    "year": 2018,
+    "month": 10,
+    "aadt": 6019
+  },
+  {
+    "station_id": "Kasangati - Kyaliwajala",
+    "year": 2018,
+    "month": 11,
+    "aadt": 5512
+  },
+  {
+    "station_id": "Kasangati - Kyaliwajala",
+    "year": 2018,
+    "month": 12,
+    "aadt": 3641
+  },
+  {
+    "station_id": "Kasangati - Kyaliwajala",
+    "year": 2019,
+    "month": 1,
+    "aadt": 4438
+  },
+  {
+    "station_id": "Kasangati - Kyaliwajala",
+    "year": 2019,
+    "month": 5,
+    "aadt": 5666
+  },
+  {
+    "station_id": "Kasangati - Kyaliwajala",
+    "year": 2019,
+    "month": 6,
+    "aadt": 5514
+  },
+  {
+    "station_id": "Kasangati - Kyaliwajala",
+    "year": 2019,
+    "month": 7,
+    "aadt": 4827
+  },
+  {
+    "station_id": "Kasangati - Kyaliwajala",
+    "year": 2019,
+    "month": 8,
+    "aadt": 4866
+  },
+  {
+    "station_id": "Kasangati - Kyaliwajala",
+    "year": 2019,
+    "month": 9,
+    "aadt": 4820
+  },
+  {
+    "station_id": "Kasangati - Kyaliwajala",
+    "year": 2019,
+    "month": 10,
+    "aadt": 5007
+  },
+  {
+    "station_id": "Kasangati - Kyaliwajala",
+    "year": 2019,
+    "month": 11,
+    "aadt": 6267
+  },
+  {
+    "station_id": "Kasangati - Kyaliwajala",
+    "year": 2019,
+    "month": 12,
+    "aadt": 5277
+  },
+  {
+    "station_id": "Kasangati - Kyaliwajala",
+    "year": 2020,
+    "month": 2,
+    "aadt": 6472
+  },
+  {
+    "station_id": "Kasangati - Kyaliwajala",
+    "year": 2020,
+    "month": 3,
+    "aadt": 3968
+  },
+  {
+    "station_id": "Kasangati - Kyaliwajala",
+    "year": 2020,
+    "month": 8,
+    "aadt": 6786
+  },
+  {
+    "station_id": "Kasangati - Kyaliwajala",
+    "year": 2020,
+    "month": 9,
+    "aadt": 6436
+  },
+  {
+    "station_id": "Kasangati - Kyaliwajala",
+    "year": 2020,
+    "month": 11,
+    "aadt": 5940
+  },
+  {
+    "station_id": "Kasangati - Kyaliwajala",
+    "year": 2020,
+    "month": 12,
+    "aadt": 5790
+  },
+  {
+    "station_id": "Kalagi - Bukoloto-Kayunga",
+    "year": 2016,
+    "month": 8,
+    "aadt": 4358
+  },
+  {
+    "station_id": "Kalagi - Bukoloto-Kayunga",
+    "year": 2016,
+    "month": 9,
+    "aadt": 4061
+  },
+  {
+    "station_id": "Kalagi - Bukoloto-Kayunga",
+    "year": 2016,
+    "month": 10,
+    "aadt": 4055
+  },
+  {
+    "station_id": "Kalagi - Bukoloto-Kayunga",
+    "year": 2016,
+    "month": 11,
+    "aadt": 3973
+  },
+  {
+    "station_id": "Kalagi - Bukoloto-Kayunga",
+    "year": 2016,
+    "month": 12,
+    "aadt": 5113
+  },
+  {
+    "station_id": "Kalagi - Bukoloto-Kayunga",
+    "year": 2017,
+    "month": 1,
+    "aadt": 4596
+  },
+  {
+    "station_id": "Kalagi - Bukoloto-Kayunga",
+    "year": 2017,
+    "month": 2,
+    "aadt": 4177
+  },
+  {
+    "station_id": "Kalagi - Bukoloto-Kayunga",
+    "year": 2017,
+    "month": 3,
+    "aadt": 4039
+  },
+  {
+    "station_id": "Kalagi - Bukoloto-Kayunga",
+    "year": 2017,
+    "month": 9,
+    "aadt": 4415
+  },
+  {
+    "station_id": "Kalagi - Bukoloto-Kayunga",
+    "year": 2017,
+    "month": 10,
+    "aadt": 4517
+  },
+  {
+    "station_id": "Kalagi - Bukoloto-Kayunga",
+    "year": 2017,
+    "month": 11,
+    "aadt": 4576
+  },
+  {
+    "station_id": "Kalagi - Bukoloto-Kayunga",
+    "year": 2017,
+    "month": 12,
+    "aadt": 4854
+  },
+  {
+    "station_id": "Kalagi - Bukoloto-Kayunga",
+    "year": 2018,
+    "month": 2,
+    "aadt": 4539
+  },
+  {
+    "station_id": "Kalagi - Bukoloto-Kayunga",
+    "year": 2018,
+    "month": 3,
+    "aadt": 4540
+  },
+  {
+    "station_id": "Kalagi - Bukoloto-Kayunga",
+    "year": 2018,
+    "month": 4,
+    "aadt": 4433
+  },
+  {
+    "station_id": "Kalagi - Bukoloto-Kayunga",
+    "year": 2018,
+    "month": 7,
+    "aadt": 4845
+  },
+  {
+    "station_id": "Kalagi - Bukoloto-Kayunga",
+    "year": 2018,
+    "month": 8,
+    "aadt": 4981
+  },
+  {
+    "station_id": "Kalagi - Bukoloto-Kayunga",
+    "year": 2018,
+    "month": 9,
+    "aadt": 4979
+  },
+  {
+    "station_id": "Kalagi - Bukoloto-Kayunga",
+    "year": 2018,
+    "month": 10,
+    "aadt": 4203
+  },
+  {
+    "station_id": "Kalagi - Bukoloto-Kayunga",
+    "year": 2018,
+    "month": 11,
+    "aadt": 4173
+  },
+  {
+    "station_id": "Kalagi - Bukoloto-Kayunga",
+    "year": 2018,
+    "month": 12,
+    "aadt": 4981
+  },
+  {
+    "station_id": "Kalagi - Bukoloto-Kayunga",
+    "year": 2019,
+    "month": 1,
+    "aadt": 5120
+  },
+  {
+    "station_id": "Kalagi - Bukoloto-Kayunga",
+    "year": 2019,
+    "month": 4,
+    "aadt": 5037
+  },
+  {
+    "station_id": "Kalagi - Bukoloto-Kayunga",
+    "year": 2019,
+    "month": 6,
+    "aadt": 5174
+  },
+  {
+    "station_id": "Kalagi - Bukoloto-Kayunga",
+    "year": 2019,
+    "month": 7,
+    "aadt": 4875
+  },
+  {
+    "station_id": "Kalagi - Bukoloto-Kayunga",
+    "year": 2019,
+    "month": 8,
+    "aadt": 5143
+  },
+  {
+    "station_id": "Kalagi - Bukoloto-Kayunga",
+    "year": 2019,
+    "month": 9,
+    "aadt": 5308
+  },
+  {
+    "station_id": "Kalagi - Bukoloto-Kayunga",
+    "year": 2019,
+    "month": 10,
+    "aadt": 5516
+  },
+  {
+    "station_id": "Kalagi - Bukoloto-Kayunga",
+    "year": 2019,
+    "month": 11,
+    "aadt": 4765
+  },
+  {
+    "station_id": "Kalagi - Bukoloto-Kayunga",
+    "year": 2019,
+    "month": 12,
+    "aadt": 3549
+  },
+  {
+    "station_id": "Kalagi - Bukoloto-Kayunga",
+    "year": 2020,
+    "month": 1,
+    "aadt": 5399
+  },
+  {
+    "station_id": "Kalagi - Bukoloto-Kayunga",
+    "year": 2020,
+    "month": 2,
+    "aadt": 4669
+  },
+  {
+    "station_id": "Kalagi - Bukoloto-Kayunga",
+    "year": 2020,
+    "month": 3,
+    "aadt": 5558
+  },
+  {
+    "station_id": "Kalagi - Bukoloto-Kayunga",
+    "year": 2020,
+    "month": 8,
+    "aadt": 6060
+  },
+  {
+    "station_id": "Kalagi - Bukoloto-Kayunga",
+    "year": 2020,
+    "month": 9,
+    "aadt": 5756
+  },
+  {
+    "station_id": "Kalagi - Bukoloto-Kayunga",
+    "year": 2020,
+    "month": 10,
+    "aadt": 6536
+  },
+  {
+    "station_id": "Kalagi - Bukoloto-Kayunga",
+    "year": 2020,
+    "month": 12,
+    "aadt": 3365
+  },
+  {
+    "station_id": "Kalagi - Bukoloto-Kayunga",
+    "year": 2021,
+    "month": 1,
+    "aadt": 4923
+  },
+  {
+    "station_id": "Kalagi - Bukoloto-Kayunga",
+    "year": 2021,
+    "month": 2,
+    "aadt": 5954
+  },
+  {
+    "station_id": "Kalagi - Bukoloto-Kayunga",
+    "year": 2021,
+    "month": 3,
+    "aadt": 6491
+  },
+  {
+    "station_id": "Kalagi - Bukoloto-Kayunga",
+    "year": 2021,
+    "month": 4,
+    "aadt": 3597
+  },
+  {
+    "station_id": "Kalagi - Bukoloto-Kayunga",
+    "year": 2021,
+    "month": 5,
+    "aadt": 8066
+  },
+  {
+    "station_id": "Kalagi - Bukoloto-Kayunga",
+    "year": 2021,
+    "month": 6,
+    "aadt": 8546
+  },
+  {
+    "station_id": "Kalagi - Bukoloto-Kayunga",
+    "year": 2021,
+    "month": 10,
+    "aadt": 5721
+  },
+  {
+    "station_id": "Kalagi - Bukoloto-Kayunga",
+    "year": 2022,
+    "month": 4,
+    "aadt": 3023
+  },
+  {
+    "station_id": "Kalagi - Bukoloto-Kayunga",
+    "year": 2022,
+    "month": 5,
+    "aadt": 3300
+  },
+  {
+    "station_id": "Njeru - Bukoloto",
+    "year": 2016,
+    "month": 8,
+    "aadt": 3635
+  },
+  {
+    "station_id": "Njeru - Bukoloto",
+    "year": 2016,
+    "month": 10,
+    "aadt": 5321
+  },
+  {
+    "station_id": "Njeru - Bukoloto",
+    "year": 2016,
+    "month": 12,
+    "aadt": 3939
+  },
+  {
+    "station_id": "Njeru - Bukoloto",
+    "year": 2017,
+    "month": 1,
+    "aadt": 3626
+  },
+  {
+    "station_id": "Njeru - Bukoloto",
+    "year": 2017,
+    "month": 2,
+    "aadt": 3783
+  },
+  {
+    "station_id": "Njeru - Bukoloto",
+    "year": 2017,
+    "month": 3,
+    "aadt": 3351
+  },
+  {
+    "station_id": "Njeru - Bukoloto",
+    "year": 2017,
+    "month": 4,
+    "aadt": 3494
+  },
+  {
+    "station_id": "Njeru - Bukoloto",
+    "year": 2018,
+    "month": 5,
+    "aadt": 3682
+  },
+  {
+    "station_id": "Njeru - Bukoloto",
+    "year": 2018,
+    "month": 4,
+    "aadt": 3603
+  },
+  {
+    "station_id": "Njeru - Bukoloto",
+    "year": 2018,
+    "month": 6,
+    "aadt": 3433
+  },
+  {
+    "station_id": "Njeru - Bukoloto",
+    "year": 2018,
+    "month": 8,
+    "aadt": 4981
+  },
+  {
+    "station_id": "Njeru - Bukoloto",
+    "year": 2018,
+    "month": 9,
+    "aadt": 3158
+  },
+  {
+    "station_id": "Njeru - Bukoloto",
+    "year": 2018,
+    "month": 10,
+    "aadt": 3507
+  },
+  {
+    "station_id": "Njeru - Bukoloto",
+    "year": 2018,
+    "month": 11,
+    "aadt": 3626
+  },
+  {
+    "station_id": "Njeru - Bukoloto",
+    "year": 2018,
+    "month": 12,
+    "aadt": 4837
+  },
+  {
+    "station_id": "Njeru - Bukoloto",
+    "year": 2019,
+    "month": 1,
+    "aadt": 3961
+  },
+  {
+    "station_id": "Njeru - Bukoloto",
+    "year": 2019,
+    "month": 4,
+    "aadt": 4326
+  },
+  {
+    "station_id": "Njeru - Bukoloto",
+    "year": 2019,
+    "month": 5,
+    "aadt": 3865
+  },
+  {
+    "station_id": "Njeru - Bukoloto",
+    "year": 2019,
+    "month": 6,
+    "aadt": 4294
+  },
+  {
+    "station_id": "Njeru - Bukoloto",
+    "year": 2019,
+    "month": 7,
+    "aadt": 4253
+  },
+  {
+    "station_id": "Njeru - Bukoloto",
+    "year": 2019,
+    "month": 8,
+    "aadt": 4143
+  },
+  {
+    "station_id": "Njeru - Bukoloto",
+    "year": 2019,
+    "month": 9,
+    "aadt": 4421
+  },
+  {
+    "station_id": "Njeru - Bukoloto",
+    "year": 2019,
+    "month": 10,
+    "aadt": 4369
+  },
+  {
+    "station_id": "Njeru - Bukoloto",
+    "year": 2019,
+    "month": 11,
+    "aadt": 4514
+  },
+  {
+    "station_id": "Njeru - Bukoloto",
+    "year": 2019,
+    "month": 12,
+    "aadt": 4786
+  },
+  {
+    "station_id": "Njeru - Bukoloto",
+    "year": 2020,
+    "month": 2,
+    "aadt": 4500
+  },
+  {
+    "station_id": "Njeru - Bukoloto",
+    "year": 2020,
+    "month": 3,
+    "aadt": 2197
+  },
+  {
+    "station_id": "Njeru - Bukoloto",
+    "year": 2020,
+    "month": 10,
+    "aadt": 3549
+  },
+  {
+    "station_id": "Njeru - Bukoloto",
+    "year": 2020,
+    "month": 12,
+    "aadt": 5071
+  },
+  {
+    "station_id": "Njeru - Bukoloto",
+    "year": 2021,
+    "month": 1,
+    "aadt": 4222
+  },
+  {
+    "station_id": "Njeru - Bukoloto",
+    "year": 2021,
+    "month": 2,
+    "aadt": 5344
+  },
+  {
+    "station_id": "Njeru - Bukoloto",
+    "year": 2021,
+    "month": 3,
+    "aadt": 2675
+  },
+  {
+    "station_id": "Njeru - Bukoloto",
+    "year": 2021,
+    "month": 4,
+    "aadt": 5127
+  },
+  {
+    "station_id": "Njeru - Bukoloto",
+    "year": 2021,
+    "month": 5,
+    "aadt": 5405
+  },
+  {
+    "station_id": "Njeru - Bukoloto",
+    "year": 2021,
+    "month": 10,
+    "aadt": 3312
+  },
+  {
+    "station_id": "Njeru - Bukoloto",
+    "year": 2021,
+    "month": 12,
+    "aadt": 3408
+  },
+  {
+    "station_id": "Kampala - Mukono",
+    "year": 2016,
+    "month": 8,
+    "aadt": 28152
+  },
+  {
+    "station_id": "Kampala - Mukono",
+    "year": 2016,
+    "month": 11,
+    "aadt": 28671
+  },
+  {
+    "station_id": "Kampala - Mukono",
+    "year": 2016,
+    "month": 12,
+    "aadt": 29128
+  },
+  {
+    "station_id": "Kampala - Mukono",
+    "year": 2017,
+    "month": 1,
+    "aadt": 28745
+  },
+  {
+    "station_id": "Kampala - Mukono",
+    "year": 2017,
+    "month": 2,
+    "aadt": 29798
+  },
+  {
+    "station_id": "Kampala - Mukono",
+    "year": 2017,
+    "month": 3,
+    "aadt": 28572
+  },
+  {
+    "station_id": "Kampala - Mukono",
+    "year": 2017,
+    "month": 4,
+    "aadt": 27002
+  },
+  {
+    "station_id": "Kampala - Mukono",
+    "year": 2017,
+    "month": 5,
+    "aadt": 28510
+  },
+  {
+    "station_id": "Kampala - Mukono",
+    "year": 2017,
+    "month": 6,
+    "aadt": 41484
+  },
+  {
+    "station_id": "Kampala - Mukono",
+    "year": 2017,
+    "month": 7,
+    "aadt": 28573
+  },
+  {
+    "station_id": "Kampala - Mukono",
+    "year": 2017,
+    "month": 8,
+    "aadt": 29170
+  },
+  {
+    "station_id": "Kampala - Mukono",
+    "year": 2017,
+    "month": 9,
+    "aadt": 29985
+  },
+  {
+    "station_id": "Kampala - Mukono",
+    "year": 2017,
+    "month": 10,
+    "aadt": 29616
+  },
+  {
+    "station_id": "Kampala - Mukono",
+    "year": 2017,
+    "month": 11,
+    "aadt": 29958
+  },
+  {
+    "station_id": "Kampala - Mukono",
+    "year": 2017,
+    "month": 12,
+    "aadt": 31427
+  },
+  {
+    "station_id": "Kampala - Mukono",
+    "year": 2018,
+    "month": 2,
+    "aadt": 31554
+  },
+  {
+    "station_id": "Kampala - Mukono",
+    "year": 2018,
+    "month": 3,
+    "aadt": 29704
+  },
+  {
+    "station_id": "Kampala - Mukono",
+    "year": 2018,
+    "month": 4,
+    "aadt": 29620
+  },
+  {
+    "station_id": "Kampala - Mukono",
+    "year": 2018,
+    "month": 5,
+    "aadt": 30282
+  },
+  {
+    "station_id": "Kampala - Mukono",
+    "year": 2018,
+    "month": 6,
+    "aadt": 30891
+  },
+  {
+    "station_id": "Kampala - Mukono",
+    "year": 2018,
+    "month": 7,
+    "aadt": 31035
+  },
+  {
+    "station_id": "Kampala - Mukono",
+    "year": 2018,
+    "month": 8,
+    "aadt": 31198
+  },
+  {
+    "station_id": "Kampala - Mukono",
+    "year": 2018,
+    "month": 9,
+    "aadt": 31677
+  },
+  {
+    "station_id": "Kampala - Mukono",
+    "year": 2018,
+    "month": 10,
+    "aadt": 30780
+  },
+  {
+    "station_id": "Kampala - Mukono",
+    "year": 2018,
+    "month": 11,
+    "aadt": 32527
+  },
+  {
+    "station_id": "Kampala - Mukono",
+    "year": 2018,
+    "month": 12,
+    "aadt": 34373
+  },
+  {
+    "station_id": "Kampala - Mukono",
+    "year": 2019,
+    "month": 1,
+    "aadt": 32894
+  },
+  {
+    "station_id": "Kampala - Mukono",
+    "year": 2019,
+    "month": 2,
+    "aadt": 32115
+  },
+  {
+    "station_id": "Kampala - Mukono",
+    "year": 2019,
+    "month": 3,
+    "aadt": 36221
+  },
+  {
+    "station_id": "Kampala - Mukono",
+    "year": 2019,
+    "month": 4,
+    "aadt": 35907
+  },
+  {
+    "station_id": "Kampala - Mukono",
+    "year": 2019,
+    "month": 5,
+    "aadt": 30846
+  },
+  {
+    "station_id": "Kampala - Mukono",
+    "year": 2019,
+    "month": 6,
+    "aadt": 30793
+  },
+  {
+    "station_id": "Kampala - Mukono",
+    "year": 2019,
+    "month": 7,
+    "aadt": 32556
+  },
+  {
+    "station_id": "Kampala - Mukono",
+    "year": 2019,
+    "month": 8,
+    "aadt": 31837
+  },
+  {
+    "station_id": "Kampala - Mukono",
+    "year": 2019,
+    "month": 9,
+    "aadt": 30043
+  },
+  {
+    "station_id": "Kampala - Mukono",
+    "year": 2019,
+    "month": 10,
+    "aadt": 31092
+  },
+  {
+    "station_id": "Kampala - Mukono",
+    "year": 2019,
+    "month": 11,
+    "aadt": 33110
+  },
+  {
+    "station_id": "Kampala - Mukono",
+    "year": 2019,
+    "month": 12,
+    "aadt": 34829
+  },
+  {
+    "station_id": "Kampala - Mukono",
+    "year": 2020,
+    "month": 1,
+    "aadt": 34207
+  },
+  {
+    "station_id": "Kampala - Mukono",
+    "year": 2020,
+    "month": 2,
+    "aadt": 35851
+  },
+  {
+    "station_id": "Buwama - Nyendo",
+    "year": 2016,
+    "month": 8,
+    "aadt": 7004
+  },
+  {
+    "station_id": "Buwama - Nyendo",
+    "year": 2016,
+    "month": 9,
+    "aadt": 695
+  },
+  {
+    "station_id": "Buwama - Nyendo",
+    "year": 2016,
+    "month": 10,
+    "aadt": 5321
+  },
+  {
+    "station_id": "Buwama - Nyendo",
+    "year": 2016,
+    "month": 11,
+    "aadt": 5381
+  },
+  {
+    "station_id": "Buwama - Nyendo",
+    "year": 2016,
+    "month": 12,
+    "aadt": 4447
+  },
+  {
+    "station_id": "Buwama - Nyendo",
+    "year": 2017,
+    "month": 3,
+    "aadt": 7026
+  },
+  {
+    "station_id": "Buwama - Nyendo",
+    "year": 2017,
+    "month": 4,
+    "aadt": 8081
+  },
+  {
+    "station_id": "Buwama - Nyendo",
+    "year": 2017,
+    "month": 5,
+    "aadt": 7525
+  },
+  {
+    "station_id": "Buwama - Nyendo",
+    "year": 2017,
+    "month": 6,
+    "aadt": 7361
+  },
+  {
+    "station_id": "Buwama - Nyendo",
+    "year": 2017,
+    "month": 9,
+    "aadt": 6651
+  },
+  {
+    "station_id": "Buwama - Nyendo",
+    "year": 2017,
+    "month": 10,
+    "aadt": 6830
+  },
+  {
+    "station_id": "Buwama - Nyendo",
+    "year": 2017,
+    "month": 11,
+    "aadt": 6820
+  },
+  {
+    "station_id": "Buwama - Nyendo",
+    "year": 2017,
+    "month": 12,
+    "aadt": 7768
+  },
+  {
+    "station_id": "Buwama - Nyendo",
+    "year": 2018,
+    "month": 2,
+    "aadt": 7061
+  },
+  {
+    "station_id": "Buwama - Nyendo",
+    "year": 2018,
+    "month": 4,
+    "aadt": 6426
+  },
+  {
+    "station_id": "Buwama - Nyendo",
+    "year": 2018,
+    "month": 5,
+    "aadt": 7670
+  },
+  {
+    "station_id": "Buwama - Nyendo",
+    "year": 2018,
+    "month": 6,
+    "aadt": 7029
+  },
+  {
+    "station_id": "Buwama - Nyendo",
+    "year": 2018,
+    "month": 7,
+    "aadt": 7241
+  },
+  {
+    "station_id": "Buwama - Nyendo",
+    "year": 2018,
+    "month": 8,
+    "aadt": 6074
+  },
+  {
+    "station_id": "Buwama - Nyendo",
+    "year": 2018,
+    "month": 9,
+    "aadt": 7458
+  },
+  {
+    "station_id": "Buwama - Nyendo",
+    "year": 2018,
+    "month": 10,
+    "aadt": 6246
+  },
+  {
+    "station_id": "Buwama - Nyendo",
+    "year": 2018,
+    "month": 11,
+    "aadt": 7424
+  },
+  {
+    "station_id": "Buwama - Nyendo",
+    "year": 2018,
+    "month": 12,
+    "aadt": 7561
+  },
+  {
+    "station_id": "Buwama - Nyendo",
+    "year": 2019,
+    "month": 2,
+    "aadt": 6724
+  },
+  {
+    "station_id": "Buwama - Nyendo",
+    "year": 2019,
+    "month": 4,
+    "aadt": 6990
+  },
+  {
+    "station_id": "Buwama - Nyendo",
+    "year": 2019,
+    "month": 5,
+    "aadt": 6256
+  },
+  {
+    "station_id": "Buwama - Nyendo",
+    "year": 2019,
+    "month": 6,
+    "aadt": 6600
+  },
+  {
+    "station_id": "Buwama - Nyendo",
+    "year": 2019,
+    "month": 7,
+    "aadt": 8142
+  },
+  {
+    "station_id": "Buwama - Nyendo",
+    "year": 2019,
+    "month": 8,
+    "aadt": 6557
+  },
+  {
+    "station_id": "Buwama - Nyendo",
+    "year": 2019,
+    "month": 9,
+    "aadt": 8336
+  },
+  {
+    "station_id": "Buwama - Nyendo",
+    "year": 2019,
+    "month": 10,
+    "aadt": 4926
+  },
+  {
+    "station_id": "Buwama - Nyendo",
+    "year": 2019,
+    "month": 11,
+    "aadt": 3347
+  },
+  {
+    "station_id": "Buwama - Nyendo",
+    "year": 2019,
+    "month": 12,
+    "aadt": 4561
+  },
+  {
+    "station_id": "Buwama - Nyendo",
+    "year": 2020,
+    "month": 2,
+    "aadt": 2816
+  },
+  {
+    "station_id": "Buwama - Nyendo",
+    "year": 2020,
+    "month": 8,
+    "aadt": 2401
+  },
+  {
+    "station_id": "Buwama - Nyendo",
+    "year": 2020,
+    "month": 9,
+    "aadt": 2288
+  },
+  {
+    "station_id": "Buwama - Nyendo",
+    "year": 2020,
+    "month": 10,
+    "aadt": 2693
+  },
+  {
+    "station_id": "Buwama - Nyendo",
+    "year": 2020,
+    "month": 11,
+    "aadt": 1797
+  },
+  {
+    "station_id": "Buwama - Nyendo",
+    "year": 2020,
+    "month": 12,
+    "aadt": 1424
+  },
+  {
+    "station_id": "Lyantonde - Ntusi",
+    "year": 2016,
+    "month": 9,
+    "aadt": 1342
+  },
+  {
+    "station_id": "Lyantonde - Ntusi",
+    "year": 2016,
+    "month": 10,
+    "aadt": 503
+  },
+  {
+    "station_id": "Lyantonde - Ntusi",
+    "year": 2016,
+    "month": 11,
+    "aadt": 578
+  },
+  {
+    "station_id": "Lyantonde - Ntusi",
+    "year": 2016,
+    "month": 12,
+    "aadt": 655
+  },
+  {
+    "station_id": "Lyantonde - Ntusi",
+    "year": 2017,
+    "month": 1,
+    "aadt": 616
+  },
+  {
+    "station_id": "Lyantonde - Ntusi",
+    "year": 2017,
+    "month": 2,
+    "aadt": 667
+  },
+  {
+    "station_id": "Lyantonde - Ntusi",
+    "year": 2017,
+    "month": 3,
+    "aadt": 533
+  },
+  {
+    "station_id": "Lyantonde - Ntusi",
+    "year": 2017,
+    "month": 4,
+    "aadt": 586
+  },
+  {
+    "station_id": "Lyantonde - Ntusi",
+    "year": 2017,
+    "month": 5,
+    "aadt": 590
+  },
+  {
+    "station_id": "Lyantonde - Ntusi",
+    "year": 2017,
+    "month": 6,
+    "aadt": 618
+  },
+  {
+    "station_id": "Lyantonde - Ntusi",
+    "year": 2017,
+    "month": 7,
+    "aadt": 578
+  },
+  {
+    "station_id": "Lyantonde - Ntusi",
+    "year": 2017,
+    "month": 8,
+    "aadt": 688
+  },
+  {
+    "station_id": "Lyantonde - Ntusi",
+    "year": 2017,
+    "month": 9,
+    "aadt": 545
+  },
+  {
+    "station_id": "Lyantonde - Ntusi",
+    "year": 2017,
+    "month": 10,
+    "aadt": 581
+  },
+  {
+    "station_id": "Lyantonde - Ntusi",
+    "year": 2017,
+    "month": 11,
+    "aadt": 498
+  },
+  {
+    "station_id": "Lyantonde - Ntusi",
+    "year": 2017,
+    "month": 12,
+    "aadt": 654
+  },
+  {
+    "station_id": "Lyantonde - Ntusi",
+    "year": 2018,
+    "month": 1,
+    "aadt": 548
+  },
+  {
+    "station_id": "Lyantonde - Ntusi",
+    "year": 2018,
+    "month": 2,
+    "aadt": 610
+  },
+  {
+    "station_id": "Lyantonde - Ntusi",
+    "year": 2018,
+    "month": 3,
+    "aadt": 563
+  },
+  {
+    "station_id": "Lyantonde - Ntusi",
+    "year": 2018,
+    "month": 6,
+    "aadt": 618
+  },
+  {
+    "station_id": "Lyantonde - Ntusi",
+    "year": 2018,
+    "month": 7,
+    "aadt": 618
+  },
+  {
+    "station_id": "Lyantonde - Ntusi",
+    "year": 2018,
+    "month": 8,
+    "aadt": 622
+  },
+  {
+    "station_id": "Lyantonde - Ntusi",
+    "year": 2018,
+    "month": 9,
+    "aadt": 535
+  },
+  {
+    "station_id": "Lyantonde - Ntusi",
+    "year": 2018,
+    "month": 10,
+    "aadt": 671
+  },
+  {
+    "station_id": "Lyantonde - Ntusi",
+    "year": 2018,
+    "month": 11,
+    "aadt": 603
+  },
+  {
+    "station_id": "Lyantonde - Ntusi",
+    "year": 2018,
+    "month": 12,
+    "aadt": 614
+  },
+  {
+    "station_id": "Lyantonde - Ntusi",
+    "year": 2019,
+    "month": 4,
+    "aadt": 524
+  },
+  {
+    "station_id": "Lyantonde - Ntusi",
+    "year": 2019,
+    "month": 5,
+    "aadt": 637
+  },
+  {
+    "station_id": "Lyantonde - Ntusi",
+    "year": 2019,
+    "month": 6,
+    "aadt": 680
+  },
+  {
+    "station_id": "Lyantonde - Ntusi",
+    "year": 2019,
+    "month": 7,
+    "aadt": 605
+  },
+  {
+    "station_id": "Lyantonde - Ntusi",
+    "year": 2019,
+    "month": 8,
+    "aadt": 639
+  },
+  {
+    "station_id": "Lyantonde - Ntusi",
+    "year": 2019,
+    "month": 9,
+    "aadt": 647
+  },
+  {
+    "station_id": "Lyantonde - Ntusi",
+    "year": 2019,
+    "month": 10,
+    "aadt": 539
+  },
+  {
+    "station_id": "Lyantonde - Ntusi",
+    "year": 2019,
+    "month": 11,
+    "aadt": 658
+  },
+  {
+    "station_id": "Lyantonde - Ntusi",
+    "year": 2019,
+    "month": 12,
+    "aadt": 776
+  },
+  {
+    "station_id": "Lyantonde - Ntusi",
+    "year": 2020,
+    "month": 1,
+    "aadt": 699
+  },
+  {
+    "station_id": "Lyantonde - Ntusi",
+    "year": 2020,
+    "month": 2,
+    "aadt": 684
+  },
+  {
+    "station_id": "Lyantonde - Ntusi",
+    "year": 2020,
+    "month": 9,
+    "aadt": 790
+  },
+  {
+    "station_id": "Lyantonde - Ntusi",
+    "year": 2020,
+    "month": 10,
+    "aadt": 682
+  },
+  {
+    "station_id": "Lyantonde - Ntusi",
+    "year": 2020,
+    "month": 11,
+    "aadt": 695
+  },
+  {
+    "station_id": "Lyantonde - Ntusi",
+    "year": 2020,
+    "month": 12,
+    "aadt": 618
+  },
+  {
+    "station_id": "Lyantonde - Ntusi",
+    "year": 2021,
+    "month": 1,
+    "aadt": 524
+  },
+  {
+    "station_id": "Lyantonde - Ntusi",
+    "year": 2021,
+    "month": 2,
+    "aadt": 662
+  },
+  {
+    "station_id": "Lyantonde - Ntusi",
+    "year": 2021,
+    "month": 3,
+    "aadt": 718
+  },
+  {
+    "station_id": "Lyantonde - Ntusi",
+    "year": 2021,
+    "month": 4,
+    "aadt": 484
+  },
+  {
+    "station_id": "Lyantonde - Ntusi",
+    "year": 2021,
+    "month": 5,
+    "aadt": 673
+  },
+  {
+    "station_id": "Lyantonde - Ntusi",
+    "year": 2021,
+    "month": 6,
+    "aadt": 721
+  },
+  {
+    "station_id": "Lyantonde - Ntusi",
+    "year": 2021,
+    "month": 10,
+    "aadt": 758
+  },
+  {
+    "station_id": "Lyantonde - Ntusi",
+    "year": 2021,
+    "month": 11,
+    "aadt": 826
+  },
+  {
+    "station_id": "Lyantonde - Ntusi",
+    "year": 2021,
+    "month": 12,
+    "aadt": 799
+  },
+  {
+    "station_id": "Ishaka - Katunguru",
+    "year": 2016,
+    "month": 8,
+    "aadt": 1563
+  },
+  {
+    "station_id": "Ishaka - Katunguru",
+    "year": 2016,
+    "month": 9,
+    "aadt": 1342
+  },
+  {
+    "station_id": "Ishaka - Katunguru",
+    "year": 2016,
+    "month": 10,
+    "aadt": 1505
+  },
+  {
+    "station_id": "Ishaka - Katunguru",
+    "year": 2016,
+    "month": 11,
+    "aadt": 1533
+  },
+  {
+    "station_id": "Ishaka - Katunguru",
+    "year": 2016,
+    "month": 12,
+    "aadt": 1492
+  },
+  {
+    "station_id": "Ishaka - Katunguru",
+    "year": 2017,
+    "month": 1,
+    "aadt": 1508
+  },
+  {
+    "station_id": "Ishaka - Katunguru",
+    "year": 2017,
+    "month": 2,
+    "aadt": 1375
+  },
+  {
+    "station_id": "Ishaka - Katunguru",
+    "year": 2017,
+    "month": 3,
+    "aadt": 1420
+  },
+  {
+    "station_id": "Ishaka - Katunguru",
+    "year": 2017,
+    "month": 4,
+    "aadt": 1383
+  },
+  {
+    "station_id": "Ishaka - Katunguru",
+    "year": 2017,
+    "month": 5,
+    "aadt": 1436
+  },
+  {
+    "station_id": "Ishaka - Katunguru",
+    "year": 2017,
+    "month": 6,
+    "aadt": 1498
+  },
+  {
+    "station_id": "Ishaka - Katunguru",
+    "year": 2017,
+    "month": 7,
+    "aadt": 1550
+  },
+  {
+    "station_id": "Ishaka - Katunguru",
+    "year": 2017,
+    "month": 8,
+    "aadt": 1673
+  },
+  {
+    "station_id": "Ishaka - Katunguru",
+    "year": 2017,
+    "month": 9,
+    "aadt": 1508
+  },
+  {
+    "station_id": "Ishaka - Katunguru",
+    "year": 2017,
+    "month": 10,
+    "aadt": 1517
+  },
+  {
+    "station_id": "Ishaka - Katunguru",
+    "year": 2017,
+    "month": 11,
+    "aadt": 1636
+  },
+  {
+    "station_id": "Ishaka - Katunguru",
+    "year": 2018,
+    "month": 1,
+    "aadt": 1570
+  },
+  {
+    "station_id": "Ishaka - Katunguru",
+    "year": 2018,
+    "month": 2,
+    "aadt": 1567
+  },
+  {
+    "station_id": "Ishaka - Katunguru",
+    "year": 2018,
+    "month": 3,
+    "aadt": 1537
+  },
+  {
+    "station_id": "Ishaka - Katunguru",
+    "year": 2018,
+    "month": 4,
+    "aadt": 1616
+  },
+  {
+    "station_id": "Ishaka - Katunguru",
+    "year": 2018,
+    "month": 6,
+    "aadt": 1702
+  },
+  {
+    "station_id": "Ishaka - Katunguru",
+    "year": 2018,
+    "month": 7,
+    "aadt": 1674
+  },
+  {
+    "station_id": "Ishaka - Katunguru",
+    "year": 2018,
+    "month": 8,
+    "aadt": 1737
+  },
+  {
+    "station_id": "Ishaka - Katunguru",
+    "year": 2018,
+    "month": 9,
+    "aadt": 1747
+  },
+  {
+    "station_id": "Ishaka - Katunguru",
+    "year": 2018,
+    "month": 10,
+    "aadt": 1701
+  },
+  {
+    "station_id": "Ishaka - Katunguru",
+    "year": 2018,
+    "month": 11,
+    "aadt": 1751
+  },
+  {
+    "station_id": "Ishaka - Katunguru",
+    "year": 2018,
+    "month": 12,
+    "aadt": 1543
+  },
+  {
+    "station_id": "Ishaka - Katunguru",
+    "year": 2019,
+    "month": 2,
+    "aadt": 1696
+  },
+  {
+    "station_id": "Ishaka - Katunguru",
+    "year": 2021,
+    "month": 1,
+    "aadt": 1626
+  },
+  {
+    "station_id": "Ishaka - Katunguru",
+    "year": 2021,
+    "month": 4,
+    "aadt": 1572
+  },
+  {
+    "station_id": "Ishaka - Katunguru",
+    "year": 2021,
+    "month": 5,
+    "aadt": 1473
+  },
+  {
+    "station_id": "Ishaka - Katunguru",
+    "year": 2021,
+    "month": 10,
+    "aadt": 1675
+  },
+  {
+    "station_id": "Ishaka - Katunguru",
+    "year": 2021,
+    "month": 12,
+    "aadt": 1833
+  },
+  {
+    "station_id": "Ishaka - Katunguru",
+    "year": 2022,
+    "month": 3,
+    "aadt": 1627
+  },
+  {
+    "station_id": "Kyenjojo - Fortportal",
+    "year": 2016,
+    "month": 8,
+    "aadt": 737
+  },
+  {
+    "station_id": "Kyenjojo - Fortportal",
+    "year": 2016,
+    "month": 9,
+    "aadt": 1240
+  },
+  {
+    "station_id": "Kyenjojo - Fortportal",
+    "year": 2016,
+    "month": 10,
+    "aadt": 2106
+  },
+  {
+    "station_id": "Kyenjojo - Fortportal",
+    "year": 2016,
+    "month": 11,
+    "aadt": 2076
+  },
+  {
+    "station_id": "Kyenjojo - Fortportal",
+    "year": 2016,
+    "month": 12,
+    "aadt": 2224
+  },
+  {
+    "station_id": "Kyenjojo - Fortportal",
+    "year": 2017,
+    "month": 1,
+    "aadt": 2316
+  },
+  {
+    "station_id": "Kyenjojo - Fortportal",
+    "year": 2017,
+    "month": 2,
+    "aadt": 2301
+  },
+  {
+    "station_id": "Kyenjojo - Fortportal",
+    "year": 2017,
+    "month": 3,
+    "aadt": 2176
+  },
+  {
+    "station_id": "Kyenjojo - Fortportal",
+    "year": 2017,
+    "month": 4,
+    "aadt": 2133
+  },
+  {
+    "station_id": "Kyenjojo - Fortportal",
+    "year": 2017,
+    "month": 5,
+    "aadt": 2525
+  },
+  {
+    "station_id": "Kyenjojo - Fortportal",
+    "year": 2017,
+    "month": 6,
+    "aadt": 2026
+  },
+  {
+    "station_id": "Kyenjojo - Fortportal",
+    "year": 2017,
+    "month": 7,
+    "aadt": 2232
+  },
+  {
+    "station_id": "Kyenjojo - Fortportal",
+    "year": 2017,
+    "month": 8,
+    "aadt": 2185
+  },
+  {
+    "station_id": "Kyenjojo - Fortportal",
+    "year": 2019,
+    "month": 5,
+    "aadt": 2447
+  },
+  {
+    "station_id": "Kyenjojo - Fortportal",
+    "year": 2019,
+    "month": 6,
+    "aadt": 2381
+  },
+  {
+    "station_id": "Kyenjojo - Fortportal",
+    "year": 2019,
+    "month": 7,
+    "aadt": 2260
+  },
+  {
+    "station_id": "Kyenjojo - Fortportal",
+    "year": 2019,
+    "month": 8,
+    "aadt": 2296
+  },
+  {
+    "station_id": "Kyenjojo - Fortportal",
+    "year": 2019,
+    "month": 9,
+    "aadt": 2317
+  },
+  {
+    "station_id": "Kyenjojo - Fortportal",
+    "year": 2019,
+    "month": 10,
+    "aadt": 2273
+  },
+  {
+    "station_id": "Kyenjojo - Fortportal",
+    "year": 2019,
+    "month": 11,
+    "aadt": 2467
+  },
+  {
+    "station_id": "Kyenjojo - Fortportal",
+    "year": 2019,
+    "month": 12,
+    "aadt": 2623
+  },
+  {
+    "station_id": "Kyenjojo - Fortportal",
+    "year": 2020,
+    "month": 2,
+    "aadt": 2570
+  },
+  {
+    "station_id": "Kyenjojo - Fortportal",
+    "year": 2020,
+    "month": 3,
+    "aadt": 1983
+  },
+  {
+    "station_id": "Kyenjojo - Fortportal",
+    "year": 2020,
+    "month": 8,
+    "aadt": 2726
+  },
+  {
+    "station_id": "Kyenjojo - Fortportal",
+    "year": 2020,
+    "month": 9,
+    "aadt": 2625
+  },
+  {
+    "station_id": "Kyenjojo - Fortportal",
+    "year": 2020,
+    "month": 11,
+    "aadt": 2809
+  },
+  {
+    "station_id": "Kyenjojo - Fortportal",
+    "year": 2020,
+    "month": 12,
+    "aadt": 3049
+  },
+  {
+    "station_id": "Kyenjojo - Fortportal",
+    "year": 2021,
+    "month": 2,
+    "aadt": 2993
+  },
+  {
+    "station_id": "Kyenjojo - Fortportal",
+    "year": 2021,
+    "month": 4,
+    "aadt": 3000
+  },
+  {
+    "station_id": "Kyenjojo - Fortportal",
+    "year": 2021,
+    "month": 5,
+    "aadt": 2985
+  },
+  {
+    "station_id": "Kyenjojo - Fortportal",
+    "year": 2021,
+    "month": 10,
+    "aadt": 2952
+  },
+  {
+    "station_id": "Kyenjojo - Fortportal",
+    "year": 2021,
+    "month": 12,
+    "aadt": 2916
+  },
+  {
+    "station_id": "Kyenjojo - Fortportal",
+    "year": 2022,
+    "month": 4,
+    "aadt": 1441
+  },
+  {
+    "station_id": "Kyenjojo - Fortportal",
+    "year": 2022,
+    "month": 5,
+    "aadt": 2075
+  },
+  {
+    "station_id": "Ibanda - Kamwenge",
+    "year": 2016,
+    "month": 8,
+    "aadt": 2142
+  },
+  {
+    "station_id": "Ibanda - Kamwenge",
+    "year": 2016,
+    "month": 9,
+    "aadt": 2080
+  },
+  {
+    "station_id": "Ibanda - Kamwenge",
+    "year": 2016,
+    "month": 11,
+    "aadt": 2212
+  },
+  {
+    "station_id": "Ibanda - Kamwenge",
+    "year": 2016,
+    "month": 12,
+    "aadt": 2972
+  },
+  {
+    "station_id": "Ibanda - Kamwenge",
+    "year": 2017,
+    "month": 1,
+    "aadt": 2270
+  },
+  {
+    "station_id": "Ibanda - Kamwenge",
+    "year": 2017,
+    "month": 2,
+    "aadt": 2448
+  },
+  {
+    "station_id": "Ibanda - Kamwenge",
+    "year": 2017,
+    "month": 3,
+    "aadt": 2131
+  },
+  {
+    "station_id": "Ibanda - Kamwenge",
+    "year": 2017,
+    "month": 4,
+    "aadt": 2423
+  },
+  {
+    "station_id": "Ibanda - Kamwenge",
+    "year": 2017,
+    "month": 5,
+    "aadt": 2451
+  },
+  {
+    "station_id": "Ibanda - Kamwenge",
+    "year": 2017,
+    "month": 6,
+    "aadt": 2213
+  },
+  {
+    "station_id": "Ibanda - Kamwenge",
+    "year": 2017,
+    "month": 7,
+    "aadt": 1550
+  },
+  {
+    "station_id": "Ibanda - Kamwenge",
+    "year": 2017,
+    "month": 8,
+    "aadt": 2231
+  },
+  {
+    "station_id": "Ibanda - Kamwenge",
+    "year": 2017,
+    "month": 9,
+    "aadt": 2317
+  },
+  {
+    "station_id": "Ibanda - Kamwenge",
+    "year": 2017,
+    "month": 10,
+    "aadt": 2174
+  },
+  {
+    "station_id": "Ibanda - Kamwenge",
+    "year": 2017,
+    "month": 11,
+    "aadt": 2321
+  },
+  {
+    "station_id": "Ibanda - Kamwenge",
+    "year": 2017,
+    "month": 12,
+    "aadt": 2193
+  },
+  {
+    "station_id": "Ibanda - Kamwenge",
+    "year": 2018,
+    "month": 1,
+    "aadt": 2584
+  },
+  {
+    "station_id": "Ibanda - Kamwenge",
+    "year": 2018,
+    "month": 2,
+    "aadt": 2689
+  },
+  {
+    "station_id": "Ibanda - Kamwenge",
+    "year": 2018,
+    "month": 3,
+    "aadt": 2475
+  },
+  {
+    "station_id": "Ibanda - Kamwenge",
+    "year": 2018,
+    "month": 4,
+    "aadt": 2137
+  },
+  {
+    "station_id": "Ibanda - Kamwenge",
+    "year": 2018,
+    "month": 5,
+    "aadt": 2412
+  },
+  {
+    "station_id": "Ibanda - Kamwenge",
+    "year": 2018,
+    "month": 6,
+    "aadt": 2223
+  },
+  {
+    "station_id": "Ibanda - Kamwenge",
+    "year": 2018,
+    "month": 8,
+    "aadt": 2419
+  },
+  {
+    "station_id": "Ibanda - Kamwenge",
+    "year": 2018,
+    "month": 9,
+    "aadt": 2621
+  },
+  {
+    "station_id": "Ibanda - Kamwenge",
+    "year": 2018,
+    "month": 10,
+    "aadt": 2339
+  },
+  {
+    "station_id": "Ibanda - Kamwenge",
+    "year": 2018,
+    "month": 11,
+    "aadt": 2374
+  },
+  {
+    "station_id": "Ibanda - Kamwenge",
+    "year": 2018,
+    "month": 12,
+    "aadt": 2851
+  },
+  {
+    "station_id": "Ibanda - Kamwenge",
+    "year": 2019,
+    "month": 1,
+    "aadt": 2307
+  },
+  {
+    "station_id": "Ibanda - Kamwenge",
+    "year": 2019,
+    "month": 4,
+    "aadt": 2510
+  },
+  {
+    "station_id": "Ibanda - Kamwenge",
+    "year": 2019,
+    "month": 5,
+    "aadt": 2393
+  },
+  {
+    "station_id": "Ibanda - Kamwenge",
+    "year": 2019,
+    "month": 6,
+    "aadt": 2458
+  },
+  {
+    "station_id": "Ibanda - Kamwenge",
+    "year": 2019,
+    "month": 7,
+    "aadt": 2498
+  },
+  {
+    "station_id": "Ibanda - Kamwenge",
+    "year": 2019,
+    "month": 8,
+    "aadt": 1895
+  },
+  {
+    "station_id": "Ibanda - Kamwenge",
+    "year": 2019,
+    "month": 9,
+    "aadt": 2368
+  },
+  {
+    "station_id": "Ibanda - Kamwenge",
+    "year": 2019,
+    "month": 10,
+    "aadt": 2257
+  },
+  {
+    "station_id": "Ibanda - Kamwenge",
+    "year": 2019,
+    "month": 11,
+    "aadt": 2438
+  },
+  {
+    "station_id": "Ibanda - Kamwenge",
+    "year": 2019,
+    "month": 12,
+    "aadt": 3025
+  },
+  {
+    "station_id": "Ibanda - Kamwenge",
+    "year": 2020,
+    "month": 1,
+    "aadt": 2407
+  },
+  {
+    "station_id": "Ibanda - Kamwenge",
+    "year": 2020,
+    "month": 2,
+    "aadt": 2546
+  },
+  {
+    "station_id": "Ibanda - Kamwenge",
+    "year": 2020,
+    "month": 9,
+    "aadt": 2591
+  },
+  {
+    "station_id": "Ibanda - Kamwenge",
+    "year": 2020,
+    "month": 10,
+    "aadt": 2573
+  },
+  {
+    "station_id": "Ibanda - Kamwenge",
+    "year": 2020,
+    "month": 11,
+    "aadt": 2502
+  },
+  {
+    "station_id": "Ibanda - Kamwenge",
+    "year": 2020,
+    "month": 12,
+    "aadt": 3044
+  },
+  {
+    "station_id": "Ibanda - Kamwenge",
+    "year": 2021,
+    "month": 1,
+    "aadt": 2503
+  },
+  {
+    "station_id": "Ibanda - Kamwenge",
+    "year": 2021,
+    "month": 2,
+    "aadt": 2847
+  },
+  {
+    "station_id": "Ibanda - Kamwenge",
+    "year": 2021,
+    "month": 3,
+    "aadt": 2596
+  },
+  {
+    "station_id": "Ibanda - Kamwenge",
+    "year": 2021,
+    "month": 4,
+    "aadt": 2679
+  },
+  {
+    "station_id": "Ibanda - Kamwenge",
+    "year": 2021,
+    "month": 5,
+    "aadt": 3026
+  },
+  {
+    "station_id": "Ibanda - Kamwenge",
+    "year": 2021,
+    "month": 6,
+    "aadt": 3032
+  },
+  {
+    "station_id": "Ibanda - Kamwenge",
+    "year": 2021,
+    "month": 10,
+    "aadt": 2590
+  },
+  {
+    "station_id": "Ibanda - Kamwenge",
+    "year": 2021,
+    "month": 11,
+    "aadt": 2449
+  },
+  {
+    "station_id": "Ibanda - Kamwenge",
+    "year": 2021,
+    "month": 12,
+    "aadt": 2994
+  },
+  {
+    "station_id": "Ibanda - Kamwenge",
+    "year": 2022,
+    "month": 4,
+    "aadt": 656
+  },
+  {
+    "station_id": "Tirinyi - Budaka - Kamonkoli",
+    "year": 2016,
+    "month": 8,
+    "aadt": 4880
+  },
+  {
+    "station_id": "Tirinyi - Budaka - Kamonkoli",
+    "year": 2016,
+    "month": 11,
+    "aadt": 5446
+  },
+  {
+    "station_id": "Tirinyi - Budaka - Kamonkoli",
+    "year": 2016,
+    "month": 12,
+    "aadt": 5292
+  },
+  {
+    "station_id": "Tirinyi - Budaka - Kamonkoli",
+    "year": 2017,
+    "month": 1,
+    "aadt": 4838
+  },
+  {
+    "station_id": "Tirinyi - Budaka - Kamonkoli",
+    "year": 2017,
+    "month": 2,
+    "aadt": 4741
+  },
+  {
+    "station_id": "Tirinyi - Budaka - Kamonkoli",
+    "year": 2017,
+    "month": 3,
+    "aadt": 4847
+  },
+  {
+    "station_id": "Tirinyi - Budaka - Kamonkoli",
+    "year": 2017,
+    "month": 4,
+    "aadt": 4105
+  },
+  {
+    "station_id": "Tirinyi - Budaka - Kamonkoli",
+    "year": 2017,
+    "month": 6,
+    "aadt": 4103
+  },
+  {
+    "station_id": "Tirinyi - Budaka - Kamonkoli",
+    "year": 2017,
+    "month": 7,
+    "aadt": 4343
+  },
+  {
+    "station_id": "Tirinyi - Budaka - Kamonkoli",
+    "year": 2017,
+    "month": 8,
+    "aadt": 4481
+  },
+  {
+    "station_id": "Tirinyi - Budaka - Kamonkoli",
+    "year": 2017,
+    "month": 9,
+    "aadt": 4281
+  },
+  {
+    "station_id": "Tirinyi - Budaka - Kamonkoli",
+    "year": 2017,
+    "month": 10,
+    "aadt": 4259
+  },
+  {
+    "station_id": "Tirinyi - Budaka - Kamonkoli",
+    "year": 2017,
+    "month": 11,
+    "aadt": 4481
+  },
+  {
+    "station_id": "Tirinyi - Budaka - Kamonkoli",
+    "year": 2017,
+    "month": 12,
+    "aadt": 4461
+  },
+  {
+    "station_id": "Tirinyi - Budaka - Kamonkoli",
+    "year": 2018,
+    "month": 1,
+    "aadt": 4614
+  },
+  {
+    "station_id": "Tirinyi - Budaka - Kamonkoli",
+    "year": 2018,
+    "month": 2,
+    "aadt": 4363
+  },
+  {
+    "station_id": "Tirinyi - Budaka - Kamonkoli",
+    "year": 2018,
+    "month": 4,
+    "aadt": 4000
+  },
+  {
+    "station_id": "Tirinyi - Budaka - Kamonkoli",
+    "year": 2018,
+    "month": 5,
+    "aadt": 4593
+  },
+  {
+    "station_id": "Tirinyi - Budaka - Kamonkoli",
+    "year": 2018,
+    "month": 7,
+    "aadt": 5009
+  },
+  {
+    "station_id": "Tirinyi - Budaka - Kamonkoli",
+    "year": 2019,
+    "month": 12,
+    "aadt": 5156
+  },
+  {
+    "station_id": "Tirinyi - Budaka - Kamonkoli",
+    "year": 2020,
+    "month": 2,
+    "aadt": 5839
+  },
+  {
+    "station_id": "Tirinyi - Budaka - Kamonkoli",
+    "year": 2020,
+    "month": 3,
+    "aadt": 3886
+  },
+  {
+    "station_id": "Tirinyi - Budaka - Kamonkoli",
+    "year": 2020,
+    "month": 8,
+    "aadt": 3946
+  },
+  {
+    "station_id": "Tirinyi - Budaka - Kamonkoli",
+    "year": 2020,
+    "month": 9,
+    "aadt": 2512
+  },
+  {
+    "station_id": "Tirinyi - Budaka - Kamonkoli",
+    "year": 2020,
+    "month": 12,
+    "aadt": 6780
+  },
+  {
+    "station_id": "Tirinyi - Budaka - Kamonkoli",
+    "year": 2021,
+    "month": 1,
+    "aadt": 3960
+  },
+  {
+    "station_id": "Tirinyi - Budaka - Kamonkoli",
+    "year": 2021,
+    "month": 2,
+    "aadt": 4785
+  },
+  {
+    "station_id": "Tirinyi - Budaka - Kamonkoli",
+    "year": 2021,
+    "month": 3,
+    "aadt": 4494
+  },
+  {
+    "station_id": "Tirinyi - Budaka - Kamonkoli",
+    "year": 2021,
+    "month": 4,
+    "aadt": 5850
+  },
+  {
+    "station_id": "Tirinyi - Budaka - Kamonkoli",
+    "year": 2021,
+    "month": 5,
+    "aadt": 5701
+  },
+  {
+    "station_id": "Tirinyi - Budaka - Kamonkoli",
+    "year": 2021,
+    "month": 10,
+    "aadt": 4553
+  },
+  {
+    "station_id": "Tirinyi - Budaka - Kamonkoli",
+    "year": 2021,
+    "month": 11,
+    "aadt": 4823
+  },
+  {
+    "station_id": "Tirinyi - Budaka - Kamonkoli",
+    "year": 2021,
+    "month": 12,
+    "aadt": 5487
+  },
+  {
+    "station_id": "Pallisa - Kanyago Bridge",
+    "year": 2016,
+    "month": 8,
+    "aadt": 2147
+  },
+  {
+    "station_id": "Pallisa - Kanyago Bridge",
+    "year": 2016,
+    "month": 9,
+    "aadt": 2010
+  },
+  {
+    "station_id": "Pallisa - Kanyago Bridge",
+    "year": 2016,
+    "month": 11,
+    "aadt": 1699
+  },
+  {
+    "station_id": "Pallisa - Kanyago Bridge",
+    "year": 2016,
+    "month": 12,
+    "aadt": 1720
+  },
+  {
+    "station_id": "Pallisa - Kanyago Bridge",
+    "year": 2017,
+    "month": 1,
+    "aadt": 2203
+  },
+  {
+    "station_id": "Pallisa - Kanyago Bridge",
+    "year": 2017,
+    "month": 2,
+    "aadt": 1669
+  },
+  {
+    "station_id": "Pallisa - Kanyago Bridge",
+    "year": 2017,
+    "month": 3,
+    "aadt": 1530
+  },
+  {
+    "station_id": "Pallisa - Kanyago Bridge",
+    "year": 2017,
+    "month": 4,
+    "aadt": 3100
+  },
+  {
+    "station_id": "Pallisa - Kanyago Bridge",
+    "year": 2017,
+    "month": 5,
+    "aadt": 2331
+  },
+  {
+    "station_id": "Pallisa - Kanyago Bridge",
+    "year": 2017,
+    "month": 6,
+    "aadt": 1916
+  },
+  {
+    "station_id": "Pallisa - Kanyago Bridge",
+    "year": 2017,
+    "month": 7,
+    "aadt": 1716
+  },
+  {
+    "station_id": "Pallisa - Kanyago Bridge",
+    "year": 2017,
+    "month": 8,
+    "aadt": 2165
+  },
+  {
+    "station_id": "Pallisa - Kanyago Bridge",
+    "year": 2017,
+    "month": 9,
+    "aadt": 1801
+  },
+  {
+    "station_id": "Pallisa - Kanyago Bridge",
+    "year": 2017,
+    "month": 10,
+    "aadt": 1931
+  },
+  {
+    "station_id": "Pallisa - Kanyago Bridge",
+    "year": 2017,
+    "month": 11,
+    "aadt": 1716
+  },
+  {
+    "station_id": "Pallisa - Kanyago Bridge",
+    "year": 2017,
+    "month": 12,
+    "aadt": 1805
+  },
+  {
+    "station_id": "Pallisa - Kanyago Bridge",
+    "year": 2018,
+    "month": 1,
+    "aadt": 1773
+  },
+  {
+    "station_id": "Pallisa - Kanyago Bridge",
+    "year": 2018,
+    "month": 2,
+    "aadt": 1614
+  },
+  {
+    "station_id": "Pallisa - Kanyago Bridge",
+    "year": 2018,
+    "month": 3,
+    "aadt": 1547
+  },
+  {
+    "station_id": "Pallisa - Kanyago Bridge",
+    "year": 2018,
+    "month": 4,
+    "aadt": 1587
+  },
+  {
+    "station_id": "Pallisa - Kanyago Bridge",
+    "year": 2018,
+    "month": 5,
+    "aadt": 1863
+  },
+  {
+    "station_id": "Pallisa - Kanyago Bridge",
+    "year": 2018,
+    "month": 6,
+    "aadt": 1855
+  },
+  {
+    "station_id": "Kumi - Brooks corner",
+    "year": 2016,
+    "month": 8,
+    "aadt": 2488
+  },
+  {
+    "station_id": "Kumi - Brooks corner",
+    "year": 2016,
+    "month": 9,
+    "aadt": 3125
+  },
+  {
+    "station_id": "Kumi - Brooks corner",
+    "year": 2016,
+    "month": 10,
+    "aadt": 3109
+  },
+  {
+    "station_id": "Kumi - Brooks corner",
+    "year": 2016,
+    "month": 11,
+    "aadt": 2527
+  },
+  {
+    "station_id": "Kumi - Brooks corner",
+    "year": 2016,
+    "month": 12,
+    "aadt": 2587
+  },
+  {
+    "station_id": "Kumi - Brooks corner",
+    "year": 2017,
+    "month": 1,
+    "aadt": 2190
+  },
+  {
+    "station_id": "Kumi - Brooks corner",
+    "year": 2017,
+    "month": 2,
+    "aadt": 2249
+  },
+  {
+    "station_id": "Kumi - Brooks corner",
+    "year": 2017,
+    "month": 3,
+    "aadt": 2247
+  },
+  {
+    "station_id": "Kumi - Brooks corner",
+    "year": 2017,
+    "month": 4,
+    "aadt": 2249
+  },
+  {
+    "station_id": "Kumi - Brooks corner",
+    "year": 2017,
+    "month": 5,
+    "aadt": 2344
+  },
+  {
+    "station_id": "Kumi - Brooks corner",
+    "year": 2017,
+    "month": 6,
+    "aadt": 2318
+  },
+  {
+    "station_id": "Kumi - Brooks corner",
+    "year": 2017,
+    "month": 7,
+    "aadt": 2543
+  },
+  {
+    "station_id": "Kumi - Brooks corner",
+    "year": 2017,
+    "month": 8,
+    "aadt": 1778
+  },
+  {
+    "station_id": "Kumi - Brooks corner",
+    "year": 2017,
+    "month": 10,
+    "aadt": 2496
+  },
+  {
+    "station_id": "Kumi - Brooks corner",
+    "year": 2017,
+    "month": 11,
+    "aadt": 2445
+  },
+  {
+    "station_id": "Kumi - Brooks corner",
+    "year": 2017,
+    "month": 12,
+    "aadt": 1033
+  },
+  {
+    "station_id": "Kumi - Brooks corner",
+    "year": 2018,
+    "month": 2,
+    "aadt": 2206
+  },
+  {
+    "station_id": "Kumi - Brooks corner",
+    "year": 2018,
+    "month": 3,
+    "aadt": 2335
+  },
+  {
+    "station_id": "Kumi - Brooks corner",
+    "year": 2018,
+    "month": 5,
+    "aadt": 2383
+  },
+  {
+    "station_id": "Kumi - Brooks corner",
+    "year": 2018,
+    "month": 7,
+    "aadt": 2479
+  },
+  {
+    "station_id": "Kumi - Brooks corner",
+    "year": 2018,
+    "month": 8,
+    "aadt": 2524
+  },
+  {
+    "station_id": "Kumi - Brooks corner",
+    "year": 2018,
+    "month": 9,
+    "aadt": 2608
+  },
+  {
+    "station_id": "Kumi - Brooks corner",
+    "year": 2018,
+    "month": 11,
+    "aadt": 2524
+  },
+  {
+    "station_id": "Kumi - Brooks corner",
+    "year": 2018,
+    "month": 12,
+    "aadt": 2380
+  },
+  {
+    "station_id": "Kumi - Brooks corner",
+    "year": 2019,
+    "month": 1,
+    "aadt": 2273
+  },
+  {
+    "station_id": "Kumi - Brooks corner",
+    "year": 2019,
+    "month": 5,
+    "aadt": 2525
+  },
+  {
+    "station_id": "Kumi - Brooks corner",
+    "year": 2019,
+    "month": 6,
+    "aadt": 2425
+  },
+  {
+    "station_id": "Kumi - Brooks corner",
+    "year": 2019,
+    "month": 7,
+    "aadt": 2396
+  },
+  {
+    "station_id": "Kumi - Brooks corner",
+    "year": 2019,
+    "month": 8,
+    "aadt": 1842
+  },
+  {
+    "station_id": "Kumi - Brooks corner",
+    "year": 2019,
+    "month": 9,
+    "aadt": 1856
+  },
+  {
+    "station_id": "Kumi - Brooks corner",
+    "year": 2019,
+    "month": 10,
+    "aadt": 2615
+  },
+  {
+    "station_id": "Kumi - Brooks corner",
+    "year": 2019,
+    "month": 12,
+    "aadt": 2949
+  },
+  {
+    "station_id": "Kumi - Brooks corner",
+    "year": 2020,
+    "month": 2,
+    "aadt": 2646
+  },
+  {
+    "station_id": "Kumi - Brooks corner",
+    "year": 2020,
+    "month": 10,
+    "aadt": 2061
+  },
+  {
+    "station_id": "Kumi - Brooks corner",
+    "year": 2020,
+    "month": 11,
+    "aadt": 2343
+  },
+  {
+    "station_id": "Kumi - Brooks corner",
+    "year": 2020,
+    "month": 12,
+    "aadt": 630
+  },
+  {
+    "station_id": "Kumi - Brooks corner",
+    "year": 2021,
+    "month": 1,
+    "aadt": 2468
+  },
+  {
+    "station_id": "Kumi - Brooks corner",
+    "year": 2021,
+    "month": 2,
+    "aadt": 2618
+  },
+  {
+    "station_id": "Kumi - Brooks corner",
+    "year": 2021,
+    "month": 3,
+    "aadt": 2664
+  },
+  {
+    "station_id": "Kumi - Brooks corner",
+    "year": 2021,
+    "month": 4,
+    "aadt": 2342
+  },
+  {
+    "station_id": "Kumi - Brooks corner",
+    "year": 2021,
+    "month": 5,
+    "aadt": 2506
+  },
+  {
+    "station_id": "Kumi - Brooks corner",
+    "year": 2021,
+    "month": 10,
+    "aadt": 573
+  },
+  {
+    "station_id": "Kumi - Brooks corner",
+    "year": 2021,
+    "month": 11,
+    "aadt": 2145
+  },
+  {
+    "station_id": "Kumi - Brooks corner",
+    "year": 2021,
+    "month": 12,
+    "aadt": 429
+  },
+  {
+    "station_id": "Kumi - Brooks corner",
+    "year": 2022,
+    "month": 1,
+    "aadt": 450
+  },
+  {
+    "station_id": "Lira - Corner Kilak",
+    "year": 2016,
+    "month": 8,
+    "aadt": 1597
+  },
+  {
+    "station_id": "Lira - Corner Kilak",
+    "year": 2016,
+    "month": 11,
+    "aadt": 1731
+  },
+  {
+    "station_id": "Lira - Corner Kilak",
+    "year": 2016,
+    "month": 12,
+    "aadt": 1734
+  },
+  {
+    "station_id": "Lira - Corner Kilak",
+    "year": 2017,
+    "month": 1,
+    "aadt": 1508
+  },
+  {
+    "station_id": "Lira - Corner Kilak",
+    "year": 2017,
+    "month": 2,
+    "aadt": 1629
+  },
+  {
+    "station_id": "Lira - Corner Kilak",
+    "year": 2017,
+    "month": 3,
+    "aadt": 1637
+  },
+  {
+    "station_id": "Lira - Corner Kilak",
+    "year": 2017,
+    "month": 6,
+    "aadt": 892
+  },
+  {
+    "station_id": "Lira - Corner Kilak",
+    "year": 2017,
+    "month": 7,
+    "aadt": 850
+  },
+  {
+    "station_id": "Lira - Corner Kilak",
+    "year": 2017,
+    "month": 8,
+    "aadt": 777
+  },
+  {
+    "station_id": "Lira - Corner Kilak",
+    "year": 2017,
+    "month": 9,
+    "aadt": 2165
+  },
+  {
+    "station_id": "Lira - Corner Kilak",
+    "year": 2017,
+    "month": 10,
+    "aadt": 708
+  },
+  {
+    "station_id": "Lira - Corner Kilak",
+    "year": 2017,
+    "month": 11,
+    "aadt": 1954
+  },
+  {
+    "station_id": "Lira - Corner Kilak",
+    "year": 2017,
+    "month": 12,
+    "aadt": 1976
+  },
+  {
+    "station_id": "Lira - Corner Kilak",
+    "year": 2018,
+    "month": 2,
+    "aadt": 1813
+  },
+  {
+    "station_id": "Lira - Corner Kilak",
+    "year": 2018,
+    "month": 3,
+    "aadt": 1681
+  },
+  {
+    "station_id": "Lira - Corner Kilak",
+    "year": 2018,
+    "month": 4,
+    "aadt": 1486
+  },
+  {
+    "station_id": "Lira - Corner Kilak",
+    "year": 2018,
+    "month": 7,
+    "aadt": 1566
+  },
+  {
+    "station_id": "Lira - Corner Kilak",
+    "year": 2018,
+    "month": 8,
+    "aadt": 1748
+  },
+  {
+    "station_id": "Lira - Corner Kilak",
+    "year": 2018,
+    "month": 9,
+    "aadt": 1652
+  },
+  {
+    "station_id": "Lira - Corner Kilak",
+    "year": 2018,
+    "month": 10,
+    "aadt": 1566
+  },
+  {
+    "station_id": "Lira - Corner Kilak",
+    "year": 2018,
+    "month": 11,
+    "aadt": 1536
+  },
+  {
+    "station_id": "Lira - Corner Kilak",
+    "year": 2018,
+    "month": 12,
+    "aadt": 649
+  },
+  {
+    "station_id": "Lira - Corner Kilak",
+    "year": 2019,
+    "month": 1,
+    "aadt": 1598
+  },
+  {
+    "station_id": "Lira - Corner Kilak",
+    "year": 2019,
+    "month": 5,
+    "aadt": 2435
+  },
+  {
+    "station_id": "Lira - Corner Kilak",
+    "year": 2019,
+    "month": 7,
+    "aadt": 2636
+  },
+  {
+    "station_id": "Lira - Corner Kilak",
+    "year": 2019,
+    "month": 8,
+    "aadt": 1936
+  },
+  {
+    "station_id": "Lira - Corner Kilak",
+    "year": 2019,
+    "month": 9,
+    "aadt": 1827
+  },
+  {
+    "station_id": "Lira - Corner Kilak",
+    "year": 2019,
+    "month": 10,
+    "aadt": 2012
+  },
+  {
+    "station_id": "Lira - Corner Kilak",
+    "year": 2019,
+    "month": 11,
+    "aadt": 1261
+  },
+  {
+    "station_id": "Lira - Corner Kilak",
+    "year": 2019,
+    "month": 12,
+    "aadt": 1876
+  },
+  {
+    "station_id": "Lira - Corner Kilak",
+    "year": 2020,
+    "month": 1,
+    "aadt": 1723
+  },
+  {
+    "station_id": "Lira - Corner Kilak",
+    "year": 2020,
+    "month": 2,
+    "aadt": 1866
+  },
+  {
+    "station_id": "Lira - Corner Kilak",
+    "year": 2020,
+    "month": 3,
+    "aadt": 1680
+  },
+  {
+    "station_id": "Lira - Corner Kilak",
+    "year": 2020,
+    "month": 8,
+    "aadt": 2047
+  },
+  {
+    "station_id": "Lira - Corner Kilak",
+    "year": 2020,
+    "month": 9,
+    "aadt": 1795
+  },
+  {
+    "station_id": "Lira - Corner Kilak",
+    "year": 2020,
+    "month": 12,
+    "aadt": 1574
+  },
+  {
+    "station_id": "Lira - Corner Kilak",
+    "year": 2021,
+    "month": 1,
+    "aadt": 1496
+  },
+  {
+    "station_id": "Lira - Corner Kilak",
+    "year": 2021,
+    "month": 3,
+    "aadt": 1665
+  },
+  {
+    "station_id": "Lira - Corner Kilak",
+    "year": 2021,
+    "month": 4,
+    "aadt": 1665
+  },
+  {
+    "station_id": "Lira - Corner Kilak",
+    "year": 2021,
+    "month": 5,
+    "aadt": 1385
+  },
+  {
+    "station_id": "Lira - Corner Kilak",
+    "year": 2021,
+    "month": 6,
+    "aadt": 779
+  },
+  {
+    "station_id": "Lira - Corner Kilak",
+    "year": 2021,
+    "month": 11,
+    "aadt": 1084
+  },
+  {
+    "station_id": "Lira - Corner Kilak",
+    "year": 2021,
+    "month": 12,
+    "aadt": 1307
+  },
+  {
+    "station_id": "Lira - Corner Kilak",
+    "year": 2022,
+    "month": 1,
+    "aadt": 2020
+  },
+  {
+    "station_id": "Lira - Corner Kilak",
+    "year": 2022,
+    "month": 3,
+    "aadt": 1489
+  },
+  {
+    "station_id": "Lira - Corner Kilak",
+    "year": 2022,
+    "month": 5,
+    "aadt": 1263
+  },
+  {
+    "station_id": "Lamogi - Amuru Junction",
+    "year": 2016,
+    "month": 8,
+    "aadt": 1257
+  },
+  {
+    "station_id": "Lamogi - Amuru Junction",
+    "year": 2016,
+    "month": 9,
+    "aadt": 1080
+  },
+  {
+    "station_id": "Lamogi - Amuru Junction",
+    "year": 2016,
+    "month": 11,
+    "aadt": 1754
+  },
+  {
+    "station_id": "Lamogi - Amuru Junction",
+    "year": 2016,
+    "month": 12,
+    "aadt": 850
+  },
+  {
+    "station_id": "Lamogi - Amuru Junction",
+    "year": 2017,
+    "month": 1,
+    "aadt": 821
+  },
+  {
+    "station_id": "Lamogi - Amuru Junction",
+    "year": 2017,
+    "month": 2,
+    "aadt": 906
+  },
+  {
+    "station_id": "Lamogi - Amuru Junction",
+    "year": 2017,
+    "month": 3,
+    "aadt": 1030
+  },
+  {
+    "station_id": "Lamogi - Amuru Junction",
+    "year": 2017,
+    "month": 4,
+    "aadt": 1004
+  },
+  {
+    "station_id": "Lamogi - Amuru Junction",
+    "year": 2017,
+    "month": 5,
+    "aadt": 2300
+  },
+  {
+    "station_id": "Lamogi - Amuru Junction",
+    "year": 2017,
+    "month": 7,
+    "aadt": 902
+  },
+  {
+    "station_id": "Lamogi - Amuru Junction",
+    "year": 2017,
+    "month": 8,
+    "aadt": 798
+  },
+  {
+    "station_id": "Lamogi - Amuru Junction",
+    "year": 2017,
+    "month": 9,
+    "aadt": 901
+  },
+  {
+    "station_id": "Lamogi - Amuru Junction",
+    "year": 2017,
+    "month": 10,
+    "aadt": 704
+  },
+  {
+    "station_id": "Lamogi - Amuru Junction",
+    "year": 2017,
+    "month": 11,
+    "aadt": 832
+  },
+  {
+    "station_id": "Lamogi - Amuru Junction",
+    "year": 2017,
+    "month": 12,
+    "aadt": 841
+  },
+  {
+    "station_id": "Lamogi - Amuru Junction",
+    "year": 2018,
+    "month": 3,
+    "aadt": 901
+  },
+  {
+    "station_id": "Lamogi - Amuru Junction",
+    "year": 2018,
+    "month": 5,
+    "aadt": 862
+  },
+  {
+    "station_id": "Lamogi - Amuru Junction",
+    "year": 2018,
+    "month": 6,
+    "aadt": 739
+  },
+  {
+    "station_id": "Lamogi - Amuru Junction",
+    "year": 2018,
+    "month": 7,
+    "aadt": 819
+  },
+  {
+    "station_id": "Lamogi - Amuru Junction",
+    "year": 2018,
+    "month": 8,
+    "aadt": 1782
+  },
+  {
+    "station_id": "Lamogi - Amuru Junction",
+    "year": 2018,
+    "month": 9,
+    "aadt": 898
+  },
+  {
+    "station_id": "Lamogi - Amuru Junction",
+    "year": 2018,
+    "month": 10,
+    "aadt": 917
+  },
+  {
+    "station_id": "Lamogi - Amuru Junction",
+    "year": 2018,
+    "month": 11,
+    "aadt": 786
+  },
+  {
+    "station_id": "Lamogi - Amuru Junction",
+    "year": 2018,
+    "month": 12,
+    "aadt": 834
+  },
+  {
+    "station_id": "Lamogi - Amuru Junction",
+    "year": 2019,
+    "month": 1,
+    "aadt": 1177
+  },
+  {
+    "station_id": "Lamogi - Amuru Junction",
+    "year": 2019,
+    "month": 3,
+    "aadt": 1028
+  },
+  {
+    "station_id": "Lamogi - Amuru Junction",
+    "year": 2019,
+    "month": 4,
+    "aadt": 1019
+  },
+  {
+    "station_id": "Lamogi - Amuru Junction",
+    "year": 2019,
+    "month": 5,
+    "aadt": 1063
+  },
+  {
+    "station_id": "Lamogi - Amuru Junction",
+    "year": 2019,
+    "month": 6,
+    "aadt": 1024
+  },
+  {
+    "station_id": "Lamogi - Amuru Junction",
+    "year": 2019,
+    "month": 7,
+    "aadt": 1039
+  },
+  {
+    "station_id": "Lamogi - Amuru Junction",
+    "year": 2019,
+    "month": 8,
+    "aadt": 1090
+  },
+  {
+    "station_id": "Lamogi - Amuru Junction",
+    "year": 2019,
+    "month": 10,
+    "aadt": 1073
+  },
+  {
+    "station_id": "Lamogi - Amuru Junction",
+    "year": 2019,
+    "month": 12,
+    "aadt": 1071
+  },
+  {
+    "station_id": "Lamogi - Amuru Junction",
+    "year": 2020,
+    "month": 2,
+    "aadt": 1278
+  },
+  {
+    "station_id": "Lamogi - Amuru Junction",
+    "year": 2020,
+    "month": 3,
+    "aadt": 1171
+  },
+  {
+    "station_id": "Lamogi - Amuru Junction",
+    "year": 2020,
+    "month": 10,
+    "aadt": 1043
+  },
+  {
+    "station_id": "Lamogi - Amuru Junction",
+    "year": 2020,
+    "month": 12,
+    "aadt": 1142
+  },
+  {
+    "station_id": "Lamogi - Amuru Junction",
+    "year": 2021,
+    "month": 1,
+    "aadt": 1124
+  },
+  {
+    "station_id": "Lamogi - Amuru Junction",
+    "year": 2021,
+    "month": 2,
+    "aadt": 1267
+  },
+  {
+    "station_id": "Lamogi - Amuru Junction",
+    "year": 2021,
+    "month": 3,
+    "aadt": 1185
+  },
+  {
+    "station_id": "Lamogi - Amuru Junction",
+    "year": 2021,
+    "month": 4,
+    "aadt": 1167
+  },
+  {
+    "station_id": "Lamogi - Amuru Junction",
+    "year": 2021,
+    "month": 5,
+    "aadt": 1220
+  },
+  {
+    "station_id": "Lamogi - Amuru Junction",
+    "year": 2021,
+    "month": 6,
+    "aadt": 1031
+  },
+  {
+    "station_id": "Lamogi - Amuru Junction",
+    "year": 2021,
+    "month": 10,
+    "aadt": 1286
+  },
+  {
+    "station_id": "Lamogi - Amuru Junction",
+    "year": 2022,
+    "month": 1,
+    "aadt": 1373
+  },
+  {
+    "station_id": "Lamogi - Amuru Junction",
+    "year": 2022,
+    "month": 3,
+    "aadt": 1131
+  },
+  {
+    "station_id": "Lamogi - Amuru Junction",
+    "year": 2022,
+    "month": 5,
+    "aadt": 519
+  },
+  {
+    "station_id": "Lamogi - Amuru Junction",
+    "year": 2022,
+    "month": 6,
+    "aadt": 833
+  },
+  {
+    "station_id": "Nebbi - Olevu",
+    "year": 2016,
+    "month": 8,
+    "aadt": 960
+  },
+  {
+    "station_id": "Nebbi - Olevu",
+    "year": 2016,
+    "month": 9,
+    "aadt": 1064
+  },
+  {
+    "station_id": "Nebbi - Olevu",
+    "year": 2016,
+    "month": 11,
+    "aadt": 831
+  },
+  {
+    "station_id": "Nebbi - Olevu",
+    "year": 2016,
+    "month": 12,
+    "aadt": 933
+  },
+  {
+    "station_id": "Nebbi - Olevu",
+    "year": 2017,
+    "month": 2,
+    "aadt": 892
+  },
+  {
+    "station_id": "Nebbi - Olevu",
+    "year": 2017,
+    "month": 3,
+    "aadt": 812
+  },
+  {
+    "station_id": "Nebbi - Olevu",
+    "year": 2017,
+    "month": 6,
+    "aadt": 881
+  },
+  {
+    "station_id": "Nebbi - Olevu",
+    "year": 2017,
+    "month": 7,
+    "aadt": 946
+  },
+  {
+    "station_id": "Nebbi - Olevu",
+    "year": 2017,
+    "month": 8,
+    "aadt": 860
+  },
+  {
+    "station_id": "Nebbi - Olevu",
+    "year": 2017,
+    "month": 9,
+    "aadt": 901
+  },
+  {
+    "station_id": "Nebbi - Olevu",
+    "year": 2017,
+    "month": 10,
+    "aadt": 888
+  },
+  {
+    "station_id": "Nebbi - Olevu",
+    "year": 2017,
+    "month": 11,
+    "aadt": 832
+  },
+  {
+    "station_id": "Nebbi - Olevu",
+    "year": 2017,
+    "month": 12,
+    "aadt": 1033
+  },
+  {
+    "station_id": "Nebbi - Olevu",
+    "year": 2018,
+    "month": 1,
+    "aadt": 906
+  },
+  {
+    "station_id": "Nebbi - Olevu",
+    "year": 2018,
+    "month": 2,
+    "aadt": 2206
+  },
+  {
+    "station_id": "Nebbi - Olevu",
+    "year": 2018,
+    "month": 3,
+    "aadt": 963
+  },
+  {
+    "station_id": "Nebbi - Olevu",
+    "year": 2018,
+    "month": 4,
+    "aadt": 888
+  },
+  {
+    "station_id": "Nebbi - Olevu",
+    "year": 2018,
+    "month": 5,
+    "aadt": 995
+  },
+  {
+    "station_id": "Nebbi - Olevu",
+    "year": 2018,
+    "month": 6,
+    "aadt": 1001
+  },
+  {
+    "station_id": "Nebbi - Olevu",
+    "year": 2018,
+    "month": 7,
+    "aadt": 852
+  },
+  {
+    "station_id": "Nebbi - Olevu",
+    "year": 2018,
+    "month": 9,
+    "aadt": 921
+  },
+  {
+    "station_id": "Nebbi - Olevu",
+    "year": 2018,
+    "month": 10,
+    "aadt": 1021
+  },
+  {
+    "station_id": "Nebbi - Olevu",
+    "year": 2018,
+    "month": 11,
+    "aadt": 1000
+  },
+  {
+    "station_id": "Nebbi - Olevu",
+    "year": 2018,
+    "month": 12,
+    "aadt": 1351
+  },
+  {
+    "station_id": "Nebbi - Olevu",
+    "year": 2019,
+    "month": 7,
+    "aadt": 1049
+  },
+  {
+    "station_id": "Nebbi - Olevu",
+    "year": 2019,
+    "month": 8,
+    "aadt": 1312
+  },
+  {
+    "station_id": "Nebbi - Olevu",
+    "year": 2019,
+    "month": 9,
+    "aadt": 1146
+  },
+  {
+    "station_id": "Nebbi - Olevu",
+    "year": 2019,
+    "month": 10,
+    "aadt": 1073
+  },
+  {
+    "station_id": "Nebbi - Olevu",
+    "year": 2019,
+    "month": 11,
+    "aadt": 1057
+  },
+  {
+    "station_id": "Nebbi - Olevu",
+    "year": 2019,
+    "month": 12,
+    "aadt": 956
+  },
+  {
+    "station_id": "Nebbi - Olevu",
+    "year": 2020,
+    "month": 1,
+    "aadt": 1185
+  },
+  {
+    "station_id": "Nebbi - Olevu",
+    "year": 2020,
+    "month": 2,
+    "aadt": 1100
+  },
+  {
+    "station_id": "Nebbi - Olevu",
+    "year": 2020,
+    "month": 3,
+    "aadt": 506
+  },
+  {
+    "station_id": "Nebbi - Olevu",
+    "year": 2020,
+    "month": 8,
+    "aadt": 1121
+  },
+  {
+    "station_id": "Nebbi - Olevu",
+    "year": 2020,
+    "month": 11,
+    "aadt": 1163
+  },
+  {
+    "station_id": "Nebbi - Olevu",
+    "year": 2020,
+    "month": 12,
+    "aadt": 1585
+  },
+  {
+    "station_id": "Nebbi - Olevu",
+    "year": 2021,
+    "month": 1,
+    "aadt": 1789
+  },
+  {
+    "station_id": "Nebbi - Olevu",
+    "year": 2021,
+    "month": 2,
+    "aadt": 1324
+  },
+  {
+    "station_id": "Nebbi - Olevu",
+    "year": 2021,
+    "month": 3,
+    "aadt": 674
+  },
+  {
+    "station_id": "Nebbi - Olevu",
+    "year": 2021,
+    "month": 4,
+    "aadt": 1350
+  },
+  {
+    "station_id": "Nebbi - Olevu",
+    "year": 2021,
+    "month": 5,
+    "aadt": 1301
+  },
+  {
+    "station_id": "Nebbi - Olevu",
+    "year": 2021,
+    "month": 6,
+    "aadt": 1298
+  },
+  {
+    "station_id": "Nebbi - Olevu",
+    "year": 2021,
+    "month": 10,
+    "aadt": 1172
+  },
+  {
+    "station_id": "Nebbi - Olevu",
+    "year": 2021,
+    "month": 11,
+    "aadt": 1163
+  }
+]
