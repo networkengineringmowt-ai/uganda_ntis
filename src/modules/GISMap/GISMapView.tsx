@@ -246,7 +246,7 @@ export default function GISMapView() {
               </div>
               <div className="flex items-center gap-2 mb-1">
                 <svg viewBox="0 0 20 6" width="20" height="6" xmlns="http://www.w3.org/2000/svg">
-                  <line x1="1" y1="3" x2="19" y2="3" stroke="#FFD700" strokeWidth="2.5" strokeLinecap="round" strokeDasharray="4 3"/>
+                  <line x1="1" y1="3" x2="19" y2="3" stroke="#C8A84B" strokeWidth="1.5" strokeLinecap="round" strokeDasharray="4,3"/>
                 </svg>
                 <span className="text-[9px] text-slate-400">Unpaved / Gravel</span>
               </div>
