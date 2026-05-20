@@ -2,7 +2,7 @@ import {
   LayoutDashboard, Map, Table2, ClipboardCheck, Activity,
   Wrench, BarChart3, BarChart2, AlertTriangle, FolderOpen, ChevronRight,
   Shield, Camera, Globe, Construction, Layers, Network, BookOpen,
-  Video, Download, TrendingUp,
+  Video, Download, TrendingUp, Weight,
 } from 'lucide-react';
 import { useBMS } from '../../store/BMSContext';
 import type { ActiveView } from '../../types';
@@ -50,6 +50,7 @@ export default function Sidebar() {
         { id: 'trafficanalytics', label: 'Traffic Analytics', icon: <BarChart2 size={15}/>, color: N.yellow },
         { id: 'trafficsummary',  label: 'Traffic Tables',    icon: <Table2 size={15}/>,   color: N.yellow },
         { id: 'growthfactors',   label: 'Growth Factors',    icon: <TrendingUp size={15}/>, color: N.green },
+        { id: 'overloading',     label: 'Overloading Risk',  icon: <Weight size={15}/>,    color: N.orange },
         { id: 'roadcondition', label: 'Road Condition',      icon: <Activity size={15}/>,      color: N.blue   },
         { id: 'projects',      label: 'Projects & Works',    icon: <Construction size={15}/>,  color: N.pink   },
         { id: 'oprc',          label: 'OPRC Contracts',      icon: <TrendingUp size={15}/>,    color: N.cyan   },

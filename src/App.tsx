@@ -30,6 +30,7 @@ const TrafficSummary       = lazy(() => import('./components/sections/TrafficSum
 const OprcSection          = lazy(() => import('./components/sections/OprcSection'));
 const NdpivSection         = lazy(() => import('./components/sections/NdpivSection'));
 const GrowthFactorsPanel   = lazy(() => import('./modules/Traffic/GrowthFactorsPanel'));
+const OverloadingSection   = lazy(() => import('./modules/Traffic/OverloadingSection'));
 
 // Views that hide the header and own the full content rectangle
 const FULL_VIEWS = new Set(['gismap', 'roadnetwork', 'roadvideoview']);
@@ -133,6 +134,7 @@ function AppShell() {
                 {activeView === 'trafficanalytics' && <TrafficAnalytics />}
                 {activeView === 'trafficsummary'   && <TrafficSummary />}
                 {activeView === 'growthfactors'    && <GrowthFactorsPanel />}
+                {activeView === 'overloading'      && <OverloadingSection />}
                 {activeView === 'oprc'             && <OprcSection />}
                 {activeView === 'ndpiv'            && <NdpivSection />}
                 {activeView === 'downloads'         && <DownloadsView />}

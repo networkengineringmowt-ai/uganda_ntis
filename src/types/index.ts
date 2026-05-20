@@ -149,6 +149,7 @@ export type ActiveView =
   | 'trafficsummary'   // Traffic summary tables (Road Links + Stations)
   | 'oprc'             // OPRC contracts dashboard
   | 'ndpiv'            // NDP IV investment dashboard
+  | 'overloading'      // Overloading analytics — ESAL risk index & hotspot map
   | 'growthfactors';   // Monthly/seasonal/annual growth factors
 
 // ─── Road network types ───────────────────────────────────────────────────────
