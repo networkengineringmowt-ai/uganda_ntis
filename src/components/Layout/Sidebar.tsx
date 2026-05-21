@@ -2,7 +2,7 @@ import {
   LayoutDashboard, Map, Table2, ClipboardCheck, Activity,
   Wrench, BarChart3, BarChart2, AlertTriangle, FolderOpen, ChevronRight,
   Shield, Camera, Globe, Construction, Layers, Network, BookOpen,
-  Video, Download, TrendingUp, Weight,
+  Video, Download, TrendingUp, Weight, Database,
 } from 'lucide-react';
 import { useBMS } from '../../store/BMSContext';
 import type { ActiveView } from '../../types';
@@ -61,6 +61,7 @@ export default function Sidebar() {
     {
       title: 'Bridge Management System',
       items: [
+        { id: 'bridgesection', label: 'Bridge Data 2026',    icon: <Database size={15}/>,        color: N.blue   },
         { id: 'dashboard',   label: 'BMS Dashboard',        icon: <LayoutDashboard size={15}/>, color: N.cyan   },
         { id: 'gismap',      label: 'Structure Map',            icon: <Network size={15}/>,         color: N.green  },
         { id: 'registry',    label: 'Structure Registry',    icon: <Table2 size={15}/>,           color: N.blue   },

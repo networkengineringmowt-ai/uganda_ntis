@@ -150,7 +150,16 @@ export type ActiveView =
   | 'oprc'             // OPRC contracts dashboard
   | 'ndpiv'            // NDP IV investment dashboard
   | 'overloading'      // Overloading analytics — ESAL risk index & hotspot map
-  | 'growthfactors';   // Monthly/seasonal/annual growth factors
+  | 'growthfactors'   // Monthly/seasonal/annual growth factors
+  // ─── New 10-module views ──────────────────────────────────────────────────
+  | 'mlarchitecture'  // Interactive ML system architecture diagram
+  | 'hdm4'            // HDM-4 deterioration models, calibration, CESAL calculator
+  | 'bridgesection'   // BMS data overview — real 2026 Excel data, condition map + charts
+  | 'projecttracker'  // Gantt/Kanban project progress tracker
+  | 'pim'             // Public Investment Management — PPPs, donor funding
+  | 'budget'          // Budgeting & Maintenance planning
+  | 'lifecycle'       // Life Cycle Management — per-link asset timelines
+  | 'sources';        // Sources & Evidence catalogue
 
 // ─── Road network types ───────────────────────────────────────────────────────
 export type RoadClass   = 'A' | 'B' | 'C' | 'M';
