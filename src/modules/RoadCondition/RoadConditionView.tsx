@@ -1,15 +1,16 @@
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, useCallback } from 'react';
 import {
   ResponsiveContainer, AreaChart, Area, LineChart, Line,
   XAxis, YAxis, CartesianGrid, Tooltip, BarChart, Bar,
   Cell, ReferenceLine, PieChart, Pie,
 } from 'recharts';
 import {
-  Activity, CheckCircle2, AlertTriangle, Camera, Filter,
-  TrendingUp, DollarSign, MapPin, Zap,
+  Activity, CheckCircle2, AlertTriangle, Camera,
+  TrendingUp, DollarSign, MapPin, Zap, Layers, X,
 } from 'lucide-react';
-import { MapContainer, TileLayer, GeoJSON } from 'react-leaflet';
-import type { GeoJsonObject, Feature, Geometry } from 'geojson';
+import { MapContainer, TileLayer, GeoJSON, useMap, CircleMarker, Popup } from 'react-leaflet';
+import L from 'leaflet';
+import type { GeoJsonObject, Feature, FeatureCollection, Geometry } from 'geojson';
 import type { Layer, PathOptions } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { loadPlatformAnalytics, type PlatformAnalytics } from '../../data/platformData';
@@ -27,10 +28,6 @@ interface ImageDefectSummary {
   top_damaged_links: Array<{
     link_id: string; dominant_defect: string; image_count: number; avg_severity: string;
   }>;
-}
-interface PavementImage {
-  image_path: string; filename: string; folder: string; link_id: string | null;
-  defect_type: string; confidence: number; severity: string; area_pct: number;
 }
 interface CondBand {
   good_pct: number; fair_pct: number; poor_pct: number; very_poor_pct: number;
@@ -57,6 +54,17 @@ interface DetSummary {
   intervention_thresholds_iri: Record<string, number>;
   unit_costs_usd_per_km: Record<string, number>;
 }
+interface LinkRisk { rc: string; idx: number; hpct: number; esal: number }
+interface OverloadingSummary {
+  link_risk_map: Record<string, LinkRisk>;
+}
+type MapLayer = 'condition' | 'urgency' | 'overloading';
+interface SelectedLinkData {
+  linkId: string; roadName: string; roadClass: string; region: string; lengthKm: number;
+  iri: number; band: string; sparkData: { year: number; iri: number }[];
+  treatment?: string; triggerYear?: number; costUsd?: number; urgency?: string;
+  riskCategory?: string; dailyEsals?: number; dominantDefect?: string;
+}
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const ACCENT = '#6366f1';
@@ -75,22 +83,48 @@ const DEFECT_LABEL: Record<string, string> = {
   pothole: 'Pothole', alligator_crack: 'Alligator Crack', longitudinal_crack: 'Long. Crack',
   transverse_crack: 'Trans. Crack', rutting: 'Rutting', raveling: 'Raveling', good: 'Good',
 };
-type FilterKey = 'all' | 'pothole' | 'crack' | 'rutting' | 'raveling' | 'good';
-const FILTER_PILLS: Array<{ key: FilterKey; label: string; color: string }> = [
-  { key: 'all', label: 'All', color: '#00f5ff' },
-  { key: 'pothole', label: 'Pothole', color: '#ff2d78' },
-  { key: 'crack', label: 'Crack', color: '#ffd23f' },
-  { key: 'rutting', label: 'Rutting', color: '#ff9500' },
-  { key: 'raveling', label: 'Raveling', color: '#94a3b8' },
-  { key: 'good', label: 'Good', color: '#00ff88' },
-];
+const IRI_COLOR: Record<string, string> = {
+  good: '#22c55e', fair: '#eab308', poor: '#f97316', very_poor: '#ef4444',
+};
+const RISK_COLOR: Record<string, string> = {
+  Critical: '#ef4444', High: '#f97316', Medium: '#eab308', Low: '#22c55e',
+};
+const REGION_BOUNDS: Record<string, [[number, number], [number, number]]> = {
+  all:      [[-1.5, 29.5], [4.2, 35.5]],
+  Central:  [[0.0,  30.0], [2.0, 33.5]],
+  Eastern:  [[0.5,  33.0], [3.5, 35.0]],
+  Northern: [[2.0,  30.5], [4.2, 34.5]],
+  Western:  [[-1.5, 29.5], [2.5, 32.0]],
+};
+const REGION_PILLS = ['all', 'Central', 'Eastern', 'Northern', 'Western'] as const;
+const LAYER_LABELS: Record<MapLayer, string> = {
+  condition: 'IRI Condition', urgency: 'Urgency', overloading: 'Overloading',
+};
 
-function matchesFilter(defect: string, f: FilterKey) {
-  if (f === 'all') return true;
-  if (f === 'crack') return defect.endsWith('_crack');
-  return defect === f;
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+function getIriBand(iri: number): string {
+  if (iri < 3.5) return 'good';
+  if (iri < 6.5) return 'fair';
+  if (iri < 9.0) return 'poor';
+  return 'very_poor';
 }
-function toAppPath(p: string) { return BASE + p.replace(/^public\//, ''); }
+
+function getLineMidpoint(geom: Geometry): [number, number] | null {
+  if (geom.type === 'LineString') {
+    const coords = geom.coordinates as number[][];
+    if (!coords.length) return null;
+    const mid = coords[Math.floor(coords.length / 2)];
+    return [mid[1], mid[0]];
+  }
+  if (geom.type === 'MultiLineString') {
+    const lines = geom.coordinates as number[][][];
+    if (!lines.length) return null;
+    const line = lines[0];
+    const mid = line[Math.floor(line.length / 2)];
+    return [mid[1], mid[0]];
+  }
+  return null;
+}
 
 // ─── Loaders ──────────────────────────────────────────────────────────────────
 async function loadDetSummary(): Promise<DetSummary | null> {
@@ -100,6 +134,417 @@ async function loadDetSummary(): Promise<DetSummary | null> {
 async function loadRoadGeo(): Promise<GeoJsonObject | null> {
   try { const r = await fetch(BASE + 'road_network.geojson'); return r.json(); }
   catch { return null; }
+}
+async function loadOverloading(): Promise<OverloadingSummary | null> {
+  try { const r = await fetch(BASE + 'data/overloading_summary.json'); return r.json(); }
+  catch { return null; }
+}
+
+// ─── MapController — flies to region bounding box ─────────────────────────────
+function MapController({ region }: { region: string }) {
+  const map = useMap();
+  useEffect(() => {
+    const bounds = REGION_BOUNDS[region] ?? REGION_BOUNDS['all'];
+    map.flyToBounds(bounds as L.LatLngBoundsExpression, { duration: 1.2 });
+  }, [region, map]);
+  return null;
+}
+
+// ─── ConditionMap — interactive road condition map ────────────────────────────
+function ConditionMap({
+  det, overloading, defectSummary, geo,
+}: {
+  det: DetSummary | null;
+  overloading: OverloadingSummary | null;
+  defectSummary: ImageDefectSummary | null;
+  geo: GeoJsonObject | null;
+}) {
+  const [mapLayer, setMapLayer] = useState<MapLayer>('condition');
+  const [region,   setRegion]   = useState<string>('all');
+  const [selected, setSelected] = useState<SelectedLinkData | null>(null);
+
+  const urgencyMap = useMemo(() => {
+    const m: Record<string, TriggerItem> = {};
+    (det?.intervention_schedule ?? []).forEach(t => { m[t.link_id] = t; });
+    return m;
+  }, [det]);
+
+  const riskMap = useMemo(() => overloading?.link_risk_map ?? {}, [overloading]);
+
+  const defectMap = useMemo(() => {
+    const m: Record<string, { dominant_defect: string; avg_severity: string }> = {};
+    (defectSummary?.top_damaged_links ?? []).forEach(d => { m[d.link_id] = d; });
+    return m;
+  }, [defectSummary]);
+
+  const classIriMap = useMemo(() => {
+    const m: Record<string, number> = {};
+    for (const [cls, pts] of Object.entries(det?.class_deterioration_curves ?? {})) {
+      const pt2024 = pts.find(p => p.year === 2024);
+      if (pt2024) m[cls] = pt2024.avg_iri;
+    }
+    return m;
+  }, [det]);
+
+  const defectMarkers = useMemo(() => {
+    if (!defectSummary || !geo) return [];
+    const fc = geo as FeatureCollection<Geometry>;
+    const defectSet = new Set(defectSummary.top_damaged_links.map(d => d.link_id));
+    const result: Array<{
+      pos: [number, number];
+      info: { link_id: string; dominant_defect: string; avg_severity: string };
+      linkName: string;
+    }> = [];
+    (fc.features ?? []).forEach(f => {
+      const props = f.properties as Record<string, string> | null;
+      const lid = props?.link_id;
+      if (!lid || !defectSet.has(lid)) return;
+      const midpt = getLineMidpoint(f.geometry);
+      if (!midpt) return;
+      const info = defectSummary.top_damaged_links.find(d => d.link_id === lid);
+      if (info) result.push({ pos: midpt, info, linkName: props?.link_name ?? lid });
+    });
+    return result;
+  }, [defectSummary, geo]);
+
+  const styleF = useCallback((feat?: Feature): PathOptions => {
+    const p = feat?.properties as Record<string, string | number> | null;
+    if (!p) return { color: '#334155', weight: 1, opacity: 0.25 };
+    const lid = p.link_id as string;
+    const cls = p.road_class as string;
+    const weight = cls === 'A' ? 3.5 : cls === 'B' ? 2.5 : cls === 'M' ? 4 : 2;
+
+    if (mapLayer === 'urgency') {
+      const t = urgencyMap[lid];
+      const color = t ? URGENCY_COLOR[t.urgency] : '#334155';
+      const opacity = t ? (t.urgency === 'now' ? 1.0 : 0.75) : 0.2;
+      return { color, weight: t?.urgency === 'now' ? weight + 1 : weight, opacity };
+    }
+    if (mapLayer === 'overloading') {
+      const r = riskMap[lid];
+      const color = r ? (RISK_COLOR[r.rc] ?? '#94a3b8') : '#475569';
+      return { color, weight, opacity: r ? 0.88 : 0.2 };
+    }
+    // IRI condition
+    const iri = urgencyMap[lid]?.iri ?? classIriMap[cls] ?? 6;
+    const band = getIriBand(iri);
+    return { color: IRI_COLOR[band], weight, opacity: 0.82 };
+  }, [mapLayer, urgencyMap, riskMap, classIriMap]);
+
+  const handleSelect = useCallback((props: Record<string, unknown>) => {
+    const lid = props.link_id as string;
+    const cls = props.road_class as string;
+    const trigger = urgencyMap[lid];
+    const risk = riskMap[lid];
+    const defect = defectMap[lid];
+    const iri = trigger?.iri ?? classIriMap[cls] ?? 6;
+    const band = getIriBand(iri);
+    const sparkData = (det?.class_deterioration_curves[cls] ?? []).map(p => ({
+      year: p.year, iri: +p.avg_iri.toFixed(2),
+    }));
+    setSelected({
+      linkId: lid,
+      roadName: trigger?.road_name ?? (props.link_name as string) ?? lid,
+      roadClass: cls,
+      region: (props.region as string) ?? trigger?.region ?? '—',
+      lengthKm: +(props.length_km as number ?? 0),
+      iri, band, sparkData,
+      treatment: trigger?.treatment,
+      triggerYear: trigger?.trigger_year,
+      costUsd: trigger?.total_cost_usd,
+      urgency: trigger?.urgency,
+      riskCategory: risk?.rc,
+      dailyEsals: risk?.esal,
+      dominantDefect: defect?.dominant_defect,
+    });
+  }, [urgencyMap, riskMap, defectMap, classIriMap, det]);
+
+  const onEachF = useCallback((feat: Feature, layer: Layer) => {
+    const path = layer as L.Path;
+    path.on({
+      click:     () => handleSelect(feat.properties as Record<string, unknown>),
+      mouseover: (e: L.LeafletMouseEvent) => (e.target as L.Path).setStyle({ weight: 6, opacity: 1 }),
+      mouseout:  (e: L.LeafletMouseEvent) => (e.target as L.Path).setStyle(styleF(feat)),
+    });
+  }, [handleSelect, styleF]);
+
+  const legendItems = useMemo(() => {
+    if (mapLayer === 'condition') return [
+      { label: 'Good  IRI < 3.5',  color: IRI_COLOR.good },
+      { label: 'Fair  3.5–6.5',    color: IRI_COLOR.fair },
+      { label: 'Poor  6.5–9.0',    color: IRI_COLOR.poor },
+      { label: 'Very Poor  > 9.0', color: IRI_COLOR.very_poor },
+    ];
+    if (mapLayer === 'urgency') return [
+      { label: '2024 — Act Now',   color: URGENCY_COLOR.now },
+      { label: '2025',             color: URGENCY_COLOR.urgent },
+      { label: '2026–27',          color: URGENCY_COLOR.soon },
+      { label: '2028+',            color: URGENCY_COLOR.planned },
+    ];
+    return [
+      { label: 'Critical', color: RISK_COLOR.Critical },
+      { label: 'High',     color: RISK_COLOR.High },
+      { label: 'Medium',   color: RISK_COLOR.Medium },
+      { label: 'Low',      color: RISK_COLOR.Low },
+    ];
+  }, [mapLayer]);
+
+  return (
+    <div style={{ background: BG_CARD, backdropFilter: 'blur(20px)' }}
+         className="rounded-xl border border-slate-700/30 p-4">
+      {/* Header + region pills */}
+      <div className="flex items-start justify-between gap-4 flex-wrap mb-3">
+        <div>
+          <div className="text-sm font-bold text-white flex items-center gap-2">
+            <Layers size={15} style={{ color: ACCENT }}/> Interactive Road Condition Map
+          </div>
+          <div className="text-[10px] text-slate-500 mt-0.5">
+            Click any road segment to inspect · toggle layers (top-right) · fly to region below
+          </div>
+        </div>
+        <div className="flex gap-1.5 flex-wrap">
+          {REGION_PILLS.map(r => (
+            <button key={r} onClick={() => setRegion(r)}
+              className="px-3 py-1 rounded-full text-[10px] font-semibold transition-all border"
+              style={{
+                background:  region === r ? ACCENT + '33' : 'rgba(30,41,59,0.8)',
+                borderColor: region === r ? ACCENT : 'rgba(148,163,184,0.15)',
+                color:       region === r ? '#a5b4fc' : '#94a3b8',
+              }}>
+              {r === 'all' ? 'All Uganda' : r}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Map area — outer div is the positioning context */}
+      <div className="relative" style={{ height: 520 }}>
+        {/* Map itself (overflow-hidden for rounded corners) */}
+        <div className="absolute inset-0 rounded-xl overflow-hidden">
+          {geo ? (
+            <MapContainer
+              center={[1.3733, 32.2903]} zoom={7}
+              style={{ height: '100%', width: '100%', background: '#0a0f1e' }}
+              zoomControl={false}>
+              <TileLayer
+                url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+                attribution="&copy; OpenStreetMap &copy; CARTO"/>
+              <GeoJSON
+                key={mapLayer}
+                data={geo}
+                style={styleF as (feat?: Feature) => PathOptions}
+                onEachFeature={onEachF as (feat: Feature, layer: Layer) => void}/>
+              {defectMarkers.map(m => (
+                <CircleMarker
+                  key={m.info.link_id}
+                  center={m.pos as L.LatLngExpression}
+                  radius={6}
+                  fillColor={DEFECT_COLOR[m.info.dominant_defect] ?? '#4d9fff'}
+                  color="rgba(0,0,0,0.5)" weight={1} fillOpacity={0.9}>
+                  <Popup>
+                    <div style={{ fontSize: 11, minWidth: 140 }}>
+                      <strong>{m.linkName}</strong><br/>
+                      {DEFECT_LABEL[m.info.dominant_defect] ?? m.info.dominant_defect}
+                      {' · '}{m.info.avg_severity} severity
+                    </div>
+                  </Popup>
+                </CircleMarker>
+              ))}
+              <MapController region={region}/>
+            </MapContainer>
+          ) : (
+            <div className="h-full flex items-center justify-center text-slate-600 text-sm"
+                 style={{ background: '#0a0f1e' }}>
+              Loading map…
+            </div>
+          )}
+        </div>
+
+        {/* Layer switcher — top-right, shifts left when panel is open */}
+        <div style={{
+          position: 'absolute', top: 10,
+          right: selected ? 330 : 10,
+          zIndex: 1000, display: 'flex', flexDirection: 'column', gap: 4,
+          transition: 'right 0.2s ease',
+        }}>
+          {(['condition', 'urgency', 'overloading'] as MapLayer[]).map(l => (
+            <button key={l} onClick={() => setMapLayer(l)}
+              style={{
+                padding: '6px 12px', borderRadius: 8, fontSize: 10, fontWeight: 600,
+                border: `1px solid ${mapLayer === l ? ACCENT : 'rgba(148,163,184,0.2)'}`,
+                background: mapLayer === l ? ACCENT + '33' : 'rgba(10,15,30,0.9)',
+                color: mapLayer === l ? '#a5b4fc' : '#94a3b8',
+                backdropFilter: 'blur(10px)', cursor: 'pointer', whiteSpace: 'nowrap',
+              }}>
+              {LAYER_LABELS[l]}
+            </button>
+          ))}
+        </div>
+
+        {/* Legend — bottom-left */}
+        <div style={{
+          position: 'absolute', bottom: 10, left: 10, zIndex: 1000,
+          background: 'rgba(10,15,30,0.88)', backdropFilter: 'blur(10px)',
+          borderRadius: 8, padding: '8px 10px',
+          border: '1px solid rgba(148,163,184,0.12)',
+        }}>
+          <div style={{ fontSize: 9, color: '#64748b', fontWeight: 600,
+            textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 6 }}>
+            {LAYER_LABELS[mapLayer]}
+          </div>
+          {legendItems.map(item => (
+            <div key={item.label} style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+              <span style={{ width: 16, height: 4, borderRadius: 2, background: item.color, flexShrink: 0 }}/>
+              <span style={{ fontSize: 9, color: '#94a3b8' }}>{item.label}</span>
+            </div>
+          ))}
+          {defectMarkers.length > 0 && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 6, paddingTop: 6,
+              borderTop: '1px solid rgba(148,163,184,0.1)' }}>
+              <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#ff2d78',
+                border: '1px solid rgba(0,0,0,0.5)', flexShrink: 0 }}/>
+              <span style={{ fontSize: 9, color: '#94a3b8' }}>Defect hotspot</span>
+            </div>
+          )}
+        </div>
+
+        {/* Selected link panel — slides in from right */}
+        {selected && (
+          <div style={{
+            position: 'absolute', top: 0, right: 0, bottom: 0, width: 320,
+            background: 'rgba(10,15,30,0.97)', backdropFilter: 'blur(16px)',
+            borderLeft: `2px solid ${IRI_COLOR[selected.band]}55`,
+            zIndex: 1001, overflowY: 'auto', padding: '14px 16px',
+            borderRadius: '0 12px 12px 0',
+          }}>
+            {/* Road name + close */}
+            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between',
+              gap: 8, marginBottom: 12 }}>
+              <div>
+                <div style={{ fontSize: 12, fontWeight: 700, color: '#fff', lineHeight: 1.3 }}>
+                  {selected.roadName}
+                </div>
+                <div style={{ fontSize: 9, color: '#94a3b8', marginTop: 3 }}>
+                  Class {selected.roadClass} · {selected.region} · {selected.lengthKm.toFixed(1)} km
+                </div>
+              </div>
+              <button onClick={() => setSelected(null)}
+                style={{ color: '#64748b', background: 'none', border: 'none', cursor: 'pointer',
+                  padding: 2, display: 'flex', flexShrink: 0 }}>
+                <X size={16}/>
+              </button>
+            </div>
+
+            {/* IRI band */}
+            <div style={{
+              borderRadius: 8, padding: '10px 12px', marginBottom: 10,
+              background: IRI_COLOR[selected.band] + '18',
+              border: `1px solid ${IRI_COLOR[selected.band]}44`,
+            }}>
+              <div style={{ fontSize: 9, color: '#94a3b8' }}>IRI (2024 estimate)</div>
+              <div style={{ fontSize: 24, fontWeight: 900, color: IRI_COLOR[selected.band], marginTop: 2 }}>
+                {selected.iri.toFixed(1)}{' '}
+                <span style={{ fontSize: 12, fontWeight: 500 }}>m/km</span>
+              </div>
+              <span style={{
+                display: 'inline-block', marginTop: 4, fontSize: 9, fontWeight: 700,
+                padding: '2px 8px', borderRadius: 99,
+                background: IRI_COLOR[selected.band] + '33', color: IRI_COLOR[selected.band],
+              }}>
+                {selected.band.replace('_', ' ').replace(/\b\w/g, c => c.toUpperCase())}
+              </span>
+            </div>
+
+            {/* IRI sparkline */}
+            {selected.sparkData.length > 0 && (
+              <div style={{ marginBottom: 10 }}>
+                <div style={{ fontSize: 9, color: '#64748b', marginBottom: 4 }}>
+                  IRI Projection 2024–2035 · Class {selected.roadClass} avg
+                </div>
+                <ResponsiveContainer width="100%" height={80}>
+                  <LineChart data={selected.sparkData} margin={{ top: 4, right: 4, left: -24, bottom: 0 }}>
+                    <XAxis dataKey="year" tick={{ fill: '#475569', fontSize: 8 }}
+                      axisLine={false} tickLine={false}
+                      tickFormatter={(v: number) => `'${String(v).slice(2)}`}/>
+                    <YAxis tick={{ fill: '#475569', fontSize: 8 }} axisLine={false}
+                      tickLine={false} width={30}/>
+                    <Line type="monotone" dataKey="iri"
+                      stroke={IRI_COLOR[selected.band]} strokeWidth={1.8}
+                      dot={false} animationDuration={600}/>
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            )}
+
+            {/* Intervention */}
+            {selected.treatment ? (
+              <div style={{ borderRadius: 8, padding: '10px 12px', marginBottom: 8,
+                background: 'rgba(30,41,59,0.7)', border: '1px solid rgba(148,163,184,0.08)' }}>
+                <div style={{ fontSize: 9, color: '#64748b', marginBottom: 5 }}>Next Intervention</div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                  <span style={{ fontSize: 10, fontWeight: 700,
+                    color: URGENCY_COLOR[selected.urgency ?? 'planned'] }}>
+                    {selected.treatment}
+                  </span>
+                  <span style={{ fontSize: 9, color: '#94a3b8' }}>{selected.triggerYear}</span>
+                </div>
+                {selected.costUsd !== undefined && (
+                  <div style={{ fontSize: 9, color: '#64748b', marginTop: 4 }}>
+                    Cost:{' '}
+                    <span style={{ color: '#fff', fontWeight: 700 }}>
+                      ${selected.costUsd >= 1e6
+                        ? (selected.costUsd / 1e6).toFixed(1) + 'M'
+                        : (selected.costUsd / 1000).toFixed(0) + 'k'}
+                    </span>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div style={{ borderRadius: 8, padding: '10px 12px', marginBottom: 8,
+                background: 'rgba(30,41,59,0.5)', border: '1px solid rgba(148,163,184,0.06)' }}>
+                <div style={{ fontSize: 9, color: '#64748b', marginBottom: 4 }}>Next Intervention</div>
+                <div style={{ fontSize: 10, color: '#475569' }}>Not in priority schedule</div>
+              </div>
+            )}
+
+            {/* Overloading risk */}
+            <div style={{ borderRadius: 8, padding: '10px 12px', marginBottom: 8,
+              background: 'rgba(30,41,59,0.7)', border: '1px solid rgba(148,163,184,0.08)' }}>
+              <div style={{ fontSize: 9, color: '#64748b', marginBottom: 5 }}>Overloading Risk</div>
+              {selected.riskCategory ? (
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ fontSize: 10, fontWeight: 700, color: RISK_COLOR[selected.riskCategory] }}>
+                    {selected.riskCategory}
+                  </span>
+                  <span style={{ fontSize: 9, color: '#94a3b8' }}>
+                    {selected.dailyEsals?.toLocaleString(undefined, { maximumFractionDigits: 0 })} ESALs/day
+                  </span>
+                </div>
+              ) : (
+                <div style={{ fontSize: 10, color: '#475569' }}>No overloading data</div>
+              )}
+            </div>
+
+            {/* Dominant defect */}
+            <div style={{ borderRadius: 8, padding: '10px 12px',
+              background: 'rgba(30,41,59,0.7)', border: '1px solid rgba(148,163,184,0.08)' }}>
+              <div style={{ fontSize: 9, color: '#64748b', marginBottom: 5 }}>
+                Dominant Defect (image analysis)
+              </div>
+              {selected.dominantDefect ? (
+                <span style={{ fontSize: 10, fontWeight: 700,
+                  color: DEFECT_COLOR[selected.dominantDefect] ?? '#4d9fff' }}>
+                  {DEFECT_LABEL[selected.dominantDefect] ?? selected.dominantDefect}
+                </span>
+              ) : (
+                <div style={{ fontSize: 10, color: '#475569' }}>No image data for this link</div>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
 }
 
 // ─── Condition KPI cards ──────────────────────────────────────────────────────
@@ -417,18 +862,16 @@ export default function RoadConditionView() {
   const [analytics, setAnalytics]         = useState<PlatformAnalytics | null>(null);
   const [det, setDet]                     = useState<DetSummary | null>(null);
   const [roadGeo, setRoadGeo]             = useState<GeoJsonObject | null>(null);
+  const [overloading, setOverloading]     = useState<OverloadingSummary | null>(null);
   const [defectSummary, setDefectSummary] = useState<ImageDefectSummary | null>(null);
-  const [pavementImages, setPavImgs]      = useState<PavementImage[]>([]);
-  const [defectFilter, setDefectFilter]   = useState<FilterKey>('all');
-  const [imgError, setImgError]           = useState<Set<string>>(new Set());
   const [tab, setTab]                     = useState<TabId>('overview');
 
   useEffect(() => {
     loadPlatformAnalytics().then(setAnalytics).catch(() => {});
     loadDetSummary().then(setDet).catch(() => {});
     loadRoadGeo().then(setRoadGeo).catch(() => {});
+    loadOverloading().then(setOverloading).catch(() => {});
     fetch(BASE + 'data/image_defects_summary.json').then(r => r.json()).then(setDefectSummary).catch(() => {});
-    fetch(BASE + 'data/pavement_images.json').then(r => r.json()).then(setPavImgs).catch(() => {});
   }, []);
 
   const a = analytics;
@@ -460,11 +903,6 @@ export default function RoadConditionView() {
     { name: 'Low',    value: defectSummary.severity_distribution['Low']    ?? 0, fill: '#00ff88' },
   ] : [];
 
-  const filteredImages = pavementImages
-    .filter(img => matchesFilter(img.defect_type, defectFilter))
-    .sort((x, y) => y.confidence - x.confidence)
-    .slice(0, 24);
-
   const TABS: Array<{ id: TabId; label: string }> = [
     { id: 'overview',      label: 'Network Overview'    },
     { id: 'deterioration', label: 'Deterioration Curves' },
@@ -494,6 +932,13 @@ export default function RoadConditionView() {
           </p>
         </div>
       </div>
+
+      {/* ══════════ INTERACTIVE MAP (top, full width) ══════════ */}
+      <ConditionMap
+        det={det}
+        overloading={overloading}
+        defectSummary={defectSummary}
+        geo={roadGeo}/>
 
       {/* Model stat badges */}
       {d && (
@@ -665,7 +1110,7 @@ export default function RoadConditionView() {
             </div>
           </div>
 
-          {/* Image defect analysis */}
+          {/* Image defect analysis — charts only, no image grid */}
           {defectSummary && (
             <div className="space-y-4">
               <div className="flex items-center gap-3">
@@ -728,74 +1173,6 @@ export default function RoadConditionView() {
                     </div>
                   </div>
                 </div>
-              </div>
-              <div style={{ background: BG_CARD, backdropFilter: 'blur(20px)' }}
-                   className="rounded-xl border border-slate-700/30 p-4">
-                <div className="flex items-center gap-2 mb-4 flex-wrap">
-                  <Filter size={12} className="text-slate-400"/>
-                  {FILTER_PILLS.map(pill => (
-                    <button key={pill.key} onClick={() => setDefectFilter(pill.key)}
-                      className="px-3 py-1 rounded-full text-[10px] font-semibold transition-all border"
-                      style={{
-                        background:  defectFilter === pill.key ? pill.color+'33' : 'rgba(30,41,59,0.8)',
-                        borderColor: defectFilter === pill.key ? pill.color : 'rgba(148,163,184,0.15)',
-                        color:       defectFilter === pill.key ? pill.color : '#94a3b8',
-                      }}>
-                      {pill.label}
-                    </button>
-                  ))}
-                </div>
-                {filteredImages.length === 0 ? (
-                  <div className="text-center text-slate-500 py-8 text-xs">
-                    No images for this filter
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3">
-                    {filteredImages.map(img => {
-                      const appPath = toAppPath(img.image_path);
-                      const color   = DEFECT_COLOR[img.defect_type] ?? '#4d9fff';
-                      const label   = DEFECT_LABEL[img.defect_type] ?? img.defect_type;
-                      const pct     = Math.round(img.confidence * 100);
-                      const errored = imgError.has(img.image_path);
-                      return (
-                        <div key={img.image_path}
-                          className="rounded-xl overflow-hidden bg-slate-800/60 border border-slate-700/40 group">
-                          <div className="relative aspect-video bg-slate-900">
-                            {errored ? (
-                              <div className="absolute inset-0 flex items-center justify-center text-slate-600">
-                                <Camera size={20}/>
-                              </div>
-                            ) : (
-                              <img src={appPath} alt={label} loading="lazy"
-                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                                onError={() => setImgError(prev => new Set(prev).add(img.image_path))}/>
-                            )}
-                            <span className="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded text-[8px] font-bold"
-                              style={{ background: color+'dd', color:'#fff' }}>{label}</span>
-                            <span className="absolute top-1.5 right-1.5 px-1.5 py-0.5 rounded text-[8px] font-semibold"
-                              style={{ background: img.severity==='High' ? '#ff2d78aa' : img.severity==='Medium' ? '#ffd23faa' : '#00ff88aa', color:'#fff' }}>
-                              {img.severity}
-                            </span>
-                          </div>
-                          <div className="px-2 pt-1.5 pb-2">
-                            <div className="text-[9px] text-slate-400 truncate">
-                              {img.link_id ?? img.folder}
-                            </div>
-                            <div className="mt-1 flex items-center gap-1.5">
-                              <div className="flex-1 bg-slate-700 rounded-full h-1">
-                                <div className="h-1 rounded-full"
-                                  style={{ width:`${pct}%`, background:color }}/>
-                              </div>
-                              <span className="text-[8px] text-slate-400 w-6 text-right">
-                                {pct}%
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
               </div>
             </div>
           )}
