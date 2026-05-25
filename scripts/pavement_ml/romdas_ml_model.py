@@ -569,6 +569,19 @@ def predict_network(db_path: str = DB_PATH, metrics=None, m1=None, m2=None,
         'SELECT DISTINCT link_id, road_name FROM deterioration_curves'
     ).fetchall())
 
+    # Build provenance sets for JSON annotation
+    surveyed_links = {r[0] for r in conn.execute(
+        "SELECT DISTINCT link_id FROM romdas_sections WHERE link_id GLOB '*_Link*'"
+    ).fetchall()}
+    # Maintenance events: links where most-recent IRI < earlier IRI
+    maint_links = set()
+    for lid, yr1, yr2, iri1, iri2 in conn.execute("""
+        SELECT s1.link_id, s1.survey_year, s2.survey_year, s1.mean_iri, s2.mean_iri
+        FROM romdas_sections s1 JOIN romdas_sections s2 ON s1.link_id=s2.link_id
+        WHERE s1.survey_year < s2.survey_year AND (s2.mean_iri - s1.mean_iri) < -0.3
+    """).fetchall():
+        maint_links.add(lid)
+
     conn.execute('DELETE FROM romdas_ml_predictions WHERE survey_year=2024')
 
     db_rows   = []
@@ -594,9 +607,10 @@ def predict_network(db_path: str = DB_PATH, metrics=None, m1=None, m2=None,
         cond_2024[c_now] = cond_2024.get(c_now, 0) + 1
         cond_2027[c3yr]  = cond_2027.get(c3yr, 0) + 1
 
+        lid_str = str(row['link_id'])
         link_preds.append({
-            'link_id':                str(row['link_id']),
-            'road_name':              name_map.get(str(row['link_id']), ''),
+            'link_id':                lid_str,
+            'road_name':              name_map.get(lid_str, ''),
             'current_iri':            round(float(row['iri_2024']), 2),
             'predicted_iri_1yr':      round(i1, 2),
             'predicted_iri_3yr':      round(i3, 2),
@@ -608,6 +622,8 @@ def predict_network(db_path: str = DB_PATH, metrics=None, m1=None, m2=None,
             'intervention_year':      int_yr,
             'intervention_type':      int_tp,
             'confidence_score':       conf,
+            'data_source':            'romdas_measured' if lid_str in surveyed_links else 'hdm4_projected',
+            'maintenance_detected':   lid_str in maint_links,
         })
 
         db_rows.append((
