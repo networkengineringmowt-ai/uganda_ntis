@@ -8,8 +8,11 @@ pavement condition, and recommend maintenance interventions.
 
 | Script | Purpose |
 |--------|---------|
-| `romdas_ingest.py` | Parse ROMDAS files → `traffic_platform.db` |
+| `romdas_ingest.py` | Parse generic ROMDAS/dTIMS files → `traffic_platform.db` |
+| `ingest_roughness_batch.py` | Batch-ingest ROMDAS 2020 `Roughness_Processed_*.xlsx` files |
+| `ingest_mdb_batch.py` | Batch-ingest ROMDAS 2021-22 `.mdb` files via pyodbc + GPS snap |
 | `romdas_ml_model.py` | Train ML models + generate network predictions JSON |
+| `export_survey_geojson.py` | Export `romdas_sections` joined to road geometry as GeoJSON |
 | `deterioration_model.py` | HDM-4 calibrated deterioration model (base layer) |
 | `image_defect_classifier.py` | CNN classifier for distress photographs |
 
@@ -21,11 +24,20 @@ pavement condition, and recommend maintenance interventions.
 # 1. Create DB tables (one-time setup)
 python scripts/pavement_ml/romdas_ingest.py --setup
 
-# 2. Train models and generate predictions (uses HDM-4 synthetic data if no ROMDAS files present)
+# 2. Ingest ROMDAS 2020 xlsx files
+python scripts/pavement_ml/ingest_roughness_batch.py
+
+# 3. Ingest ROMDAS 2021-22 .mdb files (requires pyodbc + MS Access ODBC driver)
+python scripts/pavement_ml/ingest_mdb_batch.py
+
+# 4. Train models and generate predictions
 python scripts/pavement_ml/romdas_ml_model.py
+
+# 5. Export survey sections as GeoJSON for frontend
+python scripts/pavement_ml/export_survey_geojson.py
 ```
 
-Output: `public/data/romdas_predictions.json` (1,021 links with IRI forecasts).
+Output: `public/data/romdas_predictions.json` (1,017 links with IRI forecasts).
 
 ---
 
@@ -133,20 +145,22 @@ Models are trained on:
 
 1. **Primary (1,017 links)**: Pivoted from `deterioration_curves` table — HDM-4
    calibrated projections 2024–2030 for every national road link.
-2. **Augmented (5,000 samples)**: Synthetic data via Uganda HDM-4 equations with
+2. **Real sections (136 rows)**: From `romdas_sections` — actual measured IRI
+   from 2020 and 2021 ROMDAS surveys, projected via HDM-4 to generate targets.
+3. **Augmented (5,000 samples)**: Synthetic data via Uganda HDM-4 equations with
    varied road class, region, AADT, age, and noise seeds.
 
-**Real ROMDAS data found and ingested:**
+**Real ROMDAS data ingested into `romdas_measurements`:**
 
-| File | Rows | Links covered | Avg IRI |
-|------|------|--------------|---------|
-| `IRI 2020.xlsx` — ROMDAS 2020 survey | 28,174 | 105 road links | 3.21 m/km |
-| `IRI data_dtims.xlsx` — dTIMS 2017 | 30,224 | multi-section | 3.48 m/km |
-| **Total** | **58,398** | — | — |
+| Source | Rows | Links | Avg IRI | GPS |
+|--------|------|-------|---------|-----|
+| `IRI 2020.xlsx` — ROMDAS 2020 (aggregate) | 28,174 | 105 | 3.21 m/km | No |
+| `Roughness_Processed_*.xlsx` — ROMDAS 2020 (per-link) | 27,091 | 100 | 3.15 m/km | No |
+| ROMDAS 2021-22 `.mdb` files (42 links) | 10,395 | 29 | 2.63 m/km | Yes |
+| `IRI data_dtims.xlsx` — dTIMS 2017 | 30,224 | chainage-based | — | No |
+| **Total** | **95,625** | **130 unique links** | — | — |
 
-Real measurements are now in `romdas_measurements` in the DB (55,506 good,
-1,919 suspect, 973 excluded). Future model versions will incorporate these as
-fine-tuning data when sufficient labelled section-level measurements are available.
+DB totals: 89,708 good measurements; 136 section-level aggregates (109 from 2020, 27 from 2021).
 
 ---
 
@@ -183,13 +197,21 @@ fine-tuning data when sufficient labelled section-level measurements are availab
 
 ---
 
+## Output Files
+
+| File | Contents |
+|------|----------|
+| `public/data/romdas_predictions.json` | ML predictions for 1,017 links (IRI +1/+3/+5yr, condition, intervention) |
+| `public/data/romdas_sections_summary.json` | Aggregate statistics by survey year |
+| `public/data/romdas_survey_sections.geojson` | 126 real survey sections with road geometry for map overlay |
+
 ## DB Tables
 
 | Table | Purpose |
 |-------|---------|
-| `romdas_measurements` | Raw 100 m interval ROMDAS data (GPS, IRI, rut) |
-| `romdas_sections` | Section-level aggregated condition from ROMDAS |
-| `romdas_ml_predictions` | ML predictions for all 1,021 road links |
+| `romdas_measurements` | Raw 100 m interval ROMDAS data (GPS, IRI, rut); 95,625 rows |
+| `romdas_sections` | Section-level aggregated condition (link_id + year); 136 rows |
+| `romdas_ml_predictions` | ML predictions for all 1,017 road links |
 
 ---
 
@@ -197,7 +219,9 @@ fine-tuning data when sufficient labelled section-level measurements are availab
 
 ```bash
 # Full pipeline from scratch
-python scripts/pavement_ml/romdas_ingest.py --setup   # re-create tables
-python scripts/pavement_ml/romdas_ingest.py            # ingest any ROMDAS files
-python scripts/pavement_ml/romdas_ml_model.py          # retrain + re-predict
+python scripts/pavement_ml/romdas_ingest.py --setup       # re-create tables
+python scripts/pavement_ml/ingest_roughness_batch.py       # ingest 2020 xlsx
+python scripts/pavement_ml/ingest_mdb_batch.py             # ingest 2021-22 mdb
+python scripts/pavement_ml/romdas_ml_model.py              # retrain + re-predict
+python scripts/pavement_ml/export_survey_geojson.py        # rebuild survey GeoJSON
 ```
