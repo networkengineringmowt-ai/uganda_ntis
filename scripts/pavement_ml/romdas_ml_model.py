@@ -24,9 +24,13 @@ Model 3 -- Intervention Trigger Predictor (GradientBoostingRegressor):
 
 Training data:
   Primary  : 1,017 links pivoted from deterioration_curves (HDM-4 projections)
-  Real     : 206 ROMDAS 2020 sections from romdas_sections (projected via HDM-4)
+  Real     : 136 ROMDAS sections (2020+2021) from romdas_sections (projected via HDM-4)
   Augmented: 5,000 additional synthetic samples via HDM-4 equations
-  Total    : ~6,223 samples; 5-fold CV
+  Total    : ~6,153 samples; 5-fold CV
+
+Prediction baseline:
+  116 of 1,017 links override iri_2024 with real ROMDAS measurements,
+  projected forward from survey year (2020 or 2021) to 2024 via HDM-4.
 """
 
 import math, json, sqlite3, warnings
@@ -503,6 +507,47 @@ def predict_network(db_path: str = DB_PATH, metrics=None, m1=None, m2=None,
     print('\n[4/4] Predicting on full road network...')
     df_links = load_training_data(db_path)
     df_links  = df_links[~df_links['link_id'].str.startswith('SYN_')]
+
+    # Override iri_2024 with real ROMDAS baseline for surveyed links.
+    # Use most recent survey year; project forward to 2024 via HDM-4.
+    df_links = df_links.set_index('link_id')
+    conn_ov = sqlite3.connect(db_path)
+    survey_rows = conn_ov.execute("""
+        SELECT link_id, mean_iri, sd_iri, pct_above_9, max_rut_mm, survey_year,
+               surface_type
+        FROM   romdas_sections
+        WHERE  link_id GLOB '*_Link*'
+        ORDER  BY link_id, survey_year DESC
+    """).fetchall()
+    conn_ov.close()
+    seen = set()
+    n_overrides = 0
+    for lid, m_iri, sd, pct9, max_rut, yr, surf in survey_rows:
+        if lid in seen or lid not in df_links.index:
+            continue
+        seen.add(lid)
+        base_age = 8 + (yr - 2020)   # age at survey year
+        yrs_to_2024 = max(0, 2024 - yr)
+        surf_key = surf or df_links.at[lid, 'surface_type']
+        row_data = df_links.loc[lid]
+        cesal = float(row_data.get('cesal_ann', 0.01))
+        projected = float(m_iri)
+        for age in range(base_age, base_age + yrs_to_2024):
+            projected = min(16.0, projected + delta_iri(surf_key or 'asphalt', cesal, age))
+        projected = max(1.2, projected)
+        df_links.at[lid, 'iri_2024']    = projected
+        df_links.at[lid, 'pct_above_9'] = pct9 if pct9 is not None else pct_above_9(projected)
+        if sd is not None:
+            df_links.at[lid, 'sd_iri']  = float(sd)
+        if max_rut is not None:
+            df_links.at[lid, 'rut_max_mm'] = float(max_rut)
+        df_links.at[lid, 'deterioration_rate'] = max(0.0,
+            delta_iri(surf_key or 'asphalt', cesal, base_age + yrs_to_2024))
+        df_links.at[lid, 'condition_class'] = iri_band(projected)
+        n_overrides += 1
+    df_links = df_links.reset_index()
+    if n_overrides:
+        print(f'  Baseline override: {n_overrides} links updated with real ROMDAS IRI')
 
     X1p = df_links[FEAT_DETERI].fillna(0).values
     X2p = df_links[FEAT_CLASSIF].fillna(0).values
