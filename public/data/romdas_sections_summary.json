@@ -1,0 +1,16 @@
+{
+  "generated_at": "2026-05-21T19:13:27",
+  "total_measurements": 85489,
+  "good_measurements": 80675,
+  "unique_links": 29389,
+  "section_rows": 206,
+  "survey_year_2020": {
+    "mean_iri": 3.21,
+    "min_iri": 1.5,
+    "max_iri": 5.51,
+    "condition_distribution": {
+      "Fair": 41,
+      "Good": 59
+    }
+  }
+}

@@ -22,10 +22,11 @@ Model 3 -- Intervention Trigger Predictor (GradientBoostingRegressor):
   Target   : years_until_intervention
   Algorithm: GradientBoostingRegressor
 
-Training data (no real ROMDAS files found):
-  Primary  : 1,021 links pivoted from deterioration_curves (HDM-4 projections)
+Training data:
+  Primary  : 1,017 links pivoted from deterioration_curves (HDM-4 projections)
+  Real     : 206 ROMDAS 2020 sections from romdas_sections (projected via HDM-4)
   Augmented: 5,000 additional synthetic samples via HDM-4 equations
-  Total    : ~6,021 samples; 5-fold CV; target R² > 0.85
+  Total    : ~6,223 samples; 5-fold CV
 """
 
 import math, json, sqlite3, warnings
@@ -289,6 +290,94 @@ def generate_augmented(n: int = 5000, seed: int = 123) -> pd.DataFrame:
     return pd.DataFrame(rows)
 
 
+def load_real_sections(db_path: str) -> pd.DataFrame:
+    """
+    Load real ROMDAS 2020 section measurements from romdas_sections and
+    project IRI targets at +1/+3/+5 years using Uganda HDM-4 equations.
+    These ground-truth IRI anchors improve the low-IRI end of the model.
+    """
+    conn = sqlite3.connect(db_path)
+    sql = """
+    SELECT rs.link_id, rs.mean_iri, rs.sd_iri, rs.pct_above_9,
+           rs.max_rut_mm, rs.mean_rut_mm, rs.survey_year,
+           rs.condition_class, rs.surface_type, rs.region,
+           dc.road_class
+    FROM   romdas_sections rs
+    LEFT JOIN (
+        SELECT DISTINCT link_id, road_class
+        FROM   deterioration_curves WHERE projected_year=2024
+    ) dc ON rs.link_id = dc.link_id
+    WHERE  rs.mean_iri IS NOT NULL
+      AND  rs.link_id  != ''
+      AND  rs.survey_year = 2020
+    """
+    df = pd.read_sql(sql, conn)
+    conn.close()
+
+    if df.empty:
+        return pd.DataFrame()
+
+    # Fill missing road_class / surface from defaults
+    df['road_class']   = df['road_class'].fillna('B')
+    df['surface_type'] = df['surface_type'].fillna('asphalt')
+    df['region']       = df['region'].fillna('Central')
+
+    df['aadt']        = df['road_class'].map(AADT_DEFAULT).fillna(3000).astype(float)
+    df['hgv_pct']     = df['road_class'].map(TRUCK_FRAC).fillna(0.20).astype(float)
+    df['aadt_log']    = np.log1p(df['aadt'])
+    df['climate_f']   = df['region'].map(REGION_IRI_F).fillna(1.0)
+    df['cesal_ann']   = (df['aadt'] * 365 * df['hgv_pct'] * AVG_ESALF / 1e6).clip(lower=0.001)
+    df['structural_number'] = df['road_class'].map(SN_DEFAULT).fillna(4.0)
+
+    df['surface_enc'] = df['surface_type'].apply(lambda x: encode(x, SURFACE_CATS))
+    df['class_enc']   = df['road_class'].apply(lambda x: encode(x, ROAD_CLASSES))
+    df['region_enc']  = df['region'].apply(lambda x: encode(x, REGIONS))
+
+    # Project IRI targets from 2020 baseline using HDM-4
+    base_age = 8   # approximate pavement age in 2020
+
+    def proj(iri_base: float, surf: str, cesal: float, y_ahead: int) -> float:
+        iri = iri_base
+        vci = iri_to_vci(iri)
+        for age in range(base_age, base_age + y_ahead):
+            if surf == 'unpaved':
+                vci  = max(0.0, vci + delta_vci(3000, age))
+                iri  = vci_to_iri(vci)
+            else:
+                iri  = min(16.0, iri + delta_iri(surf, cesal, age))
+        return round(min(20.0, max(1.2, iri)), 3)
+
+    surfs   = df['surface_type'].tolist()
+    cesals  = df['cesal_ann'].tolist()
+    base_iris = df['mean_iri'].tolist()
+
+    df['iri_2024']         = df['mean_iri'].clip(1.2, 16.0)  # approximate 2024 IRI
+    df['target_iri_1yr']   = [proj(b, s, c, 1) for b, s, c in zip(base_iris, surfs, cesals)]
+    df['target_iri_3yr']   = [proj(b, s, c, 3) for b, s, c in zip(base_iris, surfs, cesals)]
+    df['target_iri_5yr']   = [proj(b, s, c, 5) for b, s, c in zip(base_iris, surfs, cesals)]
+    df['deterioration_rate'] = ((df['target_iri_5yr'] - df['iri_2024']) / 5.0).clip(0.0, 3.0)
+
+    df['rut_max_mm']   = df['max_rut_mm'].fillna(df['iri_2024'] * 1.5).clip(0.0, 30.0)
+    df['sd_iri']       = df['sd_iri'].fillna(0.5).clip(0.0, 4.0)
+    df['pct_above_9']  = df['pct_above_9'].fillna(df['iri_2024'].apply(pct_above_9))
+    df['esals_base']   = 0.0
+
+    # Intervention horizon from the HDM-4 threshold
+    def yrs_until_thresh(b, s, c):
+        for y in range(0, 12):
+            thresh = 14.0 if s == 'unpaved' else 12.0
+            if proj(b, s, c, y) >= thresh:
+                return y
+        return 11
+
+    df['years_until_intervention'] = [
+        yrs_until_thresh(b, s, c) for b, s, c in zip(base_iris, surfs, cesals)
+    ]
+    df['condition_class'] = df['iri_2024'].apply(iri_band)
+
+    return df.dropna(subset=['target_iri_1yr', 'target_iri_3yr', 'target_iri_5yr'])
+
+
 # ── Model training ─────────────────────────────────────────────────────────────
 
 def train_models(db_path: str = DB_PATH):
@@ -296,11 +385,21 @@ def train_models(db_path: str = DB_PATH):
     print('\n=== ROMDAS ML Pipeline - Uganda PMS ===')
     print('\n[1/4] Loading real training data from DB...')
     df_real = load_training_data(db_path)
-    print(f'  Real links loaded: {len(df_real):,}')
+    print(f'  Real links loaded (deterioration_curves): {len(df_real):,}')
+
+    df_sections = load_real_sections(db_path)
+    if not df_sections.empty:
+        print(f'  Real ROMDAS sections loaded: {len(df_sections):,}')
+    else:
+        print('  No romdas_sections data yet')
 
     print('\n[2/4] Augmenting with 5,000 synthetic HDM-4 samples...')
     df_synth = generate_augmented(5000, seed=123)
-    df_all   = pd.concat([df_real, df_synth], ignore_index=True)
+    dfs = [df_real, df_synth]
+    if not df_sections.empty:
+        dfs.append(df_sections)
+        print(f'  Including {len(df_sections):,} real ROMDAS sections in training')
+    df_all = pd.concat(dfs, ignore_index=True)
     print(f'  Total training rows: {len(df_all):,}')
 
     cv = KFold(n_splits=5, shuffle=True, random_state=42)
