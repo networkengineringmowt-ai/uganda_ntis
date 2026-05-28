@@ -18,6 +18,8 @@ import {
   NEON, REGION_NEON, Bar3D, Chart3DWrap, AreaGradDefs, TT_NEON, TICK,
 } from '../../lib/chart3d';
 
+import { WaterLayers } from '../../shared/WaterLayers';
+
 const BASE = import.meta.env.BASE_URL;
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -152,12 +154,15 @@ function MapController({ region }: { region: string }) {
 
 // ─── ConditionMap — interactive road condition map ────────────────────────────
 function ConditionMap({
-  det, overloading, defectSummary, geo,
+  det, overloading, defectSummary, geo, surveyGeo, showSurveyLayer, setShowSurveyLayer,
 }: {
   det: DetSummary | null;
   overloading: OverloadingSummary | null;
   defectSummary: ImageDefectSummary | null;
   geo: GeoJsonObject | null;
+  surveyGeo: GeoJsonObject | null;
+  showSurveyLayer: boolean;
+  setShowSurveyLayer: (v: boolean) => void;
 }) {
   const [mapLayer, setMapLayer] = useState<MapLayer>('condition');
   const [region,   setRegion]   = useState<string>('all');
@@ -329,6 +334,7 @@ function ConditionMap({
               <TileLayer
                 url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
                 attribution="&copy; OpenStreetMap &copy; CARTO"/>
+              <WaterLayers />
               <GeoJSON
                 key={mapLayer}
                 data={geo}
@@ -350,6 +356,26 @@ function ConditionMap({
                   </Popup>
                 </CircleMarker>
               ))}
+              {showSurveyLayer && surveyGeo && (
+                <GeoJSON
+                  key="survey"
+                  data={surveyGeo}
+                  style={() => ({
+                    color: '#facc15', weight: 3, opacity: 0.85,
+                    fillColor: '#facc15', fillOpacity: 0.15,
+                  })}
+                  onEachFeature={(feat, layer) => {
+                    const p = feat.properties as Record<string, unknown> | null;
+                    if (!p) return;
+                    layer.bindTooltip(
+                      `<strong>${p.road_name ?? p.link_id}</strong><br/>` +
+                      `IRI ${(p.mean_iri as number)?.toFixed(2) ?? '—'} m/km · ${p.condition_class ?? '—'}<br/>` +
+                      `Survey ${p.survey_year ?? '—'}`,
+                      { sticky: true, className: 'leaflet-tooltip-dark' },
+                    );
+                  }}
+                />
+              )}
               <MapController region={region}/>
             </MapContainer>
           ) : (
@@ -379,6 +405,18 @@ function ConditionMap({
               {LAYER_LABELS[l]}
             </button>
           ))}
+          {surveyGeo && (
+            <button onClick={() => setShowSurveyLayer(!showSurveyLayer)}
+              style={{
+                padding: '6px 12px', borderRadius: 8, fontSize: 10, fontWeight: 600,
+                border: `1px solid ${showSurveyLayer ? '#facc15' : 'rgba(148,163,184,0.2)'}`,
+                background: showSurveyLayer ? '#facc1533' : 'rgba(10,15,30,0.9)',
+                color: showSurveyLayer ? '#facc15' : '#94a3b8',
+                backdropFilter: 'blur(10px)', cursor: 'pointer', whiteSpace: 'nowrap',
+              }}>
+              ROMDAS Survey
+            </button>
+          )}
         </div>
 
         {/* Legend — bottom-left */}
@@ -723,6 +761,7 @@ function InterventionMap({
             <TileLayer
               url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
               attribution="&copy; OpenStreetMap &copy; CARTO"/>
+            <WaterLayers />
             <GeoJSON key="urgency" data={geo} style={styleF} onEachFeature={onEach}/>
           </MapContainer>
         ) : (
@@ -862,9 +901,11 @@ export default function RoadConditionView() {
   const [analytics, setAnalytics]         = useState<PlatformAnalytics | null>(null);
   const [det, setDet]                     = useState<DetSummary | null>(null);
   const [roadGeo, setRoadGeo]             = useState<GeoJsonObject | null>(null);
+  const [surveyGeo, setSurveyGeo]         = useState<GeoJsonObject | null>(null);
   const [overloading, setOverloading]     = useState<OverloadingSummary | null>(null);
   const [defectSummary, setDefectSummary] = useState<ImageDefectSummary | null>(null);
   const [tab, setTab]                     = useState<TabId>('overview');
+  const [showSurveyLayer, setShowSurveyLayer] = useState(false);
 
   useEffect(() => {
     loadPlatformAnalytics().then(setAnalytics).catch(() => {});
@@ -872,6 +913,7 @@ export default function RoadConditionView() {
     loadRoadGeo().then(setRoadGeo).catch(() => {});
     loadOverloading().then(setOverloading).catch(() => {});
     fetch(BASE + 'data/image_defects_summary.json').then(r => r.json()).then(setDefectSummary).catch(() => {});
+    fetch(BASE + 'data/romdas_survey_sections.geojson').then(r => r.json()).then(setSurveyGeo).catch(() => {});
   }, []);
 
   const a = analytics;
@@ -938,25 +980,45 @@ export default function RoadConditionView() {
         det={det}
         overloading={overloading}
         defectSummary={defectSummary}
-        geo={roadGeo}/>
+        geo={roadGeo}
+        surveyGeo={surveyGeo}
+        showSurveyLayer={showSurveyLayer}
+        setShowSurveyLayer={setShowSurveyLayer}/>
 
-      {/* Model stat badges */}
-      {d && (
-        <div className="flex flex-wrap gap-2">
-          {[
-            { l: 'Model',        v: 'HDM-4 + MLP',                                     c: ACCENT },
-            { l: 'R²',           v: d.r_squared.toFixed(4),                             c: '#00ff88' },
-            { l: 'Links',        v: d.links_projected.toLocaleString(),                  c: '#00f5ff' },
-            { l: 'Budget 24–30', v: `$${(d.total_maintenance_budget_2024_2030_usd/1e9).toFixed(2)}B`, c: '#ffd23f' },
-          ].map(b => (
-            <div key={b.l} className="px-3 py-1.5 rounded-lg border border-slate-700/40 text-[10px]"
-                 style={{ background: BG_CARD }}>
-              <span className="text-slate-400">{b.l}: </span>
-              <span className="font-bold" style={{ color: b.c }}>{b.v}</span>
-            </div>
-          ))}
-        </div>
-      )}
+      {/* ── ATC-style KPI strip ────────────────────────────────────────────── */}
+      {d && (() => {
+        function rgb(h: string) {
+          const c = h.replace('#','');
+          return `${parseInt(c.slice(0,2),16)},${parseInt(c.slice(2,4),16)},${parseInt(c.slice(4,6),16)}`;
+        }
+        const kpis = [
+          { label: 'Model',           value: 'HDM-4 + MLP',                                                  unit: 'ensemble',  color: '#6366f1' },
+          { label: 'Model Accuracy',  value: `R²=${d.r_squared.toFixed(4)}`,                                 unit: 'goodness of fit', color: '#00ff88' },
+          { label: 'Links Projected', value: d.links_projected.toLocaleString(),                               unit: 'road links', color: '#00f5ff' },
+          { label: 'Budget 24–30',    value: `$${(d.total_maintenance_budget_2024_2030_usd/1e9).toFixed(2)}B`, unit: 'USD total',  color: '#ffd23f' },
+          { label: 'Interventions',   value: (d.intervention_schedule?.length ?? 0).toLocaleString(),         unit: 'triggers',   color: '#ff6b35' },
+        ];
+        return (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5,1fr)', gap: 10 }}>
+            {kpis.map(k => (
+              <div key={k.label} style={{
+                background: `rgba(${rgb(k.color)},0.07)`,
+                border: `1px solid rgba(${rgb(k.color)},0.18)`,
+                borderLeft: `4px solid ${k.color}`,
+                borderRadius: 10, padding: '13px 15px 11px',
+                boxShadow: `0 0 16px rgba(${rgb(k.color)},0.1)`,
+              }}>
+                <div style={{ fontSize: 20, fontWeight: 900, color: k.color, lineHeight: 1.1,
+                  fontVariantNumeric: 'tabular-nums',
+                  textShadow: `0 0 16px rgba(${rgb(k.color)},0.65)` }}>{k.value}</div>
+                <div style={{ fontSize: 9, fontWeight: 800, color: 'rgba(148,163,184,0.55)',
+                  letterSpacing: '0.12em', textTransform: 'uppercase', marginTop: 5 }}>{k.label}</div>
+                <div style={{ fontSize: 9, color: `rgba(${rgb(k.color)},0.5)`, fontWeight: 700, marginTop: 2 }}>{k.unit}</div>
+              </div>
+            ))}
+          </div>
+        );
+      })()}
 
       {/* Tab bar */}
       <div className="flex gap-1 rounded-xl p-1 border border-slate-700/40"
