@@ -3,9 +3,11 @@ import { MapContainer, TileLayer, Marker, Popup, GeoJSON } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import {
-  PieChart, Pie, Cell, Legend, Tooltip as ReTooltip, ResponsiveContainer,
+  Cell, Tooltip as ReTooltip, ResponsiveContainer,
+  BarChart, Bar, XAxis, YAxis, CartesianGrid,
 } from 'recharts';
 import { ESRI_TILE_URLS, ESRI_ATTRIBUTIONS, ROAD_STYLES, surfaceCategory } from '../../shared/mapSymbols';
+import { WaterLayers } from '../../shared/WaterLayers';
 import { BarChart2 } from 'lucide-react';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -18,35 +20,45 @@ interface NdpivProject {
 }
 interface OprcNdpivData { oprc_lots: unknown[]; ndpiv_projects: NdpivProject[] }
 
-// ─── Colour helpers ───────────────────────────────────────────────────────────
-function statusColor(status: string): string {
-  switch (status) {
-    case 'Construction': return '#3b82f6';
-    case 'Procurement':  return '#8b5cf6';
-    case 'Completed':    return '#22c55e';
-    default:             return '#6b7280';
-  }
-}
-
-// ─── Diamond DivIcon factory ──────────────────────────────────────────────────
-function makeDiamond(color: string): L.DivIcon {
-  return L.divIcon({
-    className: '',
-    html: `<div style="width:14px;height:14px;background:${color};transform:rotate(45deg);border:2px solid rgba(255,255,255,0.85);box-shadow:0 0 8px ${color}80;"></div>`,
-    iconSize:   [18, 18] as L.PointExpression,
-    iconAnchor: [9,  9]  as L.PointExpression,
-    popupAnchor:[0, -12] as L.PointExpression,
-  });
-}
-const ICONS: Record<string, L.DivIcon> = {
-  Construction: makeDiamond('#3b82f6'),
-  Procurement:  makeDiamond('#8b5cf6'),
-  Completed:    makeDiamond('#22c55e'),
-  _default:     makeDiamond('#6b7280'),
+// ─── Categorical colour maps ──────────────────────────────────────────────────
+const CATEGORY_COLOR: Record<string, string> = {
+  'Roads':             '#3b82f6',
+  'Bridges':           '#f97316',
+  'Urban Roads':       '#a855f7',
+  'Rehabilitation':    '#22c55e',
+  'New Construction':  '#06b6d4',
 };
-function diamondIcon(status: string): L.DivIcon {
-  return ICONS[status] ?? ICONS['_default'];
-}
+function categoryColor(type: string): string { return CATEGORY_COLOR[type] ?? '#6b7280'; }
+
+const STATUS_CLR: Record<string, string> = {
+  'Construction': '#3b82f6', 'Procurement': '#8b5cf6',
+  'Completed':    '#22c55e', 'Design / Planning': '#f59e0b',
+};
+function statusColor(s: string): string { return STATUS_CLR[s] ?? '#6b7280'; }
+
+const TT_STYLE = { background: 'rgba(8,14,28,0.96)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, fontSize: 11 };
+
+// ─── Diamond DivIcon factory — colored by project CATEGORY ───────────────────
+const ICONS: Record<string, L.DivIcon> = Object.fromEntries(
+  Object.entries(CATEGORY_COLOR).map(([type, color]) => [
+    type,
+    L.divIcon({
+      className: '',
+      html: `<div style="width:14px;height:14px;background:${color};transform:rotate(45deg);border:2px solid rgba(255,255,255,0.85);box-shadow:0 0 10px ${color}90;"></div>`,
+      iconSize:   [18, 18] as L.PointExpression,
+      iconAnchor: [9,  9]  as L.PointExpression,
+      popupAnchor:[0, -12] as L.PointExpression,
+    }),
+  ]),
+);
+const DEFAULT_ICON = L.divIcon({
+  className: '',
+  html: `<div style="width:14px;height:14px;background:#6b7280;transform:rotate(45deg);border:2px solid rgba(255,255,255,0.85);box-shadow:0 0 6px #6b728080;"></div>`,
+  iconSize:   [18, 18] as L.PointExpression,
+  iconAnchor: [9,  9]  as L.PointExpression,
+  popupAnchor:[0, -12] as L.PointExpression,
+});
+function diamondIcon(type: string): L.DivIcon { return ICONS[type] ?? DEFAULT_ICON; }
 
 function roadStyle(feature?: GeoJSON.Feature): L.PathOptions {
   const surf = (feature?.properties as { surface?: string })?.surface ?? '';
@@ -122,10 +134,22 @@ export default function NdpivSection() {
     [projects],
   );
 
-  const pieData = useMemo(() => {
-    const counts: Record<string, number> = {};
-    projects.forEach(p => { counts[p.status] = (counts[p.status] ?? 0) + 1; });
-    return Object.entries(counts).map(([name, value]) => ({ name, value, color: statusColor(name) }));
+  // Clustered by category: budget vs disbursed
+  const categoryCluster = useMemo(() => {
+    const m: Record<string, { budget: number; disbursed: number; count: number }> = {};
+    projects.forEach(p => {
+      if (!m[p.type]) m[p.type] = { budget: 0, disbursed: 0, count: 0 };
+      m[p.type].budget    += p.budget_usd / 1e6;
+      m[p.type].disbursed += p.disbursed_usd / 1e6;
+      m[p.type].count++;
+    });
+    return Object.entries(m).map(([type, v]) => ({
+      type: type.split(' ')[0], // abbreviate
+      fullType: type,
+      budget:    Math.round(v.budget),
+      disbursed: Math.round(v.disbursed),
+      count: v.count,
+    }));
   }, [projects]);
 
   if (!data) {
@@ -184,26 +208,35 @@ export default function NdpivSection() {
         {/* ── LEFT: legend ──────────────────────────────────────────────────── */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
           <div style={{ ...GLASS, padding: 14 }}>
-            <PanelLabel text="Project Status" />
-            {([['#3b82f6','Construction'],['#8b5cf6','Procurement'],['#6b7280','Design / Planning'],['#22c55e','Completed']] as [string,string][]).map(([c, l]) => (
-              <div key={l} style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 5 }}>
+            <PanelLabel text="Project Category" />
+            {Object.entries(CATEGORY_COLOR).map(([type, c]) => (
+              <div key={type} style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 5 }}>
                 <div style={{ width: 10, height: 10, background: c, transform: 'rotate(45deg)', boxShadow: `0 0 5px ${c}70`, flexShrink: 0 }} />
-                <span style={{ fontSize: 10, color: '#94a3b8' }}>{l}</span>
+                <span style={{ fontSize: 10, color: '#94a3b8' }}>{type}</span>
               </div>
             ))}
           </div>
 
-          {/* Donut */}
+          {/* Clustered bar: budget vs disbursed by category */}
           <div style={{ ...GLASS, padding: 14 }}>
-            <PanelLabel text="By Status" />
-            <ResponsiveContainer width="100%" height={150}>
-              <PieChart>
-                <Pie data={pieData} cx="50%" cy="50%" innerRadius={34} outerRadius={54} paddingAngle={2} dataKey="value" nameKey="name">
-                  {pieData.map((entry, i) => <Cell key={i} fill={entry.color} stroke="rgba(255,255,255,0.08)" strokeWidth={1} />)}
-                </Pie>
-                <Legend iconSize={8} wrapperStyle={{ fontSize: 9, color: '#94a3b8' }} />
-                <ReTooltip contentStyle={{ background: 'rgba(15,23,42,0.92)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, fontSize: 11 }} />
-              </PieChart>
+            <PanelLabel text="Budget vs Disbursed by Category (USD M)" />
+            <ResponsiveContainer width="100%" height={190}>
+              <BarChart data={categoryCluster} margin={{ top: 4, right: 4, left: -18, bottom: 28 }}
+                barCategoryGap="20%" barGap={2}>
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
+                <XAxis dataKey="type" tick={{ fill: '#64748b', fontSize: 9 }} angle={-30} textAnchor="end" interval={0} />
+                <YAxis tick={{ fill: '#64748b', fontSize: 9 }} />
+                <ReTooltip contentStyle={TT_STYLE}
+                  formatter={(v: number, name: string) => [`$${v}M`, name]}
+                  labelFormatter={(_: unknown, pl: { payload?: { fullType?: string } }[]) => pl[0]?.payload?.fullType ?? ''}
+                />
+                <Bar dataKey="budget"    name="Budget"    radius={[3,3,0,0]}>
+                  {categoryCluster.map(d => <Cell key={d.type} fill={categoryColor(d.fullType)} fillOpacity={0.5} />)}
+                </Bar>
+                <Bar dataKey="disbursed" name="Disbursed" radius={[3,3,0,0]}>
+                  {categoryCluster.map(d => <Cell key={d.type} fill={categoryColor(d.fullType)} />)}
+                </Bar>
+              </BarChart>
             </ResponsiveContainer>
           </div>
         </div>
@@ -213,12 +246,13 @@ export default function NdpivSection() {
           <MapContainer center={[1.373, 32.29]} zoom={7} style={{ width: '100%', height: '100%' }} zoomControl>
             <TileLayer url={ESRI_TILE_URLS.imagery} attribution={ESRI_ATTRIBUTIONS.imagery} />
             <TileLayer url={ESRI_TILE_URLS.labels}  attribution={ESRI_ATTRIBUTIONS.labels}  />
+            <WaterLayers />
             {roadGeo && <GeoJSON key="roads" data={roadGeo} style={roadStyle} />}
 
             {projects.map(proj => (
               <Marker key={proj.project_id}
                 position={proj.centroid}
-                icon={diamondIcon(proj.status)}
+                icon={diamondIcon(proj.type)}
                 eventHandlers={{ click: () => setSelectedProject(p => p?.project_id === proj.project_id ? null : proj) }}
               >
                 <Popup>

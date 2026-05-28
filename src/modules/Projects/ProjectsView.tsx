@@ -2,8 +2,13 @@ import { useEffect, useRef, useState, useMemo, useCallback } from 'react';
 import { MapContainer, TileLayer, CircleMarker, Popup, useMap, GeoJSON as GeoJSONLayer, Polyline } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import { ESRI_TILE_URLS, ESRI_ATTRIBUTIONS, ROAD_STYLES, surfaceCategory } from '../../shared/mapSymbols';
+import { WaterLayers } from '../../shared/WaterLayers';
 import {
-  Construction, AlertTriangle, CheckCircle2, Clock,
+  BarChart, Bar, Cell, XAxis, YAxis, Tooltip as ReTooltip,
+  CartesianGrid, ResponsiveContainer,
+} from 'recharts';
+import {
+  Construction, AlertTriangle, Clock,
   Search, X, ChevronLeft, ChevronRight, Camera,
 } from 'lucide-react';
 import { loadEnhancedProjects, type Project } from '../../data/appStore';
@@ -84,6 +89,25 @@ const STATUS_STYLE = {
   ongoing:  { border: '#f59e0b', badge: 'text-amber-400 bg-amber-900/30 border-amber-800/50' },
   complete: { border: '#22c55e', badge: 'text-green-400 bg-green-900/30 border-green-800/50' },
 } as const;
+
+// ── Works-type categorical colors ─────────────────────────────────────────────
+const WORKS_COLOR: Record<string, string> = {
+  'Routine Maintenance':  '#6b7280',
+  'Periodic Maintenance': '#eab308',
+  'Rehabilitation':       '#f97316',
+  'Reconstruction':       '#ef4444',
+  'New Construction':     '#22c55e',
+};
+type WorksType = keyof typeof WORKS_COLOR;
+
+function inferWorksType(name: string): WorksType {
+  const n = name.toLowerCase();
+  if (n.includes('reconstruction') || n.includes('emergency recon'))     return 'Reconstruction';
+  if (n.includes('rehabilitation') || n.includes('rehab'))               return 'Rehabilitation';
+  if (n.includes('remedial') || n.includes('periodic'))                  return 'Periodic Maintenance';
+  if (n.includes('routine') || n.includes('maintenance') && !n.includes('periodic')) return 'Routine Maintenance';
+  return 'New Construction'; // upgrading / expressway / bypass / new road
+}
 
 const MARKER_COLOR: Record<Project['status'], string> = {
   planned:  '#3b82f6',
@@ -400,6 +424,59 @@ export default function ProjectsView() {
 
         </div>
 
+        {/* Works-type clustered bar chart */}
+        {(() => {
+          const wt: Record<string, { count: number; km: number }> = {};
+          projects.forEach(p => {
+            const t = inferWorksType(p.project_name);
+            if (!wt[t]) wt[t] = { count: 0, km: 0 };
+            wt[t].count++;
+            wt[t].km += Math.round(p.parsed_length_km);
+          });
+          const data = Object.entries(wt)
+            .map(([type, v]) => ({ type: type.replace(' ', '\n').split(' ')[0], fullType: type, ...v }))
+            .sort((a, b) => b.km - a.km);
+          return (
+            <div style={{
+              background: 'rgba(15,23,42,0.6)', border: '1px solid rgba(255,255,255,0.07)',
+              borderRadius: 10, padding: '10px 12px',
+            }}>
+              <div style={{ fontSize: 9, fontWeight: 700, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 6 }}>
+                Projects by Works Type — Count &amp; Length (km)
+              </div>
+              <ResponsiveContainer width="100%" height={110}>
+                <BarChart data={data} margin={{ top: 2, right: 6, left: -24, bottom: 0 }}
+                  barCategoryGap="20%" barGap={2}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
+                  <XAxis dataKey="fullType" tick={{ fill: '#64748b', fontSize: 8 }}
+                    tickFormatter={(s: string) => s.split(' ')[0]} />
+                  <YAxis yAxisId="cnt" tick={{ fill: '#64748b', fontSize: 8 }} />
+                  <YAxis yAxisId="km" orientation="right" tick={{ fill: '#64748b', fontSize: 8 }} />
+                  <ReTooltip
+                    contentStyle={{ background: 'rgba(8,14,28,0.96)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, fontSize: 10 }}
+                    formatter={(v: number, name: string) => [name === 'count' ? `${v} projects` : `${v} km`, name === 'count' ? 'Projects' : 'Total km']}
+                    labelFormatter={(l: string) => l}
+                  />
+                  <Bar yAxisId="cnt" dataKey="count" name="count" radius={[3,3,0,0]} maxBarSize={28}>
+                    {data.map(d => <Cell key={d.fullType} fill={WORKS_COLOR[d.fullType] ?? '#64748b'} />)}
+                  </Bar>
+                  <Bar yAxisId="km" dataKey="km" name="km" radius={[3,3,0,0]} maxBarSize={28}>
+                    {data.map(d => <Cell key={d.fullType} fill={WORKS_COLOR[d.fullType] ?? '#64748b'} fillOpacity={0.4} />)}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px 14px', marginTop: 4 }}>
+                {Object.entries(WORKS_COLOR).map(([type, c]) => (
+                  <div key={type} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <div style={{ width: 8, height: 8, borderRadius: 2, background: c, flexShrink: 0 }} />
+                    <span style={{ fontSize: 9, color: '#64748b' }}>{type}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          );
+        })()}
+
         {/* Filters */}
         <div className="flex flex-wrap gap-2 items-center">
           <div className="relative flex-1 min-w-[160px]">
@@ -437,6 +514,7 @@ export default function ProjectsView() {
           >
             <TileLayer url={ESRI_TILE_URLS.imagery} attribution={ESRI_ATTRIBUTIONS.imagery}/>
             <TileLayer url={ESRI_TILE_URLS.labels}  attribution={ESRI_ATTRIBUTIONS.labels} opacity={0.7}/>
+            <WaterLayers />
             <MapController target={flyTarget} />
 
             {/* ── Road network base layer ── */}
@@ -497,18 +575,19 @@ export default function ProjectsView() {
             ))}
 
             {filtered.map(p => {
-              const isSelected = selectedId === p.id;
-              const color = MARKER_COLOR[p.status];
+              const isSelected  = selectedId === p.id;
+              const worksColor  = WORKS_COLOR[inferWorksType(p.project_name)] ?? '#64748b';
+              const statusColor = MARKER_COLOR[p.status];
               return (
                 <CircleMarker
                   key={p.id}
                   center={[p.lat, p.lng]}
                   radius={isSelected ? 10 : 7}
                   pathOptions={{
-                    color:       isSelected ? '#fff' : color,
-                    fillColor:   color,
+                    color:       isSelected ? '#fff' : statusColor,
+                    fillColor:   worksColor,
                     fillOpacity: isSelected ? 0.95 : 0.75,
-                    weight:      isSelected ? 2 : 1,
+                    weight:      isSelected ? 3 : 2,
                   }}
                   eventHandlers={{ click: () => selectFromMap(p) }}
                 >
@@ -518,7 +597,7 @@ export default function ProjectsView() {
                       <div style={{ color: '#94a3b8', fontSize: 10 }}>{p.location}</div>
                       <div style={{ marginTop: 4, display: 'flex', gap: 8 }}>
                         <span style={{ color: '#f59e0b' }}>{p.parsed_length_km.toFixed(0)} km</span>
-                        <span style={{ color: color, textTransform: 'capitalize' }}>{p.status}</span>
+                        <span style={{ color: statusColor, textTransform: 'capitalize' }}>{p.status}</span>
                       </div>
                       {p.actual_progress_pct !== null && (
                         <div style={{ marginTop: 4 }}>
@@ -543,12 +622,22 @@ export default function ProjectsView() {
             border: '1px solid rgba(255,255,255,0.08)',
             borderRadius: 8, padding: '6px 10px',
           }}>
-            {(['planned', 'ongoing', 'complete'] as const).map(s => (
-              <div key={s} className="flex items-center gap-1.5 mb-1 last:mb-0">
-                <div style={{ width: 8, height: 8, borderRadius: '50%', background: MARKER_COLOR[s] }} />
-                <span style={{ fontSize: 9, color: '#94a3b8', textTransform: 'capitalize' }}>{s}</span>
+            <div style={{ fontSize: 8, fontWeight: 700, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 5 }}>Works Type</div>
+            {Object.entries(WORKS_COLOR).map(([type, c]) => (
+              <div key={type} className="flex items-center gap-1.5 mb-1">
+                <div style={{ width: 8, height: 8, borderRadius: '50%', background: c }} />
+                <span style={{ fontSize: 9, color: '#94a3b8' }}>{type}</span>
               </div>
             ))}
+            <div style={{ borderTop: '1px solid rgba(255,255,255,0.07)', marginTop: 5, paddingTop: 5 }}>
+              <div style={{ fontSize: 8, fontWeight: 700, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 4 }}>Status (ring)</div>
+              {(['planned', 'ongoing', 'complete'] as const).map(s => (
+                <div key={s} className="flex items-center gap-1.5 mb-1 last:mb-0">
+                  <div style={{ width: 8, height: 8, borderRadius: '50%', border: `2px solid ${MARKER_COLOR[s]}`, background: 'transparent' }} />
+                  <span style={{ fontSize: 9, color: '#94a3b8', textTransform: 'capitalize' }}>{s}</span>
+                </div>
+              ))}
+            </div>
             <div style={{ borderTop: '1px solid rgba(255,255,255,0.07)', marginTop: 5, paddingTop: 5 }}>
               <div className="flex items-center gap-1.5 mb-1">
                 <svg width="18" height="5" style={{ flexShrink: 0 }}>
@@ -585,6 +674,7 @@ export default function ProjectsView() {
           {filtered.map(p => {
             const isSelected = selectedId === p.id;
             const ss = STATUS_STYLE[p.status];
+            const wc = WORKS_COLOR[inferWorksType(p.project_name)] ?? '#64748b';
             return (
               <div
                 key={p.id}
@@ -594,8 +684,8 @@ export default function ProjectsView() {
                 style={{
                   background:    isSelected ? 'rgba(245,158,11,0.06)' : 'rgba(15,23,42,0.8)',
                   border:        `1px solid ${isSelected ? ss.border : 'rgba(51,65,85,0.6)'}`,
-                  borderLeft:    `3px solid ${ss.border}`,
-                  boxShadow:     isSelected ? `0 0 0 1px ${ss.border}40, 0 4px 20px ${ss.border}12` : 'none',
+                  borderLeft:    `3px solid ${wc}`,
+                  boxShadow:     isSelected ? `0 0 0 1px ${wc}40, 0 4px 20px ${wc}12` : 'none',
                 }}
               >
                 {/* Title row */}

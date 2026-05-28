@@ -22,7 +22,6 @@ const Analytics            = lazy(() => import('./modules/Analytics/Analytics'))
 const PriorityRanking      = lazy(() => import('./modules/Priority/PriorityRanking'));
 const DocumentStore        = lazy(() => import('./modules/Documents/DocumentStore'));
 const PhotoTwin            = lazy(() => import('./modules/PhotoTwin/PhotoTwin'));
-const RoadVideoView        = lazy(() => import('./modules/RoadVideoView/RoadVideoView'));
 const DownloadsView        = lazy(() => import('./modules/Downloads/DownloadsView'));
 const MediaSection         = lazy(() => import('./components/sections/MediaSection'));
 const TrafficAnalytics     = lazy(() => import('./components/sections/TrafficAnalytics'));
@@ -33,8 +32,18 @@ const GrowthFactorsPanel   = lazy(() => import('./modules/Traffic/GrowthFactorsP
 const OverloadingSection   = lazy(() => import('./modules/Traffic/OverloadingSection'));
 const BridgeSection        = lazy(() => import('./components/sections/BridgeSection'));
 
+// ── New 10-module sections ────────────────────────────────────────────────────
+const MLArchitectureDiagram   = lazy(() => import('./modules/MLArchitecture/MLArchitectureDiagram'));
+const HDM4Section             = lazy(() => import('./modules/HDM4/HDM4Section'));
+const ProjectTracker          = lazy(() => import('./modules/Projects/ProjectTracker'));
+const PublicInvestmentSection = lazy(() => import('./modules/PIM/PublicInvestmentSection'));
+const BudgetSection           = lazy(() => import('./modules/Budget/BudgetSection'));
+const LifecycleSection        = lazy(() => import('./modules/Lifecycle/LifecycleSection'));
+const SourcesCatalogueSection = lazy(() => import('./modules/Sources/SourcesCatalogueSection'));
+const RoadAtlasView           = lazy(() => import('./modules/RoadAtlas/RoadAtlasView'));
+
 // Views that hide the header and own the full content rectangle
-const FULL_VIEWS = new Set(['gismap', 'roadnetwork', 'roadvideoview']);
+const FULL_VIEWS = new Set(['gismap', 'roadnetwork', 'roadatlas']);
 
 // Views that manage their own scroll internally (don't wrap in a shared scroller)
 const SELF_SCROLL_VIEWS = new Set(['networkstory']);
@@ -81,7 +90,7 @@ function AppShell() {
   const { activeView, isLoading } = state;
 
   const showHeaderSearch = useMemo(() =>
-    ['registry', 'inspections', 'documents', 'priority'].includes(activeView),
+    ['registry', 'inspections', 'documents', 'priority', 'sources'].includes(activeView),
     [activeView],
   );
 
@@ -104,9 +113,9 @@ function AppShell() {
           <Suspense fallback={<ModuleSpinner />}>
 
             {/* ── Full-bleed map views: no header, fill entire main area ── */}
-            {activeView === 'gismap'        && <GISMapView />}
-            {activeView === 'roadnetwork'   && <RoadNetworkView />}
-            {activeView === 'roadvideoview' && <RoadVideoView />}
+            {activeView === 'gismap'      && <GISMapView />}
+            {activeView === 'roadnetwork' && <RoadNetworkView />}
+            {activeView === 'roadatlas'   && <RoadAtlasView />}
 
             {/* ── Self-scrolling views: positioned to fill main, own scroll ── */}
             {SELF_SCROLL_VIEWS.has(activeView) && (
@@ -138,8 +147,41 @@ function AppShell() {
                 {activeView === 'overloading'      && <OverloadingSection />}
                 {activeView === 'oprc'             && <OprcSection />}
                 {activeView === 'ndpiv'            && <NdpivSection />}
-                {activeView === 'downloads'         && <DownloadsView />}
-                {activeView === 'bridgesection'    && <BridgeSection />}
+                {activeView === 'downloads'     && <DownloadsView />}
+                {activeView === 'bridgesection' && <BridgeSection />}
+
+                {/* ── HDM-4 ── */}
+                {activeView === 'hdm4'          && <HDM4Section />}
+
+                {/* ── ML Architecture ── */}
+                {activeView === 'mlarchitecture' && (
+                  <div style={{ padding: '20px 18px' }}>
+                    <div style={{ marginBottom: 16 }}>
+                      <div style={{ fontSize: 18, fontWeight: 900, color: '#e2eaf4', marginBottom: 4 }}>
+                        Asset Management ML Engine
+                      </div>
+                      <div style={{ fontSize: 11, color: 'rgba(148,163,184,0.65)' }}>
+                        Interactive system architecture — click any node to inspect model details, inputs, and outputs
+                      </div>
+                    </div>
+                    <MLArchitectureDiagram />
+                  </div>
+                )}
+
+                {/* ── Projects & Works ── */}
+                {activeView === 'projecttracker' && <ProjectTracker />}
+
+                {/* ── Public Investment Management ── */}
+                {activeView === 'pim'       && <PublicInvestmentSection />}
+
+                {/* ── Budget & Maintenance ── */}
+                {activeView === 'budget'    && <BudgetSection />}
+
+                {/* ── Life Cycle Management ── */}
+                {activeView === 'lifecycle' && <LifecycleSection />}
+
+                {/* ── Sources & Evidence ── */}
+                {activeView === 'sources'   && <SourcesCatalogueSection />}
               </div>
             )}
 

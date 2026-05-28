@@ -1029,7 +1029,7 @@ export default function NetworkStory() {
       <FilterBar filters={filters} setFilters={setFilters}
         onRegionToggle={toggleRegion} onDecadeToggle={toggleDecade} />
 
-      <div style={{ maxWidth: 1200, margin: '0 auto', padding: '28px 28px 60px' }}>
+      <div style={{ maxWidth: '100%', margin: 0, padding: '16px 16px 60px' }}>
 
         {/* ── HERO ── */}
         <div style={{ marginBottom: 32, paddingBottom: 24, borderBottom: `1px solid rgba(${hexRgb(C.purple)},0.1)` }}>

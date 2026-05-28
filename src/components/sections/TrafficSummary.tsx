@@ -19,8 +19,8 @@ interface StationFeature { properties: StationProps }
 
 // â”€â”€â”€ Constants â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const C = {
-  cyan:'#6366f1', green:'#00ff88', orange:'#ff6b35', yellow:'#ffd23f',
-  pink:'#ff2d78', teal:'#6366f1', blue:'#4d9fff', amber:'#f59e0b',
+  cyan:'#00f5ff', green:'#00ff88', orange:'#ff6b35', yellow:'#ffd23f',
+  pink:'#ff2d78', teal:'#00d4aa', blue:'#4d9fff', amber:'#f59e0b',
 };
 const CONG_CLR: Record<string,string> = { Critical:'#ff2d78', High:'#ff6b35', Medium:'#ffd23f', Low:'#00ff88' };
 const CLASS_CLR: Record<string,string> = { A:C.cyan, B:C.green, C:C.amber, M:'#94a3b8' };
@@ -444,6 +444,41 @@ export default function TrafficSummary() {
           Year-interpolated AADT values using ML growth factors
         </div>
       </div>
+
+      {/* ── ATC-style KPI strip ──────────────────────────────────────────────── */}
+      {features.length > 0 && (() => {
+        const avgAdt = Math.round(features.reduce((s,f)=>s+(f.properties.aadt_predicted??0),0)/features.length);
+        const totalVkt = Math.round(features.reduce((s,f)=>s+(f.properties.vehicle_km_daily??0),0)/1e6);
+        const highRisk = features.filter(f=>['Critical','High'].includes(f.properties.congestion_risk??'')).length;
+        const kpis = [
+          { label:'Road Links',       value:features.length.toLocaleString(), unit:'data rows',   color:C.cyan },
+          { label:'Avg ADT 2025',     value:avgAdt.toLocaleString(),          unit:'vpd',         color:C.green },
+          { label:'TIS Stations',     value:stations.length.toString(),       unit:'survey pts',  color:C.orange },
+          { label:'High-Risk Links',  value:highRisk.toString(),              unit:'links',       color:C.pink },
+          { label:'Total Daily VKT',  value:`${totalVkt || '—'}M`,           unit:'veh-km/day',  color:C.yellow },
+        ];
+        return (
+          <div style={{ display:'grid', gridTemplateColumns:'repeat(5,1fr)', gap:10, marginBottom:18 }}>
+            {kpis.map(k => (
+              <div key={k.label} style={{
+                background:`rgba(${hexRgb(k.color)},0.07)`,
+                border:`1px solid rgba(${hexRgb(k.color)},0.18)`,
+                borderLeft:`4px solid ${k.color}`,
+                borderRadius:10, padding:'13px 15px 11px',
+                boxShadow:`0 0 16px rgba(${hexRgb(k.color)},0.1)`,
+              }}>
+                <div style={{ fontSize:26, fontWeight:900, color:k.color, lineHeight:1.1,
+                  fontVariantNumeric:'tabular-nums',
+                  textShadow:`0 0 18px rgba(${hexRgb(k.color)},0.65)` }}>{k.value}</div>
+                <div style={{ fontSize:9, fontWeight:800, color:'rgba(148,163,184,0.55)',
+                  letterSpacing:'0.13em', textTransform:'uppercase', marginTop:4 }}>{k.label}</div>
+                <div style={{ fontSize:9, color:`rgba(${hexRgb(k.color)},0.5)`,
+                  fontWeight:700, marginTop:2 }}>{k.unit}</div>
+              </div>
+            ))}
+          </div>
+        );
+      })()}
 
       {/* Sub-tab bar */}
       <div style={{ display:'flex', gap:2, marginBottom:16,

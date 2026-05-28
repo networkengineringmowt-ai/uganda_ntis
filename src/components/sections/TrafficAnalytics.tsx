@@ -1,9 +1,12 @@
 /**
  * TrafficAnalytics — ATC-style multi-tab analytics dashboard.
  * Tabs: MACRO | REGIONS | CLASSES | ASSETS | ANALYSIS | STATIONS | STRATEGIC
- * Uses inline SVG for all charts. No external chart library.
  */
 import { useState, useEffect, useMemo } from 'react';
+import {
+  ResponsiveContainer, BarChart, Bar, XAxis, YAxis,
+  CartesianGrid, Tooltip, Legend,
+} from 'recharts';
 
 // ─── Data types ───────────────────────────────────────────────────────────────
 interface PredProps {
@@ -319,6 +322,81 @@ function MiniDonut({ items }: { items: { v:number; color:string }[] }) {
   );
 }
 
+// ─── 8 key vehicle classes for clustered charts ──────────────────────────────
+const KEY_CLASSES = [
+  { key:'mc', label:'Motorcycle', color:'#00f5ff' },
+  { key:'sc', label:'Car/Taxi',   color:'#00ff88' },
+  { key:'sb', label:'Mini-bus',   color:'#ff6b35' },
+  { key:'lb', label:'Bus',        color:'#b967ff' },
+  { key:'lg', label:'Light Goods',color:'#ffd23f' },
+  { key:'lt', label:'Med. Goods', color:'#4d9fff' },
+  { key:'ht', label:'Heavy Goods',color:'#f0abfc' },
+  { key:'tt', label:'Articulated',color:'#fbbf24' },
+];
+
+const VC_PCT: Record<string,number> = Object.fromEntries(
+  VEHICLE_CLASSES.map(v=>[v.id, v.pct])
+);
+
+// ─── Recharts tooltip ────────────────────────────────────────────────────────
+function ClusterTip({ active, payload, label }: {
+  active?: boolean; payload?: {name:string;value:number;color:string}[]; label?: string
+}) {
+  if (!active || !payload?.length) return null;
+  return (
+    <div style={{ background:'rgba(10,16,30,0.92)', border:'1px solid rgba(0,245,255,0.18)',
+      borderRadius:8, padding:'8px 12px', fontSize:10 }}>
+      <div style={{ fontWeight:800, color:'#fff', marginBottom:6 }}>{label}</div>
+      {payload.map(p=>(
+        <div key={p.name} style={{ display:'flex', justifyContent:'space-between', gap:16, color:p.color }}>
+          <span>{p.name}</span>
+          <span style={{ fontWeight:700 }}>{Number(p.value).toLocaleString()}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// ─── Clustered column chart: vehicle class AADT by group (region or road class) ─
+function ClusteredClassChart({
+  groups, avgAadts, groupColors, title, subtitle,
+}: {
+  groups: string[]; avgAadts: Record<string,number>;
+  groupColors: Record<string,string>; title: string; subtitle?: string;
+}) {
+  const data = groups.map(grp => {
+    const aadt = avgAadts[grp] ?? 0;
+    const row: Record<string,number|string> = { group: grp.length>10?grp.slice(0,9)+'…':grp };
+    KEY_CLASSES.forEach(vc => { row[vc.label] = Math.round(aadt * (VC_PCT[vc.key]??0)); });
+    return row;
+  });
+
+  return (
+    <div style={{ ...GLASS, padding:'18px 20px' }}>
+      <div style={{ fontSize:12, fontWeight:800, color:'#fff', marginBottom:3 }}>{title}</div>
+      {subtitle && <div style={{ fontSize:10, color:'rgba(148,163,184,0.45)', marginBottom:12 }}>{subtitle}</div>}
+      <ResponsiveContainer width="100%" height={220}>
+        <BarChart data={data} margin={{ top:4, right:4, left:-10, bottom:20 }}
+          barCategoryGap="25%" barGap={1}>
+          <CartesianGrid strokeDasharray="2 2" stroke="rgba(148,163,184,0.06)" vertical={false}/>
+          <XAxis dataKey="group" tick={{ fill:'rgba(148,163,184,0.55)', fontSize:9 }}
+            axisLine={false} tickLine={false}/>
+          <YAxis tick={{ fill:'rgba(148,163,184,0.35)', fontSize:8 }}
+            tickFormatter={(v:number)=>v>=1000?`${(v/1000).toFixed(0)}k`:String(v)}
+            axisLine={false} tickLine={false}/>
+          <Tooltip content={<ClusterTip/>}/>
+          <Legend wrapperStyle={{ fontSize:8, paddingTop:4 }}
+            formatter={(v:string)=><span style={{ color:'rgba(148,163,184,0.7)' }}>{v}</span>}/>
+          {KEY_CLASSES.map(vc=>(
+            <Bar key={vc.key} dataKey={vc.label} fill={vc.color} fillOpacity={0.82}
+              radius={[2,2,0,0]}/>
+          ))}
+        </BarChart>
+      </ResponsiveContainer>
+    </div>
+  );
+}
+
 // ─── Tab components ───────────────────────────────────────────────────────────
 
 function MacroTab({ features }: { features: PredFeature[] }) {
@@ -347,8 +425,55 @@ function MacroTab({ features }: { features: PredFeature[] }) {
     return Object.fromEntries(Object.entries(m).map(([k,v])=>[k, v.n?v.sum/v.n:0]));
   }, [features]);
 
+  // ── ATC-style KPI strip ───────────────────────────────────────────────────
+  const heavyPct = useMemo(() => {
+    const vals = features.map(f => f.properties.heavy_vehicle_pct ?? 0).filter(v => v > 0);
+    return vals.length ? vals.reduce((s,v)=>s+v,0)/vals.length : 23.4;
+  }, [features]);
+  const highRiskLinks = useMemo(() =>
+    features.filter(f => ['Critical','High'].includes(f.properties.congestion_risk ?? '')).length,
+    [features]
+  );
+  const forecast2030 = Math.round(avgAadt * (GROWTH_FACTORS[2030] ?? 1.28));
+  const kpis = [
+    { label:'Avg Network ADT',   value: avgAadt > 0 ? Math.round(avgAadt).toLocaleString() : '—',  unit:'vpd',  color: C.cyan,   glow: C.cyan },
+    { label:'Road Links',        value: features.length.toLocaleString(),                           unit:'links',color: C.blue,   glow: C.blue },
+    { label:'Heavy Vehicle %',   value: heavyPct.toFixed(1),                                         unit:'%HGV', color: C.orange, glow: C.orange },
+    { label:'High-Risk Links',   value: highRiskLinks.toString(),                                    unit:'links',color: C.pink,   glow: C.pink },
+    { label:'2030 ADT Forecast', value: forecast2030 > 0 ? forecast2030.toLocaleString() : '—',    unit:'vpd',  color: C.green,  glow: C.green },
+  ];
+
   return (
     <div style={{ display:'flex', flexDirection:'column', gap:14 }}>
+      {/* ── KPI Stat-Card Strip ─────────────────────────────────────────── */}
+      <div style={{ display:'grid', gridTemplateColumns:'repeat(5,1fr)', gap:10 }}>
+        {kpis.map(kpi => (
+          <div key={kpi.label} style={{
+            background:`rgba(${hexRgb(kpi.color)},0.07)`,
+            border:`1px solid rgba(${hexRgb(kpi.color)},0.18)`,
+            borderLeft:`4px solid ${kpi.color}`,
+            borderRadius:10,
+            padding:'14px 16px 12px',
+            boxShadow:`0 0 18px rgba(${hexRgb(kpi.glow)},0.12), inset 0 1px 0 rgba(255,255,255,0.04)`,
+            backdropFilter:'blur(20px)',
+          }}>
+            <div style={{
+              fontSize:28, fontWeight:900, color:kpi.color, lineHeight:1.1,
+              fontVariantNumeric:'tabular-nums', letterSpacing:'-0.02em',
+              textShadow:`0 0 20px rgba(${hexRgb(kpi.glow)},0.7)`,
+            }}>{kpi.value}</div>
+            <div style={{ fontSize:9, fontWeight:800, color:'rgba(148,163,184,0.6)',
+              letterSpacing:'0.14em', textTransform:'uppercase', marginTop:5 }}>
+              {kpi.label}
+            </div>
+            <div style={{ fontSize:9, color:`rgba(${hexRgb(kpi.color)},0.55)`,
+              fontWeight:700, marginTop:2, letterSpacing:'0.08em' }}>
+              {kpi.unit}
+            </div>
+          </div>
+        ))}
+      </div>
+
       {/* 1. Growth trajectory */}
       <div style={{ ...GLASS, padding:'18px 20px' }}>
         <div style={{ fontSize:12, fontWeight:800, color:'#fff', marginBottom:3 }}>
@@ -382,45 +507,23 @@ function MacroTab({ features }: { features: PredFeature[] }) {
         </div>
       </div>
 
-      {/* 4+5. Stacked by class + region */}
-      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:14 }}>
-        <div style={{ ...GLASS, padding:'18px 20px' }}>
-          <div style={{ fontSize:12, fontWeight:800, color:'#fff', marginBottom:3 }}>
-            ADT Per Vehicle Class Stacked by Road Class
-          </div>
-          <div style={{ fontSize:10, color:'rgba(148,163,184,0.45)', marginBottom:10 }}>
-            Class A / B / C / M breakdown
-          </div>
-          <StackedBars groups={['A','B','C','M']} groupColors={CLASS_CLR} avgAadts={byClass}
-            title="Vehicle class composition by road class"/>
-          <div style={{ display:'flex', flexWrap:'wrap', gap:'3px 10px', marginTop:8 }}>
-            {VEHICLE_CLASSES.map(v=>(
-              <span key={v.id} style={{ display:'flex', alignItems:'center', gap:4, fontSize:8, color:v.color }}>
-                <span style={{ width:7,height:7,borderRadius:1,background:v.color,display:'inline-block' }}/>
-                {v.abbr}
-              </span>
-            ))}
-          </div>
-        </div>
-        <div style={{ ...GLASS, padding:'18px 20px' }}>
-          <div style={{ fontSize:12, fontWeight:800, color:'#fff', marginBottom:3 }}>
-            ADT Per Vehicle Class Stacked by Region
-          </div>
-          <div style={{ fontSize:10, color:'rgba(148,163,184,0.45)', marginBottom:10 }}>
-            6 maintenance regions · vehicle class composition
-          </div>
-          <StackedBars groups={REGIONS} groupColors={REGION_CLR} avgAadts={byRegion}
-            title="Vehicle class composition by region"/>
-          <div style={{ display:'flex', flexWrap:'wrap', gap:'3px 10px', marginTop:8 }}>
-            {VEHICLE_CLASSES.map(v=>(
-              <span key={v.id} style={{ display:'flex', alignItems:'center', gap:4, fontSize:8, color:v.color }}>
-                <span style={{ width:7,height:7,borderRadius:1,background:v.color,display:'inline-block' }}/>
-                {v.abbr}
-              </span>
-            ))}
-          </div>
-        </div>
-      </div>
+      {/* 4. Clustered column chart by road class */}
+      <ClusteredClassChart
+        groups={['A','B','C','M']}
+        groupColors={CLASS_CLR}
+        avgAadts={byClass}
+        title="Vehicle Class AADT by Road Class"
+        subtitle="8 key vehicle classes · grouped columns · avg vehicles/day per class"
+      />
+
+      {/* 5. Clustered column chart by region */}
+      <ClusteredClassChart
+        groups={REGIONS}
+        groupColors={REGION_CLR}
+        avgAadts={byRegion}
+        title="Vehicle Class AADT by Maintenance Region"
+        subtitle="6 regions · 8 vehicle classes · avg vehicles/day"
+      />
 
       {/* 6. YOY rates */}
       <div style={{ ...GLASS, padding:'18px 20px' }}>
@@ -493,10 +596,62 @@ function RegionsTab({ features }: { features: PredFeature[] }) {
   );
 }
 
+// ─── Clustered column chart: vehicle classes by region ───────────────────────
+function VehicleClassByRegionChart({ features }: { features: PredFeature[] }) {
+  const TOP_CLASSES = VEHICLE_CLASSES.slice(0, 6); // MC, SC, LG, SB, MB, LB
+
+  const data = REGIONS.map(reg => {
+    const rFeats = features.filter(f => (f.properties.region ?? '') === reg);
+    const regAdt = rFeats.length
+      ? rFeats.reduce((s, f) => s + (f.properties.aadt_predicted ?? 0), 0) / rFeats.length
+      : 0;
+    const row: Record<string, number | string> = { region: reg.replace(' ', '\n') };
+    TOP_CLASSES.forEach(vc => {
+      row[vc.abbr] = Math.round(regAdt * vc.pct);
+    });
+    return row;
+  });
+
+  return (
+    <div style={{ ...GLASS, padding: '18px 20px', gridColumn: '1 / -1' }}>
+      <div style={{ fontSize: 12, fontWeight: 800, color: '#fff', marginBottom: 3 }}>
+        Vehicle Class Volumes by Region — Clustered Comparison
+      </div>
+      <div style={{ fontSize: 10, color: 'rgba(148,163,184,0.45)', marginBottom: 14 }}>
+        Average daily vehicles per class · 6 maintenance regions · top 6 classes shown
+      </div>
+      <ResponsiveContainer width="100%" height={220}>
+        <BarChart data={data} margin={{ top: 4, right: 12, left: 0, bottom: 0 }} barGap={2} barCategoryGap="20%">
+          <CartesianGrid strokeDasharray="3 3" stroke="rgba(148,163,184,0.08)" vertical={false}/>
+          <XAxis dataKey="region" tick={{ fill: 'rgba(148,163,184,0.55)', fontSize: 9 }}
+            axisLine={false} tickLine={false}/>
+          <YAxis tick={{ fill: 'rgba(148,163,184,0.35)', fontSize: 8 }} axisLine={false} tickLine={false}
+            tickFormatter={(v: number) => v >= 1000 ? `${(v/1000).toFixed(1)}k` : String(v)}/>
+          <Tooltip
+            contentStyle={{ background: 'rgba(10,16,30,0.95)', border: '1px solid rgba(255,255,255,0.1)',
+              borderRadius: 8, fontSize: 10 }}
+            labelStyle={{ color: '#e2eaf4', fontWeight: 700 }}
+            formatter={(value: number, name: string) => [
+              value >= 1000 ? `${(value/1000).toFixed(1)}k` : value,
+              VEHICLE_CLASSES.find(vc => vc.abbr === name)?.name ?? name,
+            ]}/>
+          <Legend wrapperStyle={{ fontSize: 9, paddingTop: 6 }}
+            formatter={(value: string) => VEHICLE_CLASSES.find(vc => vc.abbr === value)?.name ?? value}/>
+          {TOP_CLASSES.map(vc => (
+            <Bar key={vc.abbr} dataKey={vc.abbr} fill={vc.color} radius={[2, 2, 0, 0]}
+              fillOpacity={0.82}/>
+          ))}
+        </BarChart>
+      </ResponsiveContainer>
+    </div>
+  );
+}
+
 function ClassesTab({ features }: { features: PredFeature[] }) {
   const totalAadt = features.reduce((s,f)=>s+(f.properties.aadt_predicted??0),0);
   return (
     <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:10 }}>
+      <VehicleClassByRegionChart features={features} />
       {VEHICLE_CLASSES.map(vc => {
         const classAdt  = Math.round(totalAadt * vc.pct);
         const col = vc.color;
@@ -683,35 +838,41 @@ function AnalysisTab({ features }: { features: PredFeature[] }) {
         </svg>
       </div>
 
-      {/* Growth comparison: 2025 vs 2040 */}
-      <div style={{ ...GLASS, padding:'18px 20px' }}>
-        <div style={{ fontSize:12, fontWeight:800, color:'#fff', marginBottom:3 }}>
-          Regional AADT Comparison: 2025 vs 2040
-        </div>
-        <div style={{ fontSize:10, color:'rgba(148,163,184,0.45)', marginBottom:14 }}>
-          Average ADT per maintenance region · growth to 2040
-        </div>
-        <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:10 }}>
-          {REGIONS.map(reg=>{
-            const rf = features.filter(f=>(f.properties.region??'')===reg);
-            const a25 = rf.length?rf.reduce((s,f)=>s+(f.properties.aadt_predicted??0),0)/rf.length:0;
-            const a40 = rf.length?rf.reduce((s,f)=>s+(f.properties.growth_2040??f.properties.aadt_predicted??0)*1,0)/rf.length:0;
-            const pct = a25>0?((a40/a25)-1)*100:0;
-            const col = REGION_CLR[reg]??C.cyan;
-            return (
-              <div key={reg} style={{ background:`rgba(${hexRgb(col)},0.07)`, borderRadius:10, padding:'10px 12px' }}>
-                <div style={{ fontSize:9, fontWeight:700, color:col, marginBottom:4 }}>{reg}</div>
-                <div style={{ display:'flex', justifyContent:'space-between', fontSize:11, fontWeight:800 }}>
-                  <span style={{ color:C.cyan }}>{Math.round(a25/1000*10)/10}k</span>
-                  <span style={{ color:'rgba(148,163,184,0.35)' }}>→</span>
-                  <span style={{ color:C.orange }}>{Math.round(a40/1000*10)/10}k</span>
-                </div>
-                <div style={{ fontSize:10, color:C.green, fontWeight:700, marginTop:3 }}>+{pct.toFixed(0)}%</div>
-              </div>
-            );
-          })}
-        </div>
-      </div>
+      {/* Growth comparison: 2025 vs 2040 — clustered column chart */}
+      {(() => {
+        const chartData = REGIONS.map(reg=>{
+          const rf = features.filter(f=>(f.properties.region??'')===reg);
+          const a25 = rf.length?Math.round(rf.reduce((s,f)=>s+(f.properties.aadt_predicted??0),0)/rf.length):0;
+          const a40 = rf.length?Math.round(rf.reduce((s,f)=>s+(f.properties.growth_2040??f.properties.aadt_predicted??0),0)/rf.length):0;
+          return { region: reg.length>10?reg.slice(0,9)+'…':reg, 'AADT 2025': a25, 'AADT 2040': a40 };
+        });
+        return (
+          <div style={{ ...GLASS, padding:'18px 20px' }}>
+            <div style={{ fontSize:12, fontWeight:800, color:'#fff', marginBottom:3 }}>
+              Regional AADT Growth: 2025 vs 2040
+            </div>
+            <div style={{ fontSize:10, color:'rgba(148,163,184,0.45)', marginBottom:12 }}>
+              Average daily traffic per region · projected growth to 2040
+            </div>
+            <ResponsiveContainer width="100%" height={200}>
+              <BarChart data={chartData} margin={{ top:4, right:4, left:-10, bottom:20 }}
+                barCategoryGap="30%" barGap={2}>
+                <CartesianGrid strokeDasharray="2 2" stroke="rgba(148,163,184,0.06)" vertical={false}/>
+                <XAxis dataKey="region" tick={{ fill:'rgba(148,163,184,0.55)', fontSize:9 }}
+                  axisLine={false} tickLine={false}/>
+                <YAxis tick={{ fill:'rgba(148,163,184,0.35)', fontSize:8 }}
+                  tickFormatter={(v:number)=>v>=1000?`${(v/1000).toFixed(0)}k`:String(v)}
+                  axisLine={false} tickLine={false}/>
+                <Tooltip content={<ClusterTip/>}/>
+                <Legend wrapperStyle={{ fontSize:9, paddingTop:4 }}
+                  formatter={(v:string)=><span style={{ color:'rgba(148,163,184,0.7)' }}>{v}</span>}/>
+                <Bar dataKey="AADT 2025" fill={C.cyan}   fillOpacity={0.82} radius={[2,2,0,0] as [number,number,number,number]}/>
+                <Bar dataKey="AADT 2040" fill={C.orange} fillOpacity={0.82} radius={[2,2,0,0] as [number,number,number,number]}/>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        );
+      })()}
     </div>
   );
 }

@@ -1,9 +1,10 @@
 {
-  "model_type": "HDM-4 calibrated + MLPRegressor (sklearn)",
-  "r_squared": 0.9617,
+  "model_type": "HDM-4 calibrated + DNN (PyTorch)",
+  "r_squared": 0.9595,
+  "best_val_loss": 0.7597,
   "links_projected": 1021,
   "projection_period": "2024\u20132035",
-  "generated_at": "2026-05-20T19:54:01",
+  "generated_at": "2026-05-28T12:59:47",
   "network_condition_2024": {
     "good_pct": 16.7,
     "fair_pct": 11.3,

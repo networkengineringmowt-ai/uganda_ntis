@@ -3,6 +3,7 @@ import {
   MapContainer, TileLayer, CircleMarker, Popup,
   ZoomControl,
 } from 'react-leaflet';
+import { WaterLayers } from '../../shared/WaterLayers';
 import { ESRI_TILE_URLS, ESRI_ATTRIBUTIONS } from '../../shared/mapSymbols';
 import 'leaflet/dist/leaflet.css';
 import { Play, Pause, SkipBack, Layers, Info, Camera, ExternalLink } from 'lucide-react';
@@ -87,6 +88,7 @@ export default function GISMapView() {
 
         <TileLayer url={ESRI_TILE_URLS.imagery} attribution={ESRI_ATTRIBUTIONS.imagery}/>
         <TileLayer url={ESRI_TILE_URLS.labels}  attribution={ESRI_ATTRIBUTIONS.labels} opacity={0.7}/>
+        <WaterLayers />
 
         {/* Markers */}
         {displayStructures.map(s => (

@@ -23,6 +23,7 @@ import { hexRgb } from '../../lib/chart3d';
 import FeatureAnalyticsPanel from '../../shared/FeatureAnalyticsPanel';
 import type { FeatureData, RoadLinkFeature, AtcStationFeature } from '../../shared/FeatureAnalyticsPanel';
 import { ROAD_STYLES, ESRI_TILE_URLS, ESRI_ATTRIBUTIONS } from '../../shared/mapSymbols';
+import { WaterLayers } from '../../shared/WaterLayers';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 type MapMode    = 'adt' | 'surface' | 'class';
@@ -719,6 +720,7 @@ export default function TrafficSection() {
             style={{ height: '100%', width: '100%', background: '#0a0f1e' }}>
             <TileLayer url={ESRI_TILE_URLS.imagery}   attribution={ESRI_ATTRIBUTIONS.imagery} />
             <TileLayer url={ESRI_TILE_URLS.labels}    attribution={ESRI_ATTRIBUTIONS.labels} opacity={0.7} />
+            <WaterLayers />
             <ZoomControl position="bottomright" />
 
             {filteredFeatures.length > 0 && (

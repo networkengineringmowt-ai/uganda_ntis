@@ -240,21 +240,40 @@ export default function PlatformDashboard() {
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {[
-            { label:'Bridges',     value: structures.filter(s=>s.type==='bridge').length,  icon:'●', color:'text-blue-400',  view:'registry' as ActiveView },
-            { label:'Culverts',    value: structures.filter(s=>s.type==='culvert').length, icon:'◆', color:'text-cyan-400',  view:'registry' as ActiveView },
-            { label:'Critical',    value: bridgeStats.critical,  icon:'!', color:'text-red-400',   view:'priority' as ActiveView },
-            { label:'Insp. Due',   value: bridgeStats.overdue,   icon:'⏰', color:'text-amber-400', view:'inspections' as ActiveView },
-          ].map(item => (
-            <button key={item.label} onClick={() => nav(item.view)}
-              className="bg-slate-700/40 hover:bg-slate-600 rounded-xl p-4 text-left transition-colors group">
-              <div className={`text-2xl font-black ${item.color}`}>{item.value}</div>
-              <div className="text-xs text-slate-400 mt-1 group-hover:text-slate-300">{item.label}</div>
-            </button>
-          ))}
+            { label:'Bridges',    value: structures.filter(s=>s.type==='bridge').length,  hex:'#4d9fff', view:'registry'    as ActiveView },
+            { label:'Culverts',   value: structures.filter(s=>s.type==='culvert').length, hex:'#00f5ff', view:'registry'    as ActiveView },
+            { label:'Critical',   value: bridgeStats.critical,                            hex:'#ff2d78', view:'priority'    as ActiveView },
+            { label:'Insp. Due',  value: bridgeStats.overdue,                             hex:'#ffd23f', view:'inspections' as ActiveView },
+          ].map(item => {
+            const rgb = hexRgb(item.hex);
+            return (
+              <button key={item.label} onClick={() => nav(item.view)} style={{
+                background:`rgba(${rgb},0.08)`, border:`1px solid rgba(${rgb},0.2)`,
+                borderLeft:`3px solid ${item.hex}`, borderRadius:12,
+                padding:'14px 16px', textAlign:'left', cursor:'pointer',
+                boxShadow:`0 0 14px rgba(${rgb},0.08)`, transition:'box-shadow .2s',
+              }}>
+                <div style={{ fontSize:26, fontWeight:900, color:item.hex,
+                  textShadow:`0 0 14px rgba(${rgb},0.6)`,
+                  fontVariantNumeric:'tabular-nums' }}>{item.value}</div>
+                <div style={{ fontSize:11, color:'rgba(148,163,184,0.65)', marginTop:4 }}>{item.label}</div>
+              </button>
+            );
+          })}
         </div>
       </div>
     </div>
   );
+}
+
+// ── Neon colour map ───────────────────────────────────────────────────────────
+const NEON_MAP: Record<string, string> = {
+  blue:   '#4d9fff', green: '#00ff88', amber: '#ffd23f',
+  purple: '#b967ff', red:   '#ff2d78', cyan:  '#00f5ff', teal: '#00d4aa',
+};
+function hexRgb(h: string): string {
+  const c = h.replace('#','');
+  return `${parseInt(c.slice(0,2),16)},${parseInt(c.slice(2,4),16)},${parseInt(c.slice(4,6),16)}`;
 }
 
 // ── Sub-components ────────────────────────────────────────────────────────────
@@ -262,20 +281,31 @@ function BigKPI({ label, value, sub, icon, color, onClick }: {
   label: string; value: string; sub: string; icon: React.ReactNode;
   color: 'blue'|'green'|'amber'|'purple'|'red'; onClick?: ()=>void;
 }) {
-  const cls = {
-    blue:   { bg:'bg-blue-500/10',   ic:'bg-blue-500/20 text-blue-400',   tx:'text-blue-400' },
-    green:  { bg:'bg-green-500/10',  ic:'bg-green-500/20 text-green-400', tx:'text-green-400' },
-    amber:  { bg:'bg-amber-500/10',  ic:'bg-amber-500/20 text-amber-400', tx:'text-amber-400' },
-    purple: { bg:'bg-purple-500/10', ic:'bg-purple-500/20 text-purple-400', tx:'text-purple-400' },
-    red:    { bg:'bg-red-500/10',    ic:'bg-red-500/20 text-red-400',     tx:'text-red-400' },
-  }[color];
+  const hex = NEON_MAP[color] ?? '#4d9fff';
+  const rgb = hexRgb(hex);
   return (
-    <div className={`bms-card flex items-start gap-3 ${onClick?'cursor-pointer hover:bg-slate-700 transition-colors':''}`} onClick={onClick}>
-      <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${cls.ic}`}>{icon}</div>
-      <div className="min-w-0">
-        <div className={`text-xl font-black leading-tight ${cls.tx}`}>{value}</div>
-        <div className="text-xs font-semibold text-slate-300 mt-0.5">{label}</div>
-        <div className="text-[10px] text-slate-500 mt-0.5">{sub}</div>
+    <div onClick={onClick} style={{
+      background:`rgba(${rgb},0.07)`,
+      border:`1px solid rgba(${rgb},0.18)`,
+      borderLeft:`4px solid ${hex}`,
+      borderRadius:14, padding:'16px 18px',
+      cursor: onClick ? 'pointer' : 'default',
+      boxShadow:`0 0 22px rgba(${rgb},0.12), inset 0 1px 0 rgba(255,255,255,0.04)`,
+      backdropFilter:'blur(20px)',
+      display:'flex', alignItems:'flex-start', gap:12,
+      transition:'box-shadow .2s',
+    }}>
+      <div style={{ width:38, height:38, borderRadius:10,
+        background:`rgba(${rgb},0.15)`, border:`1px solid rgba(${rgb},0.25)`,
+        display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0, color:hex }}>
+        {icon}
+      </div>
+      <div style={{ minWidth:0 }}>
+        <div style={{ fontSize:22, fontWeight:900, color:hex, lineHeight:1.1,
+          fontVariantNumeric:'tabular-nums',
+          textShadow:`0 0 18px rgba(${rgb},0.65)` }}>{value}</div>
+        <div style={{ fontSize:12, fontWeight:700, color:'#e2eaf4', marginTop:2 }}>{label}</div>
+        <div style={{ fontSize:10, color:'rgba(148,163,184,0.5)', marginTop:1 }}>{sub}</div>
       </div>
     </div>
   );
@@ -284,12 +314,23 @@ function BigKPI({ label, value, sub, icon, color, onClick }: {
 function SmallKPI({ label, value, sub, color, onClick }: {
   label: string; value: string; sub: string; color: 'green'|'amber'|'red'|'blue'; onClick?: ()=>void;
 }) {
-  const tx = { green:'text-green-400', amber:'text-amber-400', red:'text-red-400', blue:'text-blue-400' }[color];
+  const hex = NEON_MAP[color] ?? '#4d9fff';
+  const rgb = hexRgb(hex);
   return (
-    <div className={`bms-card ${onClick?'cursor-pointer hover:bg-slate-700 transition-colors':''}`} onClick={onClick}>
-      <div className={`text-2xl font-black ${tx}`}>{value}</div>
-      <div className="text-xs font-semibold text-slate-300 mt-1">{label}</div>
-      <div className="text-[10px] text-slate-500">{sub}</div>
+    <div onClick={onClick} style={{
+      background:`rgba(${rgb},0.07)`,
+      border:`1px solid rgba(${rgb},0.16)`,
+      borderLeft:`4px solid ${hex}`,
+      borderRadius:14, padding:'14px 18px',
+      cursor: onClick ? 'pointer' : 'default',
+      boxShadow:`0 0 16px rgba(${rgb},0.09)`,
+      backdropFilter:'blur(20px)',
+    }}>
+      <div style={{ fontSize:26, fontWeight:900, color:hex, lineHeight:1.1,
+        fontVariantNumeric:'tabular-nums',
+        textShadow:`0 0 16px rgba(${rgb},0.6)` }}>{value}</div>
+      <div style={{ fontSize:12, fontWeight:700, color:'#e2eaf4', marginTop:4 }}>{label}</div>
+      <div style={{ fontSize:10, color:'rgba(148,163,184,0.5)', marginTop:1 }}>{sub}</div>
     </div>
   );
 }

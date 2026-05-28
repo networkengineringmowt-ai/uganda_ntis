@@ -22,6 +22,7 @@ import {
   REGION_NEON, Bar3D, Chart3DWrap, TT_NEON, TICK,
 } from '../../lib/chart3d';
 import { ESRI_TILE_URLS, ESRI_ATTRIBUTIONS } from '../../shared/mapSymbols';
+import { WaterLayers } from '../../shared/WaterLayers';
 
 // ── Risk colour palette ───────────────────────────────────────────────────────
 const RISK_COLOR: Record<string, string> = {
@@ -106,29 +107,42 @@ function RiskLayer({
   return <GeoJSON data={geo as any} style={styleF as any} onEachFeature={onEach as any} />;
 }
 
-// ── KPI glass card ────────────────────────────────────────────────────────────
-function KpiCard({ label, value, sub, color, icon }: {
-  label: string; value: string; sub: string; color: string; icon: React.ReactNode;
-}) {
-  return (
-    <div className="bms-card flex items-start gap-3">
-      <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
-        style={{ background: `rgba(${hexRgbInline(color)},0.12)`, border: `1px solid rgba(${hexRgbInline(color)},0.25)` }}>
-        <div style={{ color }}>{icon}</div>
-      </div>
-      <div className="flex-1 min-w-0">
-        <div className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">{label}</div>
-        <div className="text-xl font-black mt-0.5" style={{ color }}>{value}</div>
-        <div className="text-[10px] text-slate-500 mt-0.5">{sub}</div>
-      </div>
-    </div>
-  );
-}
+// ── KPI neon card (ATC-style) ─────────────────────────────────────────────────
 function hexRgbInline(hex: string) {
   if (hex.startsWith('#')) {
     return `${parseInt(hex.slice(1,3),16)},${parseInt(hex.slice(3,5),16)},${parseInt(hex.slice(5,7),16)}`;
   }
   return '148,163,184';
+}
+function KpiCard({ label, value, sub, color, icon }: {
+  label: string; value: string; sub: string; color: string; icon: React.ReactNode;
+}) {
+  const rgb = hexRgbInline(color);
+  return (
+    <div style={{
+      background: `rgba(${rgb},0.07)`,
+      border: `1px solid rgba(${rgb},0.18)`,
+      borderLeft: `4px solid ${color}`,
+      borderRadius: 12, padding: '14px 16px',
+      boxShadow: `0 0 20px rgba(${rgb},0.11), inset 0 1px 0 rgba(255,255,255,0.04)`,
+      backdropFilter: 'blur(20px)',
+      display: 'flex', alignItems: 'flex-start', gap: 12,
+    }}>
+      <div style={{ width: 36, height: 36, borderRadius: 9, flexShrink: 0,
+        background: `rgba(${rgb},0.14)`, border: `1px solid rgba(${rgb},0.25)`,
+        display: 'flex', alignItems: 'center', justifyContent: 'center', color }}>
+        {icon}
+      </div>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ fontSize: 9, fontWeight: 800, textTransform: 'uppercase',
+          letterSpacing: '0.12em', color: 'rgba(148,163,184,0.55)', marginBottom: 3 }}>{label}</div>
+        <div style={{ fontSize: 22, fontWeight: 900, color, lineHeight: 1.1,
+          fontVariantNumeric: 'tabular-nums',
+          textShadow: `0 0 16px rgba(${rgb},0.65)` }}>{value}</div>
+        <div style={{ fontSize: 10, color: 'rgba(148,163,184,0.5)', marginTop: 3 }}>{sub}</div>
+      </div>
+    </div>
+  );
 }
 
 // ── Selected link popup ───────────────────────────────────────────────────────
@@ -318,6 +332,7 @@ export default function OverloadingSection() {
             >
               <TileLayer url={ESRI_TILE_URLS.imagery} attribution={ESRI_ATTRIBUTIONS.imagery}/>
               <TileLayer url={ESRI_TILE_URLS.labels}  attribution={ESRI_ATTRIBUTIONS.labels} opacity={0.65}/>
+              <WaterLayers />
               <ZoomControl position="bottomright"/>
               {geoFeatures.length > 0 && (
                 <RiskLayer

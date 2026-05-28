@@ -26,6 +26,7 @@ import type { Structure } from '../../types';
 import { ROAD_STYLES, surfaceCategory } from '../../shared/mapSymbols';
 import FeatureAnalyticsPanel from '../../shared/FeatureAnalyticsPanel';
 import type { FeatureData } from '../../shared/FeatureAnalyticsPanel';
+import { WaterLayers } from '../../shared/WaterLayers';
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 interface LinkProps {
@@ -424,6 +425,7 @@ export default function RoadNetworkView() {
             opacity={0.85}
             attribution='Esri'
           />
+          <WaterLayers />
           <ZoomControl position="bottomright"/>
           <ZoomWatcher onZoom={setMapZoom}/>
           {geoData && (

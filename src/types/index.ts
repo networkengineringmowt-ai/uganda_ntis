@@ -142,7 +142,6 @@ export type ActiveView =
   | 'documents'      // Document store
   | 'phototwin'      // Photo & digital twin
   | 'networkstory'   // Uganda Road Network historical story (1986–present)
-  | 'roadvideoview'      // Road survey video + frame player
   | 'downloads'          // Downloads & Exports
   | 'media'              // Media gallery — images + videos
   | 'trafficanalytics'  // Traffic demand analytics dashboard
@@ -154,7 +153,6 @@ export type ActiveView =
   // ─── New 10-module views ──────────────────────────────────────────────────
   | 'mlarchitecture'  // Interactive ML system architecture diagram
   | 'hdm4'            // HDM-4 deterioration models, calibration, CESAL calculator
-  | 'bridgesection'   // BMS data overview — real 2026 Excel data, condition map + charts
   | 'projecttracker'  // Gantt/Kanban project progress tracker
   | 'pim'             // Public Investment Management — PPPs, donor funding
   | 'budget'          // Budgeting & Maintenance planning

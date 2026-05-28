@@ -19,9 +19,11 @@ Intervention thresholds (IRI m/km):
 import os, csv, json, math, sqlite3, warnings
 import numpy as np
 import pandas as pd
-from sklearn.neural_network import MLPRegressor
+import torch
+import torch.nn as nn
+import torch.optim as optim
+from torch.utils.data import DataLoader, TensorDataset
 from sklearn.preprocessing import StandardScaler
-from sklearn.pipeline import Pipeline
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import r2_score
 import joblib
@@ -36,7 +38,8 @@ TIS_DIR   = os.path.join(BASE, 'scripts')
 DB_PATH   = os.path.join(BASE, 'traffic_platform.db')
 OUT_JSON  = os.path.join(BASE, 'public', 'data', 'deterioration_summary.json')
 MODEL_DIR = os.path.join(BASE, 'scripts', 'pavement_ml', 'models')
-MODEL_PATH = os.path.join(MODEL_DIR, 'deterioration_mlp.joblib')
+MODEL_PATH  = os.path.join(MODEL_DIR, 'deterioration_mlp.joblib')
+DNN_PATH    = os.path.join(MODEL_DIR, 'deterioration_dnn.pt')
 
 os.makedirs(MODEL_DIR, exist_ok=True)
 os.makedirs(os.path.join(BASE, 'public', 'data'), exist_ok=True)
@@ -324,27 +327,104 @@ def generate_synthetic_data(n=10000, seed=42):
     return pd.DataFrame(rows)
 
 
-def train_mlp(df):
-    print(f'  Training MLPRegressor on {len(df):,} synthetic samples…')
+class PavementDeteriorationNet(nn.Module):
+    def __init__(self, input_dim: int = 8):
+        super().__init__()
+        self.net = nn.Sequential(
+            nn.Linear(input_dim, 256),
+            nn.BatchNorm1d(256),
+            nn.ReLU(),
+            nn.Dropout(0.3),
+            nn.Linear(256, 128),
+            nn.BatchNorm1d(128),
+            nn.ReLU(),
+            nn.Dropout(0.2),
+            nn.Linear(128, 64),
+            nn.ReLU(),
+            nn.Linear(64, 1),
+        )
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        return self.net(x)
+
+
+def train_dnn(df: pd.DataFrame):
     FEATURES = ['surface_enc', 'class_enc', 'cesal', 'age_proj',
                 'base_iri', 'sn', 'region_f', 'aadt_log']
-    X = df[FEATURES].values
-    y = df['target_iri'].values
-    X_tr, X_te, y_tr, y_te = train_test_split(X, y, test_size=0.15, random_state=42)
-    pipe = Pipeline([
-        ('scaler', StandardScaler()),
-        ('mlp', MLPRegressor(
-            hidden_layer_sizes=(128, 64, 32), activation='relu', solver='adam',
-            max_iter=300, learning_rate_init=0.001, random_state=42,
-            early_stopping=True, validation_fraction=0.1, n_iter_no_change=20,
-        ))
-    ])
-    pipe.fit(X_tr, y_tr)
-    r2 = r2_score(y_te, pipe.predict(X_te))
-    print(f'  R² (hold-out): {r2:.4f}')
-    joblib.dump(pipe, MODEL_PATH)
-    print(f'  Model saved → {MODEL_PATH}')
-    return pipe, r2
+    EPOCHS     = 200
+    BATCH      = 256
+    LR         = 1e-3
+    VAL_SPLIT  = 0.20
+
+    print(f'  Training PyTorch DNN on {len(df):,} synthetic samples…')
+    X_raw = df[FEATURES].values.astype(np.float32)
+    y_raw = df['target_iri'].values.astype(np.float32)
+
+    # 80/20 train/val split, then 15% holdout test from original
+    X_tv, X_te, y_tv, y_te = train_test_split(X_raw, y_raw, test_size=0.15, random_state=42)
+    n_val = int(len(X_tv) * VAL_SPLIT)
+    X_tr, X_val = X_tv[n_val:], X_tv[:n_val]
+    y_tr, y_val = y_tv[n_val:], y_tv[:n_val]
+
+    scaler = StandardScaler()
+    X_tr  = scaler.fit_transform(X_tr)
+    X_val = scaler.transform(X_val)
+    X_te  = scaler.transform(X_te)
+
+    def to_tensors(*arrays):
+        return [torch.from_numpy(a) for a in arrays]
+
+    Xtr_t, ytr_t = to_tensors(X_tr, y_tr.reshape(-1, 1))
+    Xvl_t, yvl_t = to_tensors(X_val, y_val.reshape(-1, 1))
+    Xte_t        = to_tensors(X_te)[0]
+
+    loader = DataLoader(TensorDataset(Xtr_t, ytr_t), batch_size=BATCH, shuffle=True)
+
+    model     = PavementDeteriorationNet(input_dim=len(FEATURES))
+    criterion = nn.MSELoss()
+    optimizer = optim.Adam(model.parameters(), lr=LR)
+    scheduler = optim.lr_scheduler.ReduceLROnPlateau(
+        optimizer, mode='min', factor=0.5, patience=15
+    )
+
+    best_val_loss = float('inf')
+    best_state    = None
+
+    for epoch in range(1, EPOCHS + 1):
+        model.train()
+        for Xb, yb in loader:
+            optimizer.zero_grad()
+            loss = criterion(model(Xb), yb)
+            loss.backward()
+            optimizer.step()
+
+        model.eval()
+        with torch.no_grad():
+            val_loss = criterion(model(Xvl_t), yvl_t).item()
+        scheduler.step(val_loss)
+
+        if val_loss < best_val_loss:
+            best_val_loss = val_loss
+            best_state    = {k: v.clone() for k, v in model.state_dict().items()}
+
+        if epoch % 50 == 0:
+            print(f'    Epoch {epoch:>3}/{EPOCHS}  val_loss={val_loss:.4f}  lr={optimizer.param_groups[0]["lr"]:.2e}')
+
+    model.load_state_dict(best_state)
+
+    model.eval()
+    with torch.no_grad():
+        y_pred = model(Xte_t).numpy().flatten()
+    r2   = r2_score(y_te, y_pred)
+    mse  = float(np.mean((y_te - y_pred) ** 2))
+    rmse = float(np.sqrt(mse))
+
+    print(f'  Test set — val_loss (best): {best_val_loss:.4f}  R²: {r2:.4f}  RMSE: {rmse:.4f}')
+
+    torch.save({'model_state': model.state_dict(), 'scaler': scaler,
+                'features': FEATURES, 'input_dim': len(FEATURES)}, DNN_PATH)
+    print(f'  DNN saved → {DNN_PATH}')
+    return model, scaler, r2, best_val_loss
 
 
 def create_tables(conn):
@@ -388,9 +468,9 @@ def main():
     aadt_lookup = build_aadt_lookup()
     print(f'  AADT records for {len(aadt_lookup):,} links')
 
-    print('\n[3/5] Training MLP on 10,000 synthetic HDM-4 samples…')
+    print('\n[3/5] Training PyTorch DNN on 10,000 synthetic HDM-4 samples…')
     df_synth = generate_synthetic_data(10000)
-    mlp_model, r2 = train_mlp(df_synth)
+    _dnn_model, _scaler, r2, best_val_loss = train_dnn(df_synth)
 
     print('\n[4/5] Projecting deterioration 2024→2035…')
     conn = sqlite3.connect(DB_PATH)
@@ -538,8 +618,9 @@ def main():
     total_budget = int(sum(v['total_usd'] for v in budget_schedule))
 
     summary = {
-        'model_type':      'HDM-4 calibrated + MLPRegressor (sklearn)',
+        'model_type':      'HDM-4 calibrated + DNN (PyTorch)',
         'r_squared':       round(r2, 4),
+        'best_val_loss':   round(best_val_loss, 4),
         'links_projected': total,
         'projection_period': f'{CURRENT_YEAR}–{PROJECT_END}',
         'generated_at':    pd.Timestamp.now().isoformat()[:19],
@@ -577,7 +658,8 @@ def main():
     print(f'  Saved → {OUT_JSON}')
 
     print('\n━━━ Results ━━━')
-    print(f'  Model R²:          {r2:.4f}')
+    print(f'  DNN val_loss (best): {best_val_loss:.4f}')
+    print(f'  Model R² (test):   {r2:.4f}')
     print(f'  Links projected:   {total:,}')
     print(f'  2024 — Good {pct(band_2024,"Good")}%  Fair {pct(band_2024,"Fair")}%  '
           f'Poor {pct(band_2024,"Poor")}%  VPoor {pct(band_2024,"Very Poor")}%')

@@ -4,9 +4,10 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip as ReTooltip,
-  Cell, PieChart, Pie, Legend, ResponsiveContainer,
+  Cell, Legend, ResponsiveContainer, CartesianGrid,
 } from 'recharts';
 import { ESRI_TILE_URLS, ESRI_ATTRIBUTIONS, ROAD_STYLES, surfaceCategory } from '../../shared/mapSymbols';
+import { WaterLayers } from '../../shared/WaterLayers';
 import { TrendingUp } from 'lucide-react';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -19,7 +20,15 @@ interface OprcLot {
 }
 interface OprcNdpivData { oprc_lots: OprcLot[]; ndpiv_projects: unknown[] }
 
-// ─── Colour helpers ───────────────────────────────────────────────────────────
+// ─── Categorical colour maps ──────────────────────────────────────────────────
+const STATUS_COLOR: Record<string, string> = {
+  'Active':           '#06b6d4',
+  'Completed':        '#22c55e',
+  'Defects Liability':'#eab308',
+  'Suspended':        '#f97316',
+  'Procurement':      '#a855f7',
+};
+function statusColor(s: string): string { return STATUS_COLOR[s] ?? '#64748b'; }
 function perfColor(score: number): string {
   if (score >= 85) return '#22c55e';
   if (score >= 70) return '#f59e0b';
@@ -29,6 +38,7 @@ function hexRgb(hex: string): string {
   const h = hex.replace('#', '');
   return `${parseInt(h.slice(0,2),16)},${parseInt(h.slice(2,4),16)},${parseInt(h.slice(4,6),16)}`;
 }
+const TT_STYLE = { background: 'rgba(8,14,28,0.96)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, fontSize: 11 };
 
 function roadStyle(feature?: GeoJSON.Feature): L.PathOptions {
   const surf = (feature?.properties as { surface?: string })?.surface ?? '';
@@ -101,12 +111,23 @@ export default function OprcSection() {
   const totalValue = useMemo(() => lots.reduce((s, l) => s + l.contract_value_usd, 0), [lots]);
   const avgScore   = useMemo(() => lots.length ? Math.round(lots.reduce((s, l) => s + l.performance_score, 0) / lots.length) : 0, [lots]);
 
-  const barData  = useMemo(() => lots.map(l => ({ name: l.lot_id, score: l.performance_score })), [lots]);
+  // Clustered bar: performance score + km per lot
+  const clusterData = useMemo(() => lots.map(l => ({
+    name: l.lot_id.replace('OPRC-', ''),
+    score: l.performance_score,
+    km: Math.round(l.total_km),
+    status: l.status,
+  })), [lots]);
 
-  const statusCounts = useMemo(() => {
-    const counts: Record<string, number> = {};
-    lots.forEach(l => { counts[l.status] = (counts[l.status] ?? 0) + 1; });
-    return Object.entries(counts).map(([name, value]) => ({ name, value }));
+  // Status-grouped clustered bars: count + km by status
+  const statusCluster = useMemo(() => {
+    const m: Record<string, { count: number; km: number }> = {};
+    lots.forEach(l => {
+      if (!m[l.status]) m[l.status] = { count: 0, km: 0 };
+      m[l.status].count++;
+      m[l.status].km += Math.round(l.total_km);
+    });
+    return Object.entries(m).map(([status, v]) => ({ status, ...v }));
   }, [lots]);
 
   if (!data) {
@@ -166,13 +187,23 @@ export default function OprcSection() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
 
           <div style={{ ...GLASS, padding: 14 }}>
-            <PanelLabel text="Performance Scale" />
-            {([['#22c55e','High (≥ 85)'],['#f59e0b','Medium (70–84)'],['#ef4444','Low (< 70)']] as [string,string][]).map(([c, l]) => (
-              <div key={l} style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 5 }}>
-                <div style={{ width: 10, height: 10, borderRadius: '50%', background: c, boxShadow: `0 0 5px ${c}70`, flexShrink: 0 }} />
-                <span style={{ fontSize: 10, color: '#94a3b8' }}>{l}</span>
+            <PanelLabel text="Contract Status" />
+            {(Object.entries(STATUS_COLOR) as [string,string][]).map(([s, c]) => (
+              <div key={s} style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 5 }}>
+                <div style={{ width: 10, height: 10, borderRadius: '50%', background: c,
+                  boxShadow: `0 0 6px ${c}80`, flexShrink: 0 }} />
+                <span style={{ fontSize: 10, color: '#94a3b8' }}>{s}</span>
               </div>
             ))}
+            <div style={{ marginTop: 8, paddingTop: 8, borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+              <div style={{ fontSize: 9, color: '#475569', marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Performance</div>
+              {(['#22c55e', '#f59e0b', '#ef4444'] as const).map((c, i) => (
+                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 3 }}>
+                  <div style={{ width: 6, height: 6, borderRadius: '50%', background: c, flexShrink: 0 }} />
+                  <span style={{ fontSize: 9, color: '#64748b' }}>{['High ≥85','Med 70–84','Low <70'][i]}</span>
+                </div>
+              ))}
+            </div>
           </div>
 
           <div style={{ ...GLASS, padding: 14 }}>
@@ -217,21 +248,24 @@ export default function OprcSection() {
           <MapContainer center={[1.373, 32.29]} zoom={7} style={{ width: '100%', height: '100%' }} zoomControl>
             <TileLayer url={ESRI_TILE_URLS.imagery} attribution={ESRI_ATTRIBUTIONS.imagery} />
             <TileLayer url={ESRI_TILE_URLS.labels}  attribution={ESRI_ATTRIBUTIONS.labels}  />
+            <WaterLayers />
             {roadGeo && <GeoJSON key="roads" data={roadGeo} style={roadStyle} />}
 
             {lots.map(lot => {
+              const sc    = statusColor(lot.status);
               const pc    = perfColor(lot.performance_score);
               const isSel = selectedLot?.lot_id === lot.lot_id;
               return (
                 <CircleMarker key={lot.lot_id}
                   center={lot.centroid}
-                  radius={isSel ? 24 : 20}
-                  pathOptions={{ color: pc, fillColor: pc, fillOpacity: isSel ? 0.5 : 0.28, weight: isSel ? 3 : 2 }}
+                  radius={isSel ? 22 : 18}
+                  pathOptions={{ color: sc, fillColor: pc, fillOpacity: isSel ? 0.55 : 0.3, weight: isSel ? 3 : 2 }}
                   eventHandlers={{ click: () => setSelectedLot(l => l?.lot_id === lot.lot_id ? null : lot) }}
                 >
                   <Popup>
                     <div style={{ minWidth: 170, fontFamily: 'system-ui,sans-serif' }}>
                       <div style={{ fontWeight: 700, marginBottom: 4, fontSize: 13 }}>{lot.name}</div>
+                      <div>Status: <b style={{ color: sc }}>{lot.status}</b></div>
                       <div>Score: <b style={{ color: pc }}>{lot.performance_score}/100</b></div>
                       <div>Length: {lot.total_km} km · {lot.region}</div>
                       <div>Contractor: {lot.contractor}</div>
@@ -271,36 +305,47 @@ export default function OprcSection() {
             );
           })()}
 
+          {/* Clustered: Score + km per lot */}
           <div style={{ ...GLASS, padding: 14 }}>
-            <PanelLabel text="Performance by OPRC Lot" />
-            <ResponsiveContainer width="100%" height={155}>
-              <BarChart data={barData} margin={{ top: 4, right: 4, left: -22, bottom: 0 }}>
-                <XAxis dataKey="name" tick={{ fontSize: 8, fill: '#64748b' }} tickFormatter={(s: string) => s.replace('OPRC-','')} />
-                <YAxis domain={[0, 100]} tick={{ fontSize: 8, fill: '#64748b' }} />
-                <ReTooltip
-                  contentStyle={{ background: 'rgba(15,23,42,0.92)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, fontSize: 11 }}
-                  formatter={(v) => [`${v}/100`, 'Score']}
-                  labelFormatter={(l: string) => l.replace('OPRC-', 'Lot ')}
-                />
-                <Bar dataKey="score" radius={[3, 3, 0, 0]}>
-                  {lots.map((lot, i) => <Cell key={i} fill={perfColor(lot.performance_score)} />)}
+            <PanelLabel text="Performance Score & Network km — by OPRC Lot" />
+            <ResponsiveContainer width="100%" height={170}>
+              <BarChart data={clusterData} margin={{ top: 4, right: 4, left: -22, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
+                <XAxis dataKey="name" tick={{ fontSize: 8, fill: '#64748b' }} />
+                <YAxis yAxisId="score" domain={[0,100]} tick={{ fontSize: 8, fill: '#64748b' }} />
+                <YAxis yAxisId="km" orientation="right" tick={{ fontSize: 8, fill: '#64748b' }} />
+                <ReTooltip contentStyle={TT_STYLE}
+                  formatter={(v: number, name: string) => [name === 'score' ? `${v}/100` : `${v} km`, name === 'score' ? 'Score' : 'Network km']} />
+                <Legend iconSize={7} wrapperStyle={{ fontSize: 9, color: '#94a3b8' }} />
+                <Bar yAxisId="score" dataKey="score" name="Perf Score" radius={[3,3,0,0]} maxBarSize={18}>
+                  {clusterData.map((d, i) => <Cell key={i} fill={perfColor(lots[i]?.performance_score ?? 0)} />)}
+                </Bar>
+                <Bar yAxisId="km" dataKey="km" name="Network km" fill="rgba(0,245,255,0.45)" radius={[3,3,0,0]} maxBarSize={18}>
+                  {clusterData.map((d, i) => <Cell key={i} fill={statusColor(d.status)} opacity={0.65} />)}
                 </Bar>
               </BarChart>
             </ResponsiveContainer>
           </div>
 
+          {/* Clustered: Lot count + km by contract status */}
           <div style={{ ...GLASS, padding: 14 }}>
-            <PanelLabel text="Lots by Status" />
-            <ResponsiveContainer width="100%" height={155}>
-              <PieChart>
-                <Pie data={statusCounts} cx="50%" cy="50%" innerRadius={36} outerRadius={56} paddingAngle={2} dataKey="value" nameKey="name">
-                  {statusCounts.map((_entry, i) => (
-                    <Cell key={i} fill={['#00f5ff','#00ff88','#f59e0b','#ef4444'][i % 4]} stroke="rgba(255,255,255,0.08)" strokeWidth={1} />
-                  ))}
-                </Pie>
-                <Legend iconSize={8} wrapperStyle={{ fontSize: 9, color: '#94a3b8' }} />
-                <ReTooltip contentStyle={{ background: 'rgba(15,23,42,0.92)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, fontSize: 11 }} />
-              </PieChart>
+            <PanelLabel text="Lots & Network km by Contract Status" />
+            <ResponsiveContainer width="100%" height={160}>
+              <BarChart data={statusCluster} margin={{ top: 4, right: 4, left: -22, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
+                <XAxis dataKey="status" tick={{ fontSize: 8, fill: '#64748b' }} tickFormatter={(s:string) => s.split(' ')[0]} />
+                <YAxis yAxisId="cnt" tick={{ fontSize: 8, fill: '#64748b' }} />
+                <YAxis yAxisId="km" orientation="right" tick={{ fontSize: 8, fill: '#64748b' }} />
+                <ReTooltip contentStyle={TT_STYLE}
+                  formatter={(v: number, name: string) => [name === 'count' ? `${v} lots` : `${v} km`, name === 'count' ? 'Lots' : 'Total km']} />
+                <Legend iconSize={7} wrapperStyle={{ fontSize: 9, color: '#94a3b8' }} />
+                <Bar yAxisId="cnt" dataKey="count" name="Lots" radius={[3,3,0,0]} maxBarSize={20}>
+                  {statusCluster.map((d, i) => <Cell key={i} fill={statusColor(d.status)} />)}
+                </Bar>
+                <Bar yAxisId="km" dataKey="km" name="km" radius={[3,3,0,0]} maxBarSize={20}>
+                  {statusCluster.map((d, i) => <Cell key={i} fill={statusColor(d.status)} opacity={0.5} />)}
+                </Bar>
+              </BarChart>
             </ResponsiveContainer>
           </div>
         </div>
