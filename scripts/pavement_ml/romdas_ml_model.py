@@ -238,7 +238,7 @@ def _train_mlp(X: np.ndarray, y: np.ndarray, n_out: int,
 def _save_mlp(model: PavementMLP, scaler: StandardScaler, path: str,
               n_out: int, hidden: tuple, dropout: float,
               is_classifier: bool = False) -> None:
-    joblib.dump({
+    bundle = {
         'state_dict':    model.state_dict(),
         'scaler_mean':   scaler.mean_.tolist(),
         'scaler_scale':  scaler.scale_.tolist(),
@@ -247,7 +247,12 @@ def _save_mlp(model: PavementMLP, scaler: StandardScaler, path: str,
         'hidden':        hidden,
         'dropout':       dropout,
         'is_classifier': is_classifier,
-    }, path)
+    }
+    # Primary format: joblib (portable, includes scaler params)
+    joblib.dump(bundle, path)
+    # Also save native PyTorch .pt alongside (state_dict + metadata)
+    pt_path = Path(path).with_suffix('.pt')
+    torch.save(bundle, str(pt_path))
 
 
 def _load_mlp(path: str) -> tuple:

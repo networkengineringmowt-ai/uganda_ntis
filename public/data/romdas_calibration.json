@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-05-25T12:20:22",
+  "generated_at": "2026-05-28T12:58:11",
   "links_analysed": 10,
   "maintenance_detected": 9,
   "naturally_deteriorating": 1,
@@ -16,7 +16,7 @@
       "road_name": "Kibuye - Zana",
       "iri_2020": 2.99,
       "iri_2021": 2.0,
-      "delta_iri": -0.994,
+      "delta_iri": -0.995,
       "likely_treatment": "Overlay/Reseal"
     },
     {
@@ -91,11 +91,11 @@
       "region": "Central",
       "road_class": "A",
       "surface_type": "asphalt",
-      "iri_2020": 2.992,
+      "iri_2020": 2.993,
       "iri_2021": 1.998,
-      "actual_delta": -0.994,
+      "actual_delta": -0.995,
       "predicted_delta": 0.02,
-      "prediction_error": -1.014,
+      "prediction_error": -1.015,
       "category": "maintenance_observed"
     },
     {
