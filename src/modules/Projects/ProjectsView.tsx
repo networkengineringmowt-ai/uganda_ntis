@@ -3,6 +3,7 @@ import { MapContainer, TileLayer, CircleMarker, Popup, useMap, GeoJSON as GeoJSO
 import 'leaflet/dist/leaflet.css';
 import { ESRI_TILE_URLS, ESRI_ATTRIBUTIONS, ROAD_STYLES, surfaceCategory } from '../../shared/mapSymbols';
 import { WaterLayers } from '../../shared/WaterLayers';
+import { InfraLayers } from '../../shared/InfraLayers';
 import {
   BarChart, Bar, Cell, XAxis, YAxis, Tooltip as ReTooltip,
   CartesianGrid, ResponsiveContainer,
@@ -12,6 +13,7 @@ import {
   Search, X, ChevronLeft, ChevronRight, Camera,
 } from 'lucide-react';
 import { loadEnhancedProjects, type Project } from '../../data/appStore';
+import { ModuleNavBar } from '../../shared/ModuleNavBar';
 
 // ── Under-construction corridor definitions ───────────────────────────────────
 interface UCorridor {
@@ -346,6 +348,7 @@ export default function ProjectsView() {
 
       {/* ── Header + KPIs ── */}
       <div className="p-4 space-y-3 flex-shrink-0">
+        <ModuleNavBar module="Projects" />
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-xl bg-amber-500/20 flex items-center justify-center">
             <Construction size={18} className="text-amber-400" />
@@ -515,6 +518,7 @@ export default function ProjectsView() {
             <TileLayer url={ESRI_TILE_URLS.imagery} attribution={ESRI_ATTRIBUTIONS.imagery}/>
             <TileLayer url={ESRI_TILE_URLS.labels}  attribution={ESRI_ATTRIBUTIONS.labels} opacity={0.7}/>
             <WaterLayers />
+            <InfraLayers />
             <MapController target={flyTarget} />
 
             {/* ── Road network base layer ── */}

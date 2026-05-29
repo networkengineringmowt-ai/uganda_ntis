@@ -4,6 +4,7 @@ import {
   CartesianGrid, Legend, ReferenceLine,
 } from 'recharts';
 import { Calculator, BookOpen, Table2, TrendingUp, DollarSign, Activity } from 'lucide-react';
+import { ModuleNavBar } from '../../shared/ModuleNavBar';
 
 const C = {
   purple: '#b967ff', cyan: '#00f5ff', green: '#00ff88',
@@ -151,6 +152,8 @@ export default function HDM4Section() {
   return (
     <div style={{ padding: '20px 18px', minHeight: '100%',
       background: 'linear-gradient(180deg, rgba(8,14,28,0.4) 0%, transparent 100%)' }}>
+
+      <ModuleNavBar module="HDM4" />
 
       {/* ── Header ── */}
       <div style={{ marginBottom: 20 }}>

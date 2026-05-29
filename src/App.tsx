@@ -30,7 +30,6 @@ const OprcSection          = lazy(() => import('./components/sections/OprcSectio
 const NdpivSection         = lazy(() => import('./components/sections/NdpivSection'));
 const GrowthFactorsPanel   = lazy(() => import('./modules/Traffic/GrowthFactorsPanel'));
 const OverloadingSection   = lazy(() => import('./modules/Traffic/OverloadingSection'));
-const BridgeSection        = lazy(() => import('./components/sections/BridgeSection'));
 
 // ── New 10-module sections ────────────────────────────────────────────────────
 const MLArchitectureDiagram   = lazy(() => import('./modules/MLArchitecture/MLArchitectureDiagram'));
@@ -40,10 +39,9 @@ const PublicInvestmentSection = lazy(() => import('./modules/PIM/PublicInvestmen
 const BudgetSection           = lazy(() => import('./modules/Budget/BudgetSection'));
 const LifecycleSection        = lazy(() => import('./modules/Lifecycle/LifecycleSection'));
 const SourcesCatalogueSection = lazy(() => import('./modules/Sources/SourcesCatalogueSection'));
-const RoadAtlasView           = lazy(() => import('./modules/RoadAtlas/RoadAtlasView'));
 
 // Views that hide the header and own the full content rectangle
-const FULL_VIEWS = new Set(['gismap', 'roadnetwork', 'roadatlas']);
+const FULL_VIEWS = new Set(['gismap', 'roadnetwork']);
 
 // Views that manage their own scroll internally (don't wrap in a shared scroller)
 const SELF_SCROLL_VIEWS = new Set(['networkstory']);
@@ -115,7 +113,6 @@ function AppShell() {
             {/* ── Full-bleed map views: no header, fill entire main area ── */}
             {activeView === 'gismap'      && <GISMapView />}
             {activeView === 'roadnetwork' && <RoadNetworkView />}
-            {activeView === 'roadatlas'   && <RoadAtlasView />}
 
             {/* ── Self-scrolling views: positioned to fill main, own scroll ── */}
             {SELF_SCROLL_VIEWS.has(activeView) && (
@@ -148,7 +145,6 @@ function AppShell() {
                 {activeView === 'oprc'             && <OprcSection />}
                 {activeView === 'ndpiv'            && <NdpivSection />}
                 {activeView === 'downloads'     && <DownloadsView />}
-                {activeView === 'bridgesection' && <BridgeSection />}
 
                 {/* ── HDM-4 ── */}
                 {activeView === 'hdm4'          && <HDM4Section />}

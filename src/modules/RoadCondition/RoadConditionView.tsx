@@ -19,6 +19,8 @@ import {
 } from '../../lib/chart3d';
 
 import { WaterLayers } from '../../shared/WaterLayers';
+import { InfraLayers } from '../../shared/InfraLayers';
+import { ModuleNavBar } from '../../shared/ModuleNavBar';
 
 const BASE = import.meta.env.BASE_URL;
 
@@ -335,6 +337,7 @@ function ConditionMap({
                 url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
                 attribution="&copy; OpenStreetMap &copy; CARTO"/>
               <WaterLayers />
+              <InfraLayers />
               <GeoJSON
                 key={mapLayer}
                 data={geo}
@@ -762,6 +765,7 @@ function InterventionMap({
               url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
               attribution="&copy; OpenStreetMap &copy; CARTO"/>
             <WaterLayers />
+            <InfraLayers />
             <GeoJSON key="urgency" data={geo} style={styleF} onEachFeature={onEach}/>
           </MapContainer>
         ) : (
@@ -955,6 +959,8 @@ export default function RoadConditionView() {
   return (
     <div className="flex-1 overflow-y-auto p-5 space-y-5 animate-fade-in"
          style={{ background: '#0a0f1e', minHeight: '100%' }}>
+
+      <ModuleNavBar module="PMS" />
 
       {/* Header */}
       <div className="flex items-center gap-3">

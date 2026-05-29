@@ -4,6 +4,7 @@ import {
   CartesianGrid, Legend, ReferenceLine,
 } from 'recharts';
 import { DollarSign, Wrench, AlertTriangle, TrendingDown } from 'lucide-react';
+import { ModuleNavBar } from '../../shared/ModuleNavBar';
 
 const C = {
   cyan: '#00f5ff', green: '#00ff88', yellow: '#ffd23f',
@@ -111,6 +112,7 @@ export default function BudgetSection() {
 
   return (
     <div style={{ padding: '20px 18px', minHeight: '100%' }}>
+      <ModuleNavBar module="Budget" />
       {/* Header */}
       <div style={{ marginBottom: 20 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>

@@ -4,6 +4,7 @@ import {
   XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend,
 } from 'recharts';
 import { DollarSign, Globe, Building2, TrendingUp, FileText } from 'lucide-react';
+import { ModuleNavBar } from '../../shared/ModuleNavBar';
 
 const C = {
   cyan: '#00f5ff', green: '#00ff88', yellow: '#ffd23f',
@@ -146,6 +147,7 @@ export default function PublicInvestmentSection() {
 
   return (
     <div style={{ padding: '20px 18px', minHeight: '100%' }}>
+      <ModuleNavBar module="PIM" />
       {/* Header */}
       <div style={{ marginBottom: 20 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>

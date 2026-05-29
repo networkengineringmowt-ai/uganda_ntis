@@ -24,6 +24,8 @@ import FeatureAnalyticsPanel from '../../shared/FeatureAnalyticsPanel';
 import type { FeatureData, RoadLinkFeature, AtcStationFeature } from '../../shared/FeatureAnalyticsPanel';
 import { ROAD_STYLES, ESRI_TILE_URLS, ESRI_ATTRIBUTIONS } from '../../shared/mapSymbols';
 import { WaterLayers } from '../../shared/WaterLayers';
+import { InfraLayers } from '../../shared/InfraLayers';
+import { ModuleNavBar } from '../../shared/ModuleNavBar';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 type MapMode    = 'adt' | 'surface' | 'class';
@@ -486,6 +488,7 @@ export default function TrafficSection() {
         borderRight: '1px solid rgba(99,102,241,0.1)',
         overflowY: 'auto',
       }}>
+        <ModuleNavBar module="TIS" />
         {/* Header */}
         <div style={{ padding: '4px 2px 2px' }}>
           <div style={{
@@ -721,6 +724,7 @@ export default function TrafficSection() {
             <TileLayer url={ESRI_TILE_URLS.imagery}   attribution={ESRI_ATTRIBUTIONS.imagery} />
             <TileLayer url={ESRI_TILE_URLS.labels}    attribution={ESRI_ATTRIBUTIONS.labels} opacity={0.7} />
             <WaterLayers />
+            <InfraLayers />
             <ZoomControl position="bottomright" />
 
             {filteredFeatures.length > 0 && (

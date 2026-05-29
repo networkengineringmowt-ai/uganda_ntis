@@ -8,7 +8,9 @@ import {
 } from 'recharts';
 import { ESRI_TILE_URLS, ESRI_ATTRIBUTIONS, ROAD_STYLES, surfaceCategory } from '../../shared/mapSymbols';
 import { WaterLayers } from '../../shared/WaterLayers';
+import { InfraLayers } from '../../shared/InfraLayers';
 import { BarChart2 } from 'lucide-react';
+import { ModuleNavBar } from '../../shared/ModuleNavBar';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface NdpivProject {
@@ -162,6 +164,7 @@ export default function NdpivSection() {
 
   return (
     <div style={{ padding: '20px 24px', color: '#e2e8f0' }}>
+      <ModuleNavBar module="Projects" />
 
       {/* ── Header ─────────────────────────────────────────────────────────── */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 18 }}>
@@ -247,6 +250,7 @@ export default function NdpivSection() {
             <TileLayer url={ESRI_TILE_URLS.imagery} attribution={ESRI_ATTRIBUTIONS.imagery} />
             <TileLayer url={ESRI_TILE_URLS.labels}  attribution={ESRI_ATTRIBUTIONS.labels}  />
             <WaterLayers />
+            <InfraLayers />
             {roadGeo && <GeoJSON key="roads" data={roadGeo} style={roadStyle} />}
 
             {projects.map(proj => (

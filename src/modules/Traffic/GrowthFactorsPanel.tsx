@@ -9,6 +9,7 @@ import {
 } from 'recharts';
 import { TrendingUp, BarChart2, Activity, ArrowUpDown } from 'lucide-react';
 import { NEON, REGION_NEON, GlowDefs, Chart3DWrap, TT_NEON, TICK } from '../../lib/chart3d';
+import { ModuleNavBar } from '../../shared/ModuleNavBar';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -515,6 +516,7 @@ export default function GrowthFactorsPanel() {
   return (
     <div className="flex-1 overflow-y-auto p-5 space-y-5 animate-fade-in"
       style={{ fontFamily: "'Inter','Segoe UI',sans-serif", background: '#0a0f1e' }}>
+      <ModuleNavBar module="TIS" />
 
       {/* ── Header ─────────────────────────────────────────────────────────── */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>

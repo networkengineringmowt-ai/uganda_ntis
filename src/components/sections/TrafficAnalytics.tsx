@@ -7,6 +7,7 @@ import {
   ResponsiveContainer, BarChart, Bar, XAxis, YAxis,
   CartesianGrid, Tooltip, Legend,
 } from 'recharts';
+import { ModuleNavBar } from '../../shared/ModuleNavBar';
 
 // ─── Data types ───────────────────────────────────────────────────────────────
 interface PredProps {
@@ -1098,6 +1099,7 @@ export default function TrafficAnalytics() {
 
   return (
     <div style={{ padding:'20px 22px 36px', fontFamily:"'Inter','Segoe UI',sans-serif", color:'#e2eaf4' }}>
+      <ModuleNavBar module="TIS" />
       {/* Header */}
       <div style={{ marginBottom:18 }}>
         <div style={{ fontSize:9, fontWeight:800, color:'rgba(255,210,63,0.55)',

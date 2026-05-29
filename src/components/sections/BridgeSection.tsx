@@ -7,6 +7,7 @@ import {
   MapContainer, TileLayer, CircleMarker, Popup, ZoomControl,
 } from 'react-leaflet';
 import { WaterLayers } from '../../shared/WaterLayers';
+import { InfraLayers } from '../../shared/InfraLayers';
 import 'leaflet/dist/leaflet.css';
 import {
   ResponsiveContainer, PieChart, Pie, Cell, Tooltip, Legend,
@@ -90,6 +91,7 @@ function StructureMap({ features, showCulverts }: {
       <TileLayer url={ESRI_TILE_URLS.imagery} attribution={ESRI_ATTRIBUTIONS.imagery} />
       <TileLayer url={ESRI_TILE_URLS.labels}  attribution={ESRI_ATTRIBUTIONS.labels}  />
       <WaterLayers />
+      <InfraLayers />
       <ZoomControl position="bottomright" />
       {visible.map((f, i) => {
         const [lon, lat] = f.geometry.coordinates;

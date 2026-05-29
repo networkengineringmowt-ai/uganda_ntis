@@ -7,7 +7,9 @@ import {
 import 'leaflet/dist/leaflet.css';
 import { ESRI_TILE_URLS, ESRI_ATTRIBUTIONS } from '../../shared/mapSymbols';
 import { WaterLayers } from '../../shared/WaterLayers';
+import { InfraLayers } from '../../shared/InfraLayers';
 import { Clock, Search } from 'lucide-react';
+import { ModuleNavBar } from '../../shared/ModuleNavBar';
 
 // ── Palette ──────────────────────────────────────────────────────────────────
 const C = {
@@ -375,6 +377,7 @@ export default function LifecycleSection() {
 
   return (
     <div style={{ padding: '16px 18px 24px', minHeight: '100%', fontFamily: "'Inter','Segoe UI',sans-serif" }}>
+      <ModuleNavBar module="Lifecycle" />
 
       {/* ── Header ── */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
@@ -655,6 +658,7 @@ export default function LifecycleSection() {
               <TileLayer url={ESRI_TILE_URLS.imagery} attribution={ESRI_ATTRIBUTIONS.imagery}/>
               <TileLayer url={ESRI_TILE_URLS.labels} attribution={ESRI_ATTRIBUTIONS.labels} opacity={0.6}/>
               <WaterLayers />
+              <InfraLayers />
               <ZoomControl position="bottomright"/>
               <MapFlyTo center={center} zoom={mapZoom}/>
 

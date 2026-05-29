@@ -14,6 +14,7 @@ import {
 } from '../../lib/chart3d';
 import { useBMS } from '../../store/BMSContext';
 import { conditionColor, conditionLabel, formatUGX, formatDate } from '../../utils/helpers';
+import { ModuleNavBar } from '../../shared/ModuleNavBar';
 
 // ─── Neon colours ─────────────────────────────────────────────────────────────
 const N = {
@@ -171,6 +172,7 @@ export default function Dashboard() {
       fontFamily:`'Inter','Segoe UI',sans-serif`,
     }}>
       <style>{`@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}`}</style>
+      <ModuleNavBar module="BMS" />
 
       {/* ── HEADER ──────────────────────────────────────────────────────── */}
       <div>

@@ -10,6 +10,7 @@ import { useEffect, useState, useMemo } from 'react';
 import { MapContainer, TileLayer, CircleMarker, Tooltip as LeafletTooltip, ZoomControl } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import { WaterLayers } from '../../shared/WaterLayers';
+import { InfraLayers } from '../../shared/InfraLayers';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   AreaChart, Area, PieChart, Pie, Cell, Legend, LineChart, Line, RadarChart,
@@ -164,6 +165,7 @@ function StationMapPanel({ allStations, aadtRows, monthlyRows }: {
               <TileLayer url={ESRI_TILE_URLS.imagery} attribution={ESRI_ATTRIBUTIONS.imagery}/>
               <TileLayer url={ESRI_TILE_URLS.labels}  attribution={ESRI_ATTRIBUTIONS.labels} opacity={0.7}/>
               <WaterLayers />
+              <InfraLayers />
               <ZoomControl position="bottomright"/>
               {visible.map((f, i) => {
                 const [lng, lat] = f.geometry?.coordinates || [0,0];
@@ -421,6 +423,7 @@ export default function ATCView() {
               <TileLayer url={ESRI_TILE_URLS.imagery} attribution={ESRI_ATTRIBUTIONS.imagery}/>
               <TileLayer url={ESRI_TILE_URLS.labels}  attribution={ESRI_ATTRIBUTIONS.labels} opacity={0.7}/>
               <WaterLayers />
+              <InfraLayers />
               <ZoomControl position="bottomright"/>
               {sites.map((s,i)=>{
                 const aRow = aadtRows.find(r=>r.id===s.id);

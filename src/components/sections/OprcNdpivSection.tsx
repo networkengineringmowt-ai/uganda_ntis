@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { MapContainer, TileLayer, CircleMarker, Marker, Popup } from 'react-leaflet';
 import { WaterLayers } from '../../shared/WaterLayers';
+import { InfraLayers } from '../../shared/InfraLayers';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import {
@@ -290,6 +291,7 @@ export default function OprcNdpivSection() {
             <TileLayer url={ESRI_TILE_URLS.imagery} attribution={ESRI_ATTRIBUTIONS.imagery} />
             <TileLayer url={ESRI_TILE_URLS.labels}  attribution={ESRI_ATTRIBUTIONS.labels}  />
             <WaterLayers />
+            <InfraLayers />
 
             {showOprc && lots.map(lot => {
               const pc   = perfColor(lot.performance_score);

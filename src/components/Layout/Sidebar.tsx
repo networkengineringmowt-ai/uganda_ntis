@@ -38,7 +38,6 @@ const MODULES: Module[] = [
       { id: 'networkstory',   label: 'Network Story 1986–', icon: <BookOpen size={13}/> },
       { id: 'roadnetwork',    label: 'Road Network Map',    icon: <Map size={13}/> },
       { id: 'mlarchitecture', label: 'ML Architecture',     icon: <Cpu size={13}/> },
-      { id: 'roadatlas',      label: 'Visual Atlas',         icon: <Layers size={13}/> },
       { id: 'media',          label: 'Media Gallery',       icon: <Camera size={13}/> },
     ],
   },
@@ -62,7 +61,6 @@ const MODULES: Module[] = [
   {
     id: 'bms', label: 'BMS — Bridges', icon: <Network size={14}/>, color: N.blue,
     items: [
-      { id: 'bridgesection', label: 'Bridge Data 2026',   icon: <Database size={13}/> },
       { id: 'dashboard',     label: 'BMS Dashboard',      icon: <LayoutDashboard size={13}/> },
       { id: 'gismap',      label: 'Structure Map',        icon: <Network size={13}/> },
       { id: 'registry',    label: 'Structure Registry',   icon: <Table2 size={13}/> },

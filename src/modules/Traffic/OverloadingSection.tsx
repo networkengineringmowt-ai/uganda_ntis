@@ -23,6 +23,8 @@ import {
 } from '../../lib/chart3d';
 import { ESRI_TILE_URLS, ESRI_ATTRIBUTIONS } from '../../shared/mapSymbols';
 import { WaterLayers } from '../../shared/WaterLayers';
+import { InfraLayers } from '../../shared/InfraLayers';
+import { ModuleNavBar } from '../../shared/ModuleNavBar';
 
 // ── Risk colour palette ───────────────────────────────────────────────────────
 const RISK_COLOR: Record<string, string> = {
@@ -257,6 +259,8 @@ export default function OverloadingSection() {
   return (
     <div className="flex-1 overflow-y-auto p-5 space-y-5 animate-fade-in">
 
+      <ModuleNavBar module="TIS" />
+
       {/* ── Header ── */}
       <div className="flex items-center gap-3">
         <div className="w-10 h-10 rounded-xl flex items-center justify-center"
@@ -333,6 +337,7 @@ export default function OverloadingSection() {
               <TileLayer url={ESRI_TILE_URLS.imagery} attribution={ESRI_ATTRIBUTIONS.imagery}/>
               <TileLayer url={ESRI_TILE_URLS.labels}  attribution={ESRI_ATTRIBUTIONS.labels} opacity={0.65}/>
               <WaterLayers />
+              <InfraLayers />
               <ZoomControl position="bottomright"/>
               {geoFeatures.length > 0 && (
                 <RiskLayer

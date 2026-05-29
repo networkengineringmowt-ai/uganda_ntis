@@ -1,5 +1,6 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import { Download, Filter, ExternalLink, BookOpen } from 'lucide-react';
+import { consumePendingSourcesModule } from '../../shared/sourcesFilter';
 
 const C = {
   cyan: '#00f5ff', green: '#00ff88', yellow: '#ffd23f',
@@ -245,6 +246,11 @@ export default function SourcesCatalogueSection() {
   const [statusFilter, setStatusFilter] = useState<string>('All');
   const [search, setSearch] = useState('');
   const [moduleFilter, setModuleFilter] = useState('All');
+
+  useEffect(() => {
+    const pending = consumePendingSourcesModule();
+    if (pending) setModuleFilter(pending);
+  }, []);
 
   const filtered = useMemo(() => SOURCES.filter(s => {
     if (typeFilter !== 'All' && s.type !== typeFilter) return false;

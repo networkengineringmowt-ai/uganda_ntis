@@ -7,7 +7,7 @@ const LAKE_STYLE = {
 };
 const RIVER_STYLE = {
   color: '#60a5fa', fillColor: 'none', fillOpacity: 0,
-  weight: 1.5, opacity: 0.55,
+  weight: 1, opacity: 0.18,
 };
 
 export function WaterLayers() {
