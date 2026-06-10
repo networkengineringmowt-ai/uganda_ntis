@@ -387,7 +387,7 @@ const StructurePanel = memo(function StructurePanel({
   onClose: () => void;
 }) {
   const { dispatch, selectStructure, state } = useBMS();
-  const [tab, setTab] = useState<'details' | 'photos'>('details');
+  const [tab, setTab] = useState<'details' | 'photos' | 'condition' | 'inspections'>('details');
   const { photos, loading: photosLoading, byYear } = usePhotoLoader(s.id);
 
   // Photo viewer state
@@ -487,16 +487,19 @@ const StructurePanel = memo(function StructurePanel({
           </div>
         </div>
 
-        {/* ── Tabs ── */}
+        {/* ── Tabs (4 sub-tabs per map feature) ── */}
         <div className="flex-shrink-0 flex border-b border-slate-700">
-          {(['details', 'photos'] as const).map(t => (
+          {(['details', 'photos', 'condition', 'inspections'] as const).map(t => (
             <button key={t} onClick={() => setTab(t)}
-              className={`flex-1 py-2.5 text-xs font-semibold capitalize transition-colors ${
+              className={`flex-1 py-2.5 text-[10.5px] font-semibold capitalize transition-colors ${
                 tab === t
                   ? 'text-blue-400 border-b-2 border-blue-400'
                   : 'text-slate-500 hover:text-slate-300'
               }`}>
-              {t === 'details' ? '📋 All Attributes' : `📷 Photos ${photos.length > 0 ? `(${photos.length})` : photosLoading ? '…' : ''}`}
+              {t === 'details' ? '📋 Attributes'
+                : t === 'photos' ? `📷 Photos${photos.length > 0 ? ` (${photos.length})` : photosLoading ? ' …' : ''}`
+                : t === 'condition' ? '📈 Condition'
+                : '🔍 Inspections'}
             </button>
           ))}
         </div>
@@ -705,6 +708,82 @@ const StructurePanel = memo(function StructurePanel({
               )}
             </div>
           )}
+
+          {/* ── CONDITION TAB ── */}
+          {tab === 'condition' && (
+            <div className="p-4 space-y-4">
+              <Section title="Condition Rating History">
+                <div className="flex items-end gap-1.5 h-28">
+                  {YEARS.map(yr => {
+                    const hist = s.conditionHistory.find(h => h.year === yr);
+                    const r = hist?.rating ?? s.conditionRating;
+                    const col = r <= 1 ? '#ff3366' : r === 2 ? '#ff6b35' : r === 3 ? '#ffd23f' : r === 4 ? '#00f5ff' : '#00ff88';
+                    return (
+                      <div key={yr} className="flex-1 flex flex-col items-center gap-1">
+                        <span className="text-[9px] font-bold" style={{ color: col }}>{r}</span>
+                        <div className="w-full rounded-sm" style={{ height: `${(r / 5) * 100}%`, background: col, opacity: 0.85 }} />
+                        <span className="text-[8px] text-slate-500">{yr}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+                <div className="text-[9px] text-slate-500 mt-1">Rating 1 Critical → 5 Excellent (BMS scale)</div>
+              </Section>
+              <Section title="Inspection Schedule">
+                <div className="grid grid-cols-2 gap-2 text-[11px]">
+                  <div><span className="text-slate-500">Last:</span> <span className="text-slate-200">{(s.lastInspection || '—').slice(0, 10)}</span></div>
+                  <div><span className="text-slate-500">Next:</span> <span className="text-slate-200">{(s.nextInspection || '—').slice(0, 10)}</span></div>
+                </div>
+                {s.inspectionDue && (
+                  <div className="mt-2 text-[10px] font-bold text-amber-400">⚠ Inspection overdue</div>
+                )}
+              </Section>
+              <Section title="Priority">
+                <div className="grid grid-cols-2 gap-2 text-[11px]">
+                  <div><span className="text-slate-500">Score:</span> <span className="text-slate-200 font-bold">{Math.round(s.priorityScore)}</span> / 100</div>
+                  <div><span className="text-slate-500">Rank:</span> <span className="text-slate-200 font-bold">#{s.priorityRank}</span></div>
+                </div>
+              </Section>
+            </div>
+          )}
+
+          {/* ── INSPECTIONS TAB ── */}
+          {tab === 'inspections' && (() => {
+            const insp = state.inspections.filter(i => i.structureId === s.id);
+            const wos  = state.workOrders.filter(w => w.structureId === s.id);
+            return (
+              <div className="p-4 space-y-4">
+                <Section title={`Inspections (${insp.length})`}>
+                  {insp.length === 0 ? (
+                    <div className="text-[11px] text-slate-500">No inspections recorded for this structure.</div>
+                  ) : insp.slice(0, 8).map(i => (
+                    <div key={i.id} className="py-1.5 border-b border-slate-800 last:border-0 text-[11px]">
+                      <div className="flex justify-between">
+                        <span className="text-slate-200 font-semibold">{i.type}</span>
+                        <span className="text-slate-400">{(i.date || '').slice(0, 10)}</span>
+                      </div>
+                      <div className="text-slate-500 text-[10px]">
+                        {i.inspector} · overall {i.overallCondition}/5 · deck {i.deckRating}/9 · super {i.superstructureRating}/9
+                      </div>
+                    </div>
+                  ))}
+                </Section>
+                <Section title={`Work Orders (${wos.length})`}>
+                  {wos.length === 0 ? (
+                    <div className="text-[11px] text-slate-500">No work orders for this structure.</div>
+                  ) : wos.slice(0, 8).map(w => (
+                    <div key={w.id} className="py-1.5 border-b border-slate-800 last:border-0 text-[11px]">
+                      <div className="flex justify-between">
+                        <span className="text-slate-200 font-semibold">{w.title}</span>
+                        <span className="text-slate-400">{w.status}</span>
+                      </div>
+                      <div className="text-slate-500 text-[10px]">{w.type} · UGX {(w.cost / 1e6).toFixed(1)} M · {w.contractor || '—'}</div>
+                    </div>
+                  ))}
+                </Section>
+              </div>
+            );
+          })()}
         </div>
 
         {/* ── Panel footer ── */}

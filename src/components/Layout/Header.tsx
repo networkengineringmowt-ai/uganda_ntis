@@ -11,7 +11,7 @@ const VIEW_TITLES: Record<string, { title: string; sub: string; color?: string }
   platform:      { title: 'Platform Overview',            sub: 'Uganda National Roads Management Platform',             color: '#00f5ff' },
   networkstory:  { title: 'Network Story 1986–',          sub: 'Road network development since liberation · 40-year arc', color: '#b967ff' },
   roadnetwork:   { title: 'Road Network Map',             sub: '1,013 national road links · 21,302 km official (FY25-26) · Data: DNR GIS / NDPIV FY25-26', color: '#00ff88' },
-  casestudies:   { title: 'Global Case Studies',          sub: 'World map · Comparative analytics · Literature Review Matrix (153 countries) · Lessons for DNR', color: '#00d4aa' },
+  casestudies:   { title: 'Global Case Studies',          sub: 'World map · Comparative analytics · Literature Review Matrix (195 countries) · Lessons for DNR', color: '#00d4aa' },
   roadreserve:   { title: 'Road Reserve Management',      sub: 'Gazette status · Reserve corridor map · Encroachment register · Legal enforcement', color: '#00d4aa' },
   roadvideoview: { title: 'Road Survey Video',             sub: 'Road surface video archive · 2021–2026',               color: '#ff6b35' },
   traffic:       { title: 'Traffic & Demand',             sub: 'Network traffic counts · projected to June 2026 · 298 TCS stations',   color: '#ffd23f' },
