@@ -1,10 +1,14 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   BarChart, Bar, LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer,
   CartesianGrid, Legend, ReferenceLine,
 } from 'recharts';
+import { Chart3DWrap, Bar3D, TT_NEON, TICK } from '../../lib/chart3d';
 import { DollarSign, Wrench, AlertTriangle, TrendingDown } from 'lucide-react';
 import { ModuleNavBar } from '../../shared/ModuleNavBar';
+import SourceTableButton from '../../shared/SourceTableButton';
+import { useSectionData } from '../../hooks/useSectionData';
+import CrossLinkChipBar from '../../shared/CrossLinkChipBar';
 
 const C = {
   cyan: '#00f5ff', green: '#00ff88', yellow: '#ffd23f',
@@ -46,45 +50,21 @@ const INTERVENTION_MATRIX = [
   { type: 'Emergency', label: 'Emergency Repair',        trigger: 'Washout / landslip / sudden failure',        paved: 'UGX 48M/site', unpaved: 'UGX 32M/site',   life_ext: 'Varies',    color: C.pink   },
 ];
 
-const REGION_BUDGET = [
-  { region: 'Central',       km: 4436, routine: 186, periodic: 140, rehab: 220, total: 546 },
-  { region: 'Eastern',       km: 5292, routine: 222, periodic: 98,  rehab: 180, total: 500 },
-  { region: 'Western',       km: 2997, routine: 126, periodic: 88,  rehab: 145, total: 359 },
-  { region: 'Southern',      km: 3298, routine: 138, periodic: 72,  rehab: 110, total: 320 },
-  { region: 'Northern',      km: 3580, routine: 150, periodic: 80,  rehab: 130, total: 360 },
-  { region: 'North Eastern', km: 1689, routine:  71, periodic: 40,  rehab:  75, total: 186 },
+const DEFAULT_REGION_DATA = [
+  { region: 'Central',       km: 4436, routine: 186, periodic: 140, rehab: 220, total: 546, required: 542.3, allocated: 0, gap: 542.3, coverage_pct: 0 },
+  { region: 'Eastern',       km: 5292, routine: 222, periodic: 98,  rehab: 180, total: 500, required: 491.3, allocated: 0, gap: 491.3, coverage_pct: 0 },
+  { region: 'Western',       km: 2997, routine: 126, periodic: 88,  rehab: 145, total: 359, required: 284.2, allocated: 0, gap: 284.2, coverage_pct: 0 },
+  { region: 'Southern',      km: 3298, routine: 138, periodic: 72,  rehab: 110, total: 320, required: 739.6, allocated: 0, gap: 739.6, coverage_pct: 0 },
+  { region: 'Northern',      km: 3580, routine: 150, periodic: 80,  rehab: 130, total: 360, required: 2552.6, allocated: 0, gap: 2552.6, coverage_pct: 0 },
+  { region: 'North Eastern', km: 1689, routine:  71, periodic: 40,  rehab:  75, total: 186, required: 1040.2, allocated: 0, gap: 1040.2, coverage_pct: 0 },
 ];
 
-// ── MoWT Field Exercise expenditure (verified amount) ────────────────────────
-const FIELD_EXPENDITURES = [
-  {
-    ref:        'MoWT/FE/2024-25/001',
-    activity:   'Field Exercise — National Road Network Assessment',
-    coordinated_by: 'Principal Engineers (Civil) & Senior Engineers (Civil)',
-    authority:  'Ministry of Works and Transport',
-    department: 'Department of National Roads',
-    fy:         '2024/25',
-    amount_ugx: 559_348_000,
-    breakdown: [
-      { item: 'Staff Field Allowances',       amount: 210_000_000, pct: 37.5 },
-      { item: 'Transport & Fuel',             amount: 148_500_000, pct: 26.6 },
-      { item: 'Equipment & Survey Tools',     amount:  89_200_000, pct: 15.9 },
-      { item: 'Accommodation & Subsistence',  amount:  72_400_000, pct: 12.9 },
-      { item: 'Data Processing & Reporting',  amount:  39_248_000, pct:  7.0 },
-    ],
-    scope:      '21,292 km national road network inspection & condition data collection',
-    output:     'Network condition report · IRI baseline · maintenance trigger schedule',
-    status:     'Approved',
-    approver:   'Commissioner Road Engineering Services',
-  },
-];
 
 const TABS = [
   { id: 'gap',      label: 'Budget Gap Analysis' },
   { id: 'matrix',   label: 'Intervention Matrix' },
   { id: 'region',   label: 'Regional Breakdown' },
   { id: 'util',     label: 'Fund Utilisation' },
-  { id: 'fieldops', label: 'Field Operations' },
 ] as const;
 type TabId = typeof TABS[number]['id'];
 
@@ -105,13 +85,35 @@ const CT = ({ active, payload, label }: any) => {
 
 export default function BudgetSection() {
   const [tab, setTab] = useState<TabId>('gap');
+  const { budgetAlignment, networkSummary } = useSectionData();
+  const [regionData, setRegionData] = useState(DEFAULT_REGION_DATA);
 
-  const totalRequired = REGION_BUDGET.reduce((s, r) => s + r.total, 0);
-  const currentAlloc  = 580;
-  const fundingGap    = totalRequired - currentAlloc;
+  // Update region data when budget alignment loads
+  useEffect(() => {
+    if (budgetAlignment && budgetAlignment.length > 0) {
+      // Merge budget alignment data with default region data
+      const merged = DEFAULT_REGION_DATA.map((d: any) => {
+        const budgetInfo = budgetAlignment.find((b: any) => b.region_name === d.region);
+        return {
+          ...d,
+          required: budgetInfo?.pms_need_million || d.total || 0,
+          allocated: budgetInfo?.budget_allocated_million || 0,
+          gap: (budgetInfo?.pms_need_million || d.total || 0) - (budgetInfo?.budget_allocated_million || 0),
+          coverage_pct: budgetInfo?.coverage_pct || 0
+        };
+      });
+      setRegionData(merged);
+    }
+  }, [budgetAlignment]);
+
+  const totalRequired = regionData.reduce((s, r) => s + r.required, 0);
+  const currentAlloc = regionData.reduce((s, r) => s + r.allocated, 0);
+  const fundingGap = totalRequired - currentAlloc;
 
   return (
-    <div style={{ padding: '20px 18px', minHeight: '100%' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100%' }}>
+      <CrossLinkChipBar sectionId="budget" />
+    <div style={{ padding: '20px 18px', flex: 1 }}>
       <ModuleNavBar module="Budget" />
       {/* Header */}
       <div style={{ marginBottom: 20 }}>
@@ -134,9 +136,9 @@ export default function BudgetSection() {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10 }}>
           {[
             { label: 'FY24/25 Required', value: `UGX ${totalRequired}B`, sub: 'All maintenance types', color: C.red, icon: <AlertTriangle size={14}/> },
-            { label: 'Allocated FY24/25', value: 'UGX 580B', sub: 'Approved budget', color: C.yellow, icon: <DollarSign size={14}/> },
-            { label: 'Funding Gap', value: `UGX ${fundingGap}B`, sub: `${Math.round(fundingGap/totalRequired*100)}% underfunded`, color: C.pink, icon: <TrendingDown size={14}/> },
-            { label: 'Network Covered', value: '21,292 km', sub: '6 maintenance regions', color: C.green, icon: <Wrench size={14}/> },
+            { label: 'Allocated FY24/25', value: `UGX ${currentAlloc}B`, sub: 'Approved budget', color: C.yellow, icon: <DollarSign size={14}/> },
+            { label: 'Funding Gap', value: `UGX ${fundingGap.toFixed(0)}B`, sub: `${Math.round(fundingGap/totalRequired*100)}% underfunded`, color: C.pink, icon: <TrendingDown size={14}/> },
+            { label: 'Network Covered', value: `${networkSummary?.total_length_km || 21160} km`, sub: `${networkSummary?.regions_count || 6} regions · 2026`, color: C.green, icon: <Wrench size={14}/> },
           ].map(k => (
             <div key={k.label} style={{ background: `rgba(${hexRgb(k.color)},0.06)`,
               border: `1px solid rgba(${hexRgb(k.color)},0.2)`, borderRadius: 10, padding: '12px 14px' }}>
@@ -149,18 +151,22 @@ export default function BudgetSection() {
         </div>
       </div>
 
-      {/* Tabs */}
-      <div style={{ display: 'flex', gap: 4, marginBottom: 18, borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+      {/* ── BMS-style tab bar ── */}
+      <div style={{
+        display: 'flex', gap: 2, padding: '0 0 0 0', marginBottom: 18, flexShrink: 0,
+        borderBottom: '1px solid rgba(77,159,255,0.15)',
+        background: 'rgba(4,9,18,0.85)', marginLeft: -18, marginRight: -18, paddingLeft: 14,
+      }}>
         {TABS.map(t => {
           const isA = tab === t.id;
           return (
             <button key={t.id} onClick={() => setTab(t.id)} style={{
-              padding: '7px 14px', borderRadius: '8px 8px 0 0',
-              border: 'none', cursor: 'pointer', fontSize: 11, fontWeight: 700,
-              background: isA ? `rgba(${hexRgb(C.pink)},0.1)` : 'transparent',
-              color: isA ? C.pink : 'rgba(148,163,184,0.65)',
-              borderBottom: isA ? `2px solid ${C.pink}` : '2px solid transparent',
-              marginBottom: -1, transition: 'all 0.15s',
+              display: 'flex', alignItems: 'center', gap: 6,
+              padding: '10px 14px 11px', fontSize: 11, fontWeight: isA ? 800 : 500,
+              background: 'none', border: 'none', cursor: 'pointer', flexShrink: 0,
+              color: isA ? '#4d9fff' : 'rgba(148,163,184,0.70)',
+              borderBottom: isA ? '2px solid #4d9fff' : '2px solid transparent',
+              transition: 'all 0.13s',
             }}>{t.label}</button>
           );
         })}
@@ -170,21 +176,26 @@ export default function BudgetSection() {
       {tab === 'gap' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           <div style={card(C.pink)}>
-            <div style={{ fontSize: 11, fontWeight: 900, color: C.pink, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 14 }}>
-              Maintenance Budget vs Needs 2015/16–2024/25 (UGX Billions)
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 14 }}>
+              <div style={{ fontSize: 11, fontWeight: 900, color: C.pink, textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+                Maintenance Budget vs Needs 2015/16–2024/25 (UGX Billions)
+              </div>
+              <SourceTableButton anchor="tbl-020" />
             </div>
-            <ResponsiveContainer width="100%" height={290}>
-              <BarChart data={MAINT_BUDGET} margin={{ top: 8, right: 12, left: 0, bottom: 20 }}>
-                <CartesianGrid stroke="rgba(255,255,255,0.05)" strokeDasharray="3 3"/>
-                <XAxis dataKey="fy" tick={{ ...TK, fontSize: 8 }} angle={-30} textAnchor="end"/>
-                <YAxis tick={TK} label={{ value: 'UGX Bn', angle: -90, position: 'insideLeft', style: { fontSize: 9, fill: 'rgba(148,163,184,0.5)' } }}/>
-                <Tooltip content={<CT/>}/>
-                <Legend wrapperStyle={{ fontSize: 10 }}/>
-                <Bar dataKey="required"  name="Required"  fill={C.red}    radius={[4,4,0,0]} opacity={0.7}/>
-                <Bar dataKey="allocated" name="Allocated" fill={C.yellow} radius={[4,4,0,0]}/>
-                <Bar dataKey="received"  name="Released"  fill={C.green}  radius={[4,4,0,0]}/>
-              </BarChart>
-            </ResponsiveContainer>
+            <Chart3DWrap>
+              <ResponsiveContainer width="100%" height={290}>
+                <BarChart data={MAINT_BUDGET} margin={{ top: 8, right: 12, left: 0, bottom: 20 }}>
+                  <CartesianGrid stroke="rgba(255,255,255,0.05)" strokeDasharray="3 3"/>
+                  <XAxis dataKey="fy" tick={{ ...TK, fontSize: 8 }} angle={-30} textAnchor="end"/>
+                  <YAxis tick={TK} label={{ value: 'UGX Bn', angle: -90, position: 'insideLeft', style: { fontSize: 9, fill: 'rgba(148,163,184,0.5)' } }}/>
+                  <Tooltip content={<CT/>}/>
+                  <Legend wrapperStyle={{ fontSize: 10 }}/>
+                  <Bar dataKey="required"  name="Required"  fill={C.red}    radius={[4,4,0,0]} opacity={0.7} shape={<Bar3D/>}/>
+                  <Bar dataKey="allocated" name="Allocated" fill={C.yellow} radius={[4,4,0,0]} shape={<Bar3D/>}/>
+                  <Bar dataKey="received"  name="Released"  fill={C.green}  radius={[4,4,0,0]} shape={<Bar3D/>}/>
+                </BarChart>
+              </ResponsiveContainer>
+            </Chart3DWrap>
           </div>
           <div style={card(C.orange)}>
             <div style={{ fontSize: 11, fontWeight: 900, color: C.orange, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 14 }}>
@@ -215,7 +226,7 @@ export default function BudgetSection() {
             Road Maintenance Intervention Cost Matrix — Uganda FY 2024/25
           </div>
           <div style={{ fontSize: 10, color: 'rgba(148,163,184,0.6)', marginBottom: 14 }}>
-            Source: MoWT Schedule of Rates + UNRA Contract Management. Costs per km unless noted. Excludes VAT.
+            Source: MoWT Schedule of Rates + Department of National Roads Contract Management. Costs per km unless noted. Excludes VAT.
           </div>
           <div style={{ overflowX: 'auto' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 11 }}>
@@ -253,21 +264,26 @@ export default function BudgetSection() {
       {tab === 'region' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           <div style={card(C.green)}>
-            <div style={{ fontSize: 11, fontWeight: 900, color: C.green, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 14 }}>
-              Required Maintenance Budget by Region (UGX Billions, FY 2024/25)
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 14 }}>
+              <div style={{ fontSize: 11, fontWeight: 900, color: C.green, textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+                Required Maintenance Budget by Region (UGX Billions, FY 2024/25)
+              </div>
+              <SourceTableButton anchor="tbl-021" />
             </div>
-            <ResponsiveContainer width="100%" height={260}>
-              <BarChart data={REGION_BUDGET} margin={{ top: 8, right: 12, left: 0, bottom: 0 }}>
-                <CartesianGrid stroke="rgba(255,255,255,0.05)" strokeDasharray="3 3"/>
-                <XAxis dataKey="region" tick={TK}/>
-                <YAxis tick={TK}/>
-                <Tooltip content={<CT/>}/>
-                <Legend wrapperStyle={{ fontSize: 10 }}/>
-                <Bar dataKey="routine"  name="Routine"  stackId="a" fill={C.green}  radius={[0,0,0,0]}/>
-                <Bar dataKey="periodic" name="Periodic" stackId="a" fill={C.yellow} radius={[0,0,0,0]}/>
-                <Bar dataKey="rehab"    name="Rehab"    stackId="a" fill={C.orange} radius={[4,4,0,0]}/>
-              </BarChart>
-            </ResponsiveContainer>
+            <Chart3DWrap>
+              <ResponsiveContainer width="100%" height={260}>
+                <BarChart data={regionData} margin={{ top: 8, right: 12, left: 0, bottom: 0 }}>
+                  <CartesianGrid stroke="rgba(255,255,255,0.05)" strokeDasharray="3 3"/>
+                  <XAxis dataKey="region" tick={TK}/>
+                  <YAxis tick={TK}/>
+                  <Tooltip content={<CT/>}/>
+                  <Legend wrapperStyle={{ fontSize: 10 }}/>
+                  <Bar dataKey="routine"  name="Routine"  stackId="a" fill={C.green}  radius={[0,0,0,0]} shape={<Bar3D/>}/>
+                  <Bar dataKey="periodic" name="Periodic" stackId="a" fill={C.yellow} radius={[0,0,0,0]} shape={<Bar3D/>}/>
+                  <Bar dataKey="rehab"    name="Rehab"    stackId="a" fill={C.orange} radius={[4,4,0,0]} shape={<Bar3D/>}/>
+                </BarChart>
+              </ResponsiveContainer>
+            </Chart3DWrap>
           </div>
           <div style={{ overflowX: 'auto', ...card(C.blue) }}>
             <div style={{ fontSize: 11, fontWeight: 900, color: C.blue, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 14 }}>
@@ -285,7 +301,7 @@ export default function BudgetSection() {
                 </tr>
               </thead>
               <tbody>
-                {REGION_BUDGET.map((r, i) => (
+                {regionData.map((r, i) => (
                   <tr key={r.region} style={{ background: i % 2 === 0 ? 'rgba(255,255,255,0.02)' : 'transparent' }}>
                     <td style={{ padding: '8px 12px', fontWeight: 800, color: '#d4dde8' }}>{r.region}</td>
                     <td style={{ padding: '8px 12px', textAlign: 'right', color: 'rgba(148,163,184,0.6)' }}>{r.km.toLocaleString()}</td>
@@ -301,133 +317,26 @@ export default function BudgetSection() {
                 <tr style={{ borderTop: `1px solid rgba(${hexRgb(C.blue)},0.2)`, fontWeight: 900 }}>
                   <td style={{ padding: '10px 12px', color: '#e2eaf4' }}>TOTAL</td>
                   <td style={{ padding: '10px 12px', textAlign: 'right', color: 'rgba(148,163,184,0.7)' }}>
-                    {REGION_BUDGET.reduce((s,r) => s + r.km, 0).toLocaleString()}
+                    {regionData.reduce((s,r) => s + r.km, 0).toLocaleString()}
                   </td>
                   <td style={{ padding: '10px 12px', textAlign: 'right', color: C.green }}>
-                    {REGION_BUDGET.reduce((s,r) => s + r.routine, 0)}
+                    {regionData.reduce((s,r) => s + r.routine, 0)}
                   </td>
                   <td style={{ padding: '10px 12px', textAlign: 'right', color: C.yellow }}>
-                    {REGION_BUDGET.reduce((s,r) => s + r.periodic, 0)}
+                    {regionData.reduce((s,r) => s + r.periodic, 0)}
                   </td>
                   <td style={{ padding: '10px 12px', textAlign: 'right', color: C.orange }}>
-                    {REGION_BUDGET.reduce((s,r) => s + r.rehab, 0)}
+                    {regionData.reduce((s,r) => s + r.rehab, 0)}
                   </td>
                   <td style={{ padding: '10px 12px', textAlign: 'right', color: C.cyan, fontSize: 13 }}>
                     {totalRequired}
                   </td>
                   <td style={{ padding: '10px 12px', textAlign: 'right', color: 'rgba(148,163,184,0.55)', fontSize: 10 }}>
-                    {Math.round(totalRequired * 1000 / REGION_BUDGET.reduce((s,r) => s + r.km, 0))}M avg
+                    {Math.round(totalRequired * 1000 / regionData.reduce((s,r) => s + r.km, 0))}M avg
                   </td>
                 </tr>
               </tbody>
             </table>
-          </div>
-        </div>
-      )}
-
-      {/* Field Operations */}
-      {tab === 'fieldops' && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-          {FIELD_EXPENDITURES.map(fe => {
-            const fmtUGX = (n: number) =>
-              n >= 1_000_000_000
-                ? `UGX ${(n/1_000_000_000).toFixed(3)}B`
-                : `UGX ${(n/1_000_000).toFixed(3)}M`;
-            return (
-              <div key={fe.ref}>
-                {/* Header card */}
-                <div style={{ ...card(C.teal), marginBottom: 14 }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 12 }}>
-                    <div>
-                      <div style={{ fontSize: 9, color: `rgba(${hexRgb(C.teal)},0.6)`, fontWeight: 800,
-                        textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: 4 }}>
-                        {fe.authority} · {fe.department} · Ref: {fe.ref}
-                      </div>
-                      <div style={{ fontSize: 16, fontWeight: 900, color: '#e2eaf4', lineHeight: 1.2 }}>{fe.activity}</div>
-                      <div style={{ fontSize: 11, color: 'rgba(148,163,184,0.7)', marginTop: 4 }}>
-                        Coordinated by: <span style={{ color: C.teal, fontWeight: 700 }}>{fe.coordinated_by}</span>
-                      </div>
-                    </div>
-                    <div style={{ textAlign: 'right' }}>
-                      <div style={{ fontSize: 28, fontWeight: 900, color: C.teal, lineHeight: 1,
-                        textShadow: `0 0 20px rgba(${hexRgb(C.teal)},0.6)`,
-                        fontVariantNumeric: 'tabular-nums' }}>
-                        {fmtUGX(fe.amount_ugx)}
-                      </div>
-                      <div style={{ fontSize: 10, color: 'rgba(148,163,184,0.5)', marginTop: 2 }}>
-                        Five Hundred Fifty-Nine Million, Three Hundred Forty-Eight Thousand Only
-                      </div>
-                      <span style={{ display: 'inline-block', marginTop: 6, fontSize: 9, fontWeight: 800,
-                        padding: '3px 10px', borderRadius: 6,
-                        background: `rgba(${hexRgb(C.green)},0.15)`,
-                        border: `1px solid rgba(${hexRgb(C.green)},0.35)`, color: C.green }}>
-                        ✓ {fe.status}
-                      </span>
-                    </div>
-                  </div>
-                  <div style={{ marginTop: 14, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-                    {[
-                      { l: 'Financial Year', v: fe.fy },
-                      { l: 'Approving Officer', v: fe.approver },
-                      { l: 'Scope', v: fe.scope },
-                      { l: 'Deliverables', v: fe.output },
-                    ].map(r => (
-                      <div key={r.l} style={{ fontSize: 10 }}>
-                        <span style={{ color: 'rgba(148,163,184,0.5)', textTransform: 'uppercase',
-                          fontSize: 8, fontWeight: 800, letterSpacing: '0.1em' }}>{r.l}: </span>
-                        <span style={{ color: '#d4dde8' }}>{r.v}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Expenditure breakdown */}
-                <div style={card(C.cyan)}>
-                  <div style={{ fontSize: 11, fontWeight: 900, color: C.cyan,
-                    textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 14 }}>
-                    Cost Breakdown — {fmtUGX(fe.amount_ugx)} Total
-                  </div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                    {fe.breakdown.map(b => {
-                      const barW = b.pct;
-                      const clr = b.pct > 30 ? C.teal : b.pct > 20 ? C.cyan : b.pct > 12 ? C.blue : b.pct > 8 ? C.yellow : C.orange;
-                      return (
-                        <div key={b.item}>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 5 }}>
-                            <span style={{ fontSize: 11, color: '#d4dde8', fontWeight: 600 }}>{b.item}</span>
-                            <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
-                              <span style={{ fontSize: 10, color: clr, fontWeight: 800, fontFamily: 'monospace' }}>
-                                UGX {(b.amount/1_000_000).toFixed(3)}M
-                              </span>
-                              <span style={{ fontSize: 9, fontWeight: 900, minWidth: 36, textAlign: 'right', color: clr }}>
-                                {b.pct}%
-                              </span>
-                            </div>
-                          </div>
-                          <div style={{ height: 8, background: 'rgba(255,255,255,0.06)', borderRadius: 4, overflow: 'hidden' }}>
-                            <div style={{ width: `${barW}%`, height: '100%', borderRadius: 4,
-                              background: clr, boxShadow: `0 0 8px rgba(${hexRgb(clr)},0.5)`,
-                              transition: 'width 0.6s ease' }}/>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                  <div style={{ marginTop: 16, paddingTop: 12, borderTop: `1px solid rgba(${hexRgb(C.cyan)},0.15)`,
-                    display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span style={{ fontSize: 10, fontWeight: 900, color: '#e2eaf4' }}>TOTAL FIELD EXERCISE</span>
-                    <span style={{ fontSize: 18, fontWeight: 900, color: C.teal,
-                      textShadow: `0 0 14px rgba(${hexRgb(C.teal)},0.5)`,
-                      fontVariantNumeric: 'tabular-nums' }}>
-                      UGX {(fe.amount_ugx/1_000_000).toLocaleString(undefined, { minimumFractionDigits: 3, maximumFractionDigits: 3 })}M
-                    </span>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-          <div style={{ fontSize: 10, color: 'rgba(100,116,139,0.5)', textAlign: 'center' }}>
-            Source: Ministry of Works and Transport · Certified expenditure · IFMS payment reference · FY 2024/25
           </div>
         </div>
       )}
@@ -486,6 +395,7 @@ export default function BudgetSection() {
           </div>
         </div>
       )}
+    </div>
     </div>
   );
 }

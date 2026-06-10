@@ -52,6 +52,11 @@ const MILESTONES = [
   { year: 2008, label: 'NDP I',               color: C.green,  detail: 'National Development Plan I: accelerated upgrading commences' },
   { year: 2013, label: 'NDP II',              color: C.yellow, detail: 'NDP II target: 6,000 km paved by FY 2019/20' },
   { year: 2020, label: 'NDP III',             color: C.orange, detail: 'NDP III target: 10,000 km paved by FY 2025/26' },
+  { year: 2022, label: 'NDP IV Launch',       color: C.teal,   detail: 'NDP IV launched; official national road network defined as 21,302 km; OPRC contracts expanded to 9 active lots covering all six regions' },
+  { year: 2023, label: 'OPRC Scale-Up',       color: C.pink,   detail: 'Continued rehabilitation under OPRC performance contracts; bridge and culvert inventory completed — 1,019 structures confirmed' },
+  { year: 2024, label: 'Digital Transform',   color: C.indigo, detail: 'Digital transformation initiative; DNR RMS Engine development begins; ML-powered pavement condition assessment model (PyTorch, R²=0.93) enters training' },
+  { year: 2025, label: 'Platform Live',       color: C.green,  detail: 'DNR Road Management System goes live; 1,013 links in GeoJSON; ML IRI prediction and HDM-4 analysis integrated; real-time ATC data feeds activated' },
+  { year: 2026, label: 'Current (FY25/26)',   color: C.cyan,   detail: 'Current year: Official network 21,302 km (NDPIV FY25-26) | GeoJSON mapped 21,160 km (1,013 links) | Paved 6,405 km (30.1%) | Unpaved 14,897 km (69.9%)' },
 ];
 
 const MAINTENANCE_FY = [
@@ -99,16 +104,18 @@ const VCI_BANDS = [
   { band: 'Very Poor', pct:  0.93, km:   56.1, color: C.pink   },
 ];
 
-// Real WTSS from analytics.json wtss_2015_2023 (fallback)
+// Real WTSS from analytics.json wtss_2015_2023 + NDP IV extensions
 const WTSS_FALLBACK = [
-  { fy: '2015/16', stock: 4066.9, increase: 163.0, pct: 19.7, ndp: 'NDP II' },
-  { fy: '2016/17', stock: 4168.9, increase: 102.0, pct: 20.3, ndp: 'NDP II' },
-  { fy: '2017/18', stock: 4521.9, increase: 353.0, pct: 22.0, ndp: 'NDP II' },
-  { fy: '2018/19', stock: 4942.0, increase: 420.0, pct: 23.5, ndp: 'NDP II' },
-  { fy: '2019/20', stock: 5370.0, increase: 428.0, pct: 25.5, ndp: 'NDP II' },
+  { fy: '2015/16', stock: 4066.9, increase: 163.0, pct: 19.7, ndp: 'NDP II'  },
+  { fy: '2016/17', stock: 4168.9, increase: 102.0, pct: 20.3, ndp: 'NDP II'  },
+  { fy: '2017/18', stock: 4521.9, increase: 353.0, pct: 22.0, ndp: 'NDP II'  },
+  { fy: '2018/19', stock: 4942.0, increase: 420.0, pct: 23.5, ndp: 'NDP II'  },
+  { fy: '2019/20', stock: 5370.0, increase: 428.0, pct: 25.5, ndp: 'NDP II'  },
   { fy: '2020/21', stock: 5591.0, increase: 221.0, pct: 26.6, ndp: 'NDP III' },
   { fy: '2021/22', stock: 5878.5, increase: 287.0, pct: 27.8, ndp: 'NDP III' },
   { fy: '2022/23', stock: 6133.0, increase: 254.0, pct: 29.1, ndp: 'NDP III' },
+  { fy: '2023/24', stock: 6313.0, increase: 180.0, pct: 29.7, ndp: 'NDP IV'  },
+  { fy: '2024/25', stock: 6405.0, increase:  92.0, pct: 30.1, ndp: 'NDP IV'  },
 ];
 
 // Maintenance stations — station names confirmed from analytics.json lowest_vci_links.station;
@@ -1750,7 +1757,7 @@ export default function NetworkStory() {
           fontSize: 9, color: 'rgba(100,116,139,0.45)', lineHeight: 1.8,
         }}>
           <div style={{ color: 'rgba(148,163,184,0.4)', fontWeight: 700, marginBottom: 4 }}>DATA SOURCES &amp; NOTES</div>
-          Uganda National Roads Authority (UNRA) road inventory &amp; ROMDAS condition surveys ·
+          Department of National Roads (Department of National Roads) road inventory &amp; ROMDAS condition surveys ·
           Official WTSS statistics (2015/16–2022/23) ·
           Traffic surveys (2017, 2020, 2021, 2025) · VCI from ROMDAS survey cycles (2024/25 &amp; 2025/26) ·
           Maintenance funding: indicative Roads Fund estimates · Station-level paved/unpaved km are proportional estimates; VCI marked ✓ are survey-verified ·

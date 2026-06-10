@@ -18,14 +18,36 @@ import {
 } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { Clock, Play, Pause, Radio, Wifi } from 'lucide-react';
+import { lazy, Suspense } from 'react';
+import { Clock, Play, Pause, Radio, Wifi, BarChart3, Map as MapIcon, Table2, TrendingUp } from 'lucide-react';
+import { useTCSStations } from '../../data/networkDB';
+
+// Sub-module lazy loads (previously separate sidebar items)
+const TrafficAnalyticsView     = lazy(() => import('../../components/sections/TrafficAnalytics'));
+const TrafficSummaryView       = lazy(() => import('../../components/sections/TrafficSummary'));
+const GrowthFactorsView        = lazy(() => import('./GrowthFactorsPanel'));
+const OverloadingView          = lazy(() => import('./OverloadingSection'));
+const TrafficProjectionView    = lazy(() => import('./TrafficProjectionTable'));
+const SeasonalFactorsView      = lazy(() => import('./SeasonalFactorsTable'));
+
+function TabSpinner() {
+  return (
+    <div style={{ display:'flex', alignItems:'center', justifyContent:'center', height:'100%' }}>
+      <div style={{ width:24, height:24, borderRadius:'50%', border:'2px solid rgba(0,245,255,0.15)',
+        borderTopColor:'#00f5ff', animation:'ts-spin .8s linear infinite' }}/>
+    </div>
+  );
+}
 import { hexRgb } from '../../lib/chart3d';
 import FeatureAnalyticsPanel from '../../shared/FeatureAnalyticsPanel';
 import type { FeatureData, RoadLinkFeature, AtcStationFeature } from '../../shared/FeatureAnalyticsPanel';
 import { ROAD_STYLES, ESRI_TILE_URLS, ESRI_ATTRIBUTIONS } from '../../shared/mapSymbols';
 import { WaterLayers } from '../../shared/WaterLayers';
 import { InfraLayers } from '../../shared/InfraLayers';
-import { ModuleNavBar } from '../../shared/ModuleNavBar';
+import { MapLegend as MapOverlayLegend, LEGEND_TRAFFIC } from '../../shared/MapLegend';
+import SourceTableButton from '../../shared/SourceTableButton';
+import CrossLinkChipBar from '../../shared/CrossLinkChipBar';
+// ModuleNavBar removed — global Header handles section title
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 type MapMode    = 'adt' | 'surface' | 'class';
@@ -53,36 +75,35 @@ const ATC_NEW_COUNT    = 10;   // post-2025 new sites
 const ATC_TOTAL        = ATC_LEGACY_COUNT + ATC_NEW_COUNT;  // 25
 // TIS manual stations come from atc_stations.geojson (298 features)
 
-// ─── Uganda road growth index (2025 = 1.0) ───────────────────────────────────
+// ─── Uganda road growth index (2026 = 1.0 — current platform date June 2026) ─
+// Forward projection uses per-class compound growth (see trafficProjection.ts).
+// Historical (≤2025) values from TIS observations; ≥2026 values are projections.
 const GROWTH_FACTORS: Record<number, number> = {
-  2016: 0.62, 2017: 0.66, 2018: 0.71, 2019: 0.76, 2020: 0.65,
-  2021: 0.74, 2022: 0.82, 2023: 0.90, 2024: 0.96, 2025: 1.00,
-  2026: 1.05, 2027: 1.10, 2028: 1.16, 2029: 1.22, 2030: 1.28,
-  2031: 1.33, 2032: 1.39, 2033: 1.44, 2034: 1.49, 2035: 1.55,
+  2016: 0.59, 2017: 0.63, 2018: 0.68, 2019: 0.72, 2020: 0.62,
+  2021: 0.71, 2022: 0.78, 2023: 0.86, 2024: 0.91, 2025: 0.95,
+  2026: 1.00, 2027: 1.05, 2028: 1.10, 2029: 1.16, 2030: 1.22,
+  2031: 1.27, 2032: 1.32, 2033: 1.37, 2034: 1.42, 2035: 1.48,
 };
-const TREND_YEARS = [2016,2017,2018,2019,2020,2021,2022,2023,2024,2025];
+const TREND_YEARS = [2016,2017,2018,2019,2020,2021,2022,2023,2024,2025,2026];
 
-// ─── Vehicle class composition (Uganda network average) ───────────────────────
-const VC_CLASSES = [
-  { label: 'Motorcycles',         pct: 0.295 },
-  { label: 'Saloon Cars & Taxis', pct: 0.248 },
-  { label: 'Light Goods',         pct: 0.118 },
-  { label: 'Small Buses',         pct: 0.082 },
-  { label: 'Medium Buses',        pct: 0.053 },
-  { label: 'Large Buses',         pct: 0.042 },
-  { label: 'Light Trucks',        pct: 0.062 },
-  { label: 'Heavy Trucks',        pct: 0.074 },
-  { label: 'Truck Trailers',      pct: 0.026 },
-];
+// Re-export VC composition + projection helpers from shared module
+import {
+  VC_CLASSES as SHARED_VC_CLASSES,
+  projectAllClasses,
+  projectAADT,
+  CURRENT_YEAR,
+} from '../../shared/trafficProjection';
 
-function computeVehicleClasses(aadt: number) {
-  return VC_CLASSES.map(vc => ({
-    label: vc.label,
-    count: Math.round(aadt * vc.pct),
-  }));
+// Legacy shape kept for existing UI code (label + pct)
+const VC_CLASSES = SHARED_VC_CLASSES.map(c => ({ label: c.label, pct: c.share }));
+
+function computeVehicleClasses(aadt: number, baseYear: number = CURRENT_YEAR) {
+  // Projects each class to CURRENT_YEAR (2026) using per-class growth.
+  const projections = projectAllClasses(aadt, baseYear, CURRENT_YEAR);
+  return projections.map(p => ({ label: p.label, count: p.projCount }));
 }
-function computeGrowthTrend(aadt2025: number): number[] {
-  return TREND_YEARS.map(y => Math.round(aadt2025 * (GROWTH_FACTORS[y] ?? 1)));
+function computeGrowthTrend(aadt2026: number): number[] {
+  return TREND_YEARS.map(y => Math.round(aadt2026 * (GROWTH_FACTORS[y] ?? 1)));
 }
 
 // ─── Map colour helpers ───────────────────────────────────────────────────────
@@ -292,6 +313,119 @@ const KPI_GLASS: React.CSSProperties = {
   borderRadius: 10, padding: '10px 12px',
 };
 
+// ─── Link × Class table ────────────────────────────────────────────────────────
+function LinkClassTable({ features, surfMap: _surfMap }: { features: PredFeature[]; surfMap: Record<string, string> }) {
+  // Base survey year is 2025 (most recent TIS_AADT analysis); project to CURRENT_YEAR (2026)
+  const BASE_YEAR = 2025;
+  const sorted = useMemo(
+    () => [...features].sort((a, b) => (b.properties.aadt_predicted ?? 0) - (a.properties.aadt_predicted ?? 0)),
+    [features],
+  );
+  const VCOLS = [
+    { label: 'Motorcycles',         short: 'Moto',  color: '#b967ff', idx: 0 },
+    { label: 'Saloon Cars & Taxis', short: 'Cars',  color: '#00f5ff', idx: 1 },
+    { label: 'Light Goods',         short: 'LGV',   color: '#00ff88', idx: 2 },
+    { label: 'Small Buses',         short: 'S.Bus', color: '#ffd23f', idx: 3 },
+    { label: 'Medium Buses',        short: 'M.Bus', color: '#ff8c00', idx: 4 },
+    { label: 'Large Buses',         short: 'L.Bus', color: '#ff6b35', idx: 5 },
+    { label: 'Light Trucks',        short: 'L.Trk', color: '#00d4aa', idx: 6 },
+    { label: 'Heavy Trucks',        short: 'H.Trk', color: '#ff2d78', idx: 7 },
+    { label: 'Truck Trailers',      short: 'Artic', color: '#f59e0b', idx: 8 },
+  ];
+  return (
+    <div style={{ flex: 1, overflowY: 'auto', overflowX: 'auto', background: '#0a0f1e', padding: '14px 18px' }}>
+      <div style={{ marginBottom: 12, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+        <div>
+          <div style={{ fontSize: 15, fontWeight: 900, color: '#e2eaf4' }}>
+            Traffic by Road Link × Vehicle Class — Projected to {CURRENT_YEAR}
+          </div>
+          <div style={{ fontSize: 10, color: 'rgba(148,163,184,0.55)', marginTop: 3 }}>
+            Base AADT from TIS {BASE_YEAR} · per-class compound growth applied · projection date June {CURRENT_YEAR} · {features.length} links · sorted by total ↓
+          </div>
+        </div>
+        <SourceTableButton anchor="tbl-010" />
+      </div>
+      <div style={{ overflowX: 'auto' }}>
+        <table style={{ width: '100%', fontSize: 9, borderCollapse: 'collapse', minWidth: 1280 }}>
+          <thead>
+            <tr style={{ borderBottom: '1px solid rgba(148,163,184,0.12)' }}>
+              <th style={{ textAlign: 'left', padding: '6px 10px', color: '#64748b', fontWeight: 700, whiteSpace: 'nowrap', background: '#0a0f1e', position: 'sticky', left: 0 }}>Link ID</th>
+              <th style={{ textAlign: 'left', padding: '6px 8px', color: '#64748b', fontWeight: 700, whiteSpace: 'nowrap' }}>Link Name</th>
+              <th style={{ textAlign: 'center', padding: '6px 6px', color: '#64748b', fontWeight: 700 }}>Cls</th>
+              <th style={{ textAlign: 'left', padding: '6px 8px', color: '#64748b', fontWeight: 700 }}>Region</th>
+              <th style={{ textAlign: 'right', padding: '6px 8px', color: '#64748b', fontWeight: 700, whiteSpace: 'nowrap' }}>km</th>
+              <th style={{ textAlign: 'center', padding: '6px 6px', color: '#94a3b8', fontWeight: 700, whiteSpace: 'nowrap' }} title="Survey base year">Base Yr</th>
+              <th style={{ textAlign: 'right', padding: '6px 8px', color: '#94a3b8', fontWeight: 700, whiteSpace: 'nowrap' }} title="Base year AADT (raw TIS reading)">Base AADT</th>
+              <th style={{ textAlign: 'right', padding: '6px 8px', color: '#94a3b8', fontWeight: 700, whiteSpace: 'nowrap' }} title="Blended class-weighted growth p.a.">Growth %</th>
+              {VCOLS.map(vc => (
+                <th key={vc.label} style={{ textAlign: 'right', padding: '6px 5px', color: vc.color, fontWeight: 700, minWidth: 50, whiteSpace: 'nowrap' }} title={`${vc.label} — projected to ${CURRENT_YEAR}`}>{vc.short}</th>
+              ))}
+              <th style={{ textAlign: 'right', padding: '6px 10px', color: C.teal, fontWeight: 800, whiteSpace: 'nowrap' }} title={`AADT projected to June ${CURRENT_YEAR}`}>Proj {CURRENT_YEAR}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {sorted.map((f, i) => {
+              const p = f.properties;
+              const baseAadt = p.aadt_predicted ?? 0;
+              const projections = projectAllClasses(baseAadt, BASE_YEAR, CURRENT_YEAR);
+              const projAadt   = projections.reduce((s, c) => s + c.projCount, 0);
+              const rowBg = i % 2 === 0 ? 'rgba(15,23,42,0.35)' : 'transparent';
+              const clsColor = CLASS_COLORS[p.road_class ?? ''] ?? '#94a3b8';
+              // Blended growth (weighted by share)
+              const blendedGrowthPct = projections.reduce(
+                (s, c) => s + c.share * (Math.pow(1 + c.growth, CURRENT_YEAR - BASE_YEAR) - 1),
+                0,
+              ) * 100;
+              return (
+                <tr key={p.link_id} style={{ background: rowBg, borderBottom: '1px solid rgba(148,163,184,0.04)' }}>
+                  <td style={{ padding: '5px 10px', color: C.teal, fontFamily: 'monospace', fontWeight: 700, fontSize: 9, background: rowBg, position: 'sticky', left: 0, whiteSpace: 'nowrap' }}>{p.link_id}</td>
+                  <td style={{ padding: '5px 8px', color: '#94a3b8', maxWidth: 180, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.link_name ?? '—'}</td>
+                  <td style={{ padding: '5px 6px', textAlign: 'center', color: clsColor, fontWeight: 800 }}>{p.road_class}</td>
+                  <td style={{ padding: '5px 8px', color: '#64748b', whiteSpace: 'nowrap' }}>{p.region ?? '—'}</td>
+                  <td style={{ padding: '5px 8px', textAlign: 'right', color: '#475569', fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap' }}>{p.length_km?.toFixed(1) ?? '—'}</td>
+                  <td style={{ padding: '5px 6px', textAlign: 'center', color: '#94a3b8', fontVariantNumeric: 'tabular-nums' }}>{BASE_YEAR}</td>
+                  <td style={{ padding: '5px 8px', textAlign: 'right', color: '#94a3b8', fontVariantNumeric: 'tabular-nums' }}>{baseAadt.toLocaleString()}</td>
+                  <td style={{ padding: '5px 8px', textAlign: 'right', color: '#fbbf24', fontVariantNumeric: 'tabular-nums', fontWeight: 700 }}>+{blendedGrowthPct.toFixed(1)}%</td>
+                  {projections.map(pr => (
+                    <td key={pr.key} style={{ padding: '5px 5px', textAlign: 'right', color: '#64748b', fontVariantNumeric: 'tabular-nums' }}>
+                      {pr.projCount.toLocaleString()}
+                    </td>
+                  ))}
+                  <td style={{ padding: '5px 10px', textAlign: 'right', color: C.teal, fontWeight: 800, fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap' }}>
+                    {projAadt.toLocaleString()}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+          <tfoot>
+            <tr style={{ borderTop: '1px solid rgba(148,163,184,0.12)', background: 'rgba(0,212,170,0.04)' }}>
+              <td colSpan={8} style={{ padding: '6px 10px', color: C.teal, fontWeight: 800, fontSize: 9 }}>Network Total (projected to {CURRENT_YEAR})</td>
+              {VCOLS.map(vc => {
+                const total = sorted.reduce((s, f) => {
+                  const projs = projectAllClasses(f.properties.aadt_predicted ?? 0, BASE_YEAR, CURRENT_YEAR);
+                  return s + projs[vc.idx].projCount;
+                }, 0);
+                return <td key={vc.label} style={{ padding: '6px 5px', textAlign: 'right', color: vc.color, fontWeight: 700, fontVariantNumeric: 'tabular-nums' }}>{total.toLocaleString()}</td>;
+              })}
+              <td style={{ padding: '6px 10px', textAlign: 'right', color: C.teal, fontWeight: 900, fontVariantNumeric: 'tabular-nums' }}>
+                {sorted.reduce((s, f) => {
+                  const projs = projectAllClasses(f.properties.aadt_predicted ?? 0, BASE_YEAR, CURRENT_YEAR);
+                  return s + projs.reduce((ss, p) => ss + p.projCount, 0);
+                }, 0).toLocaleString()}
+              </td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+      <div style={{ marginTop: 8, fontSize: 9, color: 'rgba(148,163,184,0.4)', lineHeight: 1.6 }}>
+        <b style={{ color: '#94a3b8' }}>Method:</b> per-class compound growth — projected = base × (1+g)^(years).
+        Class growth (p.a.): Motorcycles 6.0% · Cars/Taxis 5.0% · LGV 4.0% · Small Bus 4.0% · Medium Bus 3.0% · Large Bus 3.0% · Light Trucks 4.0% · Heavy Trucks 3.5% · Trailers 2.5% · NMT 1.0%.
+      </div>
+    </div>
+  );
+}
+
 // ─── Main export ──────────────────────────────────────────────────────────────
 export default function TrafficSection() {
   const [features,     setFeatures]     = useState<PredFeature[]>([]);
@@ -301,10 +435,14 @@ export default function TrafficSection() {
   const [mode,         setMode]         = useState<MapMode>('adt');
   const [surfFilter,   setSurfFilter]   = useState<SurfFilter>('all');
   const [classFilter,  setClassFilter]  = useState<ClassFilter>('all');
-  const [timelineYear, setTimelineYear] = useState(2025);
+  const [timelineYear, setTimelineYear] = useState(CURRENT_YEAR);
   const [isPlaying,    setIsPlaying]    = useState(false);
   const [now,          setNow]          = useState(() => new Date());
   const [selFeature,   setSelFeature]   = useState<FeatureData | null>(null);
+  const [activeTab,    setActiveTab]    = useState<'map' | 'counts' | 'trends' | 'stations'>('map');
+  const [countsTab,    setCountsTab]    = useState<'linxclass' | 'trafficanalytics' | 'trafficsummary' | 'proj2040'>('linxclass');
+  const [trendsTab,    setTrendsTab]    = useState<'growthfactors' | 'seasonal' | 'overloading' | 'analytics'>('growthfactors');
+  const { stations: tcsStations } = useTCSStations();
   const playRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Live clock (EAT)
@@ -422,14 +560,34 @@ export default function TrafficSection() {
     );
   }
 
+  const MAIN_TABS = [
+    { id: 'map'      as const, label: 'Traffic Map',        icon: <MapIcon size={13}/> },
+    { id: 'counts'   as const, label: 'Counts & Analysis',  icon: <Table2 size={13}/> },
+    { id: 'trends'   as const, label: 'Trends & Risk',      icon: <TrendingUp size={13}/> },
+    { id: 'stations' as const, label: 'Station Directory',  icon: <BarChart3 size={13}/> },
+  ];
+  const COUNTS_TABS = [
+    { id: 'linxclass'       as const, label: 'Link × Class Table'       },
+    { id: 'trafficanalytics'as const, label: 'Traffic Analytics'        },
+    { id: 'trafficsummary'  as const, label: 'Traffic Tables'           },
+    { id: 'proj2040'        as const, label: 'ADT 2016–2040 Projection' },
+  ];
+  const TRENDS_TABS = [
+    { id: 'growthfactors' as const, label: 'Growth Factors'        },
+    { id: 'seasonal'      as const, label: 'Seasonal MEF Factors'  },
+    { id: 'overloading'   as const, label: 'Overloading & ESAL'    },
+    { id: 'analytics'     as const, label: 'Network Analytics'     },
+  ];
+
   return (
     <div style={{
-      display: 'flex', height: '100%', overflow: 'hidden',
+      display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden',
       background: '#0a0f1e', fontFamily: "'Inter','Segoe UI',sans-serif",
     }}>
 
       {/* ══ CSS animations + custom marker styles ══════════════════════════════ */}
       <style>{`
+        @keyframes ts-spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
         /* ── ATC pulse-ring animation ── */
         @keyframes tsRingPulse {
           0%   { transform: translate(-50%,-50%) scale(0.5); opacity: 0.85; }
@@ -480,6 +638,84 @@ export default function TrafficSection() {
         .leaflet-tooltip::before { display:none !important; }
       `}</style>
 
+      <CrossLinkChipBar sectionId="traffic" />
+
+      {/* ══ BMS-style main tab bar ═════════════════════════════════════════════ */}
+      <div style={{
+        display: 'flex', gap: 2, padding: '0 14px', flexShrink: 0,
+        borderBottom: '1px solid rgba(77,159,255,0.15)',
+        background: 'rgba(4,9,18,0.85)',
+      }}>
+        {MAIN_TABS.map(t => {
+          const isActive = t.id === activeTab;
+          return (
+            <button key={t.id} onClick={() => setActiveTab(t.id)} style={{
+              display: 'flex', alignItems: 'center', gap: 6,
+              padding: '10px 14px 11px', fontSize: 11, fontWeight: isActive ? 800 : 500,
+              background: 'none', border: 'none', cursor: 'pointer', flexShrink: 0,
+              color: isActive ? '#4d9fff' : 'rgba(148,163,184,0.70)',
+              borderBottom: isActive ? '2px solid #4d9fff' : '2px solid transparent',
+              transition: 'all 0.13s',
+            }}>
+              {t.icon}
+              <span>{t.label}</span>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* ══ Sub-tab bar — Counts & Analysis ══════════════════════════════════ */}
+      {activeTab === 'counts' && (
+        <div style={{
+          display:'flex', gap:4, padding:'6px 14px 0', flexShrink:0,
+          borderBottom:'1px solid rgba(255,255,255,0.06)', background:'rgba(4,9,18,0.6)',
+        }}>
+          {COUNTS_TABS.map(t => {
+            const isA = t.id === countsTab;
+            return (
+              <button key={t.id} onClick={() => setCountsTab(t.id)} style={{
+                display:'flex', alignItems:'center', gap:5,
+                padding:'5px 12px 7px', fontSize:10, fontWeight: isA ? 700 : 500,
+                background:'none', border:'none', cursor:'pointer',
+                color: isA ? '#4d9fff' : 'rgba(148,163,184,0.65)',
+                borderBottom: isA ? '2px solid #4d9fff' : '2px solid transparent',
+                transition:'all 0.13s',
+              }}>
+                {t.label}
+              </button>
+            );
+          })}
+        </div>
+      )}
+
+      {/* ══ Sub-tab bar — Trends & Risk ══════════════════════════════════════ */}
+      {activeTab === 'trends' && (
+        <div style={{
+          display:'flex', gap:4, padding:'6px 14px 0', flexShrink:0,
+          borderBottom:'1px solid rgba(255,255,255,0.06)', background:'rgba(4,9,18,0.6)',
+        }}>
+          {TRENDS_TABS.map(t => {
+            const isA = t.id === trendsTab;
+            return (
+              <button key={t.id} onClick={() => setTrendsTab(t.id)} style={{
+                display:'flex', alignItems:'center', gap:5,
+                padding:'5px 12px 7px', fontSize:10, fontWeight: isA ? 700 : 500,
+                background:'none', border:'none', cursor:'pointer',
+                color: isA ? '#4d9fff' : 'rgba(148,163,184,0.65)',
+                borderBottom: isA ? '2px solid #4d9fff' : '2px solid transparent',
+                transition:'all 0.13s',
+              }}>
+                {t.label}
+              </button>
+            );
+          })}
+        </div>
+      )}
+
+      {/* ══ Map tab content — sidebar + map ═══════════════════════════════════ */}
+      {activeTab === 'map' &&
+      <div style={{ flex: 1, minHeight: 0, display: 'flex', overflow: 'hidden' }}>
+
       {/* ══ LEFT SIDEBAR — KPIs ════════════════════════════════════════════════ */}
       <div style={{
         width: 280, flexShrink: 0, display: 'flex', flexDirection: 'column', gap: 8,
@@ -488,13 +724,12 @@ export default function TrafficSection() {
         borderRight: '1px solid rgba(99,102,241,0.1)',
         overflowY: 'auto',
       }}>
-        <ModuleNavBar module="TIS" />
         {/* Header */}
         <div style={{ padding: '4px 2px 2px' }}>
           <div style={{
             fontSize: 8, fontWeight: 800, color: 'rgba(0,212,170,0.55)',
             letterSpacing: '0.18em', textTransform: 'uppercase', marginBottom: 2,
-          }}>Uganda National Roads · UNRA</div>
+          }}>Uganda National Roads · Department of National Roads</div>
           <div style={{
             fontSize: 14, fontWeight: 900, color: C.teal, lineHeight: 1.2,
             textShadow: `0 0 18px rgba(0,212,170,0.45)`,
@@ -717,14 +952,17 @@ export default function TrafficSection() {
           </div>
         </div>
 
-        {/* Map */}
-        <div style={{ flex: 1, minHeight: 0, position: 'relative' }}>
+        {activeTab === 'map' && <>
+        {/* Map + detail pane — definitive flex-row layout: map fills space, pane is fixed-right sibling */}
+        <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'row', overflow: 'hidden', alignItems: 'stretch' }}>
+        <div style={{ flex: 1, minWidth: 0, position: 'relative', overflow: 'hidden' }}>
           <MapContainer center={[1.37, 32.3]} zoom={7} zoomControl={false}
             style={{ height: '100%', width: '100%', background: '#0a0f1e' }}>
             <TileLayer url={ESRI_TILE_URLS.imagery}   attribution={ESRI_ATTRIBUTIONS.imagery} />
             <TileLayer url={ESRI_TILE_URLS.labels}    attribution={ESRI_ATTRIBUTIONS.labels} opacity={0.7} />
             <WaterLayers />
             <InfraLayers />
+            <MapOverlayLegend title="Traffic Volume" items={LEGEND_TRAFFIC} />
             <ZoomControl position="bottomright" />
 
             {filteredFeatures.length > 0 && (
@@ -779,14 +1017,14 @@ export default function TrafficSection() {
             Click a road link or station marker to inspect
           </div>
 
-          {/* Feature analytics overlay */}
-          {selFeature && (
-            <div style={{ position: 'absolute', top: 10, right: 10, zIndex: 900 }}>
-              <FeatureAnalyticsPanel feature={selFeature}
-                onClose={() => setSelFeature(null)} width={310} />
-            </div>
-          )}
         </div>
+
+        {/* Feature analytics pane — flex:0 sibling to the RIGHT of the map */}
+        {selFeature && (
+          <FeatureAnalyticsPanel feature={selFeature}
+            onClose={() => setSelFeature(null)} width={340} />
+        )}
+        </div>{/* closes map+pane flex row */}
 
         {/* Timeline bar */}
         <div style={{
@@ -878,7 +1116,133 @@ export default function TrafficSection() {
             </div>
           </div>
         </div>
-      </div>
+        </>}
+      </div>{/* closes RIGHT flex-col */}
+      </div>}{/* closes map tab: flex-row + {activeTab === 'map' && ... } */}
+
+      {/* ══ Counts & Analysis tab ═════════════════════════════════════════════ */}
+      {activeTab === 'counts' && (
+        <div style={{ flex:1, minHeight:0, position:'relative' }}>
+          <Suspense fallback={<TabSpinner/>}>
+            {countsTab === 'linxclass'        && <LinkClassTable features={features} surfMap={surfMap} />}
+            {countsTab === 'trafficanalytics' && <TrafficAnalyticsView />}
+            {countsTab === 'trafficsummary'   && <TrafficSummaryView />}
+            {countsTab === 'proj2040'         && <Suspense fallback={<TabSpinner/>}><TrafficProjectionView /></Suspense>}
+          </Suspense>
+        </div>
+      )}
+
+      {/* ══ Trends & Risk tab ════════════════════════════════════════════════ */}
+      {activeTab === 'trends' && (
+        <div style={{ flex:1, minHeight:0, overflowY:'auto' }}>
+          <Suspense fallback={<TabSpinner/>}>
+            {trendsTab === 'growthfactors' && <GrowthFactorsView />}
+            {trendsTab === 'seasonal'      && <Suspense fallback={<TabSpinner/>}><SeasonalFactorsView /></Suspense>}
+            {trendsTab === 'overloading'   && <OverloadingView />}
+            {trendsTab === 'analytics'     && (
+              <div style={{ flex: 1, overflowY: 'auto', background: '#0a0f1e', padding: '14px 18px' }}>
+                <div style={{ marginBottom: 14 }}>
+                  <div style={{ fontSize: 15, fontWeight: 900, color: '#e2eaf4' }}>Traffic Analytics — National Network</div>
+                  <div style={{ fontSize: 10, color: 'rgba(148,163,184,0.55)', marginTop: 2 }}>
+                    AADT trends 2016–2025 · vehicle class composition · regional distribution · TIS / ATC data
+                  </div>
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10, marginBottom: 16 }}>
+                  {[
+                    { label: 'Network AADT (avg)', value: kpis ? `${Math.round(kpis.avgAadt).toLocaleString()}` : '—', color: '#00f5ff', sub: 'vehicles / day / link' },
+                    { label: 'Survey Nodes', value: features.length.toLocaleString(), color: '#00d4aa', sub: 'links with TIS count' },
+                    { label: 'TIS Stations', value: tcsStations.length.toString(), color: '#ffd23f', sub: 'manual + ATC' },
+                    { label: 'Growth 2025→2040', value: kpis ? `+${kpis.growthRatio.toFixed(0)}%` : '—', color: '#00ff88', sub: 'ML forecast' },
+                  ].map(k => (
+                    <div key={k.label} style={{ background:'rgba(8,14,28,0.55)', border:'1px solid rgba(255,255,255,0.07)', borderRadius:10, padding:'12px 14px' }}>
+                      <div style={{ fontSize:8, fontWeight:700, color:'rgba(148,163,184,0.45)', textTransform:'uppercase', letterSpacing:'0.1em', marginBottom:4 }}>{k.label}</div>
+                      <div style={{ fontSize:22, fontWeight:900, color:k.color, lineHeight:1 }}>{k.value}</div>
+                      <div style={{ fontSize:8, color:'rgba(148,163,184,0.4)', marginTop:3 }}>{k.sub}</div>
+                    </div>
+                  ))}
+                </div>
+                <div style={{ background:'rgba(8,14,28,0.55)', border:'1px solid rgba(255,255,255,0.07)', borderRadius:10, padding:'12px 14px', marginBottom:12 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10 }}>
+                    <div style={{ fontSize:11, fontWeight:800, color:'#e2eaf4' }}>Vehicle Class Composition — Uganda National Average (TIS 2025)</div>
+                    <SourceTableButton anchor="tbl-009" />
+                  </div>
+                  <div style={{ display:'flex', flexDirection:'column', gap:5 }}>
+                    {VC_CLASSES.map(vc => (
+                      <div key={vc.label} style={{ display:'flex', alignItems:'center', gap:8 }}>
+                        <span style={{ fontSize:9, color:'rgba(148,163,184,0.7)', width:160, flexShrink:0 }}>{vc.label}</span>
+                        <div style={{ flex:1, height:6, background:'rgba(255,255,255,0.06)', borderRadius:3 }}>
+                          <div style={{ height:'100%', width:`${(vc.pct*100).toFixed(0)}%`, borderRadius:3, background:'#00d4aa', opacity:.8 }}/>
+                        </div>
+                        <span style={{ fontSize:9, color:'#00d4aa', fontWeight:700, width:36, textAlign:'right' }}>{(vc.pct*100).toFixed(1)}%</span>
+                        {kpis && <span style={{ fontSize:9, color:'rgba(148,163,184,0.4)', width:60, textAlign:'right' }}>~{Math.round(kpis.avgAadt*vc.pct).toLocaleString()} v/d</span>}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div style={{ background:'rgba(8,14,28,0.55)', border:'1px solid rgba(255,255,255,0.07)', borderRadius:10, padding:'12px 14px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 6 }}>
+                    <div style={{ fontSize:11, fontWeight:800, color:'#e2eaf4' }}>Network AADT Growth Index 2016–2025</div>
+                    <SourceTableButton anchor="tbl-008" />
+                  </div>
+                  {kpis && <SparklineArea avgAadt={kpis.avgAadt} />}
+                </div>
+              </div>
+            )}
+          </Suspense>
+        </div>
+      )}
+
+      {/* ══ Stations tab ══════════════════════════════════════════════════════ */}
+      {activeTab === 'stations' && (
+        <div style={{ flex: 1, overflowY: 'auto', background: '#0a0f1e', padding: '14px 18px' }}>
+            <div style={{ marginBottom: 12 }}>
+              <div style={{ fontSize: 15, fontWeight: 900, color: '#e2eaf4' }}>
+                TIS / ATC Station Directory
+              </div>
+              <div style={{ fontSize: 10, color: 'rgba(148,163,184,0.55)', marginTop: 2 }}>
+                {tcsStations.length} monitoring stations · TIS manual counts + {ATC_TOTAL} ATC permanent counters · source: TIS 2025 AADT analysis
+              </div>
+            </div>
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', fontSize: 9, borderCollapse: 'collapse', minWidth: 700 }}>
+                <thead>
+                  <tr style={{ borderBottom: '1px solid rgba(148,163,184,0.12)' }}>
+                    {['TCS No.','Station Name','Road No.','Link ID','Link Name','Station','Region','Surface'].map(h => (
+                      <th key={h} style={{ textAlign: 'left', padding: '6px 10px', color: '#64748b', fontWeight: 700, whiteSpace: 'nowrap' }}>{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {tcsStations.map((s, i) => (
+                    <tr key={s.tcs_no ?? i} style={{
+                      borderBottom: '1px solid rgba(148,163,184,0.04)',
+                      background: i % 2 === 0 ? 'rgba(15,23,42,0.3)' : 'transparent',
+                    }}>
+                      <td style={{ padding: '5px 10px', color: C.yellow, fontFamily: 'monospace', fontSize: 8, whiteSpace: 'nowrap' }}>{s.tcs_no}</td>
+                      <td style={{ padding: '5px 10px', color: '#e2eaf4', fontWeight: 600 }}>{s.tcs_name ?? '—'}</td>
+                      <td style={{ padding: '5px 10px', color: '#94a3b8', fontFamily: 'monospace' }}>{s.road_no ?? '—'}</td>
+                      <td style={{ padding: '5px 10px', color: C.teal, fontFamily: 'monospace', fontSize: 8 }}>{s.link_id ?? '—'}</td>
+                      <td style={{ padding: '5px 10px', color: '#64748b', maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.link_name ?? '—'}</td>
+                      <td style={{ padding: '5px 10px', color: '#94a3b8' }}>{s.station ?? '—'}</td>
+                      <td style={{ padding: '5px 10px' }}>
+                        <span style={{ color: REGION_CLR[s.region ?? ''] ?? '#94a3b8' }}>{s.region ?? '—'}</span>
+                      </td>
+                      <td style={{ padding: '5px 10px' }}>
+                        <span style={{ color: s.surface === 'Bituminous' ? C.cyan : C.amber, fontWeight: 600 }}>
+                          {s.surface === 'Bituminous' ? 'Paved' : s.surface ?? '—'}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <div style={{ marginTop: 10, fontSize: 9, color: 'rgba(148,163,184,0.3)' }}>
+              Source: TIS 2025 AADT analysis.xlsx · TCS_Combined sheet · real Link IDs from gisnetwork18062025.geojson
+            </div>
+          </div>
+        )}
+
     </div>
   );
 }

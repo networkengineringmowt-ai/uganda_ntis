@@ -41,7 +41,7 @@ export default function Analytics() {
       });
       const a = document.createElement('a');
       a.href = dataUrl;
-      a.download = `UNRA_Analytics_${tab}_${new Date().toISOString().slice(0,10)}.png`;
+      a.download = `Department of National Roads_Analytics_${tab}_${new Date().toISOString().slice(0,10)}.png`;
       a.click();
     } finally {
       setExporting(false);
@@ -56,14 +56,14 @@ export default function Analytics() {
       const w = window.open('', '_blank');
       if (!w) return;
       const tabLabel = TABS.find(t => t.id === tab)?.label ?? tab;
-      w.document.write(`<!DOCTYPE html><html><head><title>UNRA Analytics — ${tabLabel}</title>
+      w.document.write(`<!DOCTYPE html><html><head><title>Department of National Roads Analytics — ${tabLabel}</title>
         <style>
           body { margin:0; background:#0f172a; display:flex; flex-direction:column; align-items:center; padding:32px; font-family:sans-serif; color:#e2e8f0; }
           h1 { font-size:18px; margin-bottom:8px; }
           p  { font-size:12px; color:#64748b; margin-bottom:24px; }
           img{ max-width:100%; border-radius:12px; }
         </style></head><body>
-        <h1>UNRA Bridge Management System — ${tabLabel}</h1>
+        <h1>Department of National Roads Bridge Management System — ${tabLabel}</h1>
         <p>Generated ${new Date().toLocaleString()} · ${structures.length.toLocaleString()} structures</p>
         <img src="${dataUrl}" />
         <script>window.onload=()=>window.print();</script>
@@ -210,7 +210,7 @@ export default function Analytics() {
           <FileText size={12} /> PDF
         </button>
         <button
-          onClick={() => downloadCSV(structures, `UNRA_Structures_${new Date().toISOString().slice(0,10)}.csv`)}
+          onClick={() => downloadCSV(structures, `Department of National Roads_Structures_${new Date().toISOString().slice(0,10)}.csv`)}
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-600 whitespace-nowrap"
         >
           <Download size={12} /> CSV

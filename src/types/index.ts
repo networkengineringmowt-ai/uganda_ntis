@@ -125,11 +125,12 @@ export interface BridgeDocument {
 
 // ─── Platform-level views ─────────────────────────────────────────────────────
 export type ActiveView =
-  | 'platform'       // Uganda National Roads Platform dashboard
-  | 'roadnetwork'    // Road network GIS map (all 1,014 links)
-  | 'traffic'        // Traffic & demand analytics
-  | 'roadcondition'  // Road condition & pavement data
-  | 'projects'       // Ongoing road development projects
+  | 'platform'              // Uganda National Roads Platform dashboard
+  | 'roadnetwork'           // Road network GIS map (all 1,013 links)
+  | 'traffic'               // Traffic & demand analytics
+  | 'roadcondition'         // Road condition & pavement data
+  | 'maintenanceprogramme'  // PMS maintenance programme — priority-ranked links
+  | 'projects'              // Ongoing road development projects
   // ─── BMS sub-module views ──────────────────────────────────────────────────
   | 'dashboard'      // BMS structure dashboard
   | 'registry'       // Structure registry table
@@ -139,11 +140,8 @@ export type ActiveView =
   | 'maintenance'    // Maintenance & works orders
   | 'analytics'      // BMS analytics
   | 'priority'       // Priority ranking
-  | 'documents'      // Document store
   | 'phototwin'      // Photo & digital twin
   | 'networkstory'   // Uganda Road Network historical story (1986–present)
-  | 'downloads'          // Downloads & Exports
-  | 'media'              // Media gallery — images + videos
   | 'trafficanalytics'  // Traffic demand analytics dashboard
   | 'trafficsummary'   // Traffic summary tables (Road Links + Stations)
   | 'oprc'             // OPRC contracts dashboard
@@ -157,7 +155,18 @@ export type ActiveView =
   | 'pim'             // Public Investment Management — PPPs, donor funding
   | 'budget'          // Budgeting & Maintenance planning
   | 'lifecycle'       // Life Cycle Management — per-link asset timelines
-  | 'sources';        // Sources & Evidence catalogue
+  | 'sources'           // Sources & Evidence catalogue
+  | 'tabularsummaries'  // Tabular summaries — all data tables aggregated
+  | 'bms'               // Bridge Management System — 4-tab unified view
+  | 'network'           // Network Overview — 4-tab unified view
+  | 'rms'               // RMS — Road Management System hub (4-tab: overview, road map, network story, DNR RMS Engine architecture)
+  | 'casestudies'       // Global RMS Case Studies — world map, cards, comparative analytics, lessons
+  | 'roadreserve'       // Road Reserve Management — gazette status, encroachment register, reserve map
+  | 'admin'             // Admin Tools — 2-tab unified view (Mind Map + Data Audit)
+  | 'pendingsurveys'    // Pending condition survey submissions
+  | 'dataaudit'         // Data Audit Panel — admin-only cross-section KPI validation
+  | 'datacapture'       // Data Capture Hub — login-gated forms that write to Supabase
+  | 'mindmap';          // Platform Mind Map — 5D architectural schematic
 
 // ─── Road network types ───────────────────────────────────────────────────────
 export type RoadClass   = 'A' | 'B' | 'C' | 'M';

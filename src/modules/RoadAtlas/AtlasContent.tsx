@@ -183,7 +183,7 @@ export default function AtlasContent() {
           Uganda National Road Network
         </h1>
         <p style={{ margin: 0, fontSize: 14, color: 'rgba(148,163,184,0.7)' }}>
-          Visual intelligence platform · 21,292 km national network · DNR / Ministry of Works &amp; Transport
+          Visual intelligence platform · 21,160 km (mapped) national network · Data: DNR GIS Jun 2025 · DNR / MoWT
         </p>
         {lastUpdated && (
           <div style={{ marginTop: 12, fontSize: 10, color: 'rgba(148,163,184,0.4)' }}>
@@ -200,12 +200,12 @@ export default function AtlasContent() {
       {/* ── Network summary KPIs ── */}
       <SectionHeading title="Network Overview" sub="Current state of Uganda's national road network" />
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 48 }}>
-        <StatCard label="Total Network" value="21,292" unit="km" sub="1,014 road links" color="#00f5ff" />
+        <StatCard label="Total Network" value="21,160" unit="km" sub="1,013 road links · Jun 2025" color="#00f5ff" />
         <StatCard
           label="Paved Stock"
           value={latestPaved ? latestPaved.km.toLocaleString(undefined, { maximumFractionDigits: 0 }) : '6,312'}
           unit="km"
-          sub={latestPaved ? `${latestPaved.pct.toFixed(1)}% of network · FY${latestPaved.fy}` : '29.6% of network'}
+          sub={latestPaved ? `${latestPaved.pct.toFixed(1)}% of network · FY${latestPaved.fy}` : '30.1% of network'}
           color="#00ff88"
         />
         <StatCard

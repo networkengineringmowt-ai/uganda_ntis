@@ -149,13 +149,13 @@ export default function StructureRegistry() {
             <Download size={13} /> CSV
           </button>
           <button
-            onClick={() => downloadGeoJSON(filtered, `UNRA_Structures_${new Date().toISOString().slice(0,10)}.geojson`)}
+            onClick={() => downloadGeoJSON(filtered, `Department of National Roads_Structures_${new Date().toISOString().slice(0,10)}.geojson`)}
             className="bms-btn-secondary text-xs py-1.5"
           >
             <Download size={13} /> GeoJSON
           </button>
           <button
-            onClick={() => downloadKML(filtered, `UNRA_Structures_${new Date().toISOString().slice(0,10)}.kml`)}
+            onClick={() => downloadKML(filtered, `Department of National Roads_Structures_${new Date().toISOString().slice(0,10)}.kml`)}
             className="bms-btn-secondary text-xs py-1.5"
           >
             <Download size={13} /> KML

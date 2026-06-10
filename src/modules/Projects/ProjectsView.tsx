@@ -4,16 +4,20 @@ import 'leaflet/dist/leaflet.css';
 import { ESRI_TILE_URLS, ESRI_ATTRIBUTIONS, ROAD_STYLES, surfaceCategory } from '../../shared/mapSymbols';
 import { WaterLayers } from '../../shared/WaterLayers';
 import { InfraLayers } from '../../shared/InfraLayers';
+import { MapLegend, LEGEND_PROJECTS } from '../../shared/MapLegend';
 import {
   BarChart, Bar, Cell, XAxis, YAxis, Tooltip as ReTooltip,
   CartesianGrid, ResponsiveContainer,
 } from 'recharts';
+import { Chart3DWrap, Bar3D } from '../../lib/chart3d';
 import {
   Construction, AlertTriangle, Clock,
   Search, X, ChevronLeft, ChevronRight, Camera,
 } from 'lucide-react';
 import { loadEnhancedProjects, type Project } from '../../data/appStore';
 import { ModuleNavBar } from '../../shared/ModuleNavBar';
+import MapDetailPane, { StatCard, AttributeRow, SectionHeader } from '../../shared/MapDetailPane';
+import CrossLinkChipBar from '../../shared/CrossLinkChipBar';
 
 // ── Under-construction corridor definitions ───────────────────────────────────
 interface UCorridor {
@@ -256,8 +260,9 @@ const UGANDA_CENTER: [number, number] = [1.37, 32.3];
 export default function ProjectsView() {
   const [projects,   setProjects]   = useState<Project[]>([]);
   const [loading,    setLoading]    = useState(true);
-  const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [flyTarget,  setFlyTarget]  = useState<[number, number] | null>(null);
+  const [selectedId, setSelectedId]           = useState<string | null>(null);
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const [flyTarget,  setFlyTarget]            = useState<[number, number] | null>(null);
   const [search,     setSearch]     = useState('');
   const [regionF,    setRegionF]    = useState('all');
   const [statusF,    setStatusF]    = useState<'all' | 'planned' | 'ongoing' | 'complete'>('all');
@@ -265,6 +270,7 @@ export default function ProjectsView() {
 
   const cardListRef = useRef<HTMLDivElement>(null);
   const [roadsGeo, setRoadsGeo] = useState<GeoJSON.FeatureCollection | null>(null);
+  const [activeTab, setActiveTab] = useState<'map' | 'register' | 'ndpiv' | 'oprc'>('map');
 
   // Load projects and road network base layer
   useEffect(() => {
@@ -320,11 +326,13 @@ export default function ProjectsView() {
 
   function selectFromCard(p: Project) {
     setSelectedId(p.id);
+    setSelectedProject(p);
     setFlyTarget([p.lat, p.lng]);
   }
 
   function selectFromMap(p: Project) {
     setSelectedId(p.id);
+    setSelectedProject(p);
     scrollToCard(p.id);
   }
 
@@ -346,20 +354,39 @@ export default function ProjectsView() {
   return (
     <div className="flex flex-col h-full">
 
-      {/* ── Header + KPIs ── */}
-      <div className="p-4 space-y-3 flex-shrink-0">
-        <ModuleNavBar module="Projects" />
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-amber-500/20 flex items-center justify-center">
-            <Construction size={18} className="text-amber-400" />
-          </div>
-          <div>
-            <h1 className="text-base font-bold text-white">Projects & Road Development</h1>
-            <p className="text-[10px] text-slate-400">
-              Ongoing road upgrading &amp; construction · FY 2024/25
-            </p>
-          </div>
-        </div>
+      <CrossLinkChipBar sectionId="projects" />
+
+      {/* ── BMS-style tab bar — FIRST (matches BMS pattern) ── */}
+      <div style={{
+        display: 'flex', gap: 2, padding: '0 14px', flexShrink: 0,
+        borderBottom: '1px solid rgba(77,159,255,0.15)',
+        background: 'rgba(4,9,18,0.85)',
+      }}>
+        {([
+          { id: 'map',      label: 'Projects Map',   icon: '🗺️' },
+          { id: 'register', label: 'Works Register', icon: '📋' },
+          { id: 'ndpiv',    label: 'NDPIV Projects', icon: '🏗️' },
+          { id: 'oprc',     label: 'OPRC Lots',      icon: '🔧' },
+        ] as const).map(t => {
+          const isActive = t.id === activeTab;
+          return (
+            <button key={t.id} onClick={() => setActiveTab(t.id)} style={{
+              display: 'flex', alignItems: 'center', gap: 6,
+              padding: '10px 14px 11px', fontSize: 11, fontWeight: isActive ? 800 : 500,
+              background: 'none', border: 'none', cursor: 'pointer', flexShrink: 0,
+              color: isActive ? '#4d9fff' : 'rgba(148,163,184,0.70)',
+              borderBottom: isActive ? '2px solid #4d9fff' : '2px solid transparent',
+              transition: 'all 0.13s',
+            }}>
+              <span style={{ fontSize: 12 }}>{t.icon}</span>
+              <span>{t.label}</span>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* ── Header + KPIs (Projects Map tab only) ── */}
+      {activeTab === 'map' && <div className="p-4 space-y-3 flex-shrink-0">
 
         {/* KPI strip */}
         <div className="grid grid-cols-4 gap-2">
@@ -447,27 +474,29 @@ export default function ProjectsView() {
               <div style={{ fontSize: 9, fontWeight: 700, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 6 }}>
                 Projects by Works Type — Count &amp; Length (km)
               </div>
-              <ResponsiveContainer width="100%" height={110}>
-                <BarChart data={data} margin={{ top: 2, right: 6, left: -24, bottom: 0 }}
-                  barCategoryGap="20%" barGap={2}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
-                  <XAxis dataKey="fullType" tick={{ fill: '#64748b', fontSize: 8 }}
-                    tickFormatter={(s: string) => s.split(' ')[0]} />
-                  <YAxis yAxisId="cnt" tick={{ fill: '#64748b', fontSize: 8 }} />
-                  <YAxis yAxisId="km" orientation="right" tick={{ fill: '#64748b', fontSize: 8 }} />
-                  <ReTooltip
-                    contentStyle={{ background: 'rgba(8,14,28,0.96)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, fontSize: 10 }}
-                    formatter={(v: number, name: string) => [name === 'count' ? `${v} projects` : `${v} km`, name === 'count' ? 'Projects' : 'Total km']}
-                    labelFormatter={(l: string) => l}
-                  />
-                  <Bar yAxisId="cnt" dataKey="count" name="count" radius={[3,3,0,0]} maxBarSize={28}>
-                    {data.map(d => <Cell key={d.fullType} fill={WORKS_COLOR[d.fullType] ?? '#64748b'} />)}
-                  </Bar>
-                  <Bar yAxisId="km" dataKey="km" name="km" radius={[3,3,0,0]} maxBarSize={28}>
-                    {data.map(d => <Cell key={d.fullType} fill={WORKS_COLOR[d.fullType] ?? '#64748b'} fillOpacity={0.4} />)}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
+              <Chart3DWrap>
+                <ResponsiveContainer width="100%" height={110}>
+                  <BarChart data={data} margin={{ top: 2, right: 6, left: -24, bottom: 0 }}
+                    barCategoryGap="20%" barGap={2}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
+                    <XAxis dataKey="fullType" tick={{ fill: '#64748b', fontSize: 8 }}
+                      tickFormatter={(s: string) => s.split(' ')[0]} />
+                    <YAxis yAxisId="cnt" tick={{ fill: '#64748b', fontSize: 8 }} />
+                    <YAxis yAxisId="km" orientation="right" tick={{ fill: '#64748b', fontSize: 8 }} />
+                    <ReTooltip
+                      contentStyle={{ background: 'rgba(8,14,28,0.96)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, fontSize: 10 }}
+                      formatter={(v: number, name: string) => [name === 'count' ? `${v} projects` : `${v} km`, name === 'count' ? 'Projects' : 'Total km']}
+                      labelFormatter={(l: string) => l}
+                    />
+                    <Bar yAxisId="cnt" dataKey="count" name="count" radius={[3,3,0,0]} maxBarSize={28} shape={<Bar3D/>}>
+                      {data.map(d => <Cell key={d.fullType} fill={WORKS_COLOR[d.fullType] ?? '#64748b'} />)}
+                    </Bar>
+                    <Bar yAxisId="km" dataKey="km" name="km" radius={[3,3,0,0]} maxBarSize={28} shape={<Bar3D/>}>
+                      {data.map(d => <Cell key={d.fullType} fill={WORKS_COLOR[d.fullType] ?? '#64748b'} fillOpacity={0.4} />)}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </Chart3DWrap>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px 14px', marginTop: 4 }}>
                 {Object.entries(WORKS_COLOR).map(([type, c]) => (
                   <div key={type} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
@@ -502,13 +531,14 @@ export default function ProjectsView() {
           </select>
           <span className="text-[10px] text-slate-500">{filtered.length} / {projects.length}</span>
         </div>
-      </div>
 
-      {/* ── Map + Cards split ── */}
-      <div className="flex flex-1 min-h-0 overflow-hidden border-t border-slate-800">
+      </div>}
 
-        {/* Left: Leaflet map */}
-        <div className="flex-shrink-0" style={{ width: '40%', position: 'relative' }}>
+      {/* ── Map + MapDetailPane (Map tab) — flex row, map fills space ── */}
+      {activeTab === 'map' && <div className="flex flex-1 min-h-0 overflow-hidden border-t border-slate-800">
+
+        {/* Map fills remaining space */}
+        <div style={{ flex: 1, minWidth: 0, position: 'relative' }}>
           <MapContainer
             center={UGANDA_CENTER}
             zoom={7}
@@ -519,6 +549,7 @@ export default function ProjectsView() {
             <TileLayer url={ESRI_TILE_URLS.labels}  attribution={ESRI_ATTRIBUTIONS.labels} opacity={0.7}/>
             <WaterLayers />
             <InfraLayers />
+            <MapLegend title="Projects" items={LEGEND_PROJECTS} />
             <MapController target={flyTarget} />
 
             {/* ── Road network base layer ── */}
@@ -665,93 +696,185 @@ export default function ProjectsView() {
           </div>
         </div>
 
-        {/* Right: scrollable card list */}
-        <div
-          ref={cardListRef}
-          className="flex-1 min-w-0 overflow-y-auto p-3 space-y-2"
-          style={{ background: '#020508' }}
-        >
-          {filtered.length === 0 && (
-            <div className="text-center text-slate-500 text-xs py-12">No projects match the current filters.</div>
-          )}
-
-          {filtered.map(p => {
-            const isSelected = selectedId === p.id;
-            const ss = STATUS_STYLE[p.status];
+        {/* Right: MapDetailPane — default=stats, selected=project detail */}
+        <MapDetailPane
+          width={340}
+          accent="#f59e0b"
+          defaultTitle="Projects Overview"
+          defaultSubtitle="Click a project marker on the map to inspect"
+          defaultContent={
+            <div>
+              <StatCard label="Total Projects" value={projects.length} color="#f59e0b" />
+              <StatCard label="Total km"        value={`${stats.totalKm.toFixed(0)} km`} color="#00f5ff" />
+              <StatCard label="Ongoing"         value={stats.ongoing}  color="#3b82f6" sub="active construction" />
+              <StatCard label="Planned"         value={stats.planned}  color="#a855f7" sub="in pipeline" />
+              <StatCard label="Completed"       value={stats.complete} color="#22c55e" sub="works complete" />
+              <div style={{ marginTop:10, fontSize:9.5, color:'#64748b' }}>
+                Filtered: <strong style={{ color:'#e2eaf4' }}>{filtered.length}</strong> of {projects.length} projects match current filters.
+              </div>
+              <div style={{ marginTop:8, fontSize:9, color:'#475569', lineHeight:1.5 }}>
+                Browse projects on the map or use the Works Register tab for the full table view.
+              </div>
+            </div>
+          }
+          selectedFeature={selectedProject}
+          renderFeature={(p: Project) => {
             const wc = WORKS_COLOR[inferWorksType(p.project_name)] ?? '#64748b';
             return (
-              <div
-                key={p.id}
-                data-project-id={p.id}
-                onClick={() => selectFromCard(p)}
-                className="rounded-lg p-3 cursor-pointer transition-all"
-                style={{
-                  background:    isSelected ? 'rgba(245,158,11,0.06)' : 'rgba(15,23,42,0.8)',
-                  border:        `1px solid ${isSelected ? ss.border : 'rgba(51,65,85,0.6)'}`,
-                  borderLeft:    `3px solid ${wc}`,
-                  boxShadow:     isSelected ? `0 0 0 1px ${wc}40, 0 4px 20px ${wc}12` : 'none',
-                }}
-              >
-                {/* Title row */}
-                <div className="flex items-start gap-2">
-                  <div className="flex-1 min-w-0">
-                    <div className="text-[11px] font-bold text-white leading-snug line-clamp-2">
-                      {p.project_name}
-                    </div>
-                    <div className="text-[9px] text-slate-400 mt-0.5 flex flex-wrap gap-x-2">
-                      <span>{p.location}</span>
-                      <span>·</span>
-                      <span className="text-amber-400 font-semibold">{p.parsed_length_km.toFixed(0)} km</span>
-                    </div>
-                  </div>
-                  <div className="flex-shrink-0 flex flex-col items-end gap-1">
-                    <span className={`text-[8px] font-semibold px-1.5 py-0.5 rounded border capitalize ${ss.badge}`}>
-                      {p.status}
-                    </span>
-                    {p.behind_schedule && (
-                      <span className="flex items-center gap-0.5 text-[8px] text-red-400 font-semibold">
-                        <AlertTriangle size={8} /> Behind
-                      </span>
-                    )}
-                  </div>
+              <div>
+                <div style={{ fontSize:12, fontWeight:700, color:'#fff', lineHeight:1.3, marginBottom:8 }}>
+                  {p.project_name}
                 </div>
-
-                {/* Progress bars */}
+                <SectionHeader title="Location & Scope" accent={wc} />
+                <AttributeRow label="Location"    value={p.location} />
+                <AttributeRow label="Length"      value={`${p.parsed_length_km.toFixed(1)} km`} color="#f59e0b" />
+                <AttributeRow label="Status"      value={p.status}   color={MARKER_COLOR[p.status]} />
+                <AttributeRow label="Works Type"  value={inferWorksType(p.project_name)} color={wc} />
+                <AttributeRow label="Funder"      value={p.funding_agency} color={funderColor(p.funding_agency)} />
+                {p.target_completion_date && (
+                  <AttributeRow label="Target Completion" value={p.target_completion_date} />
+                )}
+                {p.behind_schedule && (
+                  <div style={{ marginTop:6, padding:'5px 10px', borderRadius:6, background:'rgba(239,68,68,0.08)', border:'1px solid rgba(239,68,68,0.25)', fontSize:9.5, color:'#ef4444', fontWeight:700 }}>
+                    ⚠ Behind schedule
+                  </div>
+                )}
+                <SectionHeader title="Progress" accent={wc} />
                 <ProgressBar
                   planned={p.planned_progress_pct}
                   actual={p.actual_progress_pct}
                   financial={p.financial_progress_pct}
                 />
-
-                {/* Photo strip */}
-                <PhotoStrip
-                  photos={p.progressPhotos}
-                  onPhotoClick={src => {
-                    const idx = p.progressPhotos.indexOf(src);
-                    openLightbox(p.progressPhotos, idx >= 0 ? idx : 0, p.project_name);
-                  }}
-                />
-
-                {/* Footer */}
-                <div className="mt-2 pt-2 border-t border-slate-800 flex justify-between text-[9px]">
-                  <div>
-                    <span className="text-slate-500">Funder · </span>
-                    <span style={{ color: funderColor(p.funding_agency) }}>
-                      {p.funding_agency.length > 20 ? p.funding_agency.slice(0, 20) + '…' : p.funding_agency}
-                    </span>
-                  </div>
-                  {p.target_completion_date && (
-                    <div className="flex items-center gap-1 text-slate-400">
-                      <Clock size={8} />
-                      {p.target_completion_date}
-                    </div>
-                  )}
-                </div>
+                {p.progressPhotos.length > 0 && (
+                  <>
+                    <SectionHeader title="Site Photos" accent={wc} />
+                    <PhotoStrip
+                      photos={p.progressPhotos}
+                      onPhotoClick={src => {
+                        const idx = p.progressPhotos.indexOf(src);
+                        openLightbox(p.progressPhotos, idx >= 0 ? idx : 0, p.project_name);
+                      }}
+                    />
+                  </>
+                )}
               </div>
             );
-          })}
+          }}
+          onClose={() => { setSelectedId(null); setSelectedProject(null); }}
+        />
+      </div>}
+
+      {/* ── Works Register tab ── */}
+      {activeTab === 'register' && (
+        <div style={{ flex: 1, overflowY: 'auto', padding: '14px 18px', minHeight: 0 }}>
+          <div style={{ fontSize: 14, fontWeight: 900, color: '#e2eaf4', marginBottom: 4 }}>Works Register — All Projects</div>
+          <div style={{ fontSize: 10, color: 'rgba(148,163,184,0.55)', marginBottom: 12 }}>
+            {projects.length} projects · source: appStore / NDPIV Excel
+          </div>
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', fontSize: 9, borderCollapse: 'collapse', minWidth: 900 }}>
+              <thead>
+                <tr style={{ borderBottom: '1px solid rgba(148,163,184,0.12)' }}>
+                  {['Project Name','Region','km','Status','Funder','Type','Completion'].map(h => (
+                    <th key={h} style={{ textAlign: 'left', padding: '6px 10px', color: '#64748b', fontWeight: 700, whiteSpace: 'nowrap' }}>{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {filtered.map((p, i) => (
+                  <tr key={p.id} style={{ borderBottom: '1px solid rgba(148,163,184,0.04)', background: i % 2 === 0 ? 'rgba(15,23,42,0.3)' : 'transparent' }}>
+                    <td style={{ padding: '5px 10px', color: '#e2eaf4', maxWidth: 280, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.project_name}</td>
+                    <td style={{ padding: '5px 10px', color: '#94a3b8' }}>{p.regions ?? '—'}</td>
+                    <td style={{ padding: '5px 10px', color: '#f59e0b', textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>{p.parsed_length_km ? p.parsed_length_km.toFixed(1) : '—'}</td>
+                    <td style={{ padding: '5px 10px' }}>
+                      <span style={{ color: p.status === 'ongoing' ? '#00ff88' : p.status === 'complete' ? '#00f5ff' : '#94a3b8', fontWeight: 600 }}>
+                        {p.status ?? '—'}
+                      </span>
+                    </td>
+                    <td style={{ padding: '5px 10px', color: '#64748b', maxWidth: 140, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.funding_agency}</td>
+                    <td style={{ padding: '5px 10px', color: '#94a3b8' }}>{inferWorksType(p.project_name)}</td>
+                    <td style={{ padding: '5px 10px', color: '#64748b' }}>{p.target_completion_date ?? '—'}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
-      </div>
+      )}
+
+      {/* ── NDPIV tab ── */}
+      {activeTab === 'ndpiv' && (
+        <div style={{ flex: 1, overflowY: 'auto', padding: '14px 18px', minHeight: 0 }}>
+          <div style={{ fontSize: 14, fontWeight: 900, color: '#e2eaf4', marginBottom: 4 }}>NDP IV Road Projects</div>
+          <div style={{ fontSize: 10, color: 'rgba(148,163,184,0.55)', marginBottom: 12 }}>
+            National Development Plan IV · FY 2025/26 – 2029/30 · links matched from master network register
+          </div>
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', fontSize: 9, borderCollapse: 'collapse', minWidth: 700 }}>
+              <thead>
+                <tr style={{ borderBottom: '1px solid rgba(77,159,255,0.2)' }}>
+                  {['Link ID','Road No.','Link Name','Class','Length km','Surface','Region','NDPIV Component','Funder','OPRC Lot'].map(h => (
+                    <th key={h} style={{ textAlign: 'left', padding: '6px 10px', color: '#4d9fff', fontWeight: 700, whiteSpace: 'nowrap', fontSize: 8 }}>{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {filtered
+                  .filter(p => p.project_name.toLowerCase().includes('ndp') || p.funding_agency.toLowerCase().includes('gou'))
+                  .map((p, i) => (
+                  <tr key={p.id} style={{ borderBottom: '1px solid rgba(148,163,184,0.04)', background: i % 2 === 0 ? 'rgba(15,23,42,0.3)' : 'transparent' }}>
+                    <td style={{ padding: '5px 8px', color: '#00f5ff', fontFamily: 'monospace', fontSize: 8 }}>—</td>
+                    <td style={{ padding: '5px 8px', color: '#94a3b8' }}>—</td>
+                    <td style={{ padding: '5px 8px', color: '#e2eaf4', maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.project_name}</td>
+                    <td style={{ padding: '5px 8px', color: '#f59e0b', fontWeight: 700 }}>—</td>
+                    <td style={{ padding: '5px 8px', color: '#f59e0b', textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>{p.parsed_length_km?.toFixed(1) ?? '—'}</td>
+                    <td style={{ padding: '5px 8px', color: '#94a3b8' }}>—</td>
+                    <td style={{ padding: '5px 8px', color: '#64748b' }}>{p.regions ?? '—'}</td>
+                    <td style={{ padding: '5px 8px', color: '#94a3b8' }}>{inferWorksType(p.project_name)}</td>
+                    <td style={{ padding: '5px 8px', color: '#64748b' }}>{p.funding_agency}</td>
+                    <td style={{ padding: '5px 8px', color: '#94a3b8' }}>—</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* ── OPRC tab ── */}
+      {activeTab === 'oprc' && (
+        <div style={{ flex: 1, overflowY: 'auto', padding: '14px 18px', minHeight: 0 }}>
+          <div style={{ fontSize: 14, fontWeight: 900, color: '#e2eaf4', marginBottom: 4 }}>OPRC — Output & Performance Road Contracts</div>
+          <div style={{ fontSize: 10, color: 'rgba(148,163,184,0.55)', marginBottom: 12 }}>
+            Long-term performance-based road maintenance contracts · NERAMP & other OPRC programs
+          </div>
+          {UNDER_CONSTRUCTION.map(uc => (
+            <div key={uc.id} style={{ background: 'rgba(8,14,28,0.55)', border: '1px solid rgba(245,158,11,0.2)', borderLeft: '4px solid #f59e0b', borderRadius: 10, padding: '12px 16px', marginBottom: 10 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+                <span style={{ fontSize: 12, fontWeight: 900, color: '#f59e0b' }}>{uc.lot}</span>
+                <span style={{ fontSize: 10, background: 'rgba(0,255,136,0.1)', border: '1px solid rgba(0,255,136,0.2)', borderRadius: 4, padding: '1px 6px', color: '#00ff88', fontWeight: 700 }}>{uc.status}</span>
+              </div>
+              <div style={{ fontSize: 12, fontWeight: 700, color: '#e2eaf4', marginBottom: 4 }}>{uc.name}</div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8 }}>
+                {[
+                  { label: 'Length', value: `${uc.km} km` },
+                  { label: 'Funder', value: uc.funder },
+                  { label: 'Contractor', value: uc.contractor },
+                  { label: 'Completion', value: uc.completion },
+                ].map(k => (
+                  <div key={k.label}>
+                    <div style={{ fontSize: 8, color: 'rgba(148,163,184,0.4)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 1 }}>{k.label}</div>
+                    <div style={{ fontSize: 10, fontWeight: 700, color: '#94a3b8' }}>{k.value}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+          <div style={{ marginTop: 12, fontSize: 9, color: 'rgba(148,163,184,0.3)' }}>
+            OPRC = Output & Performance Road Contract · long-term maintenance performance agreements · NERAMP = North East Road Asset Management Programme
+          </div>
+        </div>
+      )}
 
       {/* ── Lightbox ── */}
       {lightbox && (

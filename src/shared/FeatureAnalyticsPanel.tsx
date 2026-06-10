@@ -463,16 +463,16 @@ export default function FeatureAnalyticsPanel({
     <div style={{
       width,
       flexShrink: 0,
+      height: '100%',
       background: 'rgba(10,15,30,0.92)',
       backdropFilter: 'blur(24px)',
       WebkitBackdropFilter: 'blur(24px)',
-      border: `1px solid rgba(${rgb},0.22)`,
-      borderRadius: 16,
-      padding: '16px 18px',
-      boxShadow: `0 8px 40px rgba(0,0,0,0.6), 0 0 30px rgba(${rgb},0.1)`,
+      borderLeft: `1px solid rgba(${rgb},0.22)`,
+      padding: '14px 16px',
+      boxShadow: `-4px 0 24px rgba(0,0,0,0.5)`,
       overflowY: 'auto',
-      maxHeight: '100%',
       color: '#e2eaf4',
+      boxSizing: 'border-box',
     }}>
       {feature.type === 'road-link'   && <RoadLinkPanel f={feature} onClose={onClose} />}
       {feature.type === 'bridge'      && <BridgePanel   f={feature} onClose={onClose} />}

@@ -1,0 +1,253 @@
+/* ── DNR Platform — Global Transitions & Animations ───────────────────────── */
+
+/* ── Keyframes ─────────────────────────────────────────────────────────────── */
+
+/* Tab / view fade-in */
+@keyframes tab-fade-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Architecture node entry (staggered) */
+@keyframes node-slide-in {
+  from { opacity: 0; transform: translateX(-14px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+/* Flowing SVG dash animation for connection arrows */
+@keyframes flow-dash {
+  from { stroke-dashoffset: 24; }
+  to   { stroke-dashoffset: 0; }
+}
+
+/* Node pulse (scale 1 → 1.05 → 1) */
+@keyframes node-pulse {
+  0%, 100% { transform: scale(1);    box-shadow: 0 0 8px  currentColor; }
+  50%       { transform: scale(1.06); box-shadow: 0 0 22px currentColor; }
+}
+
+/* Radar / scan line for headers */
+@keyframes scanLineAnim {
+  0%, 100% { opacity: 0.3; transform: scaleX(0.5); }
+  50%       { opacity: 1;   transform: scaleX(1);   }
+}
+
+/* Generic dot / badge pulse */
+@keyframes pulse {
+  0%, 100% { opacity: 0.6; transform: scale(1);    }
+  50%       { opacity: 1;   transform: scale(1.18); }
+}
+
+/* Staggered bar grow from bottom (recharts bars) */
+@keyframes bar-grow {
+  from { transform: scaleY(0); transform-origin: bottom; opacity: 0; }
+  to   { transform: scaleY(1); transform-origin: bottom; opacity: 1; }
+}
+
+/* Spinner for loading states */
+@keyframes ts-spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+/* ATC station pulsing ring */
+@keyframes tsRingPulse {
+  0%   { transform: translate(-50%,-50%) scale(0.5); opacity: 0.8; }
+  100% { transform: translate(-50%,-50%) scale(2.2); opacity: 0; }
+}
+
+/* RMS Architecture — entrance fade+slide (staggered per column) */
+@keyframes fadeSlideIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* RMS Architecture — flowing data-pipeline arrow dash */
+@keyframes flowDash {
+  from { stroke-dashoffset: 100; }
+  to   { stroke-dashoffset: 0; }
+}
+
+/* ── Utility classes ────────────────────────────────────────────────────────── */
+
+/* Card hover lift — add class="card-lift" to any card */
+.card-lift {
+  transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+}
+.card-lift:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 30px rgba(0,245,255,0.15) !important;
+}
+
+/* View/tab fade in */
+.view-fade-in {
+  animation: tab-fade-in 0.15s ease forwards;
+}
+
+/* Architecture node entry */
+.arch-node-enter {
+  animation: node-slide-in 0.3s ease forwards;
+}
+
+/* Flowing SVG arrow */
+.flow-arrow {
+  stroke-dasharray: 6 3;
+  animation: flow-dash 1.2s linear infinite;
+}
+
+/* Pulsing node badge */
+.node-pulse {
+  animation: node-pulse 2s ease-in-out infinite;
+}
+
+/* ── Recharts customisation — bar chart fade in ─────────────────────────────── */
+.recharts-bar-rectangle {
+  animation: bar-grow 0.5s ease forwards;
+}
+
+/* ── Leaflet overrides ──────────────────────────────────────────────────────── */
+.leaflet-container {
+  background: #020508 !important;
+}
+.leaflet-tile-pane { will-change: transform; }
+
+/* ── Dark-mode select elements ─────────────────────────────────────────────── */
+select {
+  background-color: #0f172a !important;
+  color: #e2e8f0 !important;
+  border: 1px solid rgba(100,116,139,0.4) !important;
+  border-radius: 6px !important;
+  padding: 4px 8px !important;
+  appearance: auto;
+  -webkit-appearance: auto;
+}
+select option {
+  background-color: #0f172a !important;
+  color: #e2e8f0 !important;
+}
+select:focus {
+  outline: none !important;
+  border-color: rgba(0,245,255,0.5) !important;
+  box-shadow: 0 0 0 2px rgba(0,245,255,0.15) !important;
+}
+
+/* ── Compact spacing — tighter global layout ───────────────────────────────── */
+.section-content,
+[class*="section-content"] {
+  padding: 8px 12px !important;
+}
+.kpi-banner {
+  gap: 8px !important;
+  padding: 8px 12px !important;
+}
+/* Card-level compact: reduce built-in padding/margin on generic cards */
+.card,
+[class*="-card"],
+[class*="Card"] {
+  padding: 8px 10px !important;
+  margin-bottom: 8px !important;
+}
+/* Platform section inner padding — replaces 24px/32px defaults */
+.section-pad {
+  padding: 8px 12px;
+}
+/* Dense data rows */
+.data-row {
+  padding-top: 5px !important;
+  padding-bottom: 5px !important;
+}
+
+/* Reduce top definition/header blocks */
+.definition-block,
+.section-header,
+[class*="definition"],
+[class*="overview-header"] {
+  padding: 8px 12px !important;
+  margin-bottom: 8px !important;
+}
+
+/* KPI stat cards — tighter */
+.stat-card,
+[class*="stat-card"],
+[class*="kpi-card"],
+[class*="StatCard"],
+[class*="KpiCard"] {
+  padding: 6px 10px !important;
+}
+
+/* General container padding reduction */
+.module-content,
+.tab-content,
+[class*="tab-panel"],
+[class*="TabPanel"],
+[class*="module-content"] {
+  padding: 6px 10px !important;
+  gap: 8px !important;
+}
+
+/* Remove blank space below tab content */
+.tab-content,
+[class*="tab-content"],
+[class*="TabContent"],
+[class*="tab-panel"],
+[class*="TabPanel"],
+.section-wrapper,
+[class*="section-wrapper"],
+.module-view,
+[class*="module-view"] {
+  min-height: 0 !important;
+  height: auto !important;
+  flex-shrink: 1 !important;
+}
+.leaflet-container[class],
+[class*="map-container"],
+[class*="MapContainer"] {
+  height: 100% !important;
+  min-height: 0 !important;
+}
+
+/* Main scrollable content area should not force min-height */
+.main-content,
+[class*="main-content"],
+.content-area,
+[class*="content-area"] {
+  height: 100%;
+  overflow-y: auto;
+  min-height: 0;
+}
+
+/* ── Sidebar nav items ─────────────────────────────────────────────────────── */
+.sidebar-nav-btn {
+  transition: all 0.15s ease !important;
+}
+.sidebar-nav-btn:hover {
+  background: rgba(255,255,255,0.05) !important;
+}
+
+/* ── Scrollbar styling ─────────────────────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(8,14,28,0.4);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(0,245,255,0.15);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0,245,255,0.3);
+}
+
+/* Dark mode select / dropdown */
+select,
+select option {
+  background-color: #0f172a !important;
+  color: #e2e8f0 !important;
+  border-color: #334155 !important;
+}
+select:focus {
+  outline: 2px solid #38bdf8;
+  outline-offset: 1px;
+}

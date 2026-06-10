@@ -6,11 +6,16 @@ import {
   Cell, Tooltip as ReTooltip, ResponsiveContainer,
   BarChart, Bar, XAxis, YAxis, CartesianGrid,
 } from 'recharts';
+import { Chart3DWrap, Bar3D, TT_NEON, TICK } from '../../lib/chart3d';
 import { ESRI_TILE_URLS, ESRI_ATTRIBUTIONS, ROAD_STYLES, surfaceCategory } from '../../shared/mapSymbols';
 import { WaterLayers } from '../../shared/WaterLayers';
 import { InfraLayers } from '../../shared/InfraLayers';
+import { MapLegend, LEGEND_PROJECTS } from '../../shared/MapLegend';
 import { BarChart2 } from 'lucide-react';
 import { ModuleNavBar } from '../../shared/ModuleNavBar';
+import MapDetailPane, { StatCard, AttributeRow, SectionHeader } from '../../shared/MapDetailPane';
+import SourceTableButton from '../../shared/SourceTableButton';
+import CrossLinkChipBar from '../../shared/CrossLinkChipBar';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface NdpivProject {
@@ -104,11 +109,19 @@ export default function NdpivSection() {
   const [regionFilter,    setRegionFilter]    = useState('All');
   const [selectedProject, setSelectedProject] = useState<NdpivProject | null>(null);
   const [roadGeo,         setRoadGeo]         = useState<GeoJSON.FeatureCollection | null>(null);
+  const [corridorGeo,     setCorridorGeo]     = useState<GeoJSON.FeatureCollection | null>(null);
 
   useEffect(() => {
     fetch(`${import.meta.env.BASE_URL}road_network.geojson`)
       .then(r => r.json())
       .then(setRoadGeo)
+      .catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    fetch(`${import.meta.env.BASE_URL}data/ndpiv2026.geojson`)
+      .then(r => r.json())
+      .then(setCorridorGeo)
       .catch(() => {});
   }, []);
 
@@ -164,6 +177,7 @@ export default function NdpivSection() {
 
   return (
     <div style={{ padding: '20px 24px', color: '#e2e8f0' }}>
+      <CrossLinkChipBar sectionId="projects" />
       <ModuleNavBar module="Projects" />
 
       {/* ── Header ─────────────────────────────────────────────────────────── */}
@@ -222,25 +236,30 @@ export default function NdpivSection() {
 
           {/* Clustered bar: budget vs disbursed by category */}
           <div style={{ ...GLASS, padding: 14 }}>
-            <PanelLabel text="Budget vs Disbursed by Category (USD M)" />
-            <ResponsiveContainer width="100%" height={190}>
-              <BarChart data={categoryCluster} margin={{ top: 4, right: 4, left: -18, bottom: 28 }}
-                barCategoryGap="20%" barGap={2}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
-                <XAxis dataKey="type" tick={{ fill: '#64748b', fontSize: 9 }} angle={-30} textAnchor="end" interval={0} />
-                <YAxis tick={{ fill: '#64748b', fontSize: 9 }} />
-                <ReTooltip contentStyle={TT_STYLE}
-                  formatter={(v: number, name: string) => [`$${v}M`, name]}
-                  labelFormatter={(_: unknown, pl: { payload?: { fullType?: string } }[]) => pl[0]?.payload?.fullType ?? ''}
-                />
-                <Bar dataKey="budget"    name="Budget"    radius={[3,3,0,0]}>
-                  {categoryCluster.map(d => <Cell key={d.type} fill={categoryColor(d.fullType)} fillOpacity={0.5} />)}
-                </Bar>
-                <Bar dataKey="disbursed" name="Disbursed" radius={[3,3,0,0]}>
-                  {categoryCluster.map(d => <Cell key={d.type} fill={categoryColor(d.fullType)} />)}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+              <PanelLabel text="Budget vs Disbursed by Category (USD M)" />
+              <SourceTableButton anchor="tbl-086" />
+            </div>
+            <Chart3DWrap>
+              <ResponsiveContainer width="100%" height={190}>
+                <BarChart data={categoryCluster} margin={{ top: 4, right: 4, left: -18, bottom: 28 }}
+                  barCategoryGap="20%" barGap={2}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
+                  <XAxis dataKey="type" tick={{ fill: '#64748b', fontSize: 9 }} angle={-30} textAnchor="end" interval={0} />
+                  <YAxis tick={{ fill: '#64748b', fontSize: 9 }} />
+                  <ReTooltip contentStyle={TT_STYLE}
+                    formatter={(v: number, name: string) => [`$${v}M`, name]}
+                    labelFormatter={(_: unknown, pl: { payload?: { fullType?: string } }[]) => pl[0]?.payload?.fullType ?? ''}
+                  />
+                  <Bar dataKey="budget"    name="Budget"    radius={[3,3,0,0]} shape={<Bar3D/>}>
+                    {categoryCluster.map(d => <Cell key={d.type} fill={categoryColor(d.fullType)} fillOpacity={0.5} />)}
+                  </Bar>
+                  <Bar dataKey="disbursed" name="Disbursed" radius={[3,3,0,0]} shape={<Bar3D/>}>
+                    {categoryCluster.map(d => <Cell key={d.type} fill={categoryColor(d.fullType)} />)}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </Chart3DWrap>
           </div>
         </div>
 
@@ -251,7 +270,21 @@ export default function NdpivSection() {
             <TileLayer url={ESRI_TILE_URLS.labels}  attribution={ESRI_ATTRIBUTIONS.labels}  />
             <WaterLayers />
             <InfraLayers />
+            <MapLegend title="NDPIV Projects" items={LEGEND_PROJECTS} />
             {roadGeo && <GeoJSON key="roads" data={roadGeo} style={roadStyle} />}
+
+            {/* NDP IV 2026 investment corridors */}
+            {corridorGeo && (
+              <GeoJSON
+                key="ndpiv-corridors"
+                data={corridorGeo}
+                style={feat => {
+                  const status = String((feat?.properties as Record<string, unknown>)?.status ?? '');
+                  const color = STATUS_CLR[status] ?? '#b967ff';
+                  return { color, weight: 4, opacity: 0.78, dashArray: undefined };
+                }}
+              />
+            )}
 
             {projects.map(proj => (
               <Marker key={proj.project_id}
@@ -277,31 +310,20 @@ export default function NdpivSection() {
         {/* ── RIGHT: detail + progress + budget table ───────────────────────── */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
 
-          {selectedProject && (() => {
-            const sc = statusColor(selectedProject.status);
-            return (
-              <div style={{ ...GLASS, padding: 14, borderColor: 'rgba(185,103,255,0.22)' }}>
-                <PanelLabel text="NDP IV Project Detail" />
-                <div style={{ fontSize: 11 }}>
-                  <div style={{ fontWeight: 700, marginBottom: 4, color: '#e2e8f0' }}>{selectedProject.name}</div>
-                  <div style={{ color: '#94a3b8', marginBottom: 2 }}>{selectedProject.type} · {selectedProject.region}</div>
-                  <div style={{ color: '#94a3b8', marginBottom: 2 }}>
-                    Priority: <b style={{ color: selectedProject.priority === 'High' ? '#ef4444' : selectedProject.priority === 'Medium' ? '#f59e0b' : '#94a3b8' }}>{selectedProject.priority}</b>
-                  </div>
-                  <div style={{ color: '#94a3b8', marginBottom: 2 }}>Budget: <b style={{ color: '#00ff88' }}>${(selectedProject.budget_usd/1e6).toFixed(0)}M</b> · Disbursed: ${(selectedProject.disbursed_usd/1e6).toFixed(0)}M</div>
-                  <div style={{ color: '#94a3b8' }}>Target: {selectedProject.target_year} · {selectedProject.length_km} km</div>
-                  <div style={{ marginTop: 8, height: 4, background: 'rgba(255,255,255,0.06)', borderRadius: 2 }}>
-                    <div style={{ width: `${selectedProject.completion_pct}%`, height: '100%', background: sc, borderRadius: 2, boxShadow: `0 0 4px ${sc}60` }} />
-                  </div>
-                  <div style={{ marginTop: 3, fontSize: 10, color: '#64748b' }}>Completion: {selectedProject.completion_pct}%</div>
-                </div>
-              </div>
-            );
-          })()}
+          {/* MapDetailPane — default = status distribution, selected = project detail */}
+          <NdpivDetailPane
+            projects={projects}
+            selected={selectedProject}
+            onClose={() => setSelectedProject(null)}
+          />
+
 
           {/* Progress bars */}
           <div style={{ ...GLASS, padding: 14 }}>
-            <PanelLabel text="Project Completion" />
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+              <PanelLabel text="Project Completion" />
+              <SourceTableButton anchor="tbl-014" />
+            </div>
             {projects.map(proj => (
               <div key={proj.project_id} style={{ marginBottom: 9 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
@@ -362,5 +384,106 @@ export default function NdpivSection() {
         </div>
       </div>
     </div>
+  );
+}
+
+// ─── Reusable detail pane for NDPIV ─────────────────────────────────────────
+function NdpivDetailPane({
+  projects, selected, onClose,
+}: {
+  projects: NdpivProject[];
+  selected: NdpivProject | null;
+  onClose: () => void;
+}) {
+  const accent = '#b967ff';
+  const statusCounts: Record<string, number> = {};
+  let totalBudget = 0, totalDisbursed = 0;
+  projects.forEach(p => {
+    statusCounts[p.status] = (statusCounts[p.status] ?? 0) + 1;
+    totalBudget    += p.budget_usd;
+    totalDisbursed += p.disbursed_usd;
+  });
+
+  const renderDefault = (
+    <div>
+      <StatCard label="Total Projects" value={projects.length} unit="active" color={accent} />
+      <StatCard label="Total Budget" value={`$${(totalBudget/1e6).toFixed(0)}M`} unit="USD" color="#00ff88"
+        sub={`$${(totalDisbursed/1e6).toFixed(0)}M disbursed (${Math.round(totalDisbursed/totalBudget*100)}%)`} />
+
+      <SectionHeader title="Status Distribution" accent={accent} />
+      <div style={{ display:'flex', flexDirection:'column', gap:4, marginBottom:10 }}>
+        {Object.entries(statusCounts).map(([st, n]) => {
+          const c = statusColor(st);
+          const pct = (n/projects.length)*100;
+          return (
+            <div key={st} style={{ display:'flex', alignItems:'center', gap:6, fontSize:9.5 }}>
+              <span style={{ width:8, height:8, borderRadius:2, background:c, flexShrink:0 }}/>
+              <span style={{ color:'#94a3b8', flex:1 }}>{st}</span>
+              <span style={{ color:c, fontWeight:800 }}>{n}</span>
+              <div style={{ width:50, height:4, background:'rgba(255,255,255,0.06)', borderRadius:2 }}>
+                <div style={{ width:`${pct}%`, height:'100%', background:c, borderRadius:2 }}/>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      <SectionHeader title="Top 3 by Budget" accent={accent} />
+      {[...projects].sort((a,b) => b.budget_usd - a.budget_usd).slice(0,3).map(p => (
+        <div key={p.project_id} style={{
+          padding:'6px 8px', marginBottom:4, fontSize:9.5,
+          background:'rgba(15,23,42,0.6)', border:'1px solid rgba(255,255,255,0.05)', borderRadius:6,
+        }}>
+          <div style={{ color:'#e2eaf4', fontWeight:700 }}>{p.name}</div>
+          <div style={{ color:'#64748b', marginTop:2 }}>
+            ${(p.budget_usd/1e6).toFixed(0)}M · {p.length_km} km · {p.completion_pct}%
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+
+  return (
+    <MapDetailPane
+      defaultContent={renderDefault}
+      selectedFeature={selected}
+      onClose={onClose}
+      defaultTitle="NDP IV Portfolio"
+      defaultSubtitle="Click any project marker to see details"
+      selectedTitle="Project Detail"
+      width={320}
+      accent={accent}
+      renderFeature={(p: NdpivProject) => {
+        const sc = statusColor(p.status);
+        return (
+          <div>
+            <div style={{ fontSize:13, fontWeight:800, color:'#e2eaf4', marginBottom:4 }}>{p.name}</div>
+            <div style={{ fontSize:9, color:'rgba(148,163,184,0.7)', marginBottom:10 }}>{p.type} · {p.region}</div>
+
+            <StatCard label="Status" value={p.status} color={sc} />
+            <StatCard label="Completion" value={`${p.completion_pct}%`} unit="" color={sc} />
+
+            <SectionHeader title="Attributes" accent={accent} />
+            <AttributeRow label="Priority" value={p.priority} color={
+              p.priority === 'High' ? '#ef4444' : p.priority === 'Medium' ? '#f59e0b' : '#94a3b8'
+            }/>
+            <AttributeRow label="Length" value={`${p.length_km} km`} mono />
+            <AttributeRow label="Budget" value={`$${(p.budget_usd/1e6).toFixed(1)}M`} color="#00ff88" mono />
+            <AttributeRow label="Disbursed" value={`$${(p.disbursed_usd/1e6).toFixed(1)}M`} color="#00ff88" mono />
+            <AttributeRow label="Target Year" value={p.target_year} mono />
+            <AttributeRow label="Region" value={p.region} />
+
+            <SectionHeader title="Progress" accent={accent} />
+            <div style={{ height:6, background:'rgba(255,255,255,0.06)', borderRadius:3, overflow:'hidden' }}>
+              <div style={{ width:`${p.completion_pct}%`, height:'100%', background:sc,
+                boxShadow:`0 0 8px ${sc}aa`, transition:'width 0.3s' }}/>
+            </div>
+            <div style={{ marginTop:6, fontSize:9, color:'rgba(148,163,184,0.55)' }}>
+              {p.completion_pct}% complete · {p.length_km} km scope
+            </div>
+          </div>
+        );
+      }}
+    />
   );
 }

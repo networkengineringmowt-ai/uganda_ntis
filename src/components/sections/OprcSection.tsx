@@ -6,11 +6,16 @@ import {
   BarChart, Bar, XAxis, YAxis, Tooltip as ReTooltip,
   Cell, Legend, ResponsiveContainer, CartesianGrid,
 } from 'recharts';
+import { Chart3DWrap, Bar3D, TT_NEON, TICK } from '../../lib/chart3d';
 import { ESRI_TILE_URLS, ESRI_ATTRIBUTIONS, ROAD_STYLES, surfaceCategory } from '../../shared/mapSymbols';
 import { WaterLayers } from '../../shared/WaterLayers';
 import { InfraLayers } from '../../shared/InfraLayers';
+import { MapLegend, LEGEND_PROJECTS } from '../../shared/MapLegend';
 import { TrendingUp } from 'lucide-react';
 import { ModuleNavBar } from '../../shared/ModuleNavBar';
+import MapDetailPane, { StatCard, AttributeRow, SectionHeader } from '../../shared/MapDetailPane';
+import SourceTableButton from '../../shared/SourceTableButton';
+import CrossLinkChipBar from '../../shared/CrossLinkChipBar';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface OprcLot {
@@ -142,6 +147,7 @@ export default function OprcSection() {
 
   return (
     <div style={{ padding: '20px 24px', color: '#e2e8f0' }}>
+      <CrossLinkChipBar sectionId="oprc" />
       <ModuleNavBar module="Projects" />
 
       {/* ── Header ─────────────────────────────────────────────────────────── */}
@@ -157,7 +163,7 @@ export default function OprcSection() {
         <div>
           <div style={{ fontSize: 16, fontWeight: 900, letterSpacing: '-0.01em' }}>OPRC Contracts</div>
           <div style={{ fontSize: 10, color: '#64748b', marginTop: 1 }}>
-            Output &amp; Performance-based Road Contracts · UNRA
+            Output &amp; Performance-based Road Contracts · Department of National Roads
           </div>
         </div>
       </div>
@@ -253,6 +259,7 @@ export default function OprcSection() {
             <TileLayer url={ESRI_TILE_URLS.labels}  attribution={ESRI_ATTRIBUTIONS.labels}  />
             <WaterLayers />
             <InfraLayers />
+            <MapLegend title="OPRC Roads" items={LEGEND_PROJECTS} />
             {roadGeo && <GeoJSON key="roads" data={roadGeo} style={roadStyle} />}
 
             {lots.map(lot => {
@@ -286,74 +293,170 @@ export default function OprcSection() {
         {/* ── RIGHT: detail + charts ────────────────────────────────────────── */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
 
-          {selectedLot && (() => {
-            const pc = perfColor(selectedLot.performance_score);
-            return (
-              <div style={{ ...GLASS, padding: 14, borderColor: 'rgba(0,245,255,0.22)' }}>
-                <PanelLabel text="OPRC Lot Detail" />
-                <div style={{ fontSize: 11 }}>
-                  <div style={{ fontWeight: 700, marginBottom: 4, color: '#e2e8f0' }}>{selectedLot.name}</div>
-                  <div style={{ color: '#94a3b8', marginBottom: 3 }}>{selectedLot.contractor}</div>
-                  <div style={{ display: 'flex', gap: 12, marginBottom: 4 }}>
-                    <span style={{ color: '#94a3b8' }}>Paved: <b style={{ color: '#22c55e' }}>{selectedLot.paved_km} km</b></span>
-                    <span style={{ color: '#94a3b8' }}>Unpaved: <b style={{ color: '#f59e0b' }}>{selectedLot.unpaved_km} km</b></span>
-                  </div>
-                  <div style={{ color: '#94a3b8' }}>Value: <b style={{ color: '#00ff88' }}>${(selectedLot.contract_value_usd/1e6).toFixed(1)}M</b></div>
-                  <div style={{ color: '#94a3b8', marginTop: 3 }}>Period: {selectedLot.start_date} → {selectedLot.end_date}</div>
-                  <div style={{ marginTop: 8, height: 4, background: 'rgba(255,255,255,0.06)', borderRadius: 2 }}>
-                    <div style={{ width: `${selectedLot.performance_score}%`, height: '100%', background: pc, borderRadius: 2, boxShadow: `0 0 4px ${pc}60` }} />
-                  </div>
-                  <div style={{ marginTop: 3, fontSize: 10, color: '#64748b' }}>Performance: {selectedLot.performance_score}/100</div>
-                </div>
-              </div>
-            );
-          })()}
+          {/* MapDetailPane — default = contractor breakdown, selected = lot detail */}
+          <OprcDetailPane
+            lots={lots}
+            selected={selectedLot}
+            onClose={() => setSelectedLot(null)}
+          />
+
 
           {/* Clustered: Score + km per lot */}
           <div style={{ ...GLASS, padding: 14 }}>
-            <PanelLabel text="Performance Score & Network km — by OPRC Lot" />
-            <ResponsiveContainer width="100%" height={170}>
-              <BarChart data={clusterData} margin={{ top: 4, right: 4, left: -22, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
-                <XAxis dataKey="name" tick={{ fontSize: 8, fill: '#64748b' }} />
-                <YAxis yAxisId="score" domain={[0,100]} tick={{ fontSize: 8, fill: '#64748b' }} />
-                <YAxis yAxisId="km" orientation="right" tick={{ fontSize: 8, fill: '#64748b' }} />
-                <ReTooltip contentStyle={TT_STYLE}
-                  formatter={(v: number, name: string) => [name === 'score' ? `${v}/100` : `${v} km`, name === 'score' ? 'Score' : 'Network km']} />
-                <Legend iconSize={7} wrapperStyle={{ fontSize: 9, color: '#94a3b8' }} />
-                <Bar yAxisId="score" dataKey="score" name="Perf Score" radius={[3,3,0,0]} maxBarSize={18}>
-                  {clusterData.map((d, i) => <Cell key={i} fill={perfColor(lots[i]?.performance_score ?? 0)} />)}
-                </Bar>
-                <Bar yAxisId="km" dataKey="km" name="Network km" fill="rgba(0,245,255,0.45)" radius={[3,3,0,0]} maxBarSize={18}>
-                  {clusterData.map((d, i) => <Cell key={i} fill={statusColor(d.status)} opacity={0.65} />)}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+              <PanelLabel text="Performance Score & Network km — by OPRC Lot" />
+              <SourceTableButton anchor="tbl-013" />
+            </div>
+            <Chart3DWrap>
+              <ResponsiveContainer width="100%" height={170}>
+                <BarChart data={clusterData} margin={{ top: 4, right: 4, left: -22, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
+                  <XAxis dataKey="name" tick={{ fontSize: 8, fill: '#64748b' }} />
+                  <YAxis yAxisId="score" domain={[0,100]} tick={{ fontSize: 8, fill: '#64748b' }} />
+                  <YAxis yAxisId="km" orientation="right" tick={{ fontSize: 8, fill: '#64748b' }} />
+                  <ReTooltip contentStyle={TT_STYLE}
+                    formatter={(v: number, name: string) => [name === 'score' ? `${v}/100` : `${v} km`, name === 'score' ? 'Score' : 'Network km']} />
+                  <Legend iconSize={7} wrapperStyle={{ fontSize: 9, color: '#94a3b8' }} />
+                  <Bar yAxisId="score" dataKey="score" name="Perf Score" radius={[3,3,0,0]} maxBarSize={18} shape={<Bar3D/>}>
+                    {clusterData.map((d, i) => <Cell key={i} fill={perfColor(lots[i]?.performance_score ?? 0)} />)}
+                  </Bar>
+                  <Bar yAxisId="km" dataKey="km" name="Network km" fill="rgba(0,245,255,0.45)" radius={[3,3,0,0]} maxBarSize={18} shape={<Bar3D/>}>
+                    {clusterData.map((d, i) => <Cell key={i} fill={statusColor(d.status)} opacity={0.65} />)}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </Chart3DWrap>
           </div>
 
           {/* Clustered: Lot count + km by contract status */}
           <div style={{ ...GLASS, padding: 14 }}>
-            <PanelLabel text="Lots & Network km by Contract Status" />
-            <ResponsiveContainer width="100%" height={160}>
-              <BarChart data={statusCluster} margin={{ top: 4, right: 4, left: -22, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
-                <XAxis dataKey="status" tick={{ fontSize: 8, fill: '#64748b' }} tickFormatter={(s:string) => s.split(' ')[0]} />
-                <YAxis yAxisId="cnt" tick={{ fontSize: 8, fill: '#64748b' }} />
-                <YAxis yAxisId="km" orientation="right" tick={{ fontSize: 8, fill: '#64748b' }} />
-                <ReTooltip contentStyle={TT_STYLE}
-                  formatter={(v: number, name: string) => [name === 'count' ? `${v} lots` : `${v} km`, name === 'count' ? 'Lots' : 'Total km']} />
-                <Legend iconSize={7} wrapperStyle={{ fontSize: 9, color: '#94a3b8' }} />
-                <Bar yAxisId="cnt" dataKey="count" name="Lots" radius={[3,3,0,0]} maxBarSize={20}>
-                  {statusCluster.map((d, i) => <Cell key={i} fill={statusColor(d.status)} />)}
-                </Bar>
-                <Bar yAxisId="km" dataKey="km" name="km" radius={[3,3,0,0]} maxBarSize={20}>
-                  {statusCluster.map((d, i) => <Cell key={i} fill={statusColor(d.status)} opacity={0.5} />)}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+              <PanelLabel text="Lots & Network km by Contract Status" />
+              <SourceTableButton anchor="tbl-085" />
+            </div>
+            <Chart3DWrap>
+              <ResponsiveContainer width="100%" height={160}>
+                <BarChart data={statusCluster} margin={{ top: 4, right: 4, left: -22, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
+                  <XAxis dataKey="status" tick={{ fontSize: 8, fill: '#64748b' }} tickFormatter={(s:string) => s.split(' ')[0]} />
+                  <YAxis yAxisId="cnt" tick={{ fontSize: 8, fill: '#64748b' }} />
+                  <YAxis yAxisId="km" orientation="right" tick={{ fontSize: 8, fill: '#64748b' }} />
+                  <ReTooltip contentStyle={TT_STYLE}
+                    formatter={(v: number, name: string) => [name === 'count' ? `${v} lots` : `${v} km`, name === 'count' ? 'Lots' : 'Total km']} />
+                  <Legend iconSize={7} wrapperStyle={{ fontSize: 9, color: '#94a3b8' }} />
+                  <Bar yAxisId="cnt" dataKey="count" name="Lots" radius={[3,3,0,0]} maxBarSize={20} shape={<Bar3D/>}>
+                    {statusCluster.map((d, i) => <Cell key={i} fill={statusColor(d.status)} />)}
+                  </Bar>
+                  <Bar yAxisId="km" dataKey="km" name="km" radius={[3,3,0,0]} maxBarSize={20} shape={<Bar3D/>}>
+                    {statusCluster.map((d, i) => <Cell key={i} fill={statusColor(d.status)} opacity={0.5} />)}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </Chart3DWrap>
           </div>
         </div>
       </div>
     </div>
+  );
+}
+
+// ─── Reusable detail pane for OPRC ──────────────────────────────────────────
+function OprcDetailPane({
+  lots, selected, onClose,
+}: {
+  lots: OprcLot[];
+  selected: OprcLot | null;
+  onClose: () => void;
+}) {
+  const accent = '#00f5ff';
+  const totalValue = lots.reduce((s, l) => s + l.contract_value_usd, 0);
+  const totalKm    = lots.reduce((s, l) => s + l.total_km, 0);
+  // Aggregate value by contractor
+  const byContractor: Record<string, { value: number; lots: number; km: number }> = {};
+  lots.forEach(l => {
+    if (!byContractor[l.contractor]) byContractor[l.contractor] = { value: 0, lots: 0, km: 0 };
+    byContractor[l.contractor].value += l.contract_value_usd;
+    byContractor[l.contractor].lots  += 1;
+    byContractor[l.contractor].km    += l.total_km;
+  });
+  const sortedContractors = Object.entries(byContractor)
+    .sort((a, b) => b[1].value - a[1].value)
+    .slice(0, 6);
+
+  const renderDefault = (
+    <div>
+      <StatCard label="Total Lots" value={lots.length} unit="OPRC contracts" color={accent} />
+      <StatCard label="Network km" value={Math.round(totalKm).toLocaleString()} unit="km under contract" color="#22c55e" />
+      <StatCard label="Total Value" value={`$${(totalValue/1e6).toFixed(0)}M`} unit="USD"
+        sub={`${lots.length} contracts · avg $${(totalValue/lots.length/1e6).toFixed(1)}M`} color="#00ff88" />
+
+      <SectionHeader title="Contract Value by Contractor" accent={accent} />
+      <div style={{ display:'flex', flexDirection:'column', gap:4 }}>
+        {sortedContractors.map(([name, v]) => {
+          const pct = (v.value/totalValue) * 100;
+          return (
+            <div key={name} style={{ marginBottom:5, fontSize:9.5 }}>
+              <div style={{ display:'flex', justifyContent:'space-between', marginBottom:2 }}>
+                <span style={{ color:'#e2eaf4', fontWeight:600, maxWidth:180, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{name}</span>
+                <span style={{ color:accent, fontWeight:700 }}>${(v.value/1e6).toFixed(0)}M</span>
+              </div>
+              <div style={{ height:3, background:'rgba(255,255,255,0.06)', borderRadius:2 }}>
+                <div style={{ width:`${pct}%`, height:'100%', background:accent, borderRadius:2 }}/>
+              </div>
+              <div style={{ fontSize:8.5, color:'rgba(148,163,184,0.5)', marginTop:2 }}>
+                {v.lots} lot{v.lots>1?'s':''} · {Math.round(v.km)} km
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+
+  return (
+    <MapDetailPane
+      defaultContent={renderDefault}
+      selectedFeature={selected}
+      onClose={onClose}
+      defaultTitle="OPRC Programme"
+      defaultSubtitle="Click any lot marker to see contract details"
+      selectedTitle="Contract Detail"
+      width={320}
+      accent={accent}
+      renderFeature={(l: OprcLot) => {
+        const pc = perfColor(l.performance_score);
+        const sc = statusColor(l.status);
+        return (
+          <div>
+            <div style={{ fontSize:13, fontWeight:800, color:'#e2eaf4', marginBottom:4 }}>{l.name}</div>
+            <div style={{ fontSize:9, color:'rgba(148,163,184,0.7)', marginBottom:10 }}>{l.contractor}</div>
+
+            <StatCard label="Performance" value={`${l.performance_score}/100`} color={pc}
+              sub={l.performance_score >= 85 ? 'High performer' : l.performance_score >= 70 ? 'Meeting targets' : 'Below target'} />
+            <StatCard label="Contract Value" value={`$${(l.contract_value_usd/1e6).toFixed(1)}M`} unit="USD" color="#00ff88" />
+
+            <SectionHeader title="Contract Attributes" accent={accent} />
+            <AttributeRow label="Status" value={l.status} color={sc} />
+            <AttributeRow label="Region" value={l.region} />
+            <AttributeRow label="Total km" value={`${l.total_km}`} mono />
+            <AttributeRow label="Paved km" value={`${l.paved_km}`} color="#22c55e" mono />
+            <AttributeRow label="Unpaved km" value={`${l.unpaved_km}`} color="#f59e0b" mono />
+            <AttributeRow label="Start" value={l.start_date} mono />
+            <AttributeRow label="End" value={l.end_date} mono />
+
+            <SectionHeader title="Roads in Lot" accent={accent} />
+            <div style={{ fontSize:9.5, color:'#94a3b8', lineHeight:1.6 }}>
+              {l.roads.join(' · ')}
+            </div>
+
+            <SectionHeader title="Performance Bar" accent={accent} />
+            <div style={{ height:6, background:'rgba(255,255,255,0.06)', borderRadius:3, overflow:'hidden' }}>
+              <div style={{ width:`${l.performance_score}%`, height:'100%', background:pc,
+                boxShadow:`0 0 8px ${pc}aa`, transition:'width 0.3s' }}/>
+            </div>
+          </div>
+        );
+      }}
+    />
   );
 }

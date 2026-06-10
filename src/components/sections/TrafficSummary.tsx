@@ -433,7 +433,7 @@ export default function TrafficSummary() {
       <div style={{ marginBottom:18 }}>
         <div style={{ fontSize:9, fontWeight:800, color:'rgba(99,102,241,0.55)',
           letterSpacing:'0.18em', textTransform:'uppercase', marginBottom:3 }}>
-          Uganda National Roads Â· UNRA / DNR 2025
+          Uganda National Roads Â· Department of National Roads / DNR 2025
         </div>
         <div style={{ fontSize:22, fontWeight:900, color:C.cyan, lineHeight:1.2,
           textShadow:'0 0 22px rgba(0,245,255,0.35)' }}>

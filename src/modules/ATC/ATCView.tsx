@@ -11,6 +11,7 @@ import { MapContainer, TileLayer, CircleMarker, Tooltip as LeafletTooltip, ZoomC
 import 'leaflet/dist/leaflet.css';
 import { WaterLayers } from '../../shared/WaterLayers';
 import { InfraLayers } from '../../shared/InfraLayers';
+import { MapLegend, LEGEND_CONGESTION } from '../../shared/MapLegend';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   AreaChart, Area, PieChart, Pie, Cell, Legend, LineChart, Line, RadarChart,
@@ -166,6 +167,7 @@ function StationMapPanel({ allStations, aadtRows, monthlyRows }: {
               <TileLayer url={ESRI_TILE_URLS.labels}  attribution={ESRI_ATTRIBUTIONS.labels} opacity={0.7}/>
               <WaterLayers />
               <InfraLayers />
+              <MapLegend title="Congestion" items={LEGEND_CONGESTION} />
               <ZoomControl position="bottomright"/>
               {visible.map((f, i) => {
                 const [lng, lat] = f.geometry?.coordinates || [0,0];
@@ -226,7 +228,7 @@ function StationMapPanel({ allStations, aadtRows, monthlyRows }: {
       </div>
 
       <div style={{ marginTop:10, fontSize:10, color:'rgba(148,163,184,0.45)', textAlign:'center' }}>
-        {visible.length} stations shown · Uganda National Road Network · Source: UNRA/DNR Traffic Survey Programme
+        {visible.length} stations shown · Uganda National Road Network · Source: Department of National Roads/DNR Traffic Survey Programme
       </div>
     </div>
   );
@@ -424,6 +426,7 @@ export default function ATCView() {
               <TileLayer url={ESRI_TILE_URLS.labels}  attribution={ESRI_ATTRIBUTIONS.labels} opacity={0.7}/>
               <WaterLayers />
               <InfraLayers />
+              <MapLegend title="Congestion" items={LEGEND_CONGESTION} />
               <ZoomControl position="bottomright"/>
               {sites.map((s,i)=>{
                 const aRow = aadtRows.find(r=>r.id===s.id);
@@ -712,8 +715,8 @@ export default function ATCView() {
       {/* ── FOOTER ─────────────────────────────────────────────────────── */}
       <div style={{ textAlign:'center', paddingTop:8, paddingBottom:4 }}>
         <div style={{ fontSize:9, color:'rgba(100,116,139,0.4)', letterSpacing:'0.08em' }}>
-          ATC NETWORK · DNR / UNRA · Data: 2017–2022 · {sites.length} permanent mother stations ·{' '}
-          6-class vehicle scheme (TIS data capture) · Source: UNRA Traffic Management Unit
+          ATC NETWORK · DNR / Department of National Roads · Data: 2017–2022 · {sites.length} permanent mother stations ·{' '}
+          6-class vehicle scheme (TIS data capture) · Source: Department of National Roads Traffic Management Unit
         </div>
       </div>
       </>)} {/* end dashboard tab */}

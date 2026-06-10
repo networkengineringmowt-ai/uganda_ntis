@@ -8,6 +8,7 @@ import {
 } from 'react-leaflet';
 import { WaterLayers } from '../../shared/WaterLayers';
 import { InfraLayers } from '../../shared/InfraLayers';
+import { MapLegend, LEGEND_FULL } from '../../shared/MapLegend';
 import 'leaflet/dist/leaflet.css';
 import {
   ResponsiveContainer, PieChart, Pie, Cell, Tooltip, Legend,
@@ -92,6 +93,7 @@ function StructureMap({ features, showCulverts }: {
       <TileLayer url={ESRI_TILE_URLS.labels}  attribution={ESRI_ATTRIBUTIONS.labels}  />
       <WaterLayers />
       <InfraLayers />
+      <MapLegend title="Map Features" items={LEGEND_FULL} />
       <ZoomControl position="bottomright" />
       {visible.map((f, i) => {
         const [lon, lat] = f.geometry.coordinates;

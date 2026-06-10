@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback, useMemo } from 'react';
 import { MapContainer, TileLayer, ZoomControl, GeoJSON } from 'react-leaflet';
 import { WaterLayers } from '../../shared/WaterLayers';
 import { InfraLayers } from '../../shared/InfraLayers';
+import { MapLegend, LEGEND_CONGESTION } from '../../shared/MapLegend';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { TrendingUp, Zap, AlertTriangle, Activity, Clock } from 'lucide-react';
@@ -649,6 +650,7 @@ export default function PredictionsPanel() {
                 <TileLayer url={ESRI_TILE_URLS.labels}  attribution={ESRI_ATTRIBUTIONS.labels} opacity={0.7}/>
                 <WaterLayers />
                 <InfraLayers />
+                <MapLegend title="Congestion" items={LEGEND_CONGESTION} />
                 <ZoomControl position="bottomright"/>
                 <PredLayer
                   features={features}

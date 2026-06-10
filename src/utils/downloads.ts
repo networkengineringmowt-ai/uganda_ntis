@@ -101,7 +101,7 @@ export function downloadKML(structures: Structure[], filename = 'structures.kml'
 <kml xmlns="http://www.opengis.net/kml/2.2">
 <Document>
   <name>Uganda National Road Structures</name>
-  <description>UNRA Bridge and Major Culvert Inventory — ${structures.length} structures</description>
+  <description>Department of National Roads Bridge and Major Culvert Inventory — ${structures.length} structures</description>
 ${placemarks}
 </Document>
 </kml>`;

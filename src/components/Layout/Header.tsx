@@ -1,17 +1,23 @@
 import { Bell, Search, RefreshCw, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useBMS } from '../../store/BMSContext';
+import { UserBadge } from '../../modules/Auth/UserBadge';
 
 const VIEW_TITLES: Record<string, { title: string; sub: string; color?: string }> = {
   // Platform
+  network:       { title: 'Network Overview',              sub: 'Dashboard · Road Network Map · Network Story · Architecture', color: '#6366f1' },
+  admin:         { title: 'Admin Tools',                   sub: 'Platform Mind Map · Data Audit · System Architecture',        color: '#00f5ff' },
+  sources:       { title: 'Sources & Evidence',            sub: 'Evidence Catalogue · Tabular Summaries · Documents · Downloads', color: '#94a3b8' },
   platform:      { title: 'Platform Overview',            sub: 'Uganda National Roads Management Platform',             color: '#00f5ff' },
   networkstory:  { title: 'Network Story 1986–',          sub: 'Road network development since liberation · 40-year arc', color: '#b967ff' },
-  roadnetwork:   { title: 'Road Network Map',             sub: '1,014 national road links · 21,292 km total network',   color: '#00ff88' },
+  roadnetwork:   { title: 'Road Network Map',             sub: '1,013 national road links · 21,302 km official (FY25-26) · Data: DNR GIS / NDPIV FY25-26', color: '#00ff88' },
+  casestudies:   { title: 'Global Case Studies',          sub: '15 countries · World map · Comparative analytics · Lessons for DNR', color: '#00d4aa' },
+  roadreserve:   { title: 'Road Reserve Management',      sub: 'Gazette status · Reserve corridor map · Encroachment register · Legal enforcement', color: '#00d4aa' },
   roadvideoview: { title: 'Road Survey Video',             sub: 'Road surface video archive · 2021–2026',               color: '#ff6b35' },
-  traffic:       { title: 'Traffic & Demand',             sub: 'Network traffic counts · AADT surveys 2017–2025',       color: '#ffd23f' },
-  roadcondition: { title: 'Road Condition',               sub: 'Pavement condition, IRI & paved stock growth',          color: '#4d9fff' },
+  traffic:       { title: 'Traffic & Demand',             sub: 'Network traffic counts · projected to June 2026 · 298 TCS stations',   color: '#ffd23f' },
+  roadcondition: { title: 'Pavement Management',          sub: 'Road condition · IRI · HDM-4 · maintenance programme · as of 2026',    color: '#fb923c' },
   atc:           { title: 'ATC Live Dashboard',           sub: 'Automatic Traffic Counters · 10 permanent mother stations · Jul 2025–present', color: '#ffd23f' },
-  projects:      { title: 'Projects & Road Development',  sub: 'Ongoing upgrading & construction contracts · FY 2024/25', color: '#ff2d78' },
+  projects:      { title: 'Projects & Road Development',  sub: 'Ongoing upgrading & construction contracts · FY 2025/26', color: '#ff2d78' },
   // BMS
   gismap:        { title: 'Structure Map',                   sub: 'GIS structure map · All bridges & major culverts · 2018–2024 time series', color: '#00ff88' },
   dashboard:     { title: 'BMS Dashboard',                sub: 'Bridge Management System · DNR',                        color: '#00f5ff' },
@@ -32,7 +38,7 @@ export default function Header({ showSearch }: { showSearch?: boolean }) {
   const [now, setNow]     = useState(new Date());
 
   useEffect(() => {
-    const t = setInterval(() => setNow(new Date()), 60_000);
+    const t = setInterval(() => setNow(new Date()), 1_000);
     return () => clearInterval(t);
   }, []);
 
@@ -48,7 +54,7 @@ export default function Header({ showSearch }: { showSearch?: boolean }) {
     <header
       className="flex items-center gap-3 flex-shrink-0"
       style={{
-        padding: '8px 20px',
+        padding: '6px 14px',
         background: 'rgba(2,5,8,0.88)',
         backdropFilter: 'blur(20px) saturate(160%)',
         WebkitBackdropFilter: 'blur(20px) saturate(160%)',
@@ -135,7 +141,10 @@ export default function Header({ showSearch }: { showSearch?: boolean }) {
           overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
         }}>
           {meta.sub} &mdash;{' '}
-          {now.toLocaleDateString('en-UG', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })}
+          {now.toLocaleDateString('en-UG', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })}{' '}
+          <span style={{ fontFamily: 'monospace', color: accent, opacity: 0.7 }}>
+            {now.toLocaleTimeString('en-UG', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })} EAT
+          </span>
         </p>
       </div>
 
@@ -214,18 +223,8 @@ export default function Header({ showSearch }: { showSearch?: boolean }) {
         <RefreshCw size={14}/>
       </button>
 
-      {/* User avatar */}
-      <div style={{
-        width: 28, height: 28, borderRadius: 8, flexShrink: 0,
-        background: `linear-gradient(135deg, rgba(${accentRgb},0.2), rgba(77,159,255,0.1))`,
-        border: `1px solid rgba(${accentRgb},0.3)`,
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        fontSize: 9, fontWeight: 900, color: accent,
-        boxShadow: `0 0 10px rgba(${accentRgb},0.15)`,
-        transition: 'all 0.3s',
-      }}>
-        DNR
-      </div>
+      {/* User badge (role-aware) */}
+      <UserBadge />
     </header>
   );
 }

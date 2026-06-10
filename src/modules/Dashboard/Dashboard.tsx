@@ -15,6 +15,7 @@ import {
 import { useBMS } from '../../store/BMSContext';
 import { conditionColor, conditionLabel, formatUGX, formatDate } from '../../utils/helpers';
 import { ModuleNavBar } from '../../shared/ModuleNavBar';
+import SourceTableButton from '../../shared/SourceTableButton';
 
 // ─── Neon colours ─────────────────────────────────────────────────────────────
 const N = {
@@ -180,8 +181,11 @@ export default function Dashboard() {
           BRIDGE MANAGEMENT SYSTEM</div>
         <div style={{fontSize:18,fontWeight:900,color:N.cyan,textShadow:`0 0 18px rgba(0,245,255,0.45)`,letterSpacing:'0.02em'}}>
           BMS Operations Dashboard</div>
-        <div style={{fontSize:10,color:'rgba(148,163,184,0.6)',marginTop:2}}>
-          {stats.total} structures · {stats.bridges} bridges · {stats.culverts} major culverts · Uganda National Road Network
+        <div style={{display:'flex',alignItems:'center',gap:8,marginTop:2}}>
+          <span style={{fontSize:10,color:'rgba(148,163,184,0.6)'}}>
+            {stats.total} structures · {stats.bridges} bridges · {stats.culverts} major culverts · Uganda National Road Network
+          </span>
+          <SourceTableButton anchor="tbl-072" />
         </div>
       </div>
 
@@ -207,7 +211,10 @@ export default function Dashboard() {
 
         {/* Chart 1 — Condition distribution */}
         <div style={gl(N.pink)}>
-          <SHead label="Condition Distribution" icon={<BarChart3 size={14}/>} color={N.pink}/>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            <SHead label="Condition Distribution" icon={<BarChart3 size={14}/>} color={N.pink}/>
+            <SourceTableButton anchor="tbl-011" />
+          </div>
           <Chart3DWrap tilt={1.8}>
             <ResponsiveContainer width="100%" height={200}>
               <BarChart data={condData} margin={{left:0,right:8,top:8,bottom:0}}>
@@ -256,7 +263,10 @@ export default function Dashboard() {
 
         {/* Chart 3 — Structures by region */}
         <div style={gl(N.green)}>
-          <SHead label="Structures by Region" icon={<MapPin size={14}/>} color={N.green}/>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            <SHead label="Structures by Region" icon={<MapPin size={14}/>} color={N.green}/>
+            <SourceTableButton anchor="tbl-012" />
+          </div>
           <Chart3DWrap tilt={1.4}>
             <ResponsiveContainer width="100%" height={180}>
               <BarChart data={regionData} layout="vertical" margin={{left:10,right:20,top:4,bottom:4}}>

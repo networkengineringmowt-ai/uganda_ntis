@@ -6,12 +6,16 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "server": "npm --prefix server run dev",
+    "dev:full": "concurrently -n REACT,SERVER -c cyan,magenta \"npm run dev\" \"npm run server\"",
+    "export-data": "python scripts/export_data_for_deployment.py",
+    "build": "npm run export-data && tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
     "deploy": "npm run build && gh-pages -d dist -b gh-pages"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.107.0",
     "html-to-image": "^1.11.13",
     "leaflet": "^1.9.4",
     "lucide-react": "^0.469.0",
@@ -29,6 +33,7 @@
     "@types/uuid": "^10.0.0",
     "@vitejs/plugin-react": "^4.3.4",
     "autoprefixer": "^10.4.20",
+    "concurrently": "^9.1.0",
     "gh-pages": "^6.3.0",
     "postcss": "^8.4.49",
     "tailwindcss": "^3.4.17",

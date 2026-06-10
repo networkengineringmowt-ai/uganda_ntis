@@ -1,0 +1,173 @@
+/**
+ * Enhanced popup styles for rich point feature information
+ * Applied to all airport, ferry, bridge, and infrastructure popups
+ */
+
+.enhanced-popup.leaflet-popup {
+  background-color: transparent;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.enhanced-popup .leaflet-popup-content-wrapper {
+  background-color: transparent;
+  box-shadow: none;
+  border-radius: 12px;
+  padding: 0;
+  border: none;
+}
+
+.enhanced-popup .leaflet-popup-content {
+  margin: 0;
+  width: auto;
+  max-width: 320px;
+  font-family: 'Inter', 'Segoe UI', sans-serif;
+}
+
+.enhanced-popup .leaflet-popup-tip-container {
+  width: 24px;
+  height: 12px;
+}
+
+.enhanced-popup .leaflet-popup-tip {
+  background-color: #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  border: none;
+}
+
+/* Animation for popup appearance */
+@keyframes popupSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.enhanced-popup {
+  animation: popupSlideIn 0.3s ease-out;
+}
+
+/* Ensure popup content is readable */
+.enhanced-popup h3,
+.enhanced-popup h4,
+.enhanced-popup p {
+  margin: 0;
+  padding: 0;
+}
+
+/* Details element styling within popups */
+.enhanced-popup details {
+  cursor: pointer;
+  user-select: none;
+}
+
+.enhanced-popup details summary:hover {
+  opacity: 0.8;
+}
+
+.enhanced-popup details[open] summary {
+  margin-bottom: 8px;
+}
+
+/* Badge/tag styling */
+.enhanced-popup .badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* Grid layout for two-column info */
+.enhanced-popup .info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.enhanced-popup .info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.enhanced-popup .info-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.enhanced-popup .info-value {
+  font-size: 12px;
+  color: #1f2937;
+  font-weight: 500;
+}
+
+/* Alert/warning box */
+.enhanced-popup .alert {
+  display: flex;
+  gap: 8px;
+  padding: 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  align-items: flex-start;
+}
+
+.enhanced-popup .alert-info {
+  background-color: #dbeafe;
+  border: 1px solid #bfdbfe;
+  color: #0c4a6e;
+}
+
+.enhanced-popup .alert-warning {
+  background-color: #fef3c7;
+  border: 1px solid #fde68a;
+  color: #92400e;
+}
+
+.enhanced-popup .alert-critical {
+  background-color: #fee2e2;
+  border: 1px solid #fecaca;
+  color: #7f1d1d;
+}
+
+.enhanced-popup .alert-icon {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+/* Separators */
+.enhanced-popup .separator {
+  height: 1px;
+  background-color: #e5e7eb;
+  margin: 10px 0;
+}
+
+/* Footer styling */
+.enhanced-popup .popup-footer {
+  background-color: #f9fafb;
+  padding: 8px;
+  border-top: 1px solid #e5e7eb;
+  font-size: 10px;
+  color: #9ca3af;
+  text-align: center;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .enhanced-popup .leaflet-popup-content {
+    max-width: 280px;
+  }
+
+  .enhanced-popup .info-grid {
+    grid-template-columns: 1fr;
+  }
+}

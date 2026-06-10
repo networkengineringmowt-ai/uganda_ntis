@@ -588,7 +588,7 @@ export default function GrowthFactorsPanel() {
           {
             label: 'Regions',
             value: String(data.regions.filter(r => r !== 'Unknown').length),
-            sub: 'UNRA maintenance regions', color: '#00ff88',
+            sub: 'Department of National Roads maintenance regions', color: '#00ff88',
           },
           {
             label: 'Vehicle Classes',
@@ -685,7 +685,7 @@ export default function GrowthFactorsPanel() {
 
       {/* ── Footer note ──────────────────────────────────────────────────────── */}
       <div style={{ fontSize: 9, color: 'rgba(148,163,184,0.25)', paddingBottom: 8 }}>
-        Sources: UNRA Traffic Information System (TIS) annual surveys · ATC permanent counters ·
+        Sources: Department of National Roads Traffic Information System (TIS) annual surveys · ATC permanent counters ·
         Computed from traffic_platform.db via compute_growth_factors.py
       </div>
     </div>

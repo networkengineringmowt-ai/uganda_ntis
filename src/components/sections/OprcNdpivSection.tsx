@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { MapContainer, TileLayer, CircleMarker, Marker, Popup } from 'react-leaflet';
 import { WaterLayers } from '../../shared/WaterLayers';
 import { InfraLayers } from '../../shared/InfraLayers';
+import { MapLegend, LEGEND_PROJECTS } from '../../shared/MapLegend';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import {
@@ -292,6 +293,7 @@ export default function OprcNdpivSection() {
             <TileLayer url={ESRI_TILE_URLS.labels}  attribution={ESRI_ATTRIBUTIONS.labels}  />
             <WaterLayers />
             <InfraLayers />
+            <MapLegend title="Projects" items={LEGEND_PROJECTS} />
 
             {showOprc && lots.map(lot => {
               const pc   = perfColor(lot.performance_score);

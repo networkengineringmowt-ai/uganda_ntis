@@ -1,15 +1,22 @@
-import { lazy, Suspense, useMemo } from 'react';
+import { lazy, Suspense, useMemo, useState } from 'react';
 import { BMSProvider, useBMS } from './store/BMSContext';
+import { BotHighlightContext } from './modules/AssetBot/types';
+import { AuthProvider, useAuth } from './modules/Auth/AuthContext';
+import { LoginPage } from './modules/Auth/LoginPage';
 import Sidebar from './components/Layout/Sidebar';
 import Header  from './components/Layout/Header';
 
+const RoadAssetBot = lazy(() => import('./modules/AssetBot/RoadAssetBot'));
+
 // ── Platform-level modules ────────────────────────────────────────────────────
+const NetworkSection    = lazy(() => import('./modules/Network/NetworkSection'));
 const PlatformDashboard = lazy(() => import('./modules/PlatformDashboard/PlatformDashboard'));
 const NetworkStory      = lazy(() => import('./modules/NetworkStory/NetworkStory'));
 const RoadNetworkView   = lazy(() => import('./modules/RoadNetwork/RoadNetworkView'));
 const TrafficSection    = lazy(() => import('./modules/Traffic/TrafficSection'));
-const RoadConditionView = lazy(() => import('./modules/RoadCondition/RoadConditionView'));
-const ProjectsView      = lazy(() => import('./modules/Projects/ProjectsView'));
+const RoadConditionView       = lazy(() => import('./modules/RoadCondition/RoadConditionView'));
+const MaintenanceProgrammeView = lazy(() => import('./modules/RoadCondition/MaintenanceProgrammeView'));
+const ProjectsView            = lazy(() => import('./modules/Projects/ProjectsView'));
 
 // ── BMS sub-modules ───────────────────────────────────────────────────────────
 const Dashboard            = lazy(() => import('./modules/Dashboard/Dashboard'));
@@ -20,10 +27,7 @@ const ConditionAssessment  = lazy(() => import('./modules/Condition/ConditionAss
 const MaintenanceWorks     = lazy(() => import('./modules/Maintenance/MaintenanceWorks'));
 const Analytics            = lazy(() => import('./modules/Analytics/Analytics'));
 const PriorityRanking      = lazy(() => import('./modules/Priority/PriorityRanking'));
-const DocumentStore        = lazy(() => import('./modules/Documents/DocumentStore'));
 const PhotoTwin            = lazy(() => import('./modules/PhotoTwin/PhotoTwin'));
-const DownloadsView        = lazy(() => import('./modules/Downloads/DownloadsView'));
-const MediaSection         = lazy(() => import('./components/sections/MediaSection'));
 const TrafficAnalytics     = lazy(() => import('./components/sections/TrafficAnalytics'));
 const TrafficSummary       = lazy(() => import('./components/sections/TrafficSummary'));
 const OprcSection          = lazy(() => import('./components/sections/OprcSection'));
@@ -39,11 +43,27 @@ const PublicInvestmentSection = lazy(() => import('./modules/PIM/PublicInvestmen
 const BudgetSection           = lazy(() => import('./modules/Budget/BudgetSection'));
 const LifecycleSection        = lazy(() => import('./modules/Lifecycle/LifecycleSection'));
 const SourcesCatalogueSection = lazy(() => import('./modules/Sources/SourcesCatalogueSection'));
+const TabularSummaries        = lazy(() => import('./modules/Sources/TabularSummaries'));
+const SourcesSection          = lazy(() => import('./modules/Sources/SourcesSection'));
 
-// Views that hide the header and own the full content rectangle
-const FULL_VIEWS = new Set(['gismap', 'roadnetwork']);
+// ── Data entry ────────────────────────────────────────────────────────────────
+const PendingSubmissions = lazy(() => import('./modules/DataEntry/PendingSubmissions').then(m => ({ default: m.PendingSubmissions })));
+const DataCaptureHub     = lazy(() => import('./modules/DataEntry/DataCaptureHub'));
 
-// Views that manage their own scroll internally (don't wrap in a shared scroller)
+// ── BMS unified view ──────────────────────────────────────────────────────────
+const BMSSection = lazy(() => import('./modules/BMS/BMSSection'));
+
+// ── RMS top-level hub ─────────────────────────────────────────────────────────
+const RMSSection            = lazy(() => import('./modules/RMS/RMSSection'));
+const GlobalCaseStudiesSection = lazy(() => import('./modules/GlobalCaseStudies/GlobalCaseStudiesSection'));
+const RoadReserveSection    = lazy(() => import('./modules/RoadReserve/RoadReserveSection'));
+
+// ── Admin + unified wrappers ──────────────────────────────────────────────────
+const AdminSection    = lazy(() => import('./modules/Admin/AdminSection'));
+const DataAuditPanel  = lazy(() => import('./modules/DataAudit/DataAuditPanel'));
+const MindMapSection  = lazy(() => import('./modules/MindMap/MindMapSection'));
+
+const FULL_VIEWS      = new Set(['gismap', 'roadnetwork']);
 const SELF_SCROLL_VIEWS = new Set(['networkstory']);
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -58,10 +78,8 @@ function LoadingScreen() {
         </div>
         <div>
           <div className="text-white font-bold text-lg">Uganda National Roads Management Platform</div>
-          <div className="text-slate-500 text-sm mt-1">
-            Dept. of National Roads · Ministry of Works &amp; Transport
-          </div>
-          <div className="text-slate-600 text-xs mt-0.5">Loading 21,292 km network · 1,019 structures…</div>
+          <div className="text-slate-500 text-sm mt-1">Dept. of National Roads · Ministry of Works &amp; Transport</div>
+          <div className="text-slate-600 text-xs mt-0.5">Initializing platform · Fetching network data from unified database · DNR GIS Jun 2025</div>
         </div>
         <div className="flex justify-center gap-1.5">
           {[0, 1, 2].map(i => (
@@ -84,7 +102,7 @@ function ModuleSpinner() {
 
 // ─────────────────────────────────────────────────────────────────────────────
 function AppShell() {
-  const { state } = useBMS();
+  const { state, navigate } = useBMS();
   const { activeView, isLoading } = state;
 
   const showHeaderSearch = useMemo(() =>
@@ -101,57 +119,47 @@ function AppShell() {
   return (
     <div className="flex h-full w-full overflow-hidden bg-slate-950">
       <Sidebar />
-
       <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
         {!isFullView && <Header showSearch={showHeaderSearch} />}
-
-        {/* ── Content area ── */}
-        {/* overflow-hidden so absolutely-positioned children clip correctly   */}
         <main className="flex-1 min-h-0 relative overflow-hidden">
           <Suspense fallback={<ModuleSpinner />}>
 
-            {/* ── Full-bleed map views: no header, fill entire main area ── */}
             {activeView === 'gismap'      && <GISMapView />}
             {activeView === 'roadnetwork' && <RoadNetworkView />}
 
-            {/* ── Self-scrolling views: positioned to fill main, own scroll ── */}
             {SELF_SCROLL_VIEWS.has(activeView) && (
               <div style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}>
                 {activeView === 'networkstory' && <NetworkStory />}
               </div>
             )}
 
-            {/* ── Standard paginated views: shared outer scroll wrapper ── */}
             {!isFullView && !SELF_SCROLL_VIEWS.has(activeView) && (
-              <div style={{ position: 'absolute', inset: 0, overflowY: 'auto', overflowX: 'hidden' }}>
-                {activeView === 'platform'      && <PlatformDashboard />}
-                {activeView === 'traffic'       && <TrafficSection />}
-                {activeView === 'roadcondition' && <RoadConditionView />}
-                {activeView === 'projects'      && <ProjectsView />}
-                {activeView === 'dashboard'     && <Dashboard />}
-                {activeView === 'registry'      && <StructureRegistry />}
-                {activeView === 'inspections'   && <InspectionManagement />}
-                {activeView === 'condition'     && <ConditionAssessment />}
-                {activeView === 'maintenance'   && <MaintenanceWorks />}
-                {activeView === 'analytics'     && <Analytics />}
-                {activeView === 'priority'      && <PriorityRanking />}
-                {activeView === 'documents'     && <DocumentStore />}
-                {activeView === 'phototwin'     && <PhotoTwin />}
-                {activeView === 'media'             && <MediaSection />}
+              <div style={{ position: 'absolute', inset: 0, overflowY: 'auto', overflowX: 'hidden', paddingBottom: 12 }}>
+                {activeView === 'network'               && <NetworkSection />}
+                {activeView === 'platform'              && <PlatformDashboard />}
+                {activeView === 'traffic'               && <TrafficSection />}
+                {activeView === 'roadcondition'         && <RoadConditionView />}
+                {activeView === 'maintenanceprogramme'  && <MaintenanceProgrammeView />}
+                {activeView === 'projects'              && <ProjectsView />}
+                {activeView === 'dashboard'        && <Dashboard />}
+                {activeView === 'registry'         && <StructureRegistry />}
+                {activeView === 'inspections'      && <InspectionManagement />}
+                {activeView === 'condition'        && <ConditionAssessment />}
+                {activeView === 'maintenance'      && <MaintenanceWorks />}
+                {activeView === 'analytics'        && <Analytics />}
+                {activeView === 'priority'         && <PriorityRanking />}
+                {activeView === 'phototwin'        && <PhotoTwin />}
                 {activeView === 'trafficanalytics' && <TrafficAnalytics />}
                 {activeView === 'trafficsummary'   && <TrafficSummary />}
                 {activeView === 'growthfactors'    && <GrowthFactorsPanel />}
                 {activeView === 'overloading'      && <OverloadingSection />}
                 {activeView === 'oprc'             && <OprcSection />}
                 {activeView === 'ndpiv'            && <NdpivSection />}
-                {activeView === 'downloads'     && <DownloadsView />}
+                {activeView === 'hdm4'             && <HDM4Section />}
+                {activeView === 'tabularsummaries' && <TabularSummaries />}
 
-                {/* ── HDM-4 ── */}
-                {activeView === 'hdm4'          && <HDM4Section />}
-
-                {/* ── ML Architecture ── */}
                 {activeView === 'mlarchitecture' && (
-                  <div style={{ padding: '20px 18px' }}>
+                  <div style={{ padding: '12px 14px' }}>
                     <div style={{ marginBottom: 16 }}>
                       <div style={{ fontSize: 18, fontWeight: 900, color: '#e2eaf4', marginBottom: 4 }}>
                         Asset Management ML Engine
@@ -164,20 +172,49 @@ function AppShell() {
                   </div>
                 )}
 
-                {/* ── Projects & Works ── */}
                 {activeView === 'projecttracker' && <ProjectTracker />}
+                {activeView === 'pim'            && <PublicInvestmentSection />}
 
-                {/* ── Public Investment Management ── */}
-                {activeView === 'pim'       && <PublicInvestmentSection />}
+                {activeView === 'budget' && <BudgetSection />}
 
-                {/* ── Budget & Maintenance ── */}
-                {activeView === 'budget'    && <BudgetSection />}
+                {activeView === 'rms'             && <RMSSection />}
+                {activeView === 'roadreserve'    && <RoadReserveSection />}
+                {activeView === 'casestudies'    && <GlobalCaseStudiesSection />}
+                {activeView === 'lifecycle'       && <LifecycleSection />}
+                {activeView === 'sources'         && <SourcesSection />}
+                {activeView === 'tabularsummaries' && <TabularSummaries />}
 
-                {/* ── Life Cycle Management ── */}
-                {activeView === 'lifecycle' && <LifecycleSection />}
+                {activeView === 'admin' && (
+                  <Suspense fallback={<ModuleSpinner />}>
+                    <RequireLogin label="Admin Tools">
+                      <AdminSection onNavigate={navigate} />
+                    </RequireLogin>
+                  </Suspense>
+                )}
 
-                {/* ── Sources & Evidence ── */}
-                {activeView === 'sources'   && <SourcesCatalogueSection />}
+                {activeView === 'pendingsurveys' && (
+                  <Suspense fallback={<ModuleSpinner />}>
+                    <RequireLogin label="Pending Submissions">
+                      <PendingSubmissions />
+                    </RequireLogin>
+                  </Suspense>
+                )}
+
+                {activeView === 'dataaudit' && (
+                  <Suspense fallback={<ModuleSpinner />}>
+                    <RequireLogin label="Data Audit">
+                      <DataAuditPanel />
+                    </RequireLogin>
+                  </Suspense>
+                )}
+
+                {activeView === 'datacapture' && (
+                  <Suspense fallback={<ModuleSpinner />}>
+                    <DataCaptureHub />
+                  </Suspense>
+                )}
+
+                {activeView === 'bms' && <BMSSection />}
               </div>
             )}
 
@@ -188,10 +225,34 @@ function AppShell() {
   );
 }
 
-export default function App() {
+// ── Login gate for Admin Tools + all input/capture sections ───────────────────
+function RequireLogin({ label, children }: { label: string; children: React.ReactNode }) {
+  const { isAuthenticated } = useAuth();
+  if (isAuthenticated) return <>{children}</>;
   return (
-    <BMSProvider>
-      <AppShell />
-    </BMSProvider>
+    <div style={{ minHeight: '100%' }}>
+      <div style={{ textAlign: 'center', padding: '18px 0 0', color: 'rgba(148,163,184,0.85)', fontSize: 12.5, fontWeight: 600 }}>
+        🔒 {label} requires sign-in
+      </div>
+      <LoginPage />
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+export default function App() {
+  const [highlightedLinks, setHighlightedLinks] = useState<string[]>([]);
+
+  return (
+    <AuthProvider>
+      <BotHighlightContext.Provider value={{ highlightedLinks, setHighlightedLinks }}>
+        <BMSProvider>
+          <AppShell />
+          <Suspense fallback={null}>
+            <RoadAssetBot />
+          </Suspense>
+        </BMSProvider>
+      </BotHighlightContext.Provider>
+    </AuthProvider>
   );
 }

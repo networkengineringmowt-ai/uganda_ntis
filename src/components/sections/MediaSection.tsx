@@ -38,7 +38,7 @@ const STORIES: StorySection[] = [
   {
     id: 'network', color: '#00f5ff',
     title: 'National Road Network',
-    subtitle: "21,292 km of paved and unpaved roads connecting Uganda's regions — surveyed with ROMDAS technology",
+    subtitle: "21,160 km (mapped) of paved and unpaved roads connecting Uganda's regions — surveyed with ROMDAS technology",
     images: [
       { src: 'media/roads/road_y_A001_LINK07_0.jpg', alt: 'A1 northern',
         caption: 'A1 Trunk Road — Northern Segment · ROMDAS pavement rating survey' },
@@ -77,7 +77,7 @@ const STORIES: StorySection[] = [
   {
     id: 'performance', color: '#b967ff',
     title: 'Annual Performance',
-    subtitle: 'Network performance monitoring imagery from annual DNR/UNRA assessment programmes',
+    subtitle: 'Network performance monitoring imagery from annual DNR/Department of National Roads assessment programmes',
     images: [
       { src: 'media/gallery/TC_00010.jpg', alt: 'Annual survey',
         caption: 'Traffic Survey 2025 — Annual Network Assessment Programme' },
@@ -179,7 +179,7 @@ function HeroCarousel() {
           <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '26px 30px' }}>
             <div style={{ fontSize: 9, fontWeight: 800, color: 'rgba(0,245,255,0.75)',
               textTransform: 'uppercase', letterSpacing: '0.18em', marginBottom: 6 }}>
-              Uganda National Road Network · UNRA
+              Uganda National Road Network · Department of National Roads
             </div>
             <div style={{ fontSize: 22, fontWeight: 900, color: '#fff', lineHeight: 1.25,
               textShadow: '0 2px 28px rgba(0,0,0,0.9)', marginBottom: 7 }}>
@@ -592,14 +592,14 @@ export default function MediaSection() {
   const [storyLightbox, setStoryLightbox] = useState<{ images: StoryImage[]; idx: number } | null>(null);
 
   return (
-    <section style={{ padding: '28px 24px 52px', minHeight: '100vh',
+    <section style={{ padding: '12px 16px', minHeight: 0,
       color: '#e2eaf4', fontFamily: "'Inter','Segoe UI',sans-serif" }}>
 
       {/* ── Page header ── */}
       <div style={{ marginBottom: 24 }}>
         <div style={{ fontSize: 9, fontWeight: 800, color: 'rgba(0,245,255,0.55)',
           letterSpacing: '0.18em', textTransform: 'uppercase', marginBottom: 3 }}>
-          Uganda National Roads · UNRA / Department of National Roads
+          Uganda National Roads · Department of National Roads / Department of National Roads
         </div>
         <div style={{ fontSize: 22, fontWeight: 900, color: '#00f5ff', lineHeight: 1.2,
           textShadow: '0 0 22px rgba(0,245,255,0.35)' }}>
@@ -608,7 +608,7 @@ export default function MediaSection() {
         <p style={{ color: 'rgba(148,163,184,0.6)', fontSize: 12, marginTop: 6,
           maxWidth: 680, lineHeight: 1.55 }}>
           Road network imagery, bridge inspection photography, ROMDAS pavement surveys,
-          and annual monitoring reports from across Uganda's 21,292 km national road network.
+          and annual monitoring reports from across Uganda's 21,160 km (mapped) national road network.
         </p>
       </div>
 

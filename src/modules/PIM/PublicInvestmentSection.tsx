@@ -65,7 +65,7 @@ const PPP_PROJECTS = [
     value_usd_m: 476,
     model: 'EPC + Govt O&M (China EXIM)',
     funder: 'China EXIM + GoU',
-    notes: 'Toll road; 22km dual carriageway + 29km approach; UNRA operated',
+    notes: 'Toll road; 22km dual carriageway + 29km approach; Department of National Roads operated',
     color: C.green,
   },
   {
@@ -112,12 +112,12 @@ const PPP_PROJECTS = [
 
 const PIM_FRAMEWORK = [
   { stage: 'Strategic Planning',   body: 'MoWT / NPA',       tools: 'NDP IV, Vision 2040, Transport Master Plan', color: C.purple },
-  { stage: 'Project Identification', body: 'UNRA / MoWT',    tools: 'Pre-feasibility, network gap analysis',       color: C.blue   },
-  { stage: 'Project Appraisal',    body: 'UNRA + MFPED',     tools: 'HDM-4 NPV/BCR, economic CBA, ESIA',           color: C.cyan   },
+  { stage: 'Project Identification', body: 'Department of National Roads / MoWT',    tools: 'Pre-feasibility, network gap analysis',       color: C.blue   },
+  { stage: 'Project Appraisal',    body: 'Department of National Roads + MFPED',     tools: 'HDM-4 NPV/BCR, economic CBA, ESIA',           color: C.cyan   },
   { stage: 'Approval & Budget',    body: 'MFPED / Parliament', tools: 'MTEF, BFP, Appropriation Act',              color: C.yellow },
-  { stage: 'Procurement',          body: 'UNRA PDU',         tools: 'PPDA Act, FIDIC contracts',                   color: C.orange },
-  { stage: 'Implementation',       body: 'UNRA + Contractor', tools: 'Contract management, site supervision',      color: C.green  },
-  { stage: 'Monitoring & Eval.',   body: 'UNRA / OAG / NPA', tools: 'Physical & financial progress, VFM audits',  color: C.teal   },
+  { stage: 'Procurement',          body: 'Department of National Roads PDU',         tools: 'PPDA Act, FIDIC contracts',                   color: C.orange },
+  { stage: 'Implementation',       body: 'Department of National Roads + Contractor', tools: 'Contract management, site supervision',      color: C.green  },
+  { stage: 'Monitoring & Eval.',   body: 'Department of National Roads / OAG / NPA', tools: 'Physical & financial progress, VFM audits',  color: C.teal   },
 ];
 
 const TABS = [
@@ -182,20 +182,22 @@ export default function PublicInvestmentSection() {
         </div>
       </div>
 
-      {/* Tabs */}
-      <div style={{ display: 'flex', gap: 4, marginBottom: 18, flexWrap: 'wrap',
-        borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+      {/* ── BMS-style tab bar ── */}
+      <div style={{
+        display: 'flex', gap: 2, marginBottom: 18, flexShrink: 0,
+        borderBottom: '1px solid rgba(77,159,255,0.15)',
+        background: 'rgba(4,9,18,0.85)', marginLeft: -20, marginRight: -20, paddingLeft: 14,
+      }}>
         {TABS.map(t => {
           const isA = tab === t.id;
           return (
             <button key={t.id} onClick={() => setTab(t.id)} style={{
-              display: 'flex', alignItems: 'center', gap: 5,
-              padding: '7px 14px', borderRadius: '8px 8px 0 0',
-              border: 'none', cursor: 'pointer', fontSize: 11, fontWeight: 700,
-              background: isA ? `rgba(${hexRgb(C.yellow)},0.1)` : 'transparent',
-              color: isA ? C.yellow : 'rgba(148,163,184,0.65)',
-              borderBottom: isA ? `2px solid ${C.yellow}` : '2px solid transparent',
-              marginBottom: -1, transition: 'all 0.15s',
+              display: 'flex', alignItems: 'center', gap: 6,
+              padding: '10px 14px 11px', fontSize: 11, fontWeight: isA ? 800 : 500,
+              background: 'none', border: 'none', cursor: 'pointer', flexShrink: 0,
+              color: isA ? '#4d9fff' : 'rgba(148,163,184,0.70)',
+              borderBottom: isA ? '2px solid #4d9fff' : '2px solid transparent',
+              transition: 'all 0.13s',
             }}>{t.icon} {t.label}</button>
           );
         })}
@@ -231,7 +233,7 @@ export default function PublicInvestmentSection() {
               {[
                 'Public Finance Management Act, 2015 (as amended)',
                 'PPDA Act, 2003 (amended 2014) — Procurement',
-                'National Roads Act, 2017 — UNRA mandate',
+                'National Roads Act, 2017 — Department of National Roads mandate',
                 'Roads Act, Cap 358 — road classification',
                 'PPP Act, 2015 — private finance framework',
                 'National Environment Act, 2019 — ESIA requirements',
@@ -245,7 +247,7 @@ export default function PublicInvestmentSection() {
             <div style={card(C.green)}>
               <div style={{ fontSize: 10, fontWeight: 900, color: C.green, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 10 }}>Key Institutions</div>
               {[
-                { name: 'UNRA', role: 'Implementing agency — national roads' },
+                { name: 'Department of National Roads', role: 'Implementing agency — national roads' },
                 { name: 'MoWT', role: 'Policy, standards, district roads oversight' },
                 { name: 'MFPED', role: 'Budget allocation, MTEF, donor coordination' },
                 { name: 'NPA', role: 'National development plan formulation' },
@@ -269,7 +271,7 @@ export default function PublicInvestmentSection() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           <div style={card(C.cyan)}>
             <div style={{ fontSize: 11, fontWeight: 900, color: C.cyan, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 14 }}>
-              UNRA Budget Allocation 2015/16–2024/25 (UGX Billions)
+              Department of National Roads Budget Allocation 2015/16–2024/25 (UGX Billions)
             </div>
             <ResponsiveContainer width="100%" height={280}>
               <BarChart data={BUDGET_BY_YEAR} margin={{ top: 8, right: 12, left: 0, bottom: 20 }}>
@@ -396,7 +398,7 @@ export default function PublicInvestmentSection() {
               ))}
             </div>
             <div style={{ fontSize: 10, color: 'rgba(148,163,184,0.5)', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: 10 }}>
-              Source: Uganda NDP IV (2020/21–2025/26) Chapter 5 — Infrastructure. UNRA Performance Contract 2024/25.
+              Source: Uganda NDP IV (2020/21–2025/26) Chapter 5 — Infrastructure. Department of National Roads Performance Contract 2024/25.
               Vision 2040 long-term target: 17,000 km paved national road network.
             </div>
           </div>

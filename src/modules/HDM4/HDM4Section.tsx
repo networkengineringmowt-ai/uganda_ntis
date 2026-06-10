@@ -3,6 +3,7 @@ import {
   LineChart, Line, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer,
   CartesianGrid, Legend, ReferenceLine,
 } from 'recharts';
+import { Chart3DWrap, Bar3D, TT_NEON, TICK } from '../../lib/chart3d';
 import { Calculator, BookOpen, Table2, TrendingUp, DollarSign, Activity } from 'lucide-react';
 import { ModuleNavBar } from '../../shared/ModuleNavBar';
 
@@ -33,12 +34,12 @@ type TabId = typeof TABS[number]['id'];
 
 // ── Uganda HDM-4 calibration data ────────────────────────────────────────────
 const CALIB_DATA = [
-  { param: 'Kcit',  value: 0.90, desc: 'Cracking initiation time factor',      ref: 'UNRA/DNR HDM-4 Study 2023', road: 'Paved, all classes' },
-  { param: 'Kcia',  value: 1.05, desc: 'Cracking initiation area factor',       ref: 'UNRA/DNR HDM-4 Study 2023', road: 'Class A & B' },
-  { param: 'Kcp',   value: 1.10, desc: 'Cracking progression factor',           ref: 'UNRA/DNR HDM-4 Study 2023', road: 'Class A & B' },
+  { param: 'Kcit',  value: 0.90, desc: 'Cracking initiation time factor',      ref: 'Department of National Roads/DNR HDM-4 Study 2023', road: 'Paved, all classes' },
+  { param: 'Kcia',  value: 1.05, desc: 'Cracking initiation area factor',       ref: 'Department of National Roads/DNR HDM-4 Study 2023', road: 'Class A & B' },
+  { param: 'Kcp',   value: 1.10, desc: 'Cracking progression factor',           ref: 'Department of National Roads/DNR HDM-4 Study 2023', road: 'Class A & B' },
   { param: 'Krt',   value: 0.95, desc: 'Rutting progression factor',            ref: 'AFCAP Uganda 2018',          road: 'High-traffic corridors' },
-  { param: 'Kgm',   value: 0.85, desc: 'Gravel loss — maintenance (unpaved)',   ref: 'UNRA Gravel Study 2019',    road: 'Class C & D (unpaved)' },
-  { param: 'Kge',   value: 1.20, desc: 'Gravel loss — environmental (unpaved)', ref: 'UNRA Gravel Study 2019',    road: 'Class C & D (unpaved)' },
+  { param: 'Kgm',   value: 0.85, desc: 'Gravel loss — maintenance (unpaved)',   ref: 'Department of National Roads Gravel Study 2019',    road: 'Class C & D (unpaved)' },
+  { param: 'Kge',   value: 1.20, desc: 'Gravel loss — environmental (unpaved)', ref: 'Department of National Roads Gravel Study 2019',    road: 'Class C & D (unpaved)' },
   { param: 'Kstm',  value: 1.00, desc: 'Structural rutting in top mix',        ref: 'Default (unverified)',       road: 'Bituminous' },
   { param: 'Kvi',   value: 1.15, desc: 'Vehicle damage factor — HGV',          ref: 'SATCC/TRH4 2020',           road: 'All classes' },
 ];
@@ -175,20 +176,22 @@ export default function HDM4Section() {
         </div>
       </div>
 
-      {/* ── Tabs ── */}
-      <div style={{ display: 'flex', gap: 4, marginBottom: 20, flexWrap: 'wrap',
-        borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: 0 }}>
+      {/* ── BMS-style tab bar ── */}
+      <div style={{
+        display: 'flex', gap: 2, marginBottom: 20, flexShrink: 0,
+        borderBottom: '1px solid rgba(77,159,255,0.15)',
+        background: 'rgba(4,9,18,0.85)', marginLeft: -20, marginRight: -20, paddingLeft: 14,
+      }}>
         {TABS.map(t => {
           const isActive = activeTab === t.id;
           return (
             <button key={t.id} onClick={() => setActiveTab(t.id)} style={{
-              display: 'flex', alignItems: 'center', gap: 5,
-              padding: '7px 14px', borderRadius: '8px 8px 0 0',
-              border: 'none', cursor: 'pointer', fontSize: 11, fontWeight: 700,
-              background: isActive ? `rgba(${hexRgb(C.purple)},0.12)` : 'transparent',
-              color: isActive ? C.purple : 'rgba(148,163,184,0.65)',
-              borderBottom: isActive ? `2px solid ${C.purple}` : '2px solid transparent',
-              marginBottom: -1, transition: 'all 0.15s',
+              display: 'flex', alignItems: 'center', gap: 6,
+              padding: '10px 14px 11px', fontSize: 11, fontWeight: isActive ? 800 : 500,
+              background: 'none', border: 'none', cursor: 'pointer', flexShrink: 0,
+              color: isActive ? '#4d9fff' : 'rgba(148,163,184,0.70)',
+              borderBottom: isActive ? '2px solid #4d9fff' : '2px solid transparent',
+              transition: 'all 0.13s',
             }}>
               {t.icon} {t.label}
             </button>
@@ -207,7 +210,7 @@ export default function HDM4Section() {
               HDM-4 (Highway Development and Management) is the World Bank-endorsed software framework for analysing roads investment and management strategies. It models pavement deterioration, maintenance effects, and road user costs to support evidence-based budget planning.
             </p>
             <p style={{ fontSize: 11, color: 'rgba(196,210,225,0.85)', lineHeight: 1.7, margin: '8px 0 0' }}>
-              UNRA uses HDM-4 for 5-year maintenance programming, NDP IV investment appraisal, and donor reporting (World Bank, AfDB, JICA).
+              Department of National Roads uses HDM-4 for 5-year maintenance programming, NDP IV investment appraisal, and donor reporting (World Bank, AfDB, JICA).
             </p>
           </div>
 
@@ -217,7 +220,7 @@ export default function HDM4Section() {
             </div>
             {[
               { label: 'Network covered', value: '6,842 km paved national roads' },
-              { label: 'Calibration study', value: 'UNRA/DNR Dec 2023 (ROMDAS + HDM-4)' },
+              { label: 'Calibration study', value: 'Department of National Roads/DNR Dec 2023 (ROMDAS + HDM-4)' },
               { label: 'Traffic model', value: 'ATC + TIS AADT, SATCC ESAL factors' },
               { label: 'Unit costs', value: 'MoWT Schedule of Rates FY 2024/25' },
               { label: 'Key output', value: '5-year M&R programme (rolling)' },
@@ -331,7 +334,7 @@ export default function HDM4Section() {
               Uganda HDM-4 Calibration Coefficients
             </div>
             <div style={{ fontSize: 10, color: 'rgba(148,163,184,0.6)', marginBottom: 14 }}>
-              Source: UNRA/DNR Pavement Performance Study, December 2023. Calibrated using ROMDAS surveys (2018, 2021, 2023) and HDM-4 model fitting.
+              Source: Department of National Roads/DNR Pavement Performance Study, December 2023. Calibrated using ROMDAS surveys (2018, 2021, 2023) and HDM-4 model fitting.
             </div>
             <div style={{ overflowX: 'auto' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 11 }}>
@@ -458,18 +461,20 @@ export default function HDM4Section() {
               <div style={{ fontSize: 10, fontWeight: 900, color: C.blue, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 10 }}>
                 ESAL Contribution by Vehicle Class
               </div>
-              <ResponsiveContainer width="100%" height={180}>
-                <BarChart data={Object.entries(ESAL_FACTORS).map(([cls, info]) => ({
-                  name: info.name.split(' ')[0],
-                  esal: +((counts[cls] ?? 0) * info.factor * 365 * designLife * overloadFactor / 1_000_000).toFixed(3),
-                }))} margin={{ top: 4, right: 8, left: 0, bottom: 20 }}>
-                  <CartesianGrid stroke="rgba(255,255,255,0.05)" strokeDasharray="3 3"/>
-                  <XAxis dataKey="name" tick={{ ...TICK_STYLE, fontSize: 8 }} angle={-35} textAnchor="end"/>
-                  <YAxis tick={TICK_STYLE}/>
-                  <Tooltip content={<CustomTooltip/>}/>
-                  <Bar dataKey="esal" name="CESAL (M)" fill={C.blue} radius={[4,4,0,0]}/>
-                </BarChart>
-              </ResponsiveContainer>
+              <Chart3DWrap>
+                <ResponsiveContainer width="100%" height={180}>
+                  <BarChart data={Object.entries(ESAL_FACTORS).map(([cls, info]) => ({
+                    name: info.name.split(' ')[0],
+                    esal: +((counts[cls] ?? 0) * info.factor * 365 * designLife * overloadFactor / 1_000_000).toFixed(3),
+                  }))} margin={{ top: 4, right: 8, left: 0, bottom: 20 }}>
+                    <CartesianGrid stroke="rgba(255,255,255,0.05)" strokeDasharray="3 3"/>
+                    <XAxis dataKey="name" tick={{ ...TICK_STYLE, fontSize: 8 }} angle={-35} textAnchor="end"/>
+                    <YAxis tick={TICK_STYLE}/>
+                    <Tooltip content={<CustomTooltip/>}/>
+                    <Bar dataKey="esal" name="CESAL (M)" fill={C.blue} radius={[4,4,0,0]} shape={<Bar3D/>}/>
+                  </BarChart>
+                </ResponsiveContainer>
+              </Chart3DWrap>
             </div>
           </div>
         </div>
@@ -482,7 +487,7 @@ export default function HDM4Section() {
             Uganda Road Works Unit Cost Matrix
           </div>
           <div style={{ fontSize: 10, color: 'rgba(148,163,184,0.6)', marginBottom: 14 }}>
-            Source: MoWT Schedule of Rates FY 2024/25 · UNRA Contract Management Division. Costs exclude VAT. Paved = bituminous.
+            Source: MoWT Schedule of Rates FY 2024/25 · Department of National Roads Contract Management Division. Costs exclude VAT. Paved = bituminous.
           </div>
           <div style={{ overflowX: 'auto' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 11 }}>

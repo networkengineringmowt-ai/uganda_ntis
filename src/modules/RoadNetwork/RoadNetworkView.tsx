@@ -7,7 +7,7 @@
  *  - Road Network Dashboard with accurate statistics
  *  - Filter by surface, class, region
  */
-import { useEffect, useState, useMemo, useRef, useCallback } from 'react';
+import { useEffect, useState, useMemo, useRef, useCallback, useContext } from 'react';
 import {
   MapContainer, TileLayer, GeoJSON, ZoomControl, Marker, Tooltip as LeafletTooltip, useMap,
 } from 'react-leaflet';
@@ -28,6 +28,10 @@ import FeatureAnalyticsPanel from '../../shared/FeatureAnalyticsPanel';
 import type { FeatureData } from '../../shared/FeatureAnalyticsPanel';
 import { WaterLayers } from '../../shared/WaterLayers';
 import { InfraLayers } from '../../shared/InfraLayers';
+import { MapLegend, LEGEND_FULL } from "../../shared/MapLegend";
+import SourceTableButton from '../../shared/SourceTableButton';
+import CrossLinkChipBar from '../../shared/CrossLinkChipBar';
+import { BotHighlightContext } from '../AssetBot/types';
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 interface LinkProps {
@@ -210,6 +214,7 @@ export default function RoadNetworkView() {
   const [paveYears,  setPaveYears]  = useState<Record<string, number | null>>({});
   const [storyData,  setStoryData]  = useState<{ cumulative_paved: CumulativeEntry[]; by_region: RegionEntry[] } | null>(null);
   const [ndpiv,      setNdpiv]      = useState<NdpivData | null>(null);
+  const [networkSummary, setNetworkSummary] = useState<{ official_total_km?: number } | null>(null);
   const [loading,    setLoading]    = useState(true);
 
   // UI state
@@ -230,6 +235,7 @@ export default function RoadNetworkView() {
 
   // Selected link / structure
   const [selected,          setSelected]          = useState<LinkProps | null>(null);
+  const [selectedRaw,       setSelectedRaw]       = useState<Record<string, unknown> | null>(null);
   const [selectedStructure, setSelectedStructure] = useState<Structure | null>(null);
 
   // Infra overlay toggles
@@ -242,6 +248,7 @@ export default function RoadNetworkView() {
 
   const { state: bmsState } = useBMS();
   const structures: Structure[] = bmsState.structures;
+  const { highlightedLinks } = useContext(BotHighlightContext);
 
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const geoRef   = useRef<L.GeoJSON | null>(null);
@@ -253,13 +260,15 @@ export default function RoadNetworkView() {
       fetch(`${import.meta.env.BASE_URL}road_pave_years.json`).then(r => r.json()),
       fetch(`${import.meta.env.BASE_URL}network_story_data.json`).then(r => r.json()),
       fetch(`${import.meta.env.BASE_URL}road_links_ndpiv.json`).then(r => r.json()).catch(() => null),
-    ]).then(([geo, pave, story, ndpivData]) => {
+      fetch(`${import.meta.env.BASE_URL}data/network_summary.json`).then(r => r.json()).catch(() => null),
+    ]).then(([geo, pave, story, ndpivData, networkSummaryData]) => {
       setGeoData(geo);
       const map: Record<string, number | null> = {};
       (pave as PaveYearEntry[]).forEach(e => { map[e.road_no] = e.pave_year; });
       setPaveYears(map);
       setStoryData(story);
       if (ndpivData) setNdpiv(ndpivData);
+      if (networkSummaryData) setNetworkSummary(networkSummaryData);
       setLoading(false);
     }).catch(() => setLoading(false));
   }, []);
@@ -316,6 +325,10 @@ export default function RoadNetworkView() {
     if (!feature) return {};
     const p = feature.properties as LinkProps;
 
+    if (highlightedLinks.length && highlightedLinks.includes(p.link_id)) {
+      return { color: '#fbbf24', weight: 7, opacity: 1 };
+    }
+
     if (animMode) {
       // Historical animation: paved if pave_year <= animYear
       const paveYr  = paveYears[p.road] ?? null;
@@ -338,7 +351,7 @@ export default function RoadNetworkView() {
       ? (CLASS_COLORS[p.road_class] ?? '#64748b')
       : (REGION_COLORS[p.region]   ?? '#64748b');
     return { color, weight: CLASS_WEIGHT[p.road_class] ?? 2, opacity: 0.88 };
-  }, [animMode, animYear, paveYears, colorBy, surfFilter, clsFilter, regFilter]);
+  }, [animMode, animYear, paveYears, colorBy, surfFilter, clsFilter, regFilter, highlightedLinks]);
 
   // ── Shimmer layer — only renders on paved roads in surface/history modes ──────
   const styleFeatureShimmer = useCallback((feature?: GeoJSON.Feature): L.PathOptions => {
@@ -366,7 +379,7 @@ export default function RoadNetworkView() {
   const onEachFeature = useCallback((feature: GeoJSON.Feature, layer: L.Layer) => {
     const p = feature.properties as LinkProps;
     layer.on({
-      click: () => { setSelected(p); setSelectedStructure(null); },
+      click: () => { setSelected(p); setSelectedStructure(null); setSelectedRaw(feature.properties as Record<string, unknown>); },
       mouseover: (e: { target: L.Polyline }) => e.target.setStyle({ weight: 6, opacity: 1 }),
       mouseout:  (e: { target: L.Polyline }) => e.target.setStyle(styleFeature(feature)),
     });
@@ -384,7 +397,7 @@ export default function RoadNetworkView() {
     `, { sticky: true, className: 'road-tooltip' });
   }, [styleFeature]);
 
-  const geojsonKey = `${animMode}-${animYear}-${colorBy}-${surfFilter}-${clsFilter}-${regFilter}`;
+  const geojsonKey = `${animMode}-${animYear}-${colorBy}-${surfFilter}-${clsFilter}-${regFilter}-${highlightedLinks.length}`;
 
   const regions = useMemo(() => {
     if (!geoData) return [];
@@ -395,7 +408,9 @@ export default function RoadNetworkView() {
 
   // ── Render ────────────────────────────────────────────────────────────────────
   return (
-    <div style={{ display:'flex', height:'100%', background: C.bgVoid, overflow:'hidden', position:'relative' }}>
+    <div style={{ display:'flex', flexDirection:'column', height:'100%', background: C.bgVoid, overflow:'hidden' }}>
+      <CrossLinkChipBar sectionId="roadnetwork" />
+    <div style={{ flex:1, display:'flex', overflow:'hidden', position:'relative' }}>
 
       {/* ══ MAP ═══════════════════════════════════════════════════════════════ */}
       <div style={{ flex:1, position:'relative', minWidth:0 }}>
@@ -408,7 +423,7 @@ export default function RoadNetworkView() {
                 borderTopColor:'#00f5ff', borderRadius:'50%',
                 animation:'spin-slow 1s linear infinite', margin:'0 auto 12px' }}/>
               <div style={{ fontSize:13, fontWeight:700 }}>Loading road network…</div>
-              <div style={{ fontSize:10, color:'rgba(0,245,255,0.5)', marginTop:4 }}>1,014 links · 21,292 km</div>
+              <div style={{ fontSize:10, color:'rgba(0,245,255,0.5)', marginTop:4 }}>1,013 links mapped · {networkSummary?.official_total_km?.toLocaleString() || '21,302'} km official</div>
             </div>
           </div>
         )}
@@ -428,6 +443,7 @@ export default function RoadNetworkView() {
           />
           <WaterLayers />
           <InfraLayers />
+          <MapLegend title="Road Network" items={LEGEND_FULL} position="bottomleft" />
           <ZoomControl position="bottomright"/>
           <ZoomWatcher onZoom={setMapZoom}/>
           {geoData && (
@@ -756,12 +772,39 @@ export default function RoadNetworkView() {
             : null;
           if (!featureData) return null;
           return (
-            <div style={{ position:'absolute', top:12, right: sideOpen ? 436+12 : 12, zIndex:1001 }}>
+            <div style={{ position:'absolute', top:12, right: sideOpen ? 436+12 : 12, zIndex:1001,
+              display:'flex', flexDirection:'column', gap:6, maxHeight:'calc(100% - 24px)', overflowY:'auto' }}>
               <FeatureAnalyticsPanel
                 feature={featureData}
-                onClose={() => { setSelected(null); setSelectedStructure(null); }}
+                onClose={() => { setSelected(null); setSelectedStructure(null); setSelectedRaw(null); }}
                 width={270}
               />
+              {selectedRaw && selected && (
+                <div style={{
+                  width: 270, background:'rgba(6,13,24,0.97)', backdropFilter:'blur(16px)',
+                  border:'1px solid rgba(0,245,255,0.12)', borderRadius:10, padding:'10px 12px',
+                }}>
+                  <div style={{ fontSize:9, fontWeight:800, color:'rgba(0,245,255,0.5)',
+                    textTransform:'uppercase', letterSpacing:'0.1em', marginBottom:8 }}>
+                    GeoJSON Attributes · {selected.link_id}
+                  </div>
+                  <div style={{ display:'flex', flexDirection:'column', gap:2 }}>
+                    {Object.entries(selectedRaw)
+                      .filter(([, v]) => v !== null && v !== undefined && String(v).trim() !== '')
+                      .map(([k, v]) => (
+                        <div key={k} style={{ display:'flex', justifyContent:'space-between',
+                          gap:8, borderBottom:'1px solid rgba(255,255,255,0.04)', paddingBottom:2 }}>
+                          <span style={{ fontSize:8, color:'rgba(100,116,139,0.7)', fontFamily:'monospace',
+                            whiteSpace:'nowrap', flexShrink:0 }}>{k}</span>
+                          <span style={{ fontSize:8, color:'rgba(226,234,244,0.85)', textAlign:'right',
+                            wordBreak:'break-all', fontFamily:'monospace' }}>
+                            {typeof v === 'number' ? (Number.isInteger(v) ? v.toLocaleString() : v.toFixed(3)) : String(v)}
+                          </span>
+                        </div>
+                      ))}
+                  </div>
+                </div>
+              )}
             </div>
           );
         })()}
@@ -808,18 +851,19 @@ export default function RoadNetworkView() {
           {/* ── Network stats panel ── */}
           {panel === 'map' && (
             <div style={{ flex:1, overflowY:'auto', padding:16 }}>
-              <NetworkStatsPanel stats={currentStats} ndpiv={ndpiv} storyData={storyData} animYear={animYear} animMode={animMode}/>
+              <NetworkStatsPanel stats={currentStats} ndpiv={ndpiv} storyData={storyData} animYear={animYear} animMode={animMode} networkSummary={networkSummary}/>
             </div>
           )}
 
           {/* ── Dashboard panel ── */}
           {panel === 'dashboard' && (
             <div style={{ flex:1, overflowY:'auto', padding:16 }}>
-              <DashboardPanel stats={currentStats} storyData={storyData}/>
+              <DashboardPanel stats={currentStats} storyData={storyData} networkSummary={networkSummary}/>
             </div>
           )}
         </div>
       )}
+    </div>
     </div>
   );
 }
@@ -827,16 +871,17 @@ export default function RoadNetworkView() {
 // ─────────────────────────────────────────────────────────────────────────────
 // Network Stats Panel
 // ─────────────────────────────────────────────────────────────────────────────
-function NetworkStatsPanel({ stats, ndpiv, storyData, animYear, animMode }: {
+function NetworkStatsPanel({ stats, ndpiv, storyData, animYear, animMode, networkSummary }: {
   stats: { totalKm:number; pavKm:number; unsKm:number; byClass:Record<string,number>; byRegion:Record<string,number> } | null;
   ndpiv: NdpivData | null;
   storyData: { cumulative_paved: CumulativeEntry[]; by_region: RegionEntry[] } | null;
   animYear: number;
   animMode: boolean;
+  networkSummary?: { official_total_km?: number } | null;
 }) {
   // Derive KPIs — reactive to animYear in history mode, static (inventory) in current mode
   const { totalKm, pavKm, unsKm, pavPct } = useMemo(() => {
-    const netTotal = ndpiv?.summary.total_km ?? stats?.totalKm ?? 21292;
+    const netTotal = ndpiv?.summary.total_km ?? stats?.totalKm ?? networkSummary?.official_total_km ?? 21302;
     if (animMode && storyData) {
       // Interpolate cumulative paved at the current timeline year
       const cp    = storyData.cumulative_paved;
@@ -868,6 +913,23 @@ function NetworkStatsPanel({ stats, ndpiv, storyData, animYear, animMode }: {
         <StatCard val={unsKm.toFixed(0)}   unit="km" label="Unsealed"      color="#ff8c00"/>
         <StatCard val={`${pavPct.toFixed(1)}%`} unit="" label="Paved Share" color="#ffd23f"/>
       </div>
+      {/* GeoJSON vs Official coverage note */}
+      <div style={{
+        padding: '7px 10px', borderRadius: 8, marginBottom: 10,
+        background: 'rgba(59,130,246,0.06)', border: '1px solid rgba(59,130,246,0.18)',
+        fontSize: 8.5,
+      }}>
+        <div style={{ fontWeight: 800, color: '#93c5fd', marginBottom: 4 }}>Coverage Note</div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', color: 'rgba(148,163,184,0.7)', marginBottom: 2 }}>
+          <span>GeoJSON mapped:</span><span style={{ color: '#60a5fa', fontWeight: 700 }}>21,160 km (mapped) · 1,013 links</span>
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', color: 'rgba(148,163,184,0.7)', marginBottom: 2 }}>
+          <span>Official Department of National Roads 2026:</span><span style={{ color: '#00f5ff', fontWeight: 700 }}>{networkSummary?.official_total_km?.toLocaleString() || '21,302'} km</span>
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', color: 'rgba(148,163,184,0.5)' }}>
+          <span>Unmapped gap:</span><span style={{ color: '#fb923c', fontWeight: 700 }}>142 km</span>
+        </div>
+      </div>
       {ndpiv && <div style={{ fontSize:8, color:'rgba(0,245,255,0.35)', marginBottom:8 }}>Network inventory · FY 2025/26</div>}
 
       {/* Paved proportion bar */}
@@ -888,7 +950,10 @@ function NetworkStatsPanel({ stats, ndpiv, storyData, animYear, animMode }: {
 
       {/* By class — use authoritative inventory when available */}
       <div style={{ marginBottom:16 }}>
-        <div style={sectionHead}>By Road Class · km Paved / Unsealed</div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={sectionHead}>By Road Class · km Paved / Unsealed</div>
+          <SourceTableButton anchor="tbl-002" />
+        </div>
         {(ndpiv
           ? Object.entries(ndpiv.by_class).sort()
           : Object.entries(stats?.byClass ?? {}).sort().map(([k,v]) => [k,{paved:v,unsealed:0}] as [string,{paved:number;unsealed:number}])
@@ -917,7 +982,10 @@ function NetworkStatsPanel({ stats, ndpiv, storyData, animYear, animMode }: {
 
       {/* By region — authoritative inventory figures */}
       <div style={{ marginBottom:16 }}>
-        <div style={sectionHead}>By Maintenance Region · Paved / Total</div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={sectionHead}>By Maintenance Region · Paved / Total</div>
+          <SourceTableButton anchor="tbl-001" />
+        </div>
         {(ndpiv
           ? Object.entries(ndpiv.by_region).map(([k,v]) => ({ region:k, paved_km:v.paved, unpaved_km:v.unsealed, links:v.links }))
           : storyData?.by_region ?? []
@@ -948,9 +1016,10 @@ function NetworkStatsPanel({ stats, ndpiv, storyData, animYear, animMode }: {
 // ─────────────────────────────────────────────────────────────────────────────
 // Dashboard Panel — detailed stats + charts
 // ─────────────────────────────────────────────────────────────────────────────
-function DashboardPanel({ stats, storyData }: {
+function DashboardPanel({ stats, storyData, networkSummary }: {
   stats: { totalKm:number; pavKm:number; unsKm:number; byClass:Record<string,number>; byRegion:Record<string,number> } | null;
   storyData: { cumulative_paved: CumulativeEntry[]; by_region: RegionEntry[] } | null;
+  networkSummary?: { official_total_km?: number } | null;
 }) {
   if (!stats || !storyData) return null;
 
@@ -967,7 +1036,7 @@ function DashboardPanel({ stats, storyData }: {
       </div>
 
       <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8, marginBottom:16 }}>
-        <KpiCard val="21,302" unit="km" label="Total Network" sub="1,018 links · National inventory FY25-26" color="#00f5ff"/>
+        <KpiCard val={(networkSummary?.official_total_km || 21302).toLocaleString()} unit="km" label="Total Network" sub="1,018 links · National inventory FY25-26" color="#00f5ff"/>
         <KpiCard val="6,405" unit="km" label="Paved Roads" sub="30.1% of network" color="#00ff88"/>
         <KpiCard val="14,897" unit="km" label="Unsealed Roads" sub="69.9% of network" color="#ff8c00"/>
         <KpiCard val={`+${growth.toFixed(0)}%`} unit="" label="Growth Since 1986" sub={`+${(cp2025-cp1986).toFixed(0)} km paved`} color="#ffd23f"/>
@@ -975,7 +1044,10 @@ function DashboardPanel({ stats, storyData }: {
 
       {/* Cumulative paved chart */}
       <div style={{ marginBottom:16 }}>
-        <div style={sectionHead}>Paved Road Growth 1960–2026</div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={sectionHead}>Paved Road Growth 1960–2026</div>
+          <SourceTableButton anchor="tbl-005" />
+        </div>
         <div style={{ height:140 }}>
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={storyData.cumulative_paved.filter(e => e.year >= 1960)}
@@ -1004,7 +1076,10 @@ function DashboardPanel({ stats, storyData }: {
 
       {/* By region bar chart */}
       <div style={{ marginBottom:16 }}>
-        <div style={sectionHead}>Paved km by Region</div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={sectionHead}>Paved km by Region</div>
+          <SourceTableButton anchor="tbl-003" />
+        </div>
         <div style={{ height:160 }}>
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={storyData.by_region} layout="vertical"
@@ -1111,7 +1186,7 @@ function DashboardPanel({ stats, storyData }: {
         {[
           { year:1986, km:1282, label:'Liberation — 1,282 km paved' },
           { year:1996, km:1871, label:'NRM growth — 1,871 km (+46%)' },
-          { year:2006, km:2476, label:'UNRA established — 2,476 km' },
+          { year:2006, km:2476, label:'Department of National Roads established — 2,476 km' },
           { year:2015, km:3927, label:'NDP II target — 3,927 km' },
           { year:2020, km:5360, label:'NDP III — 5,360 km paved' },
           { year:2025, km:6405, label:'Current — 6,405 km (30.1%)' },

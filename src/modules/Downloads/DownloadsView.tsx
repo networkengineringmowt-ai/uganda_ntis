@@ -66,7 +66,7 @@ export default function DownloadsView() {
       badge: 'GeoJSON',
       badgeColor: '#00f5ff',
       action: withFeedback('geojson-all', () =>
-        downloadGeoJSON(structures, `UNRA_Structures_${new Date().toISOString().slice(0,10)}.geojson`)),
+        downloadGeoJSON(structures, `Department of National Roads_Structures_${new Date().toISOString().slice(0,10)}.geojson`)),
     },
     {
       icon: <FileJson size={18} />,
@@ -85,7 +85,7 @@ export default function DownloadsView() {
       badge: 'KML',
       badgeColor: '#00ff88',
       action: withFeedback('kml', () =>
-        downloadKML(structures, `UNRA_Structures_${new Date().toISOString().slice(0,10)}.kml`)),
+        downloadKML(structures, `Department of National Roads_Structures_${new Date().toISOString().slice(0,10)}.kml`)),
     },
   ];
 
@@ -97,7 +97,7 @@ export default function DownloadsView() {
       badge: 'CSV',
       badgeColor: '#ffd23f',
       action: withFeedback('csv-all', () =>
-        downloadCSV(structures, `UNRA_Structures_Registry_${new Date().toISOString().slice(0,10)}.csv`)),
+        downloadCSV(structures, `Department of National Roads_Structures_Registry_${new Date().toISOString().slice(0,10)}.csv`)),
     },
     {
       icon: <Table size={18} />,
@@ -106,7 +106,7 @@ export default function DownloadsView() {
       badge: 'CSV',
       badgeColor: '#ffd23f',
       action: withFeedback('csv-brg', () =>
-        downloadCSV(bridges, `UNRA_Bridges_${new Date().toISOString().slice(0,10)}.csv`)),
+        downloadCSV(bridges, `Department of National Roads_Bridges_${new Date().toISOString().slice(0,10)}.csv`)),
     },
     {
       icon: <Table size={18} />,
@@ -115,7 +115,7 @@ export default function DownloadsView() {
       badge: 'CSV',
       badgeColor: '#ffd23f',
       action: withFeedback('csv-cul', () =>
-        downloadCSV(culverts, `UNRA_Culverts_${new Date().toISOString().slice(0,10)}.csv`)),
+        downloadCSV(culverts, `Department of National Roads_Culverts_${new Date().toISOString().slice(0,10)}.csv`)),
     },
     {
       icon: <Table size={18} />,
@@ -140,7 +140,7 @@ export default function DownloadsView() {
           <h1 className="text-xl font-bold text-white">Downloads &amp; Exports</h1>
         </div>
         <p className="text-slate-400 text-sm ml-11">
-          Export the complete UNRA bridge and culvert inventory in multiple formats.
+          Export the complete Department of National Roads bridge and culvert inventory in multiple formats.
           Geospatial files use WGS84 (EPSG:4326). Shapefile ZIPs include .shp, .dbf, .shx, .prj, .cpg.
         </p>
 
@@ -174,7 +174,7 @@ export default function DownloadsView() {
       <div className="mt-8 flex items-start gap-3 bg-slate-900 border border-slate-700 rounded-xl p-4 text-sm text-slate-400">
         <Info size={16} className="text-slate-500 mt-0.5 flex-shrink-0" />
         <div>
-          <strong className="text-slate-300">Data source:</strong> UNRA Bridge Management System —
+          <strong className="text-slate-300">Data source:</strong> Department of National Roads Bridge Management System —
           <em> Bridges and Culverts 2026.xlsx</em> (tblB-Bridge2 + MC Condition sheets) merged with
           <em> Bridges 18062025.xlsx</em> and <em>Major Culverts 18062025.xlsx</em>.
           Condition ratings are modelled from year-built using a 15-year degradation schedule

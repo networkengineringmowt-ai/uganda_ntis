@@ -1,5 +1,16 @@
 import { useState, useCallback, useEffect } from 'react';
 import { X, ChevronRight, Cpu, Database, GitBranch, BarChart3, Layers, Target, ArrowRight } from 'lucide-react';
+import SourceTableButton from '../../shared/SourceTableButton';
+import CrossLinkChipBar from '../../shared/CrossLinkChipBar';
+
+function MLChartSourceButton() {
+  return (
+    <div style={{ display: 'flex', gap: 6 }}>
+      <SourceTableButton anchor="tbl-041" label="📋 Predictions table" />
+      <SourceTableButton anchor="tbl-042" label="📋 Rehab/urgency table" />
+    </div>
+  );
+}
 
 const BASE = import.meta.env.BASE_URL;
 
@@ -40,7 +51,7 @@ const NODES: NodeDef[] = [
     x: 6, y: 14,
     detail: {
       algorithm: 'Laser profilometry + video frame capture',
-      trainingSize: '21,292 km national network surveys',
+      trainingSize: '21,160 km (mapped) national network surveys',
       accuracy: 'IRI ±0.1 m/km, GPS ±2 m',
       inputs: ['Raw IMU data', 'GPS coordinates', 'Video frames', 'Laser distance'],
       outputs: ['IRI per 100m segment', 'Rutting depth', 'Cracking index', 'Defect photo grid'],
@@ -68,7 +79,7 @@ const NODES: NodeDef[] = [
       accuracy: 'Representative for annual planning',
       inputs: ['Classified vehicle counts', 'Direction', 'Turning movements', 'Date/time'],
       outputs: ['AADT by class', 'Directional split', 'Peak hour factor', 'Seasonal index'],
-      description: 'UNRA Traffic Information System: 298 manual classified count stations across the national network. Annual surveys provide AADT for all road links not covered by ATC.',
+      description: 'Department of National Roads Traffic Information System: 298 manual classified count stations across the national network. Annual surveys provide AADT for all road links not covered by ATC.',
     },
   },
   {
@@ -84,15 +95,15 @@ const NODES: NodeDef[] = [
     },
   },
   {
-    id: 'gis', layer: 'data', label: 'GIS / Road Network', sublabel: '1,359 road links',
+    id: 'gis', layer: 'data', label: 'GIS / Road Network', sublabel: '1,013 road links',
     x: 6, y: 78,
     detail: {
       algorithm: 'ArcGIS + PostGIS spatial database',
-      trainingSize: '21,292 km, 1,359 links, 6 regions',
+      trainingSize: '21,160 km (mapped), 1,013 links, 6 regions',
       accuracy: 'GPS-aligned ±5 m horizontal',
       inputs: ['Shapefile geometry', 'Attribute tables', 'Chainage data', 'Region boundaries'],
       outputs: ['Spatial join keys', 'Route lengths', 'Network topology', 'Maintenance zones'],
-      description: 'National road network GIS database maintained by UNRA/DNR. Used as spatial backbone for all asset management layers — joins traffic, condition, projects, and budget data.',
+      description: 'National road network GIS database maintained by Department of National Roads/DNR. Used as spatial backbone for all asset management layers — joins traffic, condition, projects, and budget data.',
     },
   },
 
@@ -114,7 +125,7 @@ const NODES: NodeDef[] = [
     x: 22, y: 46,
     detail: {
       algorithm: 'PostGIS ST_Intersects + nearest-link snap',
-      trainingSize: '1,359 link geometries',
+      trainingSize: '1,013 link geometries',
       accuracy: 'Snap tolerance 50 m',
       inputs: ['Point data (stations, inspections)', 'Line geometries (road links)'],
       outputs: ['Per-link AADT', 'Per-link IRI mean', 'Link-level feature matrix'],
@@ -126,7 +137,7 @@ const NODES: NodeDef[] = [
     x: 22, y: 70,
     detail: {
       algorithm: 'Panel data construction (2016–2025)',
-      trainingSize: '10 annual snapshots × 1,359 links',
+      trainingSize: '10 annual snapshots × 1,013 links',
       accuracy: 'Calendar-year alignment ±6 months',
       inputs: ['Survey timestamps', 'Count year', 'Financial year mapping'],
       outputs: ['Balanced panel DataFrame', 'Change deltas', 'Trend features'],
@@ -164,7 +175,7 @@ const NODES: NodeDef[] = [
     x: 39, y: 58,
     detail: {
       algorithm: 'HDM-4 structural number + age computation',
-      trainingSize: '1,359 links with construction records',
+      trainingSize: '1,013 links with construction records',
       accuracy: 'SN ±0.3 from layer thickness uncertainty',
       inputs: ['Pavement layer thicknesses', 'Construction year', 'Last rehab year', 'Surface type'],
       outputs: ['Structural Number (SN)', 'Pavement age (years)', 'Remaining life fraction', 'ΔIRI/year'],
@@ -252,7 +263,7 @@ const NODES: NodeDef[] = [
     x: 74, y: 22,
     detail: {
       algorithm: 'Multi-year treatment optimisation (HDM-4 RDWE)',
-      trainingSize: 'All 1,359 paved links',
+      trainingSize: 'All 1,013 paved links',
       accuracy: 'Budget allocation ±8% vs expert panel',
       inputs: ['IRI forecast', 'Condition band', 'Unit costs', 'Budget constraint'],
       outputs: ['5-year work programme', 'Treatment schedule by link', 'NPV/BCR per intervention'],
@@ -264,7 +275,7 @@ const NODES: NodeDef[] = [
     x: 74, y: 42,
     detail: {
       algorithm: 'Network assignment + growth factoring',
-      trainingSize: 'Full 21,292 km network',
+      trainingSize: 'Full 21,160 km (mapped) network',
       accuracy: 'Link AADT ±18% at 90% confidence',
       inputs: ['MLP forecast', 'Growth factors', 'Origin-destination matrix'],
       outputs: ['2035 AADT by link', 'Cumulative ESAL map', 'Overloading risk index'],
@@ -280,7 +291,7 @@ const NODES: NodeDef[] = [
       accuracy: 'Programme delivery rate 91% (FY2023/24)',
       inputs: ['RF priority scores', 'Inspection dates', 'Cost estimates'],
       outputs: ['Annual inspection programme', 'Maintenance work orders', 'Capital works priority list'],
-      description: 'Bridge Management System output: prioritised list of structures for routine maintenance, major repairs, and capital replacement. Linked to UNRA maintenance budget lines.',
+      description: 'Bridge Management System output: prioritised list of structures for routine maintenance, major repairs, and capital replacement. Linked to Department of National Roads maintenance budget lines.',
     },
   },
 
@@ -317,8 +328,8 @@ const NODES: NodeDef[] = [
       trainingSize: 'All system outputs',
       accuracy: 'Real-time refresh from latest survey data',
       inputs: ['PMS/TIS/BMS outputs', 'Budget actuals', 'Contract performance'],
-      outputs: ['VCI/IRI network KPIs', 'UNRA annual report data', 'Board-level dashboard'],
-      description: 'Aggregates all system outputs into standardised network performance indicators. Feeds UNRA Board reports, MoWT NDP IV monitoring, and World Bank/AfDB progress reporting.',
+      outputs: ['VCI/IRI network KPIs', 'Department of National Roads annual report data', 'Board-level dashboard'],
+      description: 'Aggregates all system outputs into standardised network performance indicators. Feeds Department of National Roads Board reports, MoWT NDP IV monitoring, and World Bank/AfDB progress reporting.',
     },
   },
 ];
@@ -477,6 +488,8 @@ export default function MLArchitectureDiagram() {
     <div style={{ position: 'relative', background: C.bg, borderRadius: 16,
       border: `1px solid ${C.border}`, overflow: 'hidden', userSelect: 'none' }}>
 
+      <CrossLinkChipBar sectionId="hdm4" />
+
       {/* ── Header ── */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         padding: '14px 18px', borderBottom: `1px solid ${C.border}`,
@@ -493,7 +506,7 @@ export default function MLArchitectureDiagram() {
               Asset Management ML Engine
             </div>
             <div style={{ fontSize: 10, color: 'rgba(148,163,184,0.6)' }}>
-              Uganda National Road Network · UNRA DNR
+              Uganda National Road Network · Department of National Roads DNR
             </div>
           </div>
         </div>
@@ -536,7 +549,12 @@ export default function MLArchitectureDiagram() {
       {/* ── Feature Importance view ── */}
       {view === 'importance' && (
         featData
-          ? <FeatureImportancePanel data={featData} />
+          ? <div>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '0 0 8px' }}>
+                <MLChartSourceButton />
+              </div>
+              <FeatureImportancePanel data={featData} />
+            </div>
           : <div style={{ padding: 40, textAlign: 'center', color: '#475569', fontSize: 12 }}>
               Loading feature importance data…
             </div>

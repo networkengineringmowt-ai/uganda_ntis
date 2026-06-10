@@ -527,3 +527,142 @@
   transform: translateY(-2px);
   box-shadow: 0 16px 48px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.18);
 }
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   ENHANCED POINT FEATURE POPUPS
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+.enhanced-popup.leaflet-popup {
+  background-color: transparent !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3) !important;
+  border-radius: 12px !important;
+  overflow: hidden !important;
+}
+
+.enhanced-popup .leaflet-popup-content-wrapper {
+  background-color: transparent !important;
+  box-shadow: none !important;
+  border-radius: 12px !important;
+  padding: 0 !important;
+  border: none !important;
+  overflow: visible !important;
+}
+
+.enhanced-popup .leaflet-popup-content {
+  margin: 0 !important;
+  width: auto !important;
+  max-width: 320px !important;
+  font-family: 'Inter', 'Segoe UI', sans-serif !important;
+  overflow: visible !important;
+}
+
+.enhanced-popup .leaflet-popup-tip-container {
+  width: 24px !important;
+  height: 12px !important;
+  display: none !important;
+}
+
+/* Animation for popup appearance */
+@keyframes enhancedPopupSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.enhanced-popup {
+  animation: enhancedPopupSlideIn 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Details element styling within popups */
+.enhanced-popup details {
+  cursor: pointer;
+  user-select: none;
+}
+
+.enhanced-popup details summary:hover {
+  opacity: 0.8;
+}
+
+.enhanced-popup details[open] summary {
+  margin-bottom: 8px;
+}
+
+/* Badge/tag styling */
+.enhanced-popup .badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* Info grid for two-column layout */
+.enhanced-popup .info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.enhanced-popup .info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.enhanced-popup .info-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.enhanced-popup .info-value {
+  font-size: 12px;
+  color: #1f2937;
+  font-weight: 500;
+}
+
+/* Alert/warning boxes */
+.enhanced-popup .alert {
+  display: flex;
+  gap: 8px;
+  padding: 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  align-items: flex-start;
+}
+
+.enhanced-popup .alert-info {
+  background-color: #dbeafe;
+  border: 1px solid #bfdbfe;
+  color: #0c4a6e;
+}
+
+.enhanced-popup .alert-warning {
+  background-color: #fef3c7;
+  border: 1px solid #fde68a;
+  color: #92400e;
+}
+
+.enhanced-popup .alert-critical {
+  background-color: #fee2e2;
+  border: 1px solid #fecaca;
+  color: #7f1d1d;
+}
+
+/* Footer styling */
+.enhanced-popup .popup-footer {
+  background-color: #f9fafb;
+  padding: 8px;
+  border-top: 1px solid #e5e7eb;
+  font-size: 10px;
+  color: #9ca3af;
+  text-align: center;
+}

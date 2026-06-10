@@ -2,12 +2,12 @@ import { GeoJSON } from 'react-leaflet';
 import { useWaterLayers } from '../hooks/useWaterLayers';
 
 const LAKE_STYLE = {
-  color: '#60a5fa', fillColor: '#60a5fa', fillOpacity: 0.35,
-  weight: 1, opacity: 0.5,
+  color: '#60a5fa', fillColor: '#60a5fa', fillOpacity: 0.15,
+  weight: 0.8, opacity: 0.25,
 };
 const RIVER_STYLE = {
   color: '#60a5fa', fillColor: 'none', fillOpacity: 0,
-  weight: 1, opacity: 0.18,
+  weight: 0.5, opacity: 0.08,
 };
 
 export function WaterLayers() {

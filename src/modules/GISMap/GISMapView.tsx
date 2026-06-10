@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useMemo, useRef, memo, useCallback } from 'react';
+﻿import React, { useState, useEffect, useMemo, useRef, memo, useCallback, useContext } from 'react';
 import {
   MapContainer, TileLayer, CircleMarker, Tooltip,
   ZoomControl, GeoJSON, useMap,
@@ -8,12 +8,15 @@ import {
   ROAD_STYLES, STRUCTURE_STYLES, surfaceCategory,
 } from '../../shared/mapSymbols';
 import { WaterLayers } from '../../shared/WaterLayers';
-import { InfraLayers } from '../../shared/InfraLayers';
+import { ImprovedInfraLayers } from '../../shared/ImprovedInfraLayers';
+import { MapLegend, LEGEND_STRUCTURES, LEGEND_STRUCTURE_CONDITION, LEGEND_FULL } from '../../shared/MapLegend';
+import { BotHighlightContext } from '../AssetBot/types';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import {
   Play, Pause, SkipBack, Layers, Info, Camera, X,
   ChevronLeft, ChevronRight, ExternalLink, Clock, Download,
+  AlertCircle, Badge, TrendingDown,
 } from 'lucide-react';
 import { downloadGeoJSON, downloadKML, downloadShapefileZip } from '../../utils/downloads';
 import { useBMS } from '../../store/BMSContext';
@@ -56,6 +59,7 @@ export default function GISMapView() {
   const [selected,    setSelected]    = useState<DisplayStructure | null>(null);
   const [roadGeo,     setRoadGeo]     = useState<GeoJSON.FeatureCollection | null>(null);
   const [zoom,        setZoom]        = useState(7);
+  const { highlightedLinks } = useContext(BotHighlightContext);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const handleZoom  = useCallback((z: number) => setZoom(z), []);
 
@@ -68,10 +72,14 @@ export default function GISMapView() {
   }, []);
 
   const roadStyle = useCallback((feature?: GeoJSON.Feature): L.PathOptions => {
+    const linkId = (feature?.properties as { link_id?: string })?.link_id ?? '';
+    if (highlightedLinks.length && highlightedLinks.includes(linkId)) {
+      return { color: '#fbbf24', weight: 7, opacity: 1 };
+    }
     const surf = (feature?.properties as { surface?: string })?.surface ?? '';
     const s    = ROAD_STYLES[surfaceCategory(surf)];
     return { color: s.color, weight: s.weight, opacity: s.opacity, dashArray: s.dashArray };
-  }, []);
+  }, [highlightedLinks]);
 
   // Time-series animation
   useEffect(() => {
@@ -130,15 +138,18 @@ export default function GISMapView() {
         <TileLayer url={ESRI_TILE_URLS.imagery} attribution={ESRI_ATTRIBUTIONS.imagery}/>
         <TileLayer url={ESRI_TILE_URLS.labels}  attribution={ESRI_ATTRIBUTIONS.labels} opacity={0.7}/>
         <WaterLayers />
-        <InfraLayers />
+        <ImprovedInfraLayers />
+        <MapLegend title="STRUCTURES" items={[...LEGEND_STRUCTURES, ...LEGEND_STRUCTURE_CONDITION]} position="bottomleft" />
+        <MapLegend title="MAP FEATURES" items={LEGEND_FULL} position="bottomright" />
         {roadGeo && (
           <GeoJSON
+            key={`roads-${highlightedLinks.length}`}
             data={roadGeo as GeoJSON.GeoJsonObject}
             style={(f: unknown) => roadStyle(f as GeoJSON.Feature)}
           />
         )}
 
-        {/* ── Structures — simple circles/squares; hidden below zoom 10 ── */}
+        {/* ── Structures — enhanced circles/squares with rich popups; hidden below zoom 10 ── */}
         {zoom >= STRUCTURE_STYLES.bridge.minZoom && displayStructures.map(s => {
           const isBridge = s.type === 'bridge';
           const sym      = isBridge ? STRUCTURE_STYLES.bridge : STRUCTURE_STYLES.culvert;
@@ -159,16 +170,10 @@ export default function GISMapView() {
               <Tooltip direction="top" offset={[0, -8]} opacity={1}>
                 <div style={{ fontSize: 12, fontWeight: 900, color: '#111827', marginBottom: 2 }}>{s.name}</div>
                 <div style={{ fontSize: 10, fontWeight: 700, color: '#374151' }}>
-                  {isBridge ? '● Bridge' : '■ Major Culvert'} · {s.road}
+                  {isBridge ? '🌉 Bridge' : '📦 Major Culvert'}
                 </div>
-                <div style={{ fontSize: 10, fontWeight: 700, color: '#6b7280', marginTop: 1 }}>
-                  {s.region} · Built {s.yearBuilt} · {s.spanLength * s.noOfSpans}m
-                </div>
-                <div style={{ fontSize: 10, fontWeight: 800, marginTop: 3,
-                  padding: '2px 6px', borderRadius: 4, display: 'inline-block',
-                  background: isCrit ? '#fee2e2' : s.displayRating === 3 ? '#fef3c7' : '#dcfce7',
-                  color:      isCrit ? '#dc2626' : s.displayRating === 3 ? '#d97706' : '#16a34a' }}>
-                  Rating {s.displayRating} — {conditionLabel(s.displayRating)}
+                <div style={{ fontSize: 10, fontWeight: 600, color: isCrit ? '#dc2626' : '#6b7280', marginTop: 4 }}>
+                  Rating: {s.displayRating}/5 {isCrit ? '⚠ CRITICAL' : ''}
                 </div>
               </Tooltip>
             </CircleMarker>
@@ -184,6 +189,7 @@ export default function GISMapView() {
         <div className="bg-slate-900/92 backdrop-blur border border-slate-700 rounded-xl px-4 py-3">
           <div className="text-xs font-bold text-white">Bridges & Major Culverts</div>
           <div className="text-[10px] text-slate-400 mt-0.5">{displayStructures.length} structures shown</div>
+          <div className="text-[9px] text-slate-500 mt-1.5">Source: Unified Database</div>
         </div>
 
         {/* Layer filter */}
@@ -225,19 +231,26 @@ export default function GISMapView() {
         <div className="bg-slate-900/92 backdrop-blur border border-slate-700 rounded-xl p-3">
           <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Symbol Key</div>
           <div className="space-y-1.5">
-            {/* Bridge — blue circle */}
+            {/* Bridge — cyan circle with white outline */}
             <div className="flex items-center gap-2">
               <svg viewBox="0 0 12 12" width="12" height="12" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="6" cy="6" r="5" fill="#3B82F6" stroke="white" strokeWidth="1.5"/>
+                <circle cx="6" cy="6" r="5" fill="#0891b2" stroke="white" strokeWidth="1.5"/>
               </svg>
               <span className="text-[10px] text-slate-300">Bridge</span>
             </div>
-            {/* Culvert — amber square */}
+            {/* Culvert — amber square with white outline */}
             <div className="flex items-center gap-2">
               <svg viewBox="0 0 10 10" width="10" height="10" xmlns="http://www.w3.org/2000/svg">
                 <rect x="1" y="1" width="8" height="8" rx="1" fill="#F59E0B" stroke="white" strokeWidth="1.5"/>
               </svg>
               <span className="text-[10px] text-slate-300">Major Culvert</span>
+            </div>
+            {/* Critical status — red outline */}
+            <div className="flex items-center gap-2">
+              <svg viewBox="0 0 12 12" width="12" height="12" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="6" cy="6" r="4.5" fill="#0891b2" stroke="#ef4444" strokeWidth="2"/>
+              </svg>
+              <span className="text-[10px] text-red-400">Critical (Rating 1-2)</span>
             </div>
             {/* Road network */}
             <div className="border-t border-slate-700 pt-1.5 mt-1">
@@ -434,7 +447,7 @@ const StructurePanel = memo(function StructurePanel({
             <div className="flex-1 min-w-0">
               <div className="text-sm font-bold text-white leading-tight truncate">{s.name}</div>
               <div className="text-[10px] text-slate-400 mt-0.5">
-                {s.id} · {isBridge ? 'Bridge' : 'Major Culvert'} · {s.road}
+                {s.id} · {isBridge ? '🌉 Bridge' : '📦 Culvert'} · {s.road}
               </div>
             </div>
             <button onClick={onClose}
@@ -443,23 +456,34 @@ const StructurePanel = memo(function StructurePanel({
             </button>
           </div>
 
-          {/* Condition strip */}
-          <div className="mt-3 flex items-center gap-3">
-            <span className={`badge ${conditionBadge(s.displayRating)} text-[10px]`}>
+          {/* Condition strip with enriched info */}
+          <div className="mt-3 flex items-center gap-2 flex-wrap">
+            <span className={`badge ${conditionBadge(s.displayRating)} text-[10px] px-2 py-1 rounded`}>
               {s.displayRating} – {conditionLabel(s.displayRating)}
             </span>
             {s.inspectionDue && (
-              <span className="flex items-center gap-1 text-[9px] text-amber-400 font-semibold">
-                <Clock size={9} /> Inspection overdue
+              <span className="flex items-center gap-1 text-[9px] text-red-400 font-bold bg-red-900/30 px-2 py-1 rounded">
+                ⚠ Inspection overdue
               </span>
             )}
-            <span className="ml-auto text-[10px] text-slate-500">Priority #{s.priorityRank}</span>
+            {s.priorityScore >= 75 && (
+              <span className="flex items-center gap-1 text-[9px] text-orange-400 font-bold bg-orange-900/30 px-2 py-1 rounded">
+                ★ High priority
+              </span>
+            )}
+            <span className="ml-auto text-[10px] text-slate-500">Rank #{s.priorityRank}/{state.structures.length}</span>
           </div>
 
-          {/* Condition bar */}
-          <div className="mt-2 bg-slate-700 rounded-full h-1.5">
-            <div className="rounded-full h-1.5 transition-all"
-              style={{ width: `${((s.displayRating - 1) / 4) * 100}%`, background: condColor }} />
+          {/* Condition bar with label */}
+          <div className="mt-2">
+            <div className="flex justify-between mb-1">
+              <span className="text-[8px] text-slate-500">Condition</span>
+              <span className="text-[8px] text-slate-400">{((s.displayRating - 1) / 4) * 100 | 0}%</span>
+            </div>
+            <div className="bg-slate-700 rounded-full h-2">
+              <div className="rounded-full h-2 transition-all"
+                style={{ width: `${((s.displayRating - 1) / 4) * 100}%`, background: condColor }} />
+            </div>
           </div>
         </div>
 

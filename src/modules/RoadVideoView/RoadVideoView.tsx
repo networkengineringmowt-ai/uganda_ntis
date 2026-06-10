@@ -2,6 +2,7 @@
 import { MapContainer, TileLayer, GeoJSON, ZoomControl } from 'react-leaflet';
 import { WaterLayers } from '../../shared/WaterLayers';
 import { InfraLayers } from '../../shared/InfraLayers';
+import { MapLegend, LEGEND_ROAD_NETWORK } from '../../shared/MapLegend';
 import { ESRI_TILE_URLS, ESRI_ATTRIBUTIONS } from '../../shared/mapSymbols';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -336,6 +337,7 @@ export default function RoadVideoView() {
           <TileLayer url={ESRI_TILE_URLS.labels} attribution={ESRI_ATTRIBUTIONS.labels} opacity={0.7}/>
           <WaterLayers />
           <InfraLayers />
+          <MapLegend title="Road Network" items={LEGEND_ROAD_NETWORK} />
           <ZoomControl position="bottomright"/>
 
           {enrichedGeoJson && (

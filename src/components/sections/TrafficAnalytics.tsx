@@ -7,6 +7,7 @@ import {
   ResponsiveContainer, BarChart, Bar, XAxis, YAxis,
   CartesianGrid, Tooltip, Legend,
 } from 'recharts';
+import { Chart3DWrap, Bar3D, TT_NEON, TICK } from '../../lib/chart3d';
 import { ModuleNavBar } from '../../shared/ModuleNavBar';
 
 // ─── Data types ───────────────────────────────────────────────────────────────
@@ -376,24 +377,26 @@ function ClusteredClassChart({
     <div style={{ ...GLASS, padding:'18px 20px' }}>
       <div style={{ fontSize:12, fontWeight:800, color:'#fff', marginBottom:3 }}>{title}</div>
       {subtitle && <div style={{ fontSize:10, color:'rgba(148,163,184,0.45)', marginBottom:12 }}>{subtitle}</div>}
-      <ResponsiveContainer width="100%" height={220}>
-        <BarChart data={data} margin={{ top:4, right:4, left:-10, bottom:20 }}
-          barCategoryGap="25%" barGap={1}>
-          <CartesianGrid strokeDasharray="2 2" stroke="rgba(148,163,184,0.06)" vertical={false}/>
-          <XAxis dataKey="group" tick={{ fill:'rgba(148,163,184,0.55)', fontSize:9 }}
-            axisLine={false} tickLine={false}/>
-          <YAxis tick={{ fill:'rgba(148,163,184,0.35)', fontSize:8 }}
-            tickFormatter={(v:number)=>v>=1000?`${(v/1000).toFixed(0)}k`:String(v)}
-            axisLine={false} tickLine={false}/>
-          <Tooltip content={<ClusterTip/>}/>
-          <Legend wrapperStyle={{ fontSize:8, paddingTop:4 }}
-            formatter={(v:string)=><span style={{ color:'rgba(148,163,184,0.7)' }}>{v}</span>}/>
-          {KEY_CLASSES.map(vc=>(
-            <Bar key={vc.key} dataKey={vc.label} fill={vc.color} fillOpacity={0.82}
-              radius={[2,2,0,0]}/>
-          ))}
-        </BarChart>
-      </ResponsiveContainer>
+      <Chart3DWrap>
+        <ResponsiveContainer width="100%" height={220}>
+          <BarChart data={data} margin={{ top:4, right:4, left:-10, bottom:20 }}
+            barCategoryGap="25%" barGap={1}>
+            <CartesianGrid strokeDasharray="2 2" stroke="rgba(148,163,184,0.06)" vertical={false}/>
+            <XAxis dataKey="group" tick={{ fill:'rgba(148,163,184,0.55)', fontSize:9 }}
+              axisLine={false} tickLine={false}/>
+            <YAxis tick={{ fill:'rgba(148,163,184,0.35)', fontSize:8 }}
+              tickFormatter={(v:number)=>v>=1000?`${(v/1000).toFixed(0)}k`:String(v)}
+              axisLine={false} tickLine={false}/>
+            <Tooltip content={<ClusterTip/>}/>
+            <Legend wrapperStyle={{ fontSize:8, paddingTop:4 }}
+              formatter={(v:string)=><span style={{ color:'rgba(148,163,184,0.7)' }}>{v}</span>}/>
+            {KEY_CLASSES.map(vc=>(
+              <Bar key={vc.key} dataKey={vc.label} fill={vc.color} fillOpacity={0.82}
+                radius={[2,2,0,0]} shape={<Bar3D/>}/>
+            ))}
+          </BarChart>
+        </ResponsiveContainer>
+      </Chart3DWrap>
     </div>
   );
 }
@@ -621,29 +624,31 @@ function VehicleClassByRegionChart({ features }: { features: PredFeature[] }) {
       <div style={{ fontSize: 10, color: 'rgba(148,163,184,0.45)', marginBottom: 14 }}>
         Average daily vehicles per class · 6 maintenance regions · top 6 classes shown
       </div>
-      <ResponsiveContainer width="100%" height={220}>
-        <BarChart data={data} margin={{ top: 4, right: 12, left: 0, bottom: 0 }} barGap={2} barCategoryGap="20%">
-          <CartesianGrid strokeDasharray="3 3" stroke="rgba(148,163,184,0.08)" vertical={false}/>
-          <XAxis dataKey="region" tick={{ fill: 'rgba(148,163,184,0.55)', fontSize: 9 }}
-            axisLine={false} tickLine={false}/>
-          <YAxis tick={{ fill: 'rgba(148,163,184,0.35)', fontSize: 8 }} axisLine={false} tickLine={false}
-            tickFormatter={(v: number) => v >= 1000 ? `${(v/1000).toFixed(1)}k` : String(v)}/>
-          <Tooltip
-            contentStyle={{ background: 'rgba(10,16,30,0.95)', border: '1px solid rgba(255,255,255,0.1)',
-              borderRadius: 8, fontSize: 10 }}
-            labelStyle={{ color: '#e2eaf4', fontWeight: 700 }}
-            formatter={(value: number, name: string) => [
-              value >= 1000 ? `${(value/1000).toFixed(1)}k` : value,
-              VEHICLE_CLASSES.find(vc => vc.abbr === name)?.name ?? name,
-            ]}/>
-          <Legend wrapperStyle={{ fontSize: 9, paddingTop: 6 }}
-            formatter={(value: string) => VEHICLE_CLASSES.find(vc => vc.abbr === value)?.name ?? value}/>
-          {TOP_CLASSES.map(vc => (
-            <Bar key={vc.abbr} dataKey={vc.abbr} fill={vc.color} radius={[2, 2, 0, 0]}
-              fillOpacity={0.82}/>
-          ))}
-        </BarChart>
-      </ResponsiveContainer>
+      <Chart3DWrap>
+        <ResponsiveContainer width="100%" height={220}>
+          <BarChart data={data} margin={{ top: 4, right: 12, left: 0, bottom: 0 }} barGap={2} barCategoryGap="20%">
+            <CartesianGrid strokeDasharray="3 3" stroke="rgba(148,163,184,0.08)" vertical={false}/>
+            <XAxis dataKey="region" tick={{ fill: 'rgba(148,163,184,0.55)', fontSize: 9 }}
+              axisLine={false} tickLine={false}/>
+            <YAxis tick={{ fill: 'rgba(148,163,184,0.35)', fontSize: 8 }} axisLine={false} tickLine={false}
+              tickFormatter={(v: number) => v >= 1000 ? `${(v/1000).toFixed(1)}k` : String(v)}/>
+            <Tooltip
+              contentStyle={{ background: 'rgba(10,16,30,0.95)', border: '1px solid rgba(255,255,255,0.1)',
+                borderRadius: 8, fontSize: 10 }}
+              labelStyle={{ color: '#e2eaf4', fontWeight: 700 }}
+              formatter={(value: number, name: string) => [
+                value >= 1000 ? `${(value/1000).toFixed(1)}k` : value,
+                VEHICLE_CLASSES.find(vc => vc.abbr === name)?.name ?? name,
+              ]}/>
+            <Legend wrapperStyle={{ fontSize: 9, paddingTop: 6 }}
+              formatter={(value: string) => VEHICLE_CLASSES.find(vc => vc.abbr === value)?.name ?? value}/>
+            {TOP_CLASSES.map(vc => (
+              <Bar key={vc.abbr} dataKey={vc.abbr} fill={vc.color} radius={[2, 2, 0, 0]}
+                fillOpacity={0.82} shape={<Bar3D/>}/>
+            ))}
+          </BarChart>
+        </ResponsiveContainer>
+      </Chart3DWrap>
     </div>
   );
 }
@@ -855,22 +860,24 @@ function AnalysisTab({ features }: { features: PredFeature[] }) {
             <div style={{ fontSize:10, color:'rgba(148,163,184,0.45)', marginBottom:12 }}>
               Average daily traffic per region · projected growth to 2040
             </div>
-            <ResponsiveContainer width="100%" height={200}>
-              <BarChart data={chartData} margin={{ top:4, right:4, left:-10, bottom:20 }}
-                barCategoryGap="30%" barGap={2}>
-                <CartesianGrid strokeDasharray="2 2" stroke="rgba(148,163,184,0.06)" vertical={false}/>
-                <XAxis dataKey="region" tick={{ fill:'rgba(148,163,184,0.55)', fontSize:9 }}
-                  axisLine={false} tickLine={false}/>
-                <YAxis tick={{ fill:'rgba(148,163,184,0.35)', fontSize:8 }}
-                  tickFormatter={(v:number)=>v>=1000?`${(v/1000).toFixed(0)}k`:String(v)}
-                  axisLine={false} tickLine={false}/>
-                <Tooltip content={<ClusterTip/>}/>
-                <Legend wrapperStyle={{ fontSize:9, paddingTop:4 }}
-                  formatter={(v:string)=><span style={{ color:'rgba(148,163,184,0.7)' }}>{v}</span>}/>
-                <Bar dataKey="AADT 2025" fill={C.cyan}   fillOpacity={0.82} radius={[2,2,0,0] as [number,number,number,number]}/>
-                <Bar dataKey="AADT 2040" fill={C.orange} fillOpacity={0.82} radius={[2,2,0,0] as [number,number,number,number]}/>
-              </BarChart>
-            </ResponsiveContainer>
+            <Chart3DWrap>
+              <ResponsiveContainer width="100%" height={200}>
+                <BarChart data={chartData} margin={{ top:4, right:4, left:-10, bottom:20 }}
+                  barCategoryGap="30%" barGap={2}>
+                  <CartesianGrid strokeDasharray="2 2" stroke="rgba(148,163,184,0.06)" vertical={false}/>
+                  <XAxis dataKey="region" tick={{ fill:'rgba(148,163,184,0.55)', fontSize:9 }}
+                    axisLine={false} tickLine={false}/>
+                  <YAxis tick={{ fill:'rgba(148,163,184,0.35)', fontSize:8 }}
+                    tickFormatter={(v:number)=>v>=1000?`${(v/1000).toFixed(0)}k`:String(v)}
+                    axisLine={false} tickLine={false}/>
+                  <Tooltip content={<ClusterTip/>}/>
+                  <Legend wrapperStyle={{ fontSize:9, paddingTop:4 }}
+                    formatter={(v:string)=><span style={{ color:'rgba(148,163,184,0.7)' }}>{v}</span>}/>
+                  <Bar dataKey="AADT 2025" fill={C.cyan}   fillOpacity={0.82} radius={[2,2,0,0] as [number,number,number,number]} shape={<Bar3D/>}/>
+                  <Bar dataKey="AADT 2040" fill={C.orange} fillOpacity={0.82} radius={[2,2,0,0] as [number,number,number,number]} shape={<Bar3D/>}/>
+                </BarChart>
+              </ResponsiveContainer>
+            </Chart3DWrap>
           </div>
         );
       })()}
@@ -1157,8 +1164,8 @@ export default function TrafficAnalytics() {
       {tab==='strategic' && <StrategicTab features={filteredFeatures} stations={filteredStations}/>}
 
       <div style={{ marginTop:22, fontSize:8, color:'rgba(100,116,139,0.35)', textAlign:'center' }}>
-        Uganda National Roads · UNRA / DNR 2025 · XGBoost + LightGBM ensemble ·
-        ATC data: UNRA Traffic Management Unit · Forecasts modelled 2025–2040
+        Uganda National Roads · Department of National Roads / DNR 2025 · XGBoost + LightGBM ensemble ·
+        ATC data: Department of National Roads Traffic Management Unit · Forecasts modelled 2025–2040
       </div>
     </div>
   );
