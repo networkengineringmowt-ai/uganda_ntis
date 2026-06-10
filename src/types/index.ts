@@ -158,6 +158,7 @@ export type ActiveView =
   | 'sources'           // Sources & Evidence catalogue
   | 'tabularsummaries'  // Tabular summaries — all data tables aggregated
   | 'bms'               // Bridge Management System — 4-tab unified view
+  | 'bridgeworks'       // Bridge Works — MOWT bridges development projects status
   | 'network'           // Network Overview — 4-tab unified view
   | 'rms'               // RMS — Road Management System hub (4-tab: overview, road map, network story, DNR RMS Engine architecture)
   | 'casestudies'       // Global RMS Case Studies — world map, cards, comparative analytics, lessons

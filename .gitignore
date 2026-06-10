@@ -28,3 +28,9 @@ server/.env.local
 *.njsproj
 *.sln
 *.sw?
+
+# Never commit giant binaries / GIS installers / DBs (they break GitHub pushes)
+arcgis-src/
+*.rar
+*.db
+offline-tiles/

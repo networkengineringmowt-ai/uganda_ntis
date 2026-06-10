@@ -201,6 +201,9 @@ def b_structures():
              "span_length_m": r.get("span_m")}
             for r in d.get("critical_structures", []) if r.get("id")]
 
+def b_bridge_works():
+    return load("bridge_works_2026.json") or []
+
 # ── run ───────────────────────────────────────────────────────────────────────
 # NOTE: tables whose natural key is a secondary UNIQUE (not the IDENTITY PK) are
 # NOT protected by Prefer: resolution=ignore-duplicates (PostgREST resolves on PK
@@ -227,6 +230,7 @@ def main():
     run("romdas_maintenance_events", b_romdas_events)
     run("link_iri_predictions",      b_iri_pred)
     run("structures",                b_structures)
+    run("bridge_works",              b_bridge_works)
     print("=" * 52 + "\nDone.\n")
 
 if __name__ == "__main__":

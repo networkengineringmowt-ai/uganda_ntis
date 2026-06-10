@@ -1,6 +1,6 @@
 import {
   Activity, Shield, Construction, Layers, Network, Building2,
-  DollarSign, Clock, Database, ShieldCheck, Route, Globe, Landmark,
+  DollarSign, Clock, Database, ShieldCheck, Route, Globe, Landmark, Hammer,
 } from 'lucide-react';
 import { useBMS } from '../../store/BMSContext';
 import type { ActiveView } from '../../types';
@@ -25,6 +25,7 @@ const SECTIONS: Section[] = [
   { id: 'roadcondition', label: 'Pavement Management',       icon: <Activity size={15}/>,     color: N.orange },
   { id: 'traffic',       label: 'Traffic Information',        icon: <Layers size={15}/>,       color: N.cyan   },
   { id: 'bms',           label: 'Bridge Management',          icon: <Network size={15}/>,      color: N.blue   },
+  { id: 'bridgeworks',   label: 'Bridge Works',               icon: <Hammer size={15}/>,       color: N.teal   },
   { id: 'roadreserve',   label: 'Road Reserve Management',    icon: <Landmark size={15}/>,     color: N.teal   },
   { id: 'projects',      label: 'Projects & Works',           icon: <Construction size={15}/>, color: N.green  },
   { id: 'pim',           label: 'Public Investment',          icon: <Building2 size={15}/>,    color: N.yellow },

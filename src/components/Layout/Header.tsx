@@ -13,6 +13,7 @@ const VIEW_TITLES: Record<string, { title: string; sub: string; color?: string }
   roadnetwork:   { title: 'Road Network Map',             sub: '1,013 national road links · 21,302 km official (FY25-26) · Data: DNR GIS / NDPIV FY25-26', color: '#00ff88' },
   casestudies:   { title: 'Global Case Studies',          sub: '15 countries · World map · Comparative analytics · Lessons for DNR', color: '#00d4aa' },
   roadreserve:   { title: 'Road Reserve Management',      sub: 'Gazette status · Reserve corridor map · Encroachment register · Legal enforcement', color: '#00d4aa' },
+  bridgeworks:   { title: 'Bridge Works',                 sub: 'MOWT bridges development projects · contracts · financial & physical progress (Apr 2026)', color: '#00d4aa' },
   roadvideoview: { title: 'Road Survey Video',             sub: 'Road surface video archive · 2021–2026',               color: '#ff6b35' },
   traffic:       { title: 'Traffic & Demand',             sub: 'Network traffic counts · projected to June 2026 · 298 TCS stations',   color: '#ffd23f' },
   roadcondition: { title: 'Pavement Management',          sub: 'Road condition · IRI · HDM-4 · maintenance programme · as of 2026',    color: '#fb923c' },
