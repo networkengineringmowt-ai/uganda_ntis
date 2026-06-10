@@ -134,7 +134,8 @@ function AppShell() {
             )}
 
             {!isFullView && !SELF_SCROLL_VIEWS.has(activeView) && (
-              <div style={{ position: 'absolute', inset: 0, overflowY: 'auto', overflowX: 'hidden', paddingBottom: 12 }}>
+              <div /* paddingBottom 84 clears the bottom-left AssetBot FAB */
+                style={{ position: 'absolute', inset: 0, overflowY: 'auto', overflowX: 'hidden', paddingBottom: 84 }}>
                 {activeView === 'network'               && <NetworkSection />}
                 {activeView === 'platform'              && <PlatformDashboard />}
                 {activeView === 'traffic'               && <TrafficSection />}
