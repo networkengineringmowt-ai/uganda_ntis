@@ -272,7 +272,7 @@ export default function RoadAssetBot() {
         onClick={() => setOpen(o => !o)}
         title="Road Asset Intelligence Bot"
         style={{
-          position: 'fixed', bottom: 14, left: 14, top: 'auto', right: 'auto', zIndex: 9999,
+          position: 'fixed', bottom: 60, left: 14, top: 'auto', right: 'auto', zIndex: 9999,
           width: 52, height: 52, borderRadius: '50%',
           background: `linear-gradient(135deg, ${ACCENT}, #818cf8)`,
           border: 'none', cursor: 'pointer',
@@ -299,7 +299,7 @@ export default function RoadAssetBot() {
       {/* ── Slide-in panel ── */}
       {open && (
         <div style={{
-          position: 'fixed', bottom: 80, left: 14, top: 'auto', right: 'auto', zIndex: 9998,
+          position: 'fixed', bottom: 126, left: 14, top: 'auto', right: 'auto', zIndex: 9998,
           width: 520, maxWidth: 'calc(100vw - 48px)',
           maxHeight: 'calc(100vh - 120px)',
           borderRadius: 16,
