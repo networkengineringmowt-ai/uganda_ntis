@@ -10,7 +10,7 @@ robocopy $SRC $LOCAL /E /XD node_modules .git dist "*_nm_partial*" /XF *.db /R:1
 Push-Location $LOCAL
 if (-not (Test-Path "$LOCAL\node_modules\.bin\vite.cmd")) {
   Write-Host "Installing dependencies on local disk (one-time)..."
-  npm ci
+  npm install   # npm install (not ci) so a lockfile drift never blocks the build
 }
 Write-Host "Type-checking + building..."
 npx tsc -b
