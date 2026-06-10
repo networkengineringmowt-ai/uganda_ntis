@@ -17,6 +17,7 @@ import {
 
 const NET_RoadNetworkView = lazy(() => import('../RoadNetwork/RoadNetworkView'));
 const NET_NetworkStory = lazy(() => import('../NetworkStory/NetworkStory'));
+const RMS_RoadInventory = lazy(() => import('./RoadInventory'));
 
 const C = {
   cyan:   '#00f5ff', green:  '#00ff88', yellow: '#ffd23f',
@@ -1475,6 +1476,7 @@ function DTIMSArchitecture({ navigate }: { navigate: (v: ActiveView) => void }) 
 const TABS = [
   { id: 'overview'      as const, label: 'Overview',          icon: <LayoutDashboard size={13}/> },
   { id: 'roadmap'       as const, label: 'Road Network Map',  icon: <Map size={13}/> },
+  { id: 'inventory'     as const, label: 'Road Inventory',    icon: <Database size={13}/> },
   { id: 'networkstory'  as const, label: 'Network Story',     icon: <BookOpen size={13}/> },
   { id: 'rmsarch'       as const, label: 'RMS Architecture',  icon: <Network size={13}/> },
 ];
@@ -1551,6 +1553,12 @@ export default function RMSSection() {
             <div style={{ position: 'absolute', inset: 0 }}>
               <NET_RoadNetworkView />
             </div>
+          </Suspense>
+        )}
+
+        {tab === 'inventory' && (
+          <Suspense fallback={<Spinner />}>
+            <RMS_RoadInventory />
           </Suspense>
         )}
 
