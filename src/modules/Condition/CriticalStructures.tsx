@@ -51,22 +51,29 @@ export default function CriticalStructures() {
     [state.structures]);
 
   const columns: STColumn<Row>[] = [
-    { key: 'name',   label: 'Structure' },
-    { key: 'type',   label: 'Type' },
-    { key: 'road',   label: 'Road' },
+    { key: 'name',   label: 'Structure', comment: 'Structure name from the BMS registry (bridges & major culverts).' },
+    { key: 'type',   label: 'Type',      comment: 'bridge | culvert' },
+    { key: 'road',   label: 'Road',      comment: 'Road the structure carries (national network).' },
     { key: 'region', label: 'Region' },
-    { key: 'ratingLabel', label: 'Condition', render: r => (
+    { key: 'ratingLabel', label: 'Condition',
+      comment: 'BMS condition rating: 1 Critical · 2 Poor · 3 Fair · 4 Good · 5 Excellent. This view shows only 1–2.',
+      render: r => (
       <span style={{ display: 'inline-block', padding: '2px 9px', borderRadius: 999,
         fontSize: 9.5, fontWeight: 800, color: RATING_COLOR[r.rating],
         background: `${RATING_COLOR[r.rating]}1f`, border: `1px solid ${RATING_COLOR[r.rating]}55` }}>
         {r.ratingLabel}
       </span>
     ) },
-    { key: 'priorityScore', label: 'Priority', numeric: true },
-    { key: 'priorityRank',  label: 'Rank',     numeric: true },
-    { key: 'spanLength',    label: 'Span (m)', numeric: true },
-    { key: 'lastInspection', label: 'Last Inspection' },
-    { key: 'replacementCostBnUgx', label: 'Repl. Cost (Bn UGX)', numeric: true },
+    { key: 'priorityScore', label: 'Priority', numeric: true, total: 'avg',
+      comment: 'Priority score 0–100, computed from condition, traffic level and strategic importance. Higher = more urgent.' },
+    { key: 'priorityRank',  label: 'Rank',     numeric: true,
+      comment: 'Network-wide priority rank (1 = most urgent).' },
+    { key: 'spanLength',    label: 'Span (m)', numeric: true, total: 'sum',
+      comment: 'Total span length in metres.' },
+    { key: 'lastInspection', label: 'Last Inspection',
+      comment: 'Date of most recent field inspection (ISO).' },
+    { key: 'replacementCostBnUgx', label: 'Repl. Cost (Bn UGX)', numeric: true, total: 'sum',
+      comment: 'Estimated full replacement cost in billions of UGX — SUM gives the total exposure of the critical backlog.' },
   ];
 
   const criticalCount = rows.filter(r => r.rating === 1).length;

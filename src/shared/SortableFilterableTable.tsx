@@ -5,8 +5,9 @@
  * dark table convention so it can be dropped into any section.
  */
 import { useMemo, useState } from 'react';
-import { ArrowUp, ArrowDown, ArrowUpDown, Search, Download } from 'lucide-react';
+import { ArrowUp, ArrowDown, ArrowUpDown, Search, Download, FileSpreadsheet } from 'lucide-react';
 import { exportTableToCSV } from './exportUtils';
+import { exportTableToExcel } from './excelExport';
 
 export interface STColumn<T> {
   key: keyof T & string;
@@ -15,6 +16,10 @@ export interface STColumn<T> {
   /** Optional custom cell renderer; defaults to String(value). */
   render?: (row: T) => React.ReactNode;
   width?: number | string;
+  /** Excel export: header-cell comment (definition, units, data source). */
+  comment?: string;
+  /** Excel export: totals-row formula for this column. */
+  total?: 'sum' | 'avg';
 }
 
 interface Props<T> {
@@ -72,6 +77,28 @@ export function SortableFilterableTable<T extends Record<string, any>>({
     );
   };
 
+  const [xlsBusy, setXlsBusy] = useState(false);
+  const doExcelExport = async () => {
+    setXlsBusy(true);
+    try {
+      await exportTableToExcel({
+        filename: exportName,
+        sheetName: 'Data',
+        columns: columns.map(c => ({
+          key: c.key, label: c.label, numeric: c.numeric,
+          comment: c.comment, total: c.total,
+        })),
+        rows: visible as Record<string, unknown>[],
+        meta: {
+          'Filter applied': filter.trim() || '(none)',
+          'Sorted by': sortKey ? `${sortKey} (${sortAsc ? 'asc' : 'desc'})` : '(none)',
+        },
+      });
+    } finally {
+      setXlsBusy(false);
+    }
+  };
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
       {/* Controls */}
@@ -98,7 +125,15 @@ export function SortableFilterableTable<T extends Record<string, any>>({
           borderRadius: 7, fontSize: 10.5, fontWeight: 800, cursor: 'pointer',
           background: `${accent}1a`, border: `1px solid ${accent}55`, color: accent,
         }}>
-          <Download size={12} /> Export CSV
+          <Download size={12} /> CSV
+        </button>
+        <button onClick={doExcelExport} disabled={xlsBusy} title="Excel with live formulas + column-note comments" style={{
+          display: 'flex', alignItems: 'center', gap: 6, padding: '6px 13px',
+          borderRadius: 7, fontSize: 10.5, fontWeight: 800, cursor: xlsBusy ? 'default' : 'pointer',
+          background: '#00ff881a', border: '1px solid #00ff8855', color: '#00ff88',
+          opacity: xlsBusy ? 0.6 : 1,
+        }}>
+          <FileSpreadsheet size={12} /> {xlsBusy ? 'Generating…' : 'Excel'}
         </button>
       </div>
 
