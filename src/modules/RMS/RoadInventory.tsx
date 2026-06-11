@@ -32,6 +32,24 @@ interface LinkRow {
 
 const C = { cyan: '#00f5ff', teal: '#00d4aa', yellow: '#ffd23f', gray: '#94a3b8' };
 
+// Which measured 2022-23 feature subtypes belong to each inventory category.
+// Matched case-insensitively against the field-survey feature names.
+const CATEGORY_FEATURES: Record<string, string[]> = {
+  shoulders:  ['kerb', 'layby', 'edge marker'],
+  drainage:   ['lined open', 'unlined', 'lined covered', 'storm drain', 'minor culvert',
+               'major culvert', 'culvert marker'],
+  structures: ['retaining wall', 'bridge', 'waiting shed'],
+  junctions:  ['junction', 'roundabout', 'cross', 'access', 'light controlled', 'barrier'],
+  furniture:  ['guard rail', 'bollard', 'street light', 'reserve post', 'kilometre post',
+               'hazard marker', 'rumble', 'speed table', 'road hump', 'road narrowing',
+               'traffic calming', 'warning', 'informative', 'prohibitory', 'guidance',
+               'supplementary', 'mandatory', 'regulatory'],
+  markings:   ['centreline', 'lane lines', 'edge lines', 'road stud', 'transverse marking',
+               'other markings'],
+  environs:   ['embankment', 'cutting', 'island', 'rolling', 'flat', 'mountainous',
+               'raised', 'depressed', 'flush'],
+};
+
 export default function RoadInventory() {
   const [cat, setCat] = useState(INVENTORY_CATEGORIES[0].id);
   const [links, setLinks] = useState<LinkRow[]>([]);
@@ -65,40 +83,65 @@ export default function RoadInventory() {
       comment: 'Maintenance station responsible (manual: Inventory Items → Station).' },
   ], []);
 
-  // measured 2022-23 field-inventory rows (one per surveyed paved link)
+  // measured 2022-23 field inventory, filtered to the ACTIVE category:
+  // selecting Drainage shows only drainage features/records, and so on.
   type InvRow = {
     link_id: string; link_name: string; region: string; station: string;
     material: string; road_width_m: number | null; shoulder_pct: number;
     shoulder_width_m: number | null; reserve_width_m: number | null;
-    lanes: string; terrain: string; records: number; top_features: string;
+    lanes: string; terrain: string; cat_records: number; features: string;
   };
-  const invRows: InvRow[] = useMemo(() => (inv?.links ?? []).map(l => ({
-    link_id: l.link_id, link_name: l.link_name ?? '', region: l.region ?? '',
-    station: l.station ?? '', material: l.material_type ?? '',
-    road_width_m: l.road_width_m, shoulder_pct: l.has_shoulder_pct,
-    shoulder_width_m: l.shoulder_width_m, reserve_width_m: l.road_reserve_width_m,
-    lanes: String(l.lanes ?? ''), terrain: l.terrain ?? '',
-    records: l.line_records + l.point_records,
-    top_features: [...Object.entries(l.line_features), ...Object.entries(l.point_features)]
-      .sort((a, b) => b[1] - a[1]).slice(0, 4).map(([k, n]) => `${k} (${n})`).join(' · '),
-  })), [inv]);
+  const keywords = CATEGORY_FEATURES[cat] ?? [];
+  const invRows: InvRow[] = useMemo(() => {
+    const match = (name: string) => {
+      const n = name.toLowerCase();
+      return keywords.some(k => n.includes(k));
+    };
+    return (inv?.links ?? []).map(l => {
+      const matched = [...Object.entries(l.line_features), ...Object.entries(l.point_features)]
+        .filter(([k]) => match(k))
+        .sort((a, b) => b[1] - a[1]);
+      return {
+        link_id: l.link_id, link_name: l.link_name ?? '', region: l.region ?? '',
+        station: l.station ?? '', material: l.material_type ?? '',
+        road_width_m: l.road_width_m, shoulder_pct: l.has_shoulder_pct,
+        shoulder_width_m: l.shoulder_width_m, reserve_width_m: l.road_reserve_width_m,
+        lanes: String(l.lanes ?? ''), terrain: l.terrain ?? '',
+        cat_records: matched.reduce((a, [, n]) => a + n, 0),
+        features: matched.map(([k, n]) => `${k} (${n})`).join(' · '),
+      };
+    }).filter(r => r.cat_records > 0);
+  }, [inv, keywords]);
 
-  const invCols: STColumn<InvRow>[] = useMemo(() => [
-    { key: 'link_id',          label: 'Link ID' },
-    { key: 'link_name',        label: 'Link Name' },
-    { key: 'region',           label: 'Region' },
-    { key: 'station',          label: 'Station' },
-    { key: 'material',         label: 'Material', comment: 'Surfacing material recorded by the field team.' },
-    { key: 'road_width_m',     label: 'Road W (m)',    numeric: true, comment: 'Median measured carriageway width.' },
-    { key: 'shoulder_pct',     label: 'Shoulder %',    numeric: true, comment: 'Share of records reporting a shoulder.' },
-    { key: 'shoulder_width_m', label: 'Shldr W (m)',   numeric: true },
-    { key: 'reserve_width_m',  label: 'Reserve W (m)', numeric: true, comment: 'Median measured road-reserve width.' },
-    { key: 'lanes',            label: 'Lanes' },
-    { key: 'terrain',          label: 'Terrain' },
-    { key: 'records',          label: 'Records', numeric: true, total: 'sum',
-      comment: 'Line + point inventory records captured on the link (2022-23 survey).' },
-    { key: 'top_features',     label: 'Top features (count)' },
-  ], []);
+  const catTotal = useMemo(() => invRows.reduce((a, r) => a + r.cat_records, 0), [invRows]);
+
+  const invCols: STColumn<InvRow>[] = useMemo(() => {
+    const base: STColumn<InvRow>[] = [
+      { key: 'link_id',   label: 'Link ID' },
+      { key: 'link_name', label: 'Link Name' },
+      { key: 'region',    label: 'Region' },
+      { key: 'station',   label: 'Station' },
+    ];
+    const extras: STColumn<InvRow>[] =
+      cat === 'shoulders' ? [
+        { key: 'shoulder_pct',     label: 'Shoulder %',  numeric: true, comment: 'Share of survey records reporting a shoulder.' },
+        { key: 'shoulder_width_m', label: 'Shldr W (m)', numeric: true, comment: 'Median measured shoulder width.' },
+        { key: 'material',         label: 'Material' },
+      ] : cat === 'environs' ? [
+        { key: 'terrain',          label: 'Terrain',       comment: 'Dominant terrain class recorded by the field team.' },
+        { key: 'reserve_width_m',  label: 'Reserve W (m)', numeric: true, comment: 'Median measured road-reserve width.' },
+      ] : cat === 'drainage' || cat === 'structures' ? [
+        { key: 'road_width_m',     label: 'Road W (m)',    numeric: true },
+      ] : [
+        { key: 'lanes',            label: 'Lanes' },
+      ];
+    return [
+      ...base, ...extras,
+      { key: 'cat_records', label: `${active.label} records`, numeric: true, total: 'sum',
+        comment: 'Line + point records on this link matching the selected category.' },
+      { key: 'features',    label: `${active.label} features (count)` },
+    ];
+  }, [cat, active.label]);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100%' }}>
@@ -197,10 +240,10 @@ export default function RoadInventory() {
           <>
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 8 }}>
               {[
-                [`${inv.paved_links_surveyed}`, 'paved links surveyed'],
-                [`${inv.paved_line_records.toLocaleString()}`, 'line-feature records'],
-                [`${inv.paved_point_records.toLocaleString()}`, 'point-feature records'],
-                [`${inv.unpaved_links_in_register ?? '—'}`, 'unpaved links in register'],
+                [`${invRows.length} / ${inv.paved_links_surveyed}`, `links with ${active.label} features`],
+                [`${catTotal.toLocaleString()}`, `${active.label} records`],
+                [`${inv.paved_line_records.toLocaleString()}`, 'all line records (survey)'],
+                [`${inv.paved_point_records.toLocaleString()}`, 'all point records (survey)'],
               ].map(([v, l]) => (
                 <div key={l} style={{ padding: '6px 12px', borderRadius: 8,
                   background: 'rgba(0,212,170,0.06)', border: '1px solid rgba(0,212,170,0.2)' }}>
