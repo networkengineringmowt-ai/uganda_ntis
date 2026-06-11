@@ -26,7 +26,6 @@ import { ESRI_TILE_URLS, ESRI_ATTRIBUTIONS } from '../../shared/mapSymbols';
 import SourceTableButton from '../../shared/SourceTableButton';
 import MapDetailPane, { StatCard, AttributeRow, SectionHeader } from '../../shared/MapDetailPane';
 import CrossLinkChipBar from '../../shared/CrossLinkChipBar';
-import PavementAgePanel from './PavementAgePanel';
 
 const BASE = import.meta.env.BASE_URL;
 
@@ -1170,7 +1169,7 @@ function renderCondFeature(f: SelectedLinkData): React.ReactNode {
 }
 
 // ─── Main view ────────────────────────────────────────────────────────────────
-type TabId = 'overview' | 'conditionmap' | 'inventory' | 'analytics' | 'age' | 'fwd';
+type TabId = 'overview' | 'conditionmap' | 'inventory' | 'analytics' | 'fwd';
 type AnalyticsSubTab = 'deterioration' | 'interventions' | 'budget';
 
 export default function RoadConditionView() {
@@ -1235,7 +1234,6 @@ export default function RoadConditionView() {
     { id: 'conditionmap',  label: 'Condition Map'            },
     { id: 'inventory',     label: 'Inventory & Surveys'       },
     { id: 'analytics',     label: 'Analytics & Deterioration' },
-    { id: 'age',           label: 'Pavement Age'             },
     { id: 'fwd',           label: 'FWD & Structural'         },
   ];
   // Sub-tabs for the Analytics & Deterioration parent tab
@@ -1831,10 +1829,6 @@ export default function RoadConditionView() {
       )}
 
       {/* ══════════ FWD & STRUCTURAL ══════════ */}
-      {tab === 'age' && (
-        <PavementAgePanel />
-      )}
-
       {tab === 'fwd' && (
         <FWDPanel />
       )}
