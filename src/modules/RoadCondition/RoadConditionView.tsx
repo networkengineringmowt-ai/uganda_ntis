@@ -26,6 +26,7 @@ import { ESRI_TILE_URLS, ESRI_ATTRIBUTIONS } from '../../shared/mapSymbols';
 import SourceTableButton from '../../shared/SourceTableButton';
 import MapDetailPane, { StatCard, AttributeRow, SectionHeader } from '../../shared/MapDetailPane';
 import CrossLinkChipBar from '../../shared/CrossLinkChipBar';
+import PavementAgePanel from './PavementAgePanel';
 
 const BASE = import.meta.env.BASE_URL;
 
@@ -1169,7 +1170,7 @@ function renderCondFeature(f: SelectedLinkData): React.ReactNode {
 }
 
 // ─── Main view ────────────────────────────────────────────────────────────────
-type TabId = 'overview' | 'conditionmap' | 'inventory' | 'analytics' | 'fwd';
+type TabId = 'overview' | 'conditionmap' | 'inventory' | 'analytics' | 'age' | 'fwd';
 type AnalyticsSubTab = 'deterioration' | 'interventions' | 'budget';
 
 export default function RoadConditionView() {
@@ -1234,6 +1235,7 @@ export default function RoadConditionView() {
     { id: 'conditionmap',  label: 'Condition Map'            },
     { id: 'inventory',     label: 'Inventory & Surveys'       },
     { id: 'analytics',     label: 'Analytics & Deterioration' },
+    { id: 'age',           label: 'Pavement Age'             },
     { id: 'fwd',           label: 'FWD & Structural'         },
   ];
   // Sub-tabs for the Analytics & Deterioration parent tab
@@ -1829,6 +1831,10 @@ export default function RoadConditionView() {
       )}
 
       {/* ══════════ FWD & STRUCTURAL ══════════ */}
+      {tab === 'age' && (
+        <PavementAgePanel />
+      )}
+
       {tab === 'fwd' && (
         <FWDPanel />
       )}
@@ -1842,6 +1848,65 @@ export default function RoadConditionView() {
 }
 
 // ─── FWD Deflection Analysis Panel ───────────────────────────────────────────
+
+// ─── Measured FWD surveys (G: repository — FWD/) ─────────────────────────────
+interface FwdPoint { ch: number; d0: number; load?: number }
+interface FwdSurvey { road: string; source: string; sheet: string; n: number;
+  d0_mean: number; d0_max: number; ch_from: number; ch_to: number; points: FwdPoint[] }
+
+function FWDRealSurveys() {
+  const [data, setData] = useState<{ surveys: FwdSurvey[]; total_points: number } | null>(null);
+  useEffect(() => {
+    fetch(`${import.meta.env.BASE_URL}data/fwd_surveys.json`)
+      .then(r => r.json()).then(setData).catch(() => setData(null));
+  }, []);
+  if (!data || !data.surveys?.length) return null;
+  const cls = (d0: number): [string, string] =>
+    d0 > 800 ? ['FAILED', '#ef4444'] : d0 > 600 ? ['WEAK', '#f97316']
+    : d0 > 400 ? ['MONITOR', '#eab308'] : ['SOUND', '#22c55e'];
+  return (
+    <div style={{ background: 'rgba(15,23,42,0.55)', borderRadius: 12,
+      border: '1px solid rgba(0,245,255,0.15)', padding: '14px 16px' }}>
+      <div style={{ fontWeight: 800, color: '#e2eaf4', fontSize: 13, marginBottom: 2 }}>
+        Measured FWD Deflection Surveys — G: repository (FWD/)
+      </div>
+      <div style={{ fontSize: 10, color: 'rgba(148,163,184,0.6)', marginBottom: 10 }}>
+        {data.surveys.length} survey runs · {data.total_points.toLocaleString()} averaged deflection bowls ·
+        Dynatest FWD · centre deflection D₀ (μm); classification: ≤400 sound · 400–600 monitor · 600–800 weak · &gt;800 failed
+      </div>
+      <div style={{ overflowX: 'auto', borderRadius: 8, border: '1px solid rgba(255,255,255,0.06)' }}>
+        <table style={{ width: '100%', fontSize: 10.5, borderCollapse: 'collapse', minWidth: 760 }}>
+          <thead><tr style={{ borderBottom: '1px solid rgba(148,163,184,0.15)' }}>
+            {['Road / Corridor', 'Lane / Sheet', 'Bowls', 'Chainage (km)', 'Mean D₀ (μm)', 'Max D₀ (μm)', 'Assessment', 'Source file'].map(h => (
+              <th key={h} style={{ textAlign: 'left', padding: '7px 10px', color: '#94a3b8', fontWeight: 700, fontSize: 9, whiteSpace: 'nowrap' }}>{h}</th>
+            ))}
+          </tr></thead>
+          <tbody>
+            {data.surveys.map((sv, i) => {
+              const [mTag, mColor] = cls(sv.d0_mean);
+              return (
+                <tr key={i} style={{ background: i % 2 === 0 ? 'rgba(15,23,42,0.3)' : 'transparent', borderBottom: '1px solid rgba(255,255,255,0.03)' }}>
+                  <td style={{ padding: '5px 10px', color: '#e2eaf4', fontWeight: 700 }}>{sv.road}</td>
+                  <td style={{ padding: '5px 10px', color: '#00f5ff', fontFamily: 'monospace', fontSize: 9.5 }}>{sv.sheet}</td>
+                  <td style={{ padding: '5px 10px', color: '#94a3b8' }}>{sv.n.toLocaleString()}</td>
+                  <td style={{ padding: '5px 10px', color: '#94a3b8' }}>{sv.ch_from.toFixed(1)} – {sv.ch_to.toFixed(1)}</td>
+                  <td style={{ padding: '5px 10px', color: mColor, fontWeight: 800 }}>{sv.d0_mean.toFixed(0)}</td>
+                  <td style={{ padding: '5px 10px', color: cls(sv.d0_max)[1], fontWeight: 700 }}>{sv.d0_max.toFixed(0)}</td>
+                  <td style={{ padding: '5px 10px' }}>
+                    <span style={{ fontSize: 8.5, fontWeight: 800, padding: '2px 8px', borderRadius: 99,
+                      background: `${mColor}22`, border: `1px solid ${mColor}55`, color: mColor }}>{mTag}</span>
+                  </td>
+                  <td style={{ padding: '5px 10px', color: 'rgba(148,163,184,0.45)', fontSize: 9 }}>{sv.source}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
 function FWDPanel() {
   const BG = 'rgba(15,23,42,0.55)';
   const ACCENT2 = '#f97316';
@@ -1861,6 +1926,7 @@ function FWDPanel() {
 
   return (
     <div style={{ display:'flex', flexDirection:'column', gap:16 }}>
+      <FWDRealSurveys />
       {/* Banner */}
       <div style={{
         padding:'10px 14px', borderRadius:8,
@@ -1901,7 +1967,7 @@ function FWDPanel() {
       {/* FWD results table */}
       <div style={{ background:BG, backdropFilter:'blur(20px)', borderRadius:12, border:'1px solid rgba(255,255,255,0.07)', padding:'14px 16px' }}>
         <div style={{ fontWeight:800, color:'#e2eaf4', fontSize:13, marginBottom:12 }}>
-          FWD Deflection Test Results — 2023/24 Survey
+          Link-level Structural Summary — indicative (back-analysis pending for measured surveys)
         </div>
         <div style={{ overflowX:'auto', borderRadius:8, border:'1px solid rgba(255,255,255,0.06)' }}>
           <table style={{ width:'100%', fontSize:10, borderCollapse:'collapse', minWidth:900 }}>

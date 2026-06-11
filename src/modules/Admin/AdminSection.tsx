@@ -28,7 +28,7 @@ const MAIN_TABS = [
   { id: 'activity'  as const, label: 'Activity Log',       icon: <Activity size={13}/> },
   { id: 'mindmap'   as const, label: 'Platform Mind Map',  icon: <Cpu size={13}/> },
   { id: 'dataaudit' as const, label: 'Data Audit',         icon: <ShieldCheck size={13}/> },
-  { id: 'docs'      as const, label: 'Sources & Evidence', icon: <BookOpen size={13}/> },
+  { id: 'docs'      as const, label: 'System Documentation', icon: <BookOpen size={13}/> },
 ];
 type TabId = typeof MAIN_TABS[number]['id'];
 

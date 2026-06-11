@@ -11,6 +11,19 @@ import {
 } from '../../shared/unraStandards';
 import { SortableFilterableTable, type STColumn } from '../../shared/SortableFilterableTable';
 
+interface InvLink {
+  link_id: string; link_name: string | null; region: string | null; station: string | null;
+  material_type: string | null; road_width_m: number | null; has_shoulder_pct: number;
+  shoulder_material: string | null; shoulder_width_m: number | null;
+  road_reserve_width_m: number | null; lanes: number | string | null; terrain: string | null;
+  line_features: Record<string, number>; point_features: Record<string, number>;
+  line_records: number; point_records: number;
+}
+interface InvData {
+  survey: string; paved_links_surveyed: number; paved_line_records: number;
+  paved_point_records: number; unpaved_links_in_register: number | null; links: InvLink[];
+}
+
 interface LinkRow {
   link_id: string; road_no: string; road_class: string; link_name: string;
   length_km: number; surface_type: string; maintenance_region: string;
@@ -22,6 +35,7 @@ const C = { cyan: '#00f5ff', teal: '#00d4aa', yellow: '#ffd23f', gray: '#94a3b8'
 export default function RoadInventory() {
   const [cat, setCat] = useState(INVENTORY_CATEGORIES[0].id);
   const [links, setLinks] = useState<LinkRow[]>([]);
+  const [inv, setInv] = useState<InvData | null>(null);
   const [showRef, setShowRef] = useState(false);
 
   useEffect(() => {
@@ -29,6 +43,10 @@ export default function RoadInventory() {
       .then(r => r.json())
       .then(d => setLinks(d))
       .catch(() => setLinks([]));
+    fetch(`${import.meta.env.BASE_URL}data/road_inventory_2023.json`)
+      .then(r => r.json())
+      .then(setInv)
+      .catch(() => setInv(null));
   }, []);
 
   const active = INVENTORY_CATEGORIES.find(c => c.id === cat)!;
@@ -45,6 +63,41 @@ export default function RoadInventory() {
     { key: 'maintenance_region',  label: 'Region' },
     { key: 'maintenance_station', label: 'Station',
       comment: 'Maintenance station responsible (manual: Inventory Items → Station).' },
+  ], []);
+
+  // measured 2022-23 field-inventory rows (one per surveyed paved link)
+  type InvRow = {
+    link_id: string; link_name: string; region: string; station: string;
+    material: string; road_width_m: number | null; shoulder_pct: number;
+    shoulder_width_m: number | null; reserve_width_m: number | null;
+    lanes: string; terrain: string; records: number; top_features: string;
+  };
+  const invRows: InvRow[] = useMemo(() => (inv?.links ?? []).map(l => ({
+    link_id: l.link_id, link_name: l.link_name ?? '', region: l.region ?? '',
+    station: l.station ?? '', material: l.material_type ?? '',
+    road_width_m: l.road_width_m, shoulder_pct: l.has_shoulder_pct,
+    shoulder_width_m: l.shoulder_width_m, reserve_width_m: l.road_reserve_width_m,
+    lanes: String(l.lanes ?? ''), terrain: l.terrain ?? '',
+    records: l.line_records + l.point_records,
+    top_features: [...Object.entries(l.line_features), ...Object.entries(l.point_features)]
+      .sort((a, b) => b[1] - a[1]).slice(0, 4).map(([k, n]) => `${k} (${n})`).join(' · '),
+  })), [inv]);
+
+  const invCols: STColumn<InvRow>[] = useMemo(() => [
+    { key: 'link_id',          label: 'Link ID' },
+    { key: 'link_name',        label: 'Link Name' },
+    { key: 'region',           label: 'Region' },
+    { key: 'station',          label: 'Station' },
+    { key: 'material',         label: 'Material', comment: 'Surfacing material recorded by the field team.' },
+    { key: 'road_width_m',     label: 'Road W (m)',    numeric: true, comment: 'Median measured carriageway width.' },
+    { key: 'shoulder_pct',     label: 'Shoulder %',    numeric: true, comment: 'Share of records reporting a shoulder.' },
+    { key: 'shoulder_width_m', label: 'Shldr W (m)',   numeric: true },
+    { key: 'reserve_width_m',  label: 'Reserve W (m)', numeric: true, comment: 'Median measured road-reserve width.' },
+    { key: 'lanes',            label: 'Lanes' },
+    { key: 'terrain',          label: 'Terrain' },
+    { key: 'records',          label: 'Records', numeric: true, total: 'sum',
+      comment: 'Line + point inventory records captured on the link (2022-23 survey).' },
+    { key: 'top_features',     label: 'Top features (count)' },
   ], []);
 
   return (
@@ -140,14 +193,39 @@ export default function RoadInventory() {
             exportName="road-inventory-carriageway"
             initialSort="road_no"
           />
+        ) : inv ? (
+          <>
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 8 }}>
+              {[
+                [`${inv.paved_links_surveyed}`, 'paved links surveyed'],
+                [`${inv.paved_line_records.toLocaleString()}`, 'line-feature records'],
+                [`${inv.paved_point_records.toLocaleString()}`, 'point-feature records'],
+                [`${inv.unpaved_links_in_register ?? '—'}`, 'unpaved links in register'],
+              ].map(([v, l]) => (
+                <div key={l} style={{ padding: '6px 12px', borderRadius: 8,
+                  background: 'rgba(0,212,170,0.06)', border: '1px solid rgba(0,212,170,0.2)' }}>
+                  <span style={{ fontSize: 13, fontWeight: 900, color: C.teal }}>{v}</span>
+                  <span style={{ fontSize: 9, color: 'rgba(148,163,184,0.7)', marginLeft: 6 }}>{l}</span>
+                </div>
+              ))}
+              <div style={{ flexBasis: '100%', fontSize: 9, color: 'rgba(148,163,184,0.5)' }}>
+                Measured field inventory — {inv.survey} · source: 6.Road Inventory Data/2022-23 (G: repository)
+              </div>
+            </div>
+            <SortableFilterableTable
+              columns={invCols}
+              rows={invRows}
+              accent={C.teal}
+              exportName={`road-inventory-2023-${active.id}`}
+              initialSort="link_id"
+            />
+          </>
         ) : (
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 14px',
             borderRadius: 8, background: 'rgba(15,23,42,0.6)', border: '1px dashed rgba(148,163,184,0.3)' }}>
             <Database size={14} style={{ color: C.gray }} />
             <div style={{ fontSize: 10.5, color: 'rgba(148,163,184,0.8)' }}>
-              Field data for <strong style={{ color: '#e2eaf4' }}>{active.label}</strong> is collected per the
-              manual items (see Manual reference) — submissions via the Data Capture hub write to the Supabase
-              Unified DB and this table will populate automatically.
+              Loading the 2022-23 measured inventory…
             </div>
           </div>
         )}
