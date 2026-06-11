@@ -1,4 +1,5 @@
-import { lazy, Suspense, useMemo, useState } from 'react';
+import { lazy, Suspense, useEffect, useMemo, useState } from 'react';
+import { logEvent } from './modules/Auth/auditLog';
 import { BMSProvider, useBMS } from './store/BMSContext';
 import { BotHighlightContext } from './modules/AssetBot/types';
 import { AuthProvider, useAuth } from './modules/Auth/AuthContext';
@@ -107,6 +108,12 @@ function ModuleSpinner() {
 function AppShell() {
   const { state, navigate } = useBMS();
   const { activeView, isLoading } = state;
+  const { user } = useAuth();
+
+  // Track & trace: every page view goes to the G: Drive audit trail.
+  useEffect(() => {
+    if (user) logEvent('view', { view: activeView });
+  }, [user, activeView]);
 
   const showHeaderSearch = useMemo(() =>
     ['registry', 'inspections', 'documents', 'priority', 'sources'].includes(activeView),

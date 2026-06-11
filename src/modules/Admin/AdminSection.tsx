@@ -4,9 +4,10 @@
  * Follows the exact BMS tab-bar pattern.
  */
 import { lazy, Suspense, useState } from 'react';
-import { Cpu, ShieldCheck } from 'lucide-react';
+import { Activity, Cpu, ShieldCheck } from 'lucide-react';
 import type { ActiveView } from '../../types';
 
+const ADMIN_Activity  = lazy(() => import('./ActivityLog'));
 const ADMIN_MindMap   = lazy(() => import('../MindMap/MindMapSection'));
 const ADMIN_DataAudit = lazy(() => import('../DataAudit/DataAuditPanel'));
 
@@ -23,6 +24,7 @@ function Spinner() {
 }
 
 const MAIN_TABS = [
+  { id: 'activity'  as const, label: 'Activity Log',      icon: <Activity size={13}/> },
   { id: 'mindmap'   as const, label: 'Platform Mind Map', icon: <Cpu size={13}/> },
   { id: 'dataaudit' as const, label: 'Data Audit',        icon: <ShieldCheck size={13}/> },
 ];
@@ -33,7 +35,7 @@ export default function AdminSection({
 }: {
   onNavigate?: (v: ActiveView) => void;
 }) {
-  const [tab, setTab] = useState<TabId>('mindmap');
+  const [tab, setTab] = useState<TabId>('activity');
 
   return (
     <div style={{
@@ -72,6 +74,11 @@ export default function AdminSection({
       {/* ── Content area ──────────────────────────────────────────────────── */}
       <div style={{ flex: 1, minHeight: 0, position: 'relative', overflow: 'hidden' }}>
         <Suspense fallback={<Spinner />}>
+          {tab === 'activity' && (
+            <div style={{ position:'absolute', inset:0, overflowY:'auto' }}>
+              <ADMIN_Activity />
+            </div>
+          )}
           {tab === 'mindmap'   && (
             <div style={{ position:'absolute', inset:0 }}>
               <ADMIN_MindMap />

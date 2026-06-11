@@ -14,7 +14,7 @@ const QUEUE_KEY = 'audit_log_queue';
 const QUEUE_CAP = 500;
 
 export interface AuditEvent {
-  type: 'login' | 'login_failed' | 'logout' | 'change';
+  type: 'login' | 'login_failed' | 'logout' | 'change' | 'view';
   at: string;
   user?: string;
   role?: string;

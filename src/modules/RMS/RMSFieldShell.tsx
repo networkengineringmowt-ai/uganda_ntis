@@ -1,6 +1,7 @@
 import { lazy, Suspense, useState } from 'react';
 import { ClipboardList, Camera, LogOut } from 'lucide-react';
 import { useAuth } from '../Auth/AuthContext';
+import { logEvent } from '../Auth/auditLog';
 
 const DataCaptureHub = lazy(() => import('../DataEntry/DataCaptureHub'));
 const PendingSubmissions = lazy(() =>
@@ -73,7 +74,8 @@ export default function RMSFieldShell() {
         ] as Array<{ id: Tab; label: string; icon: React.ReactNode }>).map(t => {
           const active = tab === t.id;
           return (
-            <button key={t.id} onClick={() => setTab(t.id)} style={{
+            <button key={t.id}
+              onClick={() => { setTab(t.id); logEvent('view', { view: `field-${t.id}` }); }} style={{
               flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3,
               padding: '10px 4px 12px', minHeight: 56, cursor: 'pointer',
               background: active ? 'rgba(0,245,255,0.08)' : 'transparent',

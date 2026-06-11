@@ -119,6 +119,34 @@ app.post('/api/audit', (req, res) => {
   }
 });
 
+// ── Audit retrieval: GET /api/audit?month=YYYY-MM&limit=N ────────────────────
+// Serves the G: Drive audit trail to the admin Activity Log view.
+app.get('/api/audit', (req, res) => {
+  try {
+    let months = [];
+    try {
+      months = fs.readdirSync(LOG_DIR)
+        .filter(f => /^audit_\d{4}-\d{2}\.jsonl$/.test(f))
+        .map(f => f.slice(6, -6))
+        .sort().reverse();
+    } catch { /* no logs yet */ }
+    const month = (typeof req.query.month === 'string' && months.includes(req.query.month))
+      ? req.query.month : months[0];
+    const limit = Math.min(parseInt(req.query.limit, 10) || 2000, 10000);
+    let events = [];
+    if (month) {
+      events = fs.readFileSync(path.join(LOG_DIR, `audit_${month}.jsonl`), 'utf-8')
+        .split('\n').filter(Boolean).slice(-limit)
+        .map(l => { try { return JSON.parse(l); } catch { return null; } })
+        .filter(Boolean)
+        .reverse(); // newest first
+    }
+    res.json({ months, month: month ?? null, count: events.length, events });
+  } catch (err) {
+    handleError(res, err);
+  }
+});
+
 // ── Health check ──────────────────────────────────────────────────────────────
 app.get('/health', (_req, res) => {
   res.json({ ok: true, service: 'uganda-roads-data-entry-server', time: new Date().toISOString() });
