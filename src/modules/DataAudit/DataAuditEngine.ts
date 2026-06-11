@@ -22,7 +22,7 @@ function inUganda(lon: number, lat: number) {
       && lat >= UGANDA_BBOX.minLat && lat <= UGANDA_BBOX.maxLat;
 }
 
-// Department of National Roads real link_id format regex (from gisnetwork18062025.geojson)
+// Department of National Roads real link_id format regex (from network2026.geojson)
 const LINK_ID_REGEX = /^[A-Z]\d{1,3}[A-Z]?\d*_Link\d{2,}$|^[A-Z]\d{1,3}[A-Z]?\d*Int\d+_S\d+$/;
 
 type BotRow = Record<string, unknown>;

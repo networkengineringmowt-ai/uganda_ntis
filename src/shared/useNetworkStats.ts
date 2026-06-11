@@ -1,7 +1,7 @@
 /**
  * useNetworkStats — single source of truth for all network KPIs.
  *
- * Loads gisnetwork18062025.geojson (1,013 links) and bridges2025.geojson once,
+ * Loads network2026.geojson (1,013 links) and bridges2026.geojson once,
  * computes every statistic used across the platform, and caches the result.
  * All tabs MUST import this hook instead of hardcoding numbers.
  *
@@ -20,7 +20,7 @@ import { useState, useEffect } from 'react';
 
 export interface NetworkStats {
   // Totals — GeoJSON mapped vs official Department of National Roads figure
-  totalKm: number;       // from gisnetwork18062025.geojson (mapped)
+  totalKm: number;       // from network2026.geojson (mapped)
   officialKm: number;    // = OFFICIAL_NETWORK_KM (21,302 km) — NDPIV FY25/26
   totalLinks: number;
   // Surface
@@ -64,8 +64,8 @@ async function _load(): Promise<NetworkStats> {
     const base = (import.meta as { env: { BASE_URL: string } }).env.BASE_URL;
 
     const [netRes, bridgeRes] = await Promise.all([
-      fetch(`${base}data/gisnetwork18062025.geojson`).then(r => r.json()).catch(() => null),
-      fetch(`${base}data/bridges2025.geojson`).then(r => r.json()).catch(() => null),
+      fetch(`${base}data/network2026.geojson`).then(r => r.json()).catch(() => null),
+      fetch(`${base}data/bridges2026.geojson`).then(r => r.json()).catch(() => null),
     ]);
 
     if (!netRes || !Array.isArray(netRes.features)) {

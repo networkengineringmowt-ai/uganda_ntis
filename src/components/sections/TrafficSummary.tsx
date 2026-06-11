@@ -5,6 +5,7 @@
  * Export CSV, search, sortable columns.
  */
 import { useState, useEffect, useMemo, useCallback } from 'react';
+import { CURRENT_YEAR } from '../../shared/year';
 
 // â”€â”€â”€ Types â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 interface PredProps {
@@ -76,7 +77,7 @@ function downloadCSV(rows: string[][], filename: string) {
 
 // â”€â”€â”€ Road Links Data tab â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function RoadLinksTab({ features }: { features: PredFeature[] }) {
-  const [year,    setYear]    = useState(2025);
+  const [year,    setYear]    = useState(CURRENT_YEAR);
   const [search,  setSearch]  = useState('');
   const [classF,  setClassF]  = useState('all');
   const [regionF, setRegionF] = useState('all');
@@ -277,7 +278,7 @@ function RoadLinksTab({ features }: { features: PredFeature[] }) {
 
 // â”€â”€â”€ Stations tab â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function StationsTab({ stations, features }: { stations: StationFeature[]; features: PredFeature[] }) {
-  const [year,   setYear]   = useState(2025);
+  const [year,   setYear]   = useState(CURRENT_YEAR);
   const [search, setSearch] = useState('');
 
   const predByLink = useMemo(

@@ -1241,7 +1241,7 @@ export default function TrafficSection() {
               </table>
             </div>
             <div style={{ marginTop: 10, fontSize: 9, color: 'rgba(148,163,184,0.3)' }}>
-              Source: TIS 2025 AADT analysis.xlsx · TCS_Combined sheet · real Link IDs from gisnetwork18062025.geojson
+              Source: TIS 2025 AADT analysis.xlsx · TCS_Combined sheet · real Link IDs from network2026.geojson
             </div>
           </div>
         )}

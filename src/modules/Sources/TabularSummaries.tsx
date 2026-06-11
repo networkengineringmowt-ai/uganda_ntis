@@ -1056,7 +1056,7 @@ function Td({ children, align = 'left', mono = false, style }: { children?: Reac
 
 // ── ADT Projection table — ALL 1,013 links × projection years × vehicle classes ──
 // Paginated (50/page) + searchable; base AADT loaded from the full GeoJSON network
-// (gisnetwork18062025.geojson — `aadt` property if present, else derived from road class).
+// (network2026.geojson — `aadt` property if present, else derived from road class).
 const ADT_PROJECTION_YEARS = [2016, 2020, 2025, 2026, 2030, 2035, 2040];
 const ADT_CLASS_COLOR: Record<string, string> = { A: C.cyan, B: C.green, C: C.yellow, M: C.purple };
 const ADT_BASE_YEAR = 2025; // GeoJSON network survey reference (DNR GIS Jun 2025)
@@ -1084,7 +1084,7 @@ function AdtProjectionTable() {
 
   useEffect(() => {
     const base = (import.meta as { env: { BASE_URL: string } }).env.BASE_URL;
-    fetch(`${base}data/gisnetwork18062025.geojson`)
+    fetch(`${base}data/network2026.geojson`)
       .then(r => r.json())
       .then((g: { features: Array<{ properties: Record<string, unknown> }> }) => {
         const rows = (g.features ?? [])
@@ -1130,7 +1130,7 @@ function AdtProjectionTable() {
     <TablePanel id="tbl-adt-projection"
       title="Annual Daily Traffic (ADT) Projections 2016–2040 by Road Link and Vehicle Class"
       accent={C.yellow}
-      source="gisnetwork18062025.geojson (aadt property, else derived from road class) projected via projectAADTByClass / per-class growth rates in trafficProjection.ts — all 1,013 links, paginated">
+      source="network2026.geojson (aadt property, else derived from road class) projected via projectAADTByClass / per-class growth rates in trafficProjection.ts — all 1,013 links, paginated">
       <div style={{
         display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8,
         padding: '8px 14px 4px',
@@ -1269,7 +1269,7 @@ export default function TabularSummaries() {
   const [linkSearch, setLinkSearch] = useState('');
   useEffect(() => {
     const base = (import.meta as { env: { BASE_URL: string } }).env.BASE_URL;
-    fetch(`${base}data/gisnetwork18062025.geojson`)
+    fetch(`${base}data/network2026.geojson`)
       .then(r => r.json())
       .then((g: { features: Array<{ properties: Record<string, unknown> }> }) =>
         setGeoLinks(g.features.map(f => f.properties))
@@ -1406,7 +1406,7 @@ export default function TabularSummaries() {
 
           {/* tbl-002 */}
           <TablePanel id="tbl-002" title="Road Links by Class (DNR GIS Jun 2025)" accent={C.cyan}
-            source="gisnetwork18062025.geojson" onNavigate={navigate}
+            source="network2026.geojson" onNavigate={navigate}
             chartTab="roadnetwork" chartLabel="📊 Class Map →">
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead><tr><Th>Class</Th><Th>Links</Th><Th>Total km</Th><Th>Paved km</Th><Th>Unpaved km</Th><Th>% Paved</Th></tr></thead>
@@ -1434,7 +1434,7 @@ export default function TabularSummaries() {
 
           {/* tbl-003 */}
           <TablePanel id="tbl-003" title="Road Network by Maintenance Region" accent={C.blue}
-            source="gisnetwork18062025.geojson — maintena_1 field" onNavigate={navigate}
+            source="network2026.geojson — maintena_1 field" onNavigate={navigate}
             chartTab="roadnetwork" chartLabel="📊 Regional Map →">
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead><tr><Th>Region</Th><Th>Links</Th><Th>Total km</Th><Th>Paved km</Th><Th>Unpaved km</Th><Th>% Paved</Th></tr></thead>
@@ -1635,7 +1635,7 @@ export default function TabularSummaries() {
 
           {/* tbl-011 */}
           <TablePanel id="tbl-011" title="Bridge Inventory by Structural Type (BMS 2025)" accent={C.blue}
-            source="bridges2025.geojson / BMS inventory" onNavigate={navigate}
+            source="bridges2026.geojson / BMS inventory" onNavigate={navigate}
             chartTab="bms" chartLabel="📊 BMS →">
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead><tr><Th>Structural Type</Th><Th>Count</Th><Th>Avg Span (m)</Th><Th>Avg Age (yr)</Th></tr></thead>
@@ -2226,7 +2226,7 @@ export default function TabularSummaries() {
           <SectionHeader icon={<Database size={15} style={{ color: C.pink }}/>} accent={C.pink}
             title="Data Quality & Audit" sub="GeoJSON completeness · survey coverage · KPI cross-validation · known gaps register"/>
           {/* tbl-076 */}
-          <TablePanel id="tbl-076" title="GeoJSON Field Completeness — gisnetwork18062025.geojson (1,013 features)" accent={C.pink} source="DNR GIS Section audit Jun 2025" chartTab="dataaudit" chartLabel="🔍 Data Audit →" onNavigate={navigate}>
+          <TablePanel id="tbl-076" title="GeoJSON Field Completeness — network2026.geojson (1,013 features)" accent={C.pink} source="DNR GIS Section audit Jun 2025" chartTab="dataaudit" chartLabel="🔍 Data Audit →" onNavigate={navigate}>
             <table style={{ width:'100%', borderCollapse:'collapse' }}><thead><tr><Th>Field</Th><Th>Total Features</Th><Th>Filled</Th><Th>Completeness %</Th></tr></thead>
             <tbody>{GEOJSON_COMPLETENESS.map(r=><tr key={r.field}><Td mono style={{ color:C.cyan }}>{r.field}</Td><Td align="right" mono>{r.features}</Td><Td align="right" mono>{r.filled}</Td><Td align="right" mono style={{ color:r.pct===100?C.green:r.pct>90?C.yellow:'#ef4444', fontWeight:700 }}>{r.pct.toFixed(1)}%</Td></tr>)}</tbody></table>
           </TablePanel>
@@ -2451,11 +2451,11 @@ export default function TabularSummaries() {
           <div style={{ fontSize: 10, fontWeight: 900, color: C.teal, textTransform: 'uppercase',
             letterSpacing: '0.12em', marginBottom: 10, marginTop: 20,
             borderBottom: '1px solid rgba(0,212,170,0.1)', paddingBottom: 6 }}>
-            §24 — GeoJSON Road Links (gisnetwork18062025.geojson — Full 1,013 rows)
+            §24 — GeoJSON Road Links (network2026.geojson — Full 1,013 rows)
           </div>
           {/* tbl-links-full */}
-          <TablePanel id="tbl-links-full" title="All Road Links from gisnetwork18062025.geojson — All Properties" accent={C.teal}
-            source="gisnetwork18062025.geojson · DNR GIS Section 18 Jun 2025 · 1,013 links · 21,160 km mapped | Official network: 21,302 km | Gap: 142 km">
+          <TablePanel id="tbl-links-full" title="All Road Links from network2026.geojson — All Properties" accent={C.teal}
+            source="network2026.geojson · DNR GIS Section 18 Jun 2025 · 1,013 links · 21,160 km mapped | Official network: 21,302 km | Gap: 142 km">
             <div style={{ padding:'8px 14px 4px', display:'flex', alignItems:'center', gap:10, flexWrap:'wrap' }}>
               <input
                 value={linkSearch}

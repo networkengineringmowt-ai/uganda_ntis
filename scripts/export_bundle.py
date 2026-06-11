@@ -23,7 +23,7 @@ bundle = {'dashboardManifest': {'generatedAt': now}}
 links = load('network_links.json') or []
 cond  = load('link_condition_lookup.json') or {}
 stats = load('network_stats.json') or {}
-bridges = load('bridges2025.geojson') or {'features': []}
+bridges = load('bridges2026.geojson') or load('bridges2025.geojson') or {'features': []}
 traffic = load('traffic_summary.json') or {}
 
 # ── Region intelligence: km-weighted VCI + project counts per region ──────────

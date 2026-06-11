@@ -55,7 +55,7 @@ export default function TrafficProjectionTable() {
   const PAGE_SIZE = 50;
 
   useEffect(() => {
-    fetch(`${BASE}data/gisnetwork18062025.geojson`)
+    fetch(`${BASE}data/network2026.geojson`)
       .then(r => r.json())
       .then((g: { features: Array<{ properties: Record<string, unknown> }> }) => {
         const rows: LinkRow[] = g.features.map((f, i) => {
@@ -132,7 +132,7 @@ export default function TrafficProjectionTable() {
 
   if (loading) return (
     <div style={{ textAlign:'center', padding:40, color:'#64748b', fontSize:12 }}>
-      Loading {links.length} road links from gisnetwork18062025.geojson…
+      Loading {links.length} road links from network2026.geojson…
     </div>
   );
 

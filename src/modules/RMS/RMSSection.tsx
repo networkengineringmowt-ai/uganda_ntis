@@ -502,13 +502,13 @@ function RMSDashboard({ navigate }: { navigate: (v: ActiveView) => void }) {
           tooltip={`Official NDPIV FY 2025/26 figure · GIS-mapped: ${net.totalKm.toLocaleString()} km · Source: MoWT/DNR`}
           navChips={[{ label: 'Road Network', view: 'roadnetwork' }]} />
         <KpiCard label="Paved Roads" value={String(net.pavedKm)} unit="km" color={C.green}
-          tooltip={`${net.pavedKm.toLocaleString()} km paved (bituminous) · ${net.pavedPct}% of mapped GeoJSON · Source: gisnetwork18062025.geojson`}
+          tooltip={`${net.pavedKm.toLocaleString()} km paved (bituminous) · ${net.pavedPct}% of mapped GeoJSON · Source: network2026.geojson`}
           navChips={[{ label: 'Condition Map', view: 'roadcondition' }, { label: 'Traffic', view: 'traffic' }]} />
         <KpiCard label="Paved %" value={String(net.pavedPct)} unit="%" color={C.teal}
           tooltip={`Paved share = ${net.pavedKm.toLocaleString()} / ${net.totalKm.toLocaleString()} km · NDP IV target: 35% by 2030`}
           navChips={[{ label: 'Lifecycle', view: 'lifecycle' }]} />
         <KpiCard label="Structures" value={String(net.totalBridges)} unit="" color={C.blue}
-          tooltip={`${net.totalBridges} bridges and culverts registered in BMS · Source: bridges2025.geojson`}
+          tooltip={`${net.totalBridges} bridges and culverts registered in BMS · Source: bridges2026.geojson`}
           navChips={[{ label: 'BMS', view: 'bms' }]} />
         <KpiCard label="ATC Stations" value="25" unit="active" color={C.purple}
           tooltip="25 ATC stations total: 15 legacy (2016–2022) + 10 new (2025+) · Plus 298 manual TIS stations"

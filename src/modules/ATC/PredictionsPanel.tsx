@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback, useMemo } from 'react';
+import { CURRENT_YEAR } from '../../shared/year';
 import { MapContainer, TileLayer, ZoomControl, GeoJSON } from 'react-leaflet';
 import { WaterLayers } from '../../shared/WaterLayers';
 import { InfraLayers } from '../../shared/InfraLayers';
@@ -343,7 +344,7 @@ function LinkPopup({
 export default function PredictionsPanel() {
   const [features,   setFeatures]   = useState<PredFeature[]>([]);
   const [summary,    setSummary]    = useState<PredSummary | null>(null);
-  const [forecastYr, setForecastYr] = useState<number>(2025);
+  const [forecastYr, setForecastYr] = useState<number>(CURRENT_YEAR);
   const [selLink,    setSelLink]    = useState<PredProps | null>(null);
   const [loading,    setLoading]    = useState(true);
   const [liveMode,   setLiveMode]   = useState(false);

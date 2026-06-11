@@ -8,6 +8,7 @@
  *  - Filter by surface, class, region
  */
 import { useEffect, useState, useMemo, useRef, useCallback, useContext } from 'react';
+import { CURRENT_YEAR } from '../../shared/year';
 import {
   MapContainer, TileLayer, GeoJSON, ZoomControl, Marker, Tooltip as LeafletTooltip, useMap,
 } from 'react-leaflet';
@@ -222,7 +223,7 @@ export default function RoadNetworkView() {
   const [sideOpen,   setSideOpen]   = useState(true);
 
   // Animation
-  const [animYear,   setAnimYear]   = useState(2025);
+  const [animYear,   setAnimYear]   = useState(CURRENT_YEAR);
   const [playing,    setPlaying]    = useState(false);
   const [speed,      setSpeed]      = useState(600); // ms per year
   const [animMode,   setAnimMode]   = useState(false); // false = current state

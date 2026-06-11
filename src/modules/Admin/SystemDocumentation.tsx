@@ -53,7 +53,7 @@ const DOCS: DocSection[] = [
         ['Supabase mirror', 'Project udionwmqmjcfzbdhoetv (42 tables)', 'Optional mirror; RLS read-only for the public'],
         ['Git history', 'github.com/priscananjehe1996/uganda-roads (main + gh-pages)', 'Versioned source + deploys'],
       ]}},
-      { p: 'Key bundle files: gisnetwork18062025.geojson (road network), network_links.json (1,013 links), network_stats.json, link_condition_lookup.json, bridges2025.geojson (483), tcs_stations.json, traffic/ROMDAS/overloading summaries, bundle.json (RoadAtlas), plus rail/ferry/airport/hydrology layers.' },
+      { p: 'Key bundle files: network2026.geojson (road network), network_links.json (1,017 links, FY25-26), network_stats.json, link_condition_lookup.json, bridges2026.geojson (546, BMS inventory + element conditions + predicted 2026 AADT), tcs_stations.json, traffic/ROMDAS/overloading summaries, bundle.json (RoadAtlas), plus rail/ferry/airport/hydrology layers.' },
     ],
   },
   {
@@ -158,7 +158,7 @@ const DOCS: DocSection[] = [
         'Inventory: 11 continuous + 9 discrete items, 8-way categorisation',
         '16-document Asset Management Manuals registry (0. Manuals/Asset Management Manuals)',
       ]},
-      { p: 'Network reference: 21,302 km (NDPIV FY25-26), 1,013 links, ~30% paved, 483 bridges, 6 maintenance regions.' },
+      { p: 'Network reference: 21,302 km (NDPIV FY25-26), 1,017 links, ~30% paved, 546 bridges, 6 maintenance regions.' },
     ],
   },
   {

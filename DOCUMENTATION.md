@@ -74,8 +74,8 @@ Live: https://priscananjehe1996.github.io/uganda-roads/
 VCI bands: Very Good ≥85 · Good 75–84.9 · Fair 65–74.9 · Poor 55–64.9 · Very Poor <55.
 Visual Inspections Manual (Feb 2012) codified in `src/shared/unraStandards.ts`:
 1–5 defect grading, 6 paved + 9 unpaved defects, 11 continuous + 9 discrete inventory
-items, 8-way categorisation, 16-manual registry. Network: 21,302 km, 1,013 links,
-~30% paved, 483 bridges, 6 maintenance regions (NDPIV FY25-26).
+items, 8-way categorisation, 16-manual registry. Network: 21,302 km, 1,017 links,
+~30% paved, 546 bridges, 6 maintenance regions (NDPIV FY25-26).
 
 ## 11 · Module directory
 RMS hub · Pavement Management · Traffic Information · Bridge Management · Road Reserve

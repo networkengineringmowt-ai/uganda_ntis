@@ -155,7 +155,7 @@ async function loadDetSummary(): Promise<DetSummary | null> {
 }
 async function loadRoadGeo(): Promise<GeoJsonObject | null> {
   // Always use the master network GeoJSON (1013 links, canonical link_ids)
-  try { const r = await fetch(BASE + 'data/gisnetwork18062025.geojson'); return r.json(); }
+  try { const r = await fetch(BASE + 'data/network2026.geojson'); return r.json(); }
   catch { return null; }
 }
 async function loadOverloading(): Promise<OverloadingSummary | null> {

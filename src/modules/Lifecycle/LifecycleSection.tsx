@@ -89,7 +89,7 @@ function classifyInt(type: string): IntType {
   return 'Routine';
 }
 
-// ── Road Link Data — synthesised at runtime from gisnetwork18062025.geojson ────
+// ── Road Link Data — synthesised at runtime from network2026.geojson ────
 //
 // Empty placeholder. The actual array is populated by useEffect in the
 // component, which reads ALL 1,013 link features from the GeoJSON and
@@ -385,7 +385,7 @@ function TimelineCard({
 
 // ─────────────────────────────────────────────────────────────────────────────
 export default function LifecycleSection() {
-  // ── Load ALL 1,013 road links from gisnetwork18062025.geojson ──────────────
+  // ── Load ALL 1,013 road links from network2026.geojson ──────────────
   const [allLinks,     setAllLinks]     = useState<LinkDef[]>([]);
   const [loading,      setLoading]      = useState(true);
   const [selectedId,   setSelectedId]   = useState<string>('');
@@ -397,7 +397,7 @@ export default function LifecycleSection() {
 
   useEffect(() => {
     const base = (import.meta as { env: { BASE_URL: string } }).env.BASE_URL;
-    fetch(`${base}data/gisnetwork18062025.geojson`)
+    fetch(`${base}data/network2026.geojson`)
       .then(r => r.json())
       .then((g: { features: Array<{ properties: Record<string, unknown> }> }) => {
         const links: LinkDef[] = g.features.map((f, i) => featureToLink(f.properties ?? {}, i));
@@ -543,7 +543,7 @@ export default function LifecycleSection() {
       <div style={{ flex: 1, padding: '16px 18px 24px', overflowY: showAllLinks ? 'auto' : 'visible' }}>
       {loading && (
         <div style={{ textAlign: 'center', padding: 40, color: '#64748b', fontSize: 12 }}>
-          Loading 1,013 road links from gisnetwork18062025.geojson…
+          Loading 1,013 road links from network2026.geojson…
         </div>
       )}
 
@@ -703,7 +703,7 @@ export default function LifecycleSection() {
             return (
               <div>
                 <StatCard label="Total Links" value={allLinks.length || '…'} color={C.teal}
-                  sub="from gisnetwork18062025.geojson" />
+                  sub="from network2026.geojson" />
                 <StatCard label="Avg IRI (network)" value={`${(allLinks.reduce((s,l) => s+l.currentIRI, 0) / Math.max(allLinks.length, 1)).toFixed(1)} m/km`} color={conditionColor(4)} />
                 <div style={{ marginTop: 10, fontSize: 9, color: 'rgba(148,163,184,0.5)' }}>
                   Official network: <strong style={{ color: '#fff' }}>{OFFICIAL_NETWORK_KM.toLocaleString()} km</strong> (NDPIV FY25/26)

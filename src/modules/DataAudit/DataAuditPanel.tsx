@@ -105,7 +105,7 @@ export default function DataAuditPanel() {
         borderRadius: 12, padding: '14px 16px', marginBottom: 20,
       }}>
         <div style={{ fontSize: 10, fontWeight: 900, color: 'rgba(0,245,255,0.6)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 10 }}>
-          Network Stats — Single Source of Truth (gisnetwork18062025.geojson)
+          Network Stats — Single Source of Truth (network2026.geojson)
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: 10 }}>
           {[

@@ -427,7 +427,7 @@ function ReserveMapTab() {
 
   useState(() => {
     const base = (import.meta as any).env?.BASE_URL ?? '/';
-    fetch(`${base}data/gisnetwork18062025.geojson`)
+    fetch(`${base}data/network2026.geojson`)
       .then(r => r.json())
       .then(d => setGeoData(d))
       .catch(() => setGeoData(null));

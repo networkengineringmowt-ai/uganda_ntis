@@ -2,7 +2,7 @@
  * Uganda Department of National Roads Road Network — Link ID & Location Referencing Knowledge Base
  *
  * Sources:
- *  - DNR GIS Section: National Road Network Shapefile gisnetwork18062025.geojson
+ *  - DNR GIS Section: National Road Network Shapefile network2026.geojson
  *  - Department of National Roads Road Management System (RMS) User Manual 2017
  *  - Department of National Roads Road Infrastructure Asset Management Policy 2017 v1.4
  *  - MoWT Road Classification and Numbering System
@@ -58,7 +58,7 @@ export const ROAD_CLASSIFICATION = {
   },
 } as const;
 
-// ── Link ID Format & Structure (VERIFIED from gisnetwork18062025.geojson) ──────
+// ── Link ID Format & Structure (VERIFIED from network2026.geojson) ──────
 export const LINK_ID_STRUCTURE = {
   description: `
     Department of National Roads uses a Linear Reference System (LRS) based on chainage (distance from a defined datum).
