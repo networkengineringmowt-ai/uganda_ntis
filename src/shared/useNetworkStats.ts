@@ -17,7 +17,6 @@
  */
 export const OFFICIAL_NETWORK_KM = 21302;
 import { useState, useEffect } from 'react';
-import { supabase } from '../lib/supabase';
 
 export interface NetworkStats {
   // Totals — GeoJSON mapped vs official Department of National Roads figure
@@ -62,32 +61,6 @@ async function _load(): Promise<NetworkStats> {
   if (_promise) return _promise;
 
   _promise = (async () => {
-    // Try Supabase first — falls back silently to GeoJSON-derived stats below
-    // if the `network_stats` table doesn't exist or the query fails.
-    try {
-      const { data, error } = await supabase.from('network_stats').select('*').single();
-      if (!error && data && typeof data.totalKm === 'number') {
-        _cache = {
-          totalKm:     data.totalKm,
-          officialKm:  data.officialKm ?? OFFICIAL_NETWORK_KM,
-          totalLinks:  data.totalLinks ?? 1013,
-          pavedKm:     data.pavedKm ?? 6405,
-          unpavedKm:   data.unpavedKm ?? 14897,
-          pavedPct:    data.pavedPct ?? 30.1,
-          classKm:     data.classKm ?? {},
-          classLinks:  data.classLinks ?? {},
-          regionKm:    data.regionKm ?? {},
-          regionLinks: data.regionLinks ?? {},
-          totalBridges: data.totalBridges ?? 483,
-          dataVintage: data.dataVintage ?? 'DNR GIS / NDPIV FY25-26',
-          loaded: true,
-        };
-        return _cache;
-      }
-    } catch {
-      // Supabase unavailable — fall through to GeoJSON-derived stats
-    }
-
     const base = (import.meta as { env: { BASE_URL: string } }).env.BASE_URL;
 
     const [netRes, bridgeRes] = await Promise.all([

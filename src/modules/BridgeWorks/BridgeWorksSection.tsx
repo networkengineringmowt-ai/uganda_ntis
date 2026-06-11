@@ -42,18 +42,18 @@ export default function BridgeWorksSection() {
   useEffect(() => {
     let alive = true;
     (async () => {
-      // Prefer the live Supabase table; fall back to the bundled JSON.
+      // Drive-first: the bundled JSON (exported from the G: Drive repository)
+      // is the canonical store; Supabase is only an optional mirror fallback.
       try {
-        const { data, error } = await supabase.from('bridge_works').select('*').order('id');
-        if (!error && data && data.length) {
-          if (alive) { setWorks(data as BridgeWork[]); setSrc('supabase'); }
-          return;
+        const r = await fetch(`${import.meta.env.BASE_URL}data/bridge_works_2026.json`);
+        if (r.ok) {
+          const j = await r.json();
+          if (alive && j?.length) { setWorks(j); setSrc('bundle'); return; }
         }
       } catch { /* fall through */ }
       try {
-        const r = await fetch(`${import.meta.env.BASE_URL}data/bridge_works_2026.json`);
-        const j = await r.json();
-        if (alive) { setWorks(j); setSrc('bundle'); }
+        const { data, error } = await supabase.from('bridge_works').select('*').order('id');
+        if (!error && data && data.length && alive) { setWorks(data as BridgeWork[]); setSrc('supabase'); }
       } catch { if (alive) setSrc('bundle'); }
     })();
     return () => { alive = false; };
@@ -95,7 +95,7 @@ export default function BridgeWorksSection() {
           </div>
           <span style={{ ...glass(src === 'supabase' ? C.green : C.gray, 999), padding: '5px 12px',
             fontSize: 10, fontWeight: 800, color: src === 'supabase' ? C.green : C.gray }}>
-            {src === 'supabase' ? '● LIVE · SUPABASE' : src === 'bundle' ? '● BUNDLED DATA' : '… loading'}
+            {src === 'supabase' ? '● SUPABASE MIRROR' : src === 'bundle' ? '● DRIVE DATA (G:)' : '… loading'}
           </span>
         </div>
       </div>
@@ -192,7 +192,7 @@ export default function BridgeWorksSection() {
 
       <div style={{ fontSize: 9, color: 'rgba(148,163,184,0.45)', marginTop: 18, textAlign: 'center' }}>
         Source: MOWT Projects Status Report — §1.4 Bridges Development Projects (April 2026).
-        {src === 'bundle' && ' Showing bundled snapshot; create the bridge_works table to serve live from Supabase.'}
+        {src === 'bundle' && ' Serving from the G: Drive data bundle (canonical store).'}
       </div>
     </div>
   );

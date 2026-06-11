@@ -1,12 +1,13 @@
 /**
  * Uganda National Roads — Local Data-Entry Write-Back Server
  * ───────────────────────────────────────────────────────────
- * Minimal Express server that performs PRIVILEGED writes to Supabase using
- * the service_role key (bypasses Row Level Security). It exists so that
- * trusted local operators (DNR/UNRA field staff using the React app on a
- * local network) can submit condition surveys, encroachment reports,
- * gazette updates, work orders, etc. without the public anon key needing
- * INSERT/UPDATE/DELETE rights on sensitive tables.
+ * Minimal Express server that persists all data-entry submissions to the
+ * G: Drive repository (captures/<table>.jsonl) — the CANONICAL data store.
+ * Supabase is an optional read-mirror only (SUPABASE_MIRROR=on). Trusted
+ * local operators (DNR/UNRA field staff using the React app on a local
+ * network) submit condition surveys, encroachment reports, gazette
+ * updates, work orders, etc.; run drive_sync.py afterwards to fold the
+ * captures into the app data bundle.
  *
  * SECURITY
  *  - The service_role key lives ONLY in server/.env (gitignored). It must
@@ -29,6 +30,8 @@ import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import { createClient } from '@supabase/supabase-js';
+import fs from 'node:fs';
+import path from 'node:path';
 
 const PORT        = process.env.PORT || 3001;
 const SUPABASE_URL = process.env.SUPABASE_URL;
@@ -36,19 +39,33 @@ const SERVICE_KEY  = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const CORS_ORIGIN  = (process.env.CORS_ORIGIN || 'http://localhost:5173')
   .split(',').map(s => s.trim()).filter(Boolean);
 
-if (!SUPABASE_URL || !SERVICE_KEY) {
-  console.error(
-    '\n[FATAL] Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY.\n' +
-    '        Copy server/.env.example to server/.env and fill in real values\n' +
-    '        from Supabase Dashboard → Settings → API.\n'
-  );
-  process.exit(1);
+// Supabase is OPTIONAL — the canonical store is the G: Drive repository.
+// Credentials are only needed for the legacy mirror (SUPABASE_MIRROR=on).
+const supabaseAdmin = (SUPABASE_URL && SERVICE_KEY)
+  ? createClient(SUPABASE_URL, SERVICE_KEY, {
+      auth: { autoRefreshToken: false, persistSession: false },
+    })
+  : null;
+if (!supabaseAdmin) {
+  console.warn('[info] No Supabase credentials — running in G: Drive-only mode (mirror disabled).');
 }
 
-// Admin client — service_role key bypasses RLS. SERVER-SIDE ONLY.
-const supabaseAdmin = createClient(SUPABASE_URL, SERVICE_KEY, {
-  auth: { autoRefreshToken: false, persistSession: false },
-});
+// ── G: Drive data store (canonical) ───────────────────────────────────────────
+// All write-backs are persisted as JSONL files in the Google Drive repository.
+// Supabase is only mirrored when SUPABASE_MIRROR=on.
+const DRIVE_DIR = process.env.DRIVE_DATA_DIR
+  || 'G:/My Drive/MOWT/Uganda National Road Network Repository/captures';
+const MIRROR = (process.env.SUPABASE_MIRROR || 'off').toLowerCase() === 'on' && !!supabaseAdmin;
+
+function persistDrive(table, op, records) {
+  const dir = DRIVE_DIR;
+  fs.mkdirSync(dir, { recursive: true });
+  const file = path.join(dir, `${table}.jsonl`);
+  const stamp = new Date().toISOString();
+  const lines = records.map(r => JSON.stringify({ _op: op, _at: stamp, ...r })).join('\n') + '\n';
+  fs.appendFileSync(file, lines, 'utf-8');
+  return file;
+}
 
 const app = express();
 app.use(cors({ origin: CORS_ORIGIN }));
@@ -126,14 +143,20 @@ app.post('/api/admin/:table', async (req, res) => {
     if (!Array.isArray(payload) || payload.length === 0) {
       return res.status(400).json({ error: 'Request body must include "record" or non-empty "records"' });
     }
-    // ?upsert=col1,col2 -> upsert on those conflict columns instead of insert
-    const onConflict = typeof req.query.upsert === 'string' && req.query.upsert.trim();
-    const q = onConflict
-      ? supabaseAdmin.from(table).upsert(payload, { onConflict }).select()
-      : supabaseAdmin.from(table).insert(payload).select();
-    const { data, error } = await q;
-    if (error) throw Object.assign(new Error(error.message), { status: 400, details: error });
-    res.status(201).json({ inserted: data?.length ?? 0, data });
+    // Canonical store: append to the G: Drive JSONL for this table.
+    const file = persistDrive(table, 'insert', payload);
+    // Optional Supabase mirror (SUPABASE_MIRROR=on in server/.env)
+    let mirrored = false;
+    if (MIRROR) {
+      const onConflict = typeof req.query.upsert === 'string' && req.query.upsert.trim();
+      const q = onConflict
+        ? supabaseAdmin.from(table).upsert(payload, { onConflict }).select()
+        : supabaseAdmin.from(table).insert(payload).select();
+      const { error } = await q;
+      mirrored = !error;
+      if (error) console.warn(`[mirror] supabase ${table}: ${error.message}`);
+    }
+    res.status(201).json({ inserted: payload.length, store: 'gdrive', file, mirrored });
   } catch (err) {
     handleError(res, err);
   }
@@ -149,16 +172,14 @@ app.patch('/api/admin/:table/:id', async (req, res) => {
     if (!patch || typeof patch !== 'object' || Array.isArray(patch)) {
       return res.status(400).json({ error: 'Request body must include a "patch" object' });
     }
-    const { data, error } = await supabaseAdmin
-      .from(table)
-      .update(patch)
-      .eq(cfg.idColumn, id)
-      .select();
-    if (error) throw Object.assign(new Error(error.message), { status: 400, details: error });
-    if (!data || data.length === 0) {
-      return res.status(404).json({ error: `No row in "${table}" with ${cfg.idColumn} = ${id}` });
+    const file = persistDrive(table, 'update', [{ [cfg.idColumn]: id, ...patch }]);
+    let mirrored = false;
+    if (MIRROR) {
+      const { error } = await supabaseAdmin.from(table).update(patch).eq(cfg.idColumn, id).select();
+      mirrored = !error;
+      if (error) console.warn(`[mirror] supabase ${table}: ${error.message}`);
     }
-    res.json({ updated: data.length, data });
+    res.json({ updated: 1, store: 'gdrive', file, mirrored });
   } catch (err) {
     handleError(res, err);
   }
@@ -177,9 +198,14 @@ app.post('/api/admin/road-reserve/records', async (req, res) => {
     if (!Array.isArray(payload) || payload.length === 0) {
       return res.status(400).json({ error: 'Request body must include "record" or non-empty "records"' });
     }
-    const { data, error } = await supabaseAdmin.from('road_reserve_records').insert(payload).select();
-    if (error) throw Object.assign(new Error(error.message), { status: 400, details: error });
-    res.status(201).json({ inserted: data?.length ?? 0, data });
+    const file = persistDrive('road_reserve_records', 'insert', payload);
+    let mirrored = false;
+    if (MIRROR) {
+      const { error } = await supabaseAdmin.from('road_reserve_records').insert(payload).select();
+      mirrored = !error;
+      if (error) console.warn(`[mirror] supabase road_reserve_records: ${error.message}`);
+    }
+    res.status(201).json({ inserted: payload.length, store: 'gdrive', file, mirrored });
   } catch (err) {
     handleError(res, err);
   }
@@ -193,16 +219,15 @@ app.patch('/api/admin/road-reserve/records/:id', async (req, res) => {
     if (!patch || typeof patch !== 'object' || Array.isArray(patch)) {
       return res.status(400).json({ error: 'Request body must include a "patch" object' });
     }
-    const { data, error } = await supabaseAdmin
-      .from('road_reserve_records')
-      .update(patch)
-      .eq(cfg.idColumn, id)
-      .select();
-    if (error) throw Object.assign(new Error(error.message), { status: 400, details: error });
-    if (!data || data.length === 0) {
-      return res.status(404).json({ error: `No road_reserve_records row with id = ${id}` });
+    const file = persistDrive('road_reserve_records', 'update', [{ [cfg.idColumn]: id, ...patch }]);
+    let mirrored = false;
+    if (MIRROR) {
+      const { error } = await supabaseAdmin
+        .from('road_reserve_records').update(patch).eq(cfg.idColumn, id).select();
+      mirrored = !error;
+      if (error) console.warn(`[mirror] supabase road_reserve_records: ${error.message}`);
     }
-    res.json({ updated: data.length, data });
+    res.json({ updated: 1, store: 'gdrive', file, mirrored });
   } catch (err) {
     handleError(res, err);
   }
@@ -259,7 +284,8 @@ app.listen(PORT, () => {
   console.log(`\n  Uganda Roads — Data-Entry Write-Back Server`);
   console.log(`  ──────────────────────────────────────────`);
   console.log(`  Listening on  http://localhost:${PORT}`);
-  console.log(`  Supabase URL  ${SUPABASE_URL}`);
+  console.log(`  Data store    ${DRIVE_DIR}  (G: Drive, canonical)`);
+  console.log(`  Supabase      ${MIRROR ? `mirror ON → ${SUPABASE_URL}` : 'mirror off'}`);
   console.log(`  CORS origins  ${CORS_ORIGIN.join(', ')}`);
   console.log(`  Writable tables: ${Object.keys(WRITABLE_TABLES).join(', ')}\n`);
 });
