@@ -26,6 +26,7 @@ import { ESRI_TILE_URLS, ESRI_ATTRIBUTIONS } from '../../shared/mapSymbols';
 import SourceTableButton from '../../shared/SourceTableButton';
 import MapDetailPane, { StatCard, AttributeRow, SectionHeader } from '../../shared/MapDetailPane';
 import CrossLinkChipBar from '../../shared/CrossLinkChipBar';
+import { vciRating } from '../../shared/vci';
 import PavementAgePanel from './PavementAgePanel';
 
 const BASE = import.meta.env.BASE_URL;
@@ -1185,6 +1186,9 @@ export default function RoadConditionView() {
   const [condSelected, setCondSelected]   = useState<SelectedLinkData | null>(null);
   const [showSurveyLayer, setShowSurveyLayer] = useState(false);
   const [condLookup, setCondLookup]           = useState<Record<string, LinkCond>>({});
+  const [netLinks, setNetLinks] = useState<Array<{ link_id: string; link_name: string | null;
+    length_km: number | null; road_class: string | null; maintenance_region: string | null;
+    surface_type: string | null }>>([]);
   const [invSearch, setInvSearch]         = useState('');
   const [invRegion, setInvRegion]         = useState<string>('all');
   const [invClass,  setInvClass]          = useState<string>('all');
@@ -1196,6 +1200,7 @@ export default function RoadConditionView() {
     loadRoadGeo().then(setRoadGeo).catch(() => {});
     loadOverloading().then(setOverloading).catch(() => {});
     loadConditionLookup().then(setCondLookup).catch(() => {});
+    fetch(BASE + 'data/network_links.json').then(r => r.json()).then(setNetLinks).catch(() => {});
     fetch(BASE + 'data/image_defects_summary.json').then(r => r.json()).then(setDefectSummary).catch(() => {});
     fetch(BASE + 'data/romdas_survey_sections.geojson').then(r => r.json()).then(setSurveyGeo).catch(() => {});
   }, []);
@@ -1245,8 +1250,34 @@ export default function RoadConditionView() {
     { id: 'budget',        label: 'Budget Planner'       },
   ];
 
-  // Surveyed link list — derived from intervention_schedule
-  const allSurveyed = (det?.intervention_schedule ?? []).slice();
+  // Full network inventory: every link from the FY25-26 master, joined to the
+  // measured 2024 condition lookup (real IRI / rutting / cracking / VCI) and
+  // overlaid with the ML intervention schedule for treatment/urgency.
+  type InvRow = {
+    link_id: string; road_name: string | null; length_km: number | null;
+    road_class: string | null; region: string | null; surface_cat: string;
+    iri: number | null; rut_mm: number | null; cracking: number | null;
+    vci: number | null; year: number | null;
+    urgency?: string; treatment?: string; trigger_year?: number; total_cost_usd?: number;
+  };
+  const allSurveyed: InvRow[] = useMemo(() => {
+    const sched = new Map((det?.intervention_schedule ?? []).map(t => [t.link_id, t]));
+    return netLinks.map(l => {
+      const c = condLookup[l.link_id];
+      const sc = sched.get(l.link_id);
+      const surfaceRaw = (c?.surface ?? l.surface_type ?? '').toLowerCase();
+      return {
+        link_id: l.link_id, road_name: l.link_name, length_km: l.length_km,
+        road_class: l.road_class, region: l.maintenance_region,
+        surface_cat: /asphalt|bitum|sealed|paved|concrete/.test(surfaceRaw) && !/unsealed|unpaved/.test(surfaceRaw) ? 'paved' : 'unpaved',
+        iri: c?.iri ?? sc?.iri ?? null,
+        rut_mm: c?.rut_mm ?? null, cracking: c?.cracking ?? null,
+        vci: c?.vci ?? null, year: c?.year ?? sc?.trigger_year ?? null,
+        urgency: sc?.urgency, treatment: sc?.treatment,
+        trigger_year: sc?.trigger_year, total_cost_usd: sc?.total_cost_usd,
+      };
+    });
+  }, [netLinks, condLookup, det]);
   const invFiltered = allSurveyed.filter(t => {
     const q = invSearch.toLowerCase();
     const matchSearch = !q
@@ -1255,8 +1286,8 @@ export default function RoadConditionView() {
       || (t.region ?? '').toLowerCase().includes(q);
     const matchRegion  = invRegion === 'all'  || t.region === invRegion;
     const matchClass   = invClass  === 'all'  || t.road_class === invClass;
-    // Surface filter requires fetching from main GeoJSON; for now, "all" only
-    return matchSearch && matchRegion && matchClass;
+    const matchSurface = invSurface === 'all' || t.surface_cat === invSurface;
+    return matchSearch && matchRegion && matchClass && matchSurface;
   });
 
   return (
@@ -1615,7 +1646,7 @@ export default function RoadConditionView() {
             <div>
               <div style={{ fontSize: 14, fontWeight: 800, color: '#e2eaf4' }}>Condition Survey Inventory</div>
               <div style={{ fontSize: 10, color: 'rgba(148,163,184,0.55)' }}>
-                {allSurveyed.length.toLocaleString()} surveyed links · all rows shown · search / sort / filter
+                All {allSurveyed.length.toLocaleString()} network links (FY25-26) · measured 2024 condition data · search / sort / filter
               </div>
             </div>
           </div>
@@ -1651,7 +1682,7 @@ export default function RoadConditionView() {
               <option value="unpaved">Unpaved</option>
             </select>
             <button onClick={() => {
-              const headers = ['link_id','road_name','road_class','region','iri','urgency','treatment','trigger_year','total_cost_usd'];
+              const headers = ['link_id','road_name','length_km','road_class','region','surface_cat','iri','rut_mm','cracking','vci','year','urgency','treatment','trigger_year','total_cost_usd'];
               const csv = [
                 headers.join(','),
                 ...invFiltered.map(t => headers.map(h => {
@@ -1692,27 +1723,28 @@ export default function RoadConditionView() {
               </thead>
               <tbody>
                 {invFiltered.map((t, i) => {
-                  const iri = Number(t.iri ?? 0);
-                  const band = getIriBand(iri);
-                  const c = IRI_COLOR[band] ?? '#94a3b8';
-                  // Synthesise rutting/cracking from IRI as proxy
-                  const rut = +(iri * 2.2).toFixed(1);
-                  const crack = +(Math.min(iri * 6, 80)).toFixed(0);
+                  const iri = t.iri != null ? Number(t.iri) : null;
+                  const band = iri != null ? getIriBand(iri) : 'fair';
+                  const c = iri != null ? (IRI_COLOR[band] ?? '#94a3b8') : '#64748b';
+                  const rut = t.rut_mm;
+                  const crack = t.cracking;
                   const bg = i % 2 === 0 ? 'rgba(15,23,42,0.35)' : 'transparent';
                   return (
                     <tr key={t.link_id ?? i} style={{ background: bg, borderBottom: '1px solid rgba(255,255,255,0.03)' }}>
                       <td style={{ padding: '5px 10px', color: '#00f5ff', fontFamily: 'monospace', fontSize: 9 }}>{t.link_id}</td>
                       <td style={{ padding: '5px 10px', color: '#e2eaf4', maxWidth: 240, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{t.road_name ?? '—'}</td>
-                      <td style={{ padding: '5px 10px', color: '#94a3b8' }}>—</td>
+                      <td style={{ padding: '5px 10px', color: '#94a3b8' }}>{t.length_km != null ? Number(t.length_km).toFixed(1) : '—'}</td>
                       <td style={{ padding: '5px 10px', color: t.road_class === 'A' ? '#00f5ff' : t.road_class === 'B' ? '#00ff88' : t.road_class === 'M' ? '#b967ff' : '#ffd23f', fontWeight: 700 }}>{t.road_class ?? '?'}</td>
                       <td style={{ padding: '5px 10px', color: '#94a3b8' }}>{t.region ?? '—'}</td>
-                      <td style={{ padding: '5px 10px', color: c, fontWeight: 700 }}>{iri.toFixed(2)}</td>
-                      <td style={{ padding: '5px 10px', color: '#94a3b8' }}>{rut} mm</td>
-                      <td style={{ padding: '5px 10px', color: '#94a3b8' }}>{crack}%</td>
-                      <td style={{ padding: '5px 10px', color: c, fontWeight: 700 }}>{band === 'good' ? 'Good' : band === 'fair' ? 'Fair' : band === 'poor' ? 'Poor' : 'Very Poor'}</td>
+                      <td style={{ padding: '5px 10px', color: c, fontWeight: 700 }}>{iri != null ? iri.toFixed(2) : '—'}</td>
+                      <td style={{ padding: '5px 10px', color: '#94a3b8' }}>{rut != null ? `${Number(rut).toFixed(1)} mm` : '—'}</td>
+                      <td style={{ padding: '5px 10px', color: '#94a3b8' }}>{crack != null ? `${Number(crack).toFixed(0)}%` : '—'}</td>
+                      <td style={{ padding: '5px 10px', color: c, fontWeight: 700 }}>
+                        {t.vci != null ? vciRating(Number(t.vci)) : (iri != null ? (band === 'good' ? 'Good' : band === 'fair' ? 'Fair' : band === 'poor' ? 'Poor' : 'Very Poor') : '—')}
+                      </td>
                       <td style={{ padding: '5px 10px', color: URGENCY_COLOR[t.urgency ?? 'planned'] ?? '#94a3b8', fontWeight: 600 }}>{t.urgency ?? '—'}</td>
                       <td style={{ padding: '5px 10px', color: 'rgba(148,163,184,0.7)', maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{t.treatment ?? '—'}</td>
-                      <td style={{ padding: '5px 10px', color: 'rgba(148,163,184,0.5)' }}>{t.trigger_year ?? '—'}</td>
+                      <td style={{ padding: '5px 10px', color: 'rgba(148,163,184,0.5)' }}>{t.year ?? '—'}</td>
                     </tr>
                   );
                 })}
@@ -1723,7 +1755,7 @@ export default function RoadConditionView() {
             </table>
           </div>
           <div style={{ marginTop: 8, fontSize: 9, color: 'rgba(148,163,184,0.4)' }}>
-            All rows visible — scroll within the table. Rutting and Cracking % are proxy values derived from IRI bands when sensor data is unavailable.
+            All network links shown — scroll within the table. IRI, rutting, cracking and VCI are the measured 2024 condition-survey values; treatment and urgency come from the ML intervention schedule where the link is in the priority programme.
           </div>
         </div>
       )}
