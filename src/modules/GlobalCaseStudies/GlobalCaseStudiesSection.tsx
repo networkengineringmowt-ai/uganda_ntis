@@ -17,7 +17,6 @@ import {
   Legend as ReChartLegend,
 } from 'recharts';
 import { ESRI_TILE_URLS, ESRI_ATTRIBUTIONS } from '../../shared/mapSymbols';
-import { WaterLayers } from '../../shared/WaterLayers';
 import { Chart3DWrap, Bar3D, TT_NEON, TICK } from '../../lib/chart3d';
 
 // ── Colour helpers ────────────────────────────────────────────────────────────
@@ -1385,12 +1384,15 @@ const S = {
 // ── Tab 1: World Map ──────────────────────────────────────────────────────────
 
 function WorldMapTab() {
+  // Absolute-fill: a global stylesheet forces .leaflet-container to
+  // height:100% / min-height:0 (!important), so the map must sit in a
+  // definite-height parent — percentage chains and min-heights collapse to 0.
   return (
-    <div style={{ ...S.sectionPad, padding: 0, position: 'relative', height: '100%', minHeight: 540 }}>
+    <div style={{ position: 'absolute', inset: 0 }}>
       <MapContainer
         center={[20, 20]}
         zoom={2}
-        style={{ width: '100%', height: '100%', minHeight: 540, background: '#020508' }}
+        style={{ width: '100%', height: '100%', background: '#020508' }}
         zoomControl={true}
         attributionControl={false}
       >
@@ -1405,7 +1407,6 @@ function WorldMapTab() {
           maxZoom={18}
           opacity={0.6}
         />
-        <WaterLayers />
         {CASE_STUDIES.map(cs => (
           <CircleMarker
             key={cs.id}
@@ -2432,7 +2433,7 @@ export default function GlobalCaseStudiesSection() {
       </div>
 
       {/* Tab content */}
-      <div style={{ flex: 1, overflow: tab === 'worldmap' ? 'hidden' : 'auto', display: 'flex', flexDirection: 'column' }}>
+      <div style={{ flex: 1, minHeight: 0, position: 'relative', overflow: tab === 'worldmap' ? 'hidden' : 'auto', display: 'flex', flexDirection: 'column' }}>
         {tab === 'worldmap'    && <WorldMapTab />}
         {tab === 'casestudies' && <CaseStudiesTab />}
         {tab === 'analytics'   && <AnalyticsTab />}
