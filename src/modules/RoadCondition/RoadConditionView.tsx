@@ -27,6 +27,7 @@ import SourceTableButton from '../../shared/SourceTableButton';
 import MapDetailPane, { StatCard, AttributeRow, SectionHeader } from '../../shared/MapDetailPane';
 import CrossLinkChipBar from '../../shared/CrossLinkChipBar';
 import { vciRating } from '../../shared/vci';
+import { useNowTick, iriNow, vciNow, IRI_GROWTH, yearNow } from '../../shared/nowcast';
 import PavementAgePanel from './PavementAgePanel';
 
 const BASE = import.meta.env.BASE_URL;
@@ -317,7 +318,11 @@ function ConditionMap({
     // Fallback: class average from deterioration curves
     const cond   = condLookup[lid];
     const trigger = urgencyMap[lid];
-    const liveIri = cond?.iri ?? trigger?.iri ?? classIriMap[cls] ?? null;
+    const surfPaved = surface === 'bituminous' || surface.includes('paved')
+      || !!cond?.surface?.includes('asphalt');
+    // now-cast: measured value carried forward from its survey year to this instant
+    const liveIri = iriNow(cond?.iri ?? trigger?.iri ?? classIriMap[cls] ?? null,
+                           cond?.year ?? 2024, surfPaved);
     const isSurveyed = !!(cond || trigger);
 
     // ── Filter check: hide links that don't match ───────────────────────────
@@ -354,13 +359,19 @@ function ConditionMap({
       return { color, weight, opacity: r ? 0.88 : 0.2 };
     }
     if (mapLayer === 'rutting') {
-      const rut = cond?.rut_mm ?? (trigger ? trigger.iri * 2.2 : null);
+      const gNow = Math.pow(1 + (surfPaved ? IRI_GROWTH.paved : IRI_GROWTH.unpaved),
+                            Math.max(0, yearNow() - (cond?.year ?? 2024)));
+      const rutBase = cond?.rut_mm ?? (trigger ? trigger.iri * 2.2 : null);
+      const rut = rutBase != null ? Math.min(30, rutBase * gNow) : null;
       if (rut == null) return { color: '#94a3b8', weight: Math.max(weight - 0.5, 1), opacity: 0.32 };
       const c = rut > 20 ? '#ef4444' : rut > 10 ? '#f97316' : rut > 5 ? '#eab308' : '#22c55e';
       return { color: c, weight, opacity: 0.88 };
     }
     if (mapLayer === 'cracking') {
-      const crack = cond?.cracking ?? (trigger ? Math.min(trigger.iri * 6, 80) : null);
+      const gNow = Math.pow(1 + (surfPaved ? IRI_GROWTH.paved : IRI_GROWTH.unpaved),
+                            Math.max(0, yearNow() - (cond?.year ?? 2024)));
+      const crackBase = cond?.cracking ?? (trigger ? Math.min(trigger.iri * 6, 80) : null);
+      const crack = crackBase != null ? Math.min(100, crackBase * gNow) : null;
       if (crack == null) return { color: '#94a3b8', weight: Math.max(weight - 0.5, 1), opacity: 0.32 };
       const c = crack > 50 ? '#ef4444' : crack > 25 ? '#f97316' : crack > 10 ? '#eab308' : '#22c55e';
       return { color: c, weight, opacity: 0.88 };
@@ -395,8 +406,12 @@ function ConditionMap({
     const risk    = riskMap[lid];
     const defect  = defectMap[lid];
     const cond    = condLookup[lid];
-    // Prefer pavement_condition over deterioration schedule, then class avg
-    const iri     = cond?.iri ?? trigger?.iri ?? classIriMap[cls] ?? 6;
+    // Prefer pavement_condition over deterioration schedule, then class avg —
+    // then carry forward to the current instant (now-cast)
+    const iriBase = cond?.iri ?? trigger?.iri ?? classIriMap[cls] ?? 6;
+    const surfSel = String(cond?.surface ?? '').toLowerCase();
+    const iri     = iriNow(iriBase, cond?.year ?? 2024,
+                           !/unpaved|unsealed|gravel|earth/.test(surfSel)) ?? iriBase;
     const band    = getIriBand(iri);
     const sparkData = (det?.class_deterioration_curves[cls] ?? []).map(p => ({
       year: p.year, iri: +p.avg_iri.toFixed(2),
@@ -1260,24 +1275,35 @@ export default function RoadConditionView() {
     vci: number | null; year: number | null;
     urgency?: string; treatment?: string; trigger_year?: number; total_cost_usd?: number;
   };
+  // Tick every second on the inventory tab so values are literally "as of now";
+  // elsewhere refresh once a minute (the map restyles on its own renders).
+  const nowT = useNowTick(tab === 'inventory' ? 1000 : 60000);
   const allSurveyed: InvRow[] = useMemo(() => {
     const sched = new Map((det?.intervention_schedule ?? []).map(t => [t.link_id, t]));
     return netLinks.map(l => {
       const c = condLookup[l.link_id];
       const sc = sched.get(l.link_id);
       const surfaceRaw = (c?.surface ?? l.surface_type ?? '').toLowerCase();
+      const paved = /asphalt|bitum|sealed|paved|concrete/.test(surfaceRaw) && !/unsealed|unpaved/.test(surfaceRaw);
+      const yr = c?.year ?? sc?.trigger_year ?? null;
+      const anchor = yr ?? 2024;
+      // now-cast every measured value from its survey year to the present instant
+      const gNow = Math.pow(1 + (paved ? IRI_GROWTH.paved : IRI_GROWTH.unpaved),
+                            Math.max(0, nowT - anchor));
       return {
         link_id: l.link_id, road_name: l.link_name, length_km: l.length_km,
         road_class: l.road_class, region: l.maintenance_region,
-        surface_cat: /asphalt|bitum|sealed|paved|concrete/.test(surfaceRaw) && !/unsealed|unpaved/.test(surfaceRaw) ? 'paved' : 'unpaved',
-        iri: c?.iri ?? sc?.iri ?? null,
-        rut_mm: c?.rut_mm ?? null, cracking: c?.cracking ?? null,
-        vci: c?.vci ?? null, year: c?.year ?? sc?.trigger_year ?? null,
+        surface_cat: paved ? 'paved' : 'unpaved',
+        iri: iriNow(c?.iri ?? sc?.iri ?? null, anchor, paved, nowT),
+        rut_mm: c?.rut_mm != null ? Math.min(30, c.rut_mm * gNow) : null,
+        cracking: c?.cracking != null ? Math.min(100, c.cracking * gNow) : null,
+        vci: vciNow(c?.vci ?? null, anchor, paved, nowT),
+        year: yr,
         urgency: sc?.urgency, treatment: sc?.treatment,
         trigger_year: sc?.trigger_year, total_cost_usd: sc?.total_cost_usd,
       };
     });
-  }, [netLinks, condLookup, det]);
+  }, [netLinks, condLookup, det, nowT]);
   const invFiltered = allSurveyed.filter(t => {
     const q = invSearch.toLowerCase();
     const matchSearch = !q
@@ -1637,7 +1663,11 @@ export default function RoadConditionView() {
             <div>
               <div style={{ fontSize: 14, fontWeight: 800, color: '#e2eaf4' }}>Condition Survey Inventory</div>
               <div style={{ fontSize: 10, color: 'rgba(148,163,184,0.55)' }}>
-                All {allSurveyed.length.toLocaleString()} network links (FY25-26) · measured 2024 condition data · search / sort / filter
+                All {allSurveyed.length.toLocaleString()} network links (FY25-26) · 2024 survey now-cast with the deterioration model · search / sort / filter
+              </div>
+              <div style={{ fontSize: 9.5, fontWeight: 700, color: '#00ff88', marginTop: 2 }}>
+                <span className="animate-pulse" style={{ display:'inline-block', width:6, height:6, borderRadius:'50%', background:'#00ff88', marginRight:5 }} />
+                LIVE — values as of {new Date().toLocaleString('en-GB')} (reporting instant {nowT.toFixed(7)})
               </div>
             </div>
           </div>
@@ -1707,7 +1737,7 @@ export default function RoadConditionView() {
             <table style={{ width: '100%', fontSize: 10, borderCollapse: 'collapse', minWidth: 1100 }}>
               <thead style={{ position: 'sticky', top: 0, background: 'rgba(15,23,42,0.95)', zIndex: 2 }}>
                 <tr style={{ borderBottom: '1px solid rgba(148,163,184,0.15)' }}>
-                  {['Link ID','Road Name','Length km','Class','Region','IRI','Rutting','Cracking %','Condition','Urgency','Treatment','Survey Yr'].map(h => (
+                  {['Link ID','Road Name','Length km','Class','Region','IRI now','Rutting now','Cracking % now','Condition now','Urgency','Treatment','Survey Yr'].map(h => (
                     <th key={h} style={{ textAlign: 'left', padding: '7px 10px', color: '#94a3b8', fontWeight: 700, whiteSpace: 'nowrap', fontSize: 9.5 }}>{h}</th>
                   ))}
                 </tr>
@@ -1746,7 +1776,7 @@ export default function RoadConditionView() {
             </table>
           </div>
           <div style={{ marginTop: 8, fontSize: 9, color: 'rgba(148,163,184,0.4)' }}>
-            All network links shown — scroll within the table. IRI, rutting, cracking and VCI are the measured 2024 condition-survey values; treatment and urgency come from the ML intervention schedule where the link is in the priority programme.
+            All network links shown — scroll within the table. IRI, rutting, cracking and VCI are the measured 2024 condition-survey values <b>now-cast to the current reporting instant</b> with the calibrated deterioration model (IRI +{(IRI_GROWTH.paved*100).toFixed(0)}%/yr paved · +{(IRI_GROWTH.unpaved*100).toFixed(0)}%/yr unpaved, VCI decay applied); treatment and urgency come from the ML intervention schedule where the link is in the priority programme.
           </div>
         </div>
       )}

@@ -19,8 +19,10 @@
  *   NMT (Bicycles / Carts)     1.0%
  */
 
-export const CURRENT_YEAR = 2026;
-export const CURRENT_MONTH_LABEL = 'June 2026';
+import { yearNow } from './nowcast';
+
+export const CURRENT_YEAR = new Date().getFullYear();
+export const CURRENT_MONTH_LABEL = new Date().toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
 
 /** Per-class annual growth rate (decimal). Keys match VC_LABELS below. */
 export const VC_GROWTH: Record<string, number> = {
@@ -65,7 +67,7 @@ export function projectClass(
   baseCount: number,
   baseYear:  number,
   growth:    number,
-  toYear:    number = CURRENT_YEAR,
+  toYear:    number = yearNow(),   // default: the current instant (fractional year)
 ): number {
   const years = toYear - baseYear;
   if (years <= 0) return baseCount;
@@ -82,7 +84,7 @@ export const NETWORK_BLENDED_GROWTH: number =
 export function projectAADT(
   baseAadt: number,
   baseYear: number,
-  toYear:   number = CURRENT_YEAR,
+  toYear:   number = yearNow(),
 ): number {
   const years = toYear - baseYear;
   if (years <= 0) return baseAadt;
@@ -106,7 +108,7 @@ export interface ClassProjection {
 export function projectAllClasses(
   baseAadt: number,
   baseYear: number,
-  toYear:   number = CURRENT_YEAR,
+  toYear:   number = yearNow(),
 ): ClassProjection[] {
   return VC_CLASSES.map(vc => {
     const baseCount = Math.round(baseAadt * vc.share);
@@ -119,7 +121,7 @@ export function projectAllClasses(
 export function projectAADTByClass(
   baseAadt: number,
   baseYear: number,
-  toYear:   number = CURRENT_YEAR,
+  toYear:   number = yearNow(),
 ): number {
   return projectAllClasses(baseAadt, baseYear, toYear).reduce((s, c) => s + c.projCount, 0);
 }

@@ -93,13 +93,14 @@ import {
   projectAADT,
   CURRENT_YEAR,
 } from '../../shared/trafficProjection';
+import { useNowTick } from '../../shared/nowcast';
 
 // Legacy shape kept for existing UI code (label + pct)
 const VC_CLASSES = SHARED_VC_CLASSES.map(c => ({ label: c.label, pct: c.share }));
 
 function computeVehicleClasses(aadt: number, baseYear: number = CURRENT_YEAR) {
-  // Projects each class to CURRENT_YEAR (2026) using per-class growth.
-  const projections = projectAllClasses(aadt, baseYear, CURRENT_YEAR);
+  // Projects each class to the current instant (fractional year) per-class growth.
+  const projections = projectAllClasses(aadt, baseYear);
   return projections.map(p => ({ label: p.label, count: p.projCount }));
 }
 function computeGrowthTrend(aadt2026: number): number[] {
@@ -315,8 +316,10 @@ const KPI_GLASS: React.CSSProperties = {
 
 // ─── Link × Class table ────────────────────────────────────────────────────────
 function LinkClassTable({ features, surfMap: _surfMap }: { features: PredFeature[]; surfMap: Record<string, string> }) {
-  // Base survey year is 2025 (most recent TIS_AADT analysis); project to CURRENT_YEAR (2026)
+  // Base survey year is 2025 (most recent TIS_AADT analysis); project to the
+  // CURRENT INSTANT — fractional year ticking every second (live now-cast).
   const BASE_YEAR = 2025;
+  const nowT = useNowTick(1000);
   const sorted = useMemo(
     () => [...features].sort((a, b) => (b.properties.aadt_predicted ?? 0) - (a.properties.aadt_predicted ?? 0)),
     [features],
@@ -337,10 +340,14 @@ function LinkClassTable({ features, surfMap: _surfMap }: { features: PredFeature
       <div style={{ marginBottom: 12, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <div>
           <div style={{ fontSize: 15, fontWeight: 900, color: '#e2eaf4' }}>
-            Traffic by Road Link × Vehicle Class — Projected to {CURRENT_YEAR}
+            Traffic by Road Link × Vehicle Class — Now-cast to the Current Instant
           </div>
           <div style={{ fontSize: 10, color: 'rgba(148,163,184,0.55)', marginTop: 3 }}>
-            Base AADT from TIS {BASE_YEAR} · per-class compound growth applied · projection date June {CURRENT_YEAR} · {features.length} links · sorted by total ↓
+            Base AADT from TIS {BASE_YEAR} · per-class compound growth applied · {features.length} links · sorted by total ↓
+          </div>
+          <div style={{ fontSize: 9.5, fontWeight: 700, color: '#00ff88', marginTop: 3 }}>
+            <span className="animate-pulse" style={{ display:'inline-block', width:6, height:6, borderRadius:'50%', background:'#00ff88', marginRight:5 }} />
+            LIVE — projected to {new Date().toLocaleString('en-GB')} (reporting instant {nowT.toFixed(7)})
           </div>
         </div>
         <SourceTableButton anchor="tbl-010" />
@@ -358,22 +365,22 @@ function LinkClassTable({ features, surfMap: _surfMap }: { features: PredFeature
               <th style={{ textAlign: 'right', padding: '6px 8px', color: '#94a3b8', fontWeight: 700, whiteSpace: 'nowrap' }} title="Base year AADT (raw TIS reading)">Base AADT</th>
               <th style={{ textAlign: 'right', padding: '6px 8px', color: '#94a3b8', fontWeight: 700, whiteSpace: 'nowrap' }} title="Blended class-weighted growth p.a.">Growth %</th>
               {VCOLS.map(vc => (
-                <th key={vc.label} style={{ textAlign: 'right', padding: '6px 5px', color: vc.color, fontWeight: 700, minWidth: 50, whiteSpace: 'nowrap' }} title={`${vc.label} — projected to ${CURRENT_YEAR}`}>{vc.short}</th>
+                <th key={vc.label} style={{ textAlign: 'right', padding: '6px 5px', color: vc.color, fontWeight: 700, minWidth: 50, whiteSpace: 'nowrap' }} title={`${vc.label} — now-cast to the current instant`}>{vc.short}</th>
               ))}
-              <th style={{ textAlign: 'right', padding: '6px 10px', color: C.teal, fontWeight: 800, whiteSpace: 'nowrap' }} title={`AADT projected to June ${CURRENT_YEAR}`}>Proj {CURRENT_YEAR}</th>
+              <th style={{ textAlign: 'right', padding: '6px 10px', color: C.teal, fontWeight: 800, whiteSpace: 'nowrap' }} title="AADT now-cast to the current instant">ADT now</th>
             </tr>
           </thead>
           <tbody>
             {sorted.map((f, i) => {
               const p = f.properties;
               const baseAadt = p.aadt_predicted ?? 0;
-              const projections = projectAllClasses(baseAadt, BASE_YEAR, CURRENT_YEAR);
+              const projections = projectAllClasses(baseAadt, BASE_YEAR, nowT);
               const projAadt   = projections.reduce((s, c) => s + c.projCount, 0);
               const rowBg = i % 2 === 0 ? 'rgba(15,23,42,0.35)' : 'transparent';
               const clsColor = CLASS_COLORS[p.road_class ?? ''] ?? '#94a3b8';
-              // Blended growth (weighted by share)
+              // Blended growth (weighted by share) up to the current instant
               const blendedGrowthPct = projections.reduce(
-                (s, c) => s + c.share * (Math.pow(1 + c.growth, CURRENT_YEAR - BASE_YEAR) - 1),
+                (s, c) => s + c.share * (Math.pow(1 + c.growth, nowT - BASE_YEAR) - 1),
                 0,
               ) * 100;
               return (
@@ -400,17 +407,17 @@ function LinkClassTable({ features, surfMap: _surfMap }: { features: PredFeature
           </tbody>
           <tfoot>
             <tr style={{ borderTop: '1px solid rgba(148,163,184,0.12)', background: 'rgba(0,212,170,0.04)' }}>
-              <td colSpan={8} style={{ padding: '6px 10px', color: C.teal, fontWeight: 800, fontSize: 9 }}>Network Total (projected to {CURRENT_YEAR})</td>
+              <td colSpan={8} style={{ padding: '6px 10px', color: C.teal, fontWeight: 800, fontSize: 9 }}>Network Total (now-cast to the current instant)</td>
               {VCOLS.map(vc => {
                 const total = sorted.reduce((s, f) => {
-                  const projs = projectAllClasses(f.properties.aadt_predicted ?? 0, BASE_YEAR, CURRENT_YEAR);
+                  const projs = projectAllClasses(f.properties.aadt_predicted ?? 0, BASE_YEAR, nowT);
                   return s + projs[vc.idx].projCount;
                 }, 0);
                 return <td key={vc.label} style={{ padding: '6px 5px', textAlign: 'right', color: vc.color, fontWeight: 700, fontVariantNumeric: 'tabular-nums' }}>{total.toLocaleString()}</td>;
               })}
               <td style={{ padding: '6px 10px', textAlign: 'right', color: C.teal, fontWeight: 900, fontVariantNumeric: 'tabular-nums' }}>
                 {sorted.reduce((s, f) => {
-                  const projs = projectAllClasses(f.properties.aadt_predicted ?? 0, BASE_YEAR, CURRENT_YEAR);
+                  const projs = projectAllClasses(f.properties.aadt_predicted ?? 0, BASE_YEAR, nowT);
                   return s + projs.reduce((ss, p) => ss + p.projCount, 0);
                 }, 0).toLocaleString()}
               </td>

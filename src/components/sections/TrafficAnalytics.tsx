@@ -3,13 +3,13 @@
  * Tabs: MACRO | REGIONS | CLASSES | ASSETS | ANALYSIS | STATIONS | STRATEGIC
  */
 import { useState, useEffect, useMemo } from 'react';
-import { CURRENT_YEAR } from '../../shared/year';
 import {
   ResponsiveContainer, BarChart, Bar, XAxis, YAxis,
   CartesianGrid, Tooltip, Legend,
 } from 'recharts';
 import { Chart3DWrap, Bar3D, TT_NEON, TICK } from '../../lib/chart3d';
 import { ModuleNavBar } from '../../shared/ModuleNavBar';
+import { factorAt, yearNow, useNowTick } from '../../shared/nowcast';
 
 // ─── Data types ───────────────────────────────────────────────────────────────
 interface PredProps {
@@ -39,10 +39,10 @@ const GROWTH_FACTORS: Record<number,number> = {
   2028:1.87, 2029:1.97, 2030:2.06, 2031:2.15, 2032:2.24, 2033:2.32,
   2034:2.40, 2035:2.50,
 };
-// Scale a year's factor relative to the current reporting year, so observed
-// mean AADT (a CURRENT_YEAR figure) is carried forward/back correctly.
+// Scale a year's factor relative to the CURRENT INSTANT (fractional year), so
+// the mean AADT (a now-cast figure) is carried forward/back correctly.
 const factorTo = (y: number) =>
-  (GROWTH_FACTORS[y] ?? 1) / (GROWTH_FACTORS[CURRENT_YEAR] ?? 1);
+  (GROWTH_FACTORS[y] ?? 1) / factorAt(yearNow());
 
 const VEHICLE_CLASSES = [
   { id:'mc',  name:'Motorcycles',          abbr:'MC', pct:0.295, color:C.cyan   },
@@ -413,10 +413,14 @@ function ClusteredClassChart({
 // ─── Tab components ───────────────────────────────────────────────────────────
 
 function MacroTab({ features }: { features: PredFeature[] }) {
-  const avgAadt = useMemo(() =>
+  // aadt_predicted is anchored at 2026.0 — carry it forward to the current
+  // instant (ticking every second) using the interpolated growth curve.
+  const nowT = useNowTick(1000);
+  const avgAadtBase = useMemo(() =>
     features.length ? features.reduce((s,f)=>s+(f.properties.aadt_predicted??0),0)/features.length : 0,
     [features]
   );
+  const avgAadt = avgAadtBase * (factorAt(nowT) / factorAt(2026));
   const byClass = useMemo(() => {
     const m: Record<string,{sum:number,n:number}> = {};
     for (const f of features) {
@@ -449,7 +453,7 @@ function MacroTab({ features }: { features: PredFeature[] }) {
   );
   const forecast2030 = Math.round(avgAadt * factorTo(2030));
   const kpis = [
-    { label:'Avg Network ADT',   value: avgAadt > 0 ? Math.round(avgAadt).toLocaleString() : '—',  unit:'vpd',  color: C.cyan,   glow: C.cyan },
+    { label:'Avg Network ADT',   value: avgAadt > 0 ? Math.round(avgAadt).toLocaleString() : '—',  unit:'vpd · now', color: C.cyan, glow: C.cyan },
     { label:'Road Links',        value: features.length.toLocaleString(),                           unit:'links',color: C.blue,   glow: C.blue },
     { label:'Heavy Vehicle %',   value: heavyPct.toFixed(1),                                         unit:'%HGV', color: C.orange, glow: C.orange },
     { label:'High-Risk Links',   value: highRiskLinks.toString(),                                    unit:'links',color: C.pink,   glow: C.pink },
@@ -458,6 +462,10 @@ function MacroTab({ features }: { features: PredFeature[] }) {
 
   return (
     <div style={{ display:'flex', flexDirection:'column', gap:14 }}>
+      <div style={{ fontSize:9.5, fontWeight:700, color:'#00ff88' }}>
+        <span className="animate-pulse" style={{ display:'inline-block', width:6, height:6, borderRadius:'50%', background:'#00ff88', marginRight:5 }} />
+        LIVE — all metrics now-cast to {new Date().toLocaleString('en-GB')} (reporting instant {nowT.toFixed(7)})
+      </div>
       {/* ── KPI Stat-Card Strip ─────────────────────────────────────────── */}
       <div style={{ display:'grid', gridTemplateColumns:'repeat(5,1fr)', gap:10 }}>
         {kpis.map(kpi => (
