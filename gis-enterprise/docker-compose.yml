@@ -1,0 +1,56 @@
+# UGROADS GIS Enterprise — full open-source stack, one command:
+#   docker compose up -d
+# Images are all free/open-source. Set passwords in .env (copy .env.example).
+services:
+
+  postgis:                              # L3 · enterprise geodatabase
+    image: postgis/postgis:16-3.4
+    environment:
+      POSTGRES_DB: ugroads
+      POSTGRES_USER: gis_admin
+      POSTGRES_PASSWORD: ${PG_ADMIN_PASSWORD:?set in .env}
+    ports: ["5432:5432"]
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./sql:/docker-entrypoint-initdb.d:ro   # auto-runs 01/02/03 on first start
+    restart: unless-stopped
+
+  geoserver:                            # L4 · full OGC services (WMS/WFS-T/WMTS)
+    image: kartoza/geoserver:2.25.0
+    environment:
+      GEOSERVER_ADMIN_USER: admin
+      GEOSERVER_ADMIN_PASSWORD: ${GEOSERVER_PASSWORD:?set in .env}
+    ports: ["8080:8080"]
+    depends_on: [postgis]
+    volumes:
+      - geoserver_data:/opt/geoserver/data_dir
+    restart: unless-stopped
+
+  pg_tileserv:                          # L4 · instant MVT vector tiles
+    image: pramsey/pg_tileserv:latest
+    environment:
+      DATABASE_URL: postgres://svc_web:${SVC_WEB_PASSWORD:?}@postgis/ugroads
+    ports: ["7800:7800"]
+    depends_on: [postgis]
+    restart: unless-stopped
+
+  pg_featureserv:                       # L4 · instant REST/GeoJSON features
+    image: pramsey/pg_featureserv:latest
+    environment:
+      DATABASE_URL: postgres://svc_web:${SVC_WEB_PASSWORD:?}@postgis/ugroads
+    ports: ["9000:9000"]
+    depends_on: [postgis]
+    restart: unless-stopped
+
+  pgadmin:                              # L6 · visual DB administration
+    image: dpage/pgadmin4:latest
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@unra.go.ug
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:?set in .env}
+    ports: ["5050:80"]
+    depends_on: [postgis]
+    restart: unless-stopped
+
+volumes:
+  pgdata:
+  geoserver_data:
