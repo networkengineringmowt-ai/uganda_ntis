@@ -522,7 +522,7 @@ export default function LifecycleSection() {
 
       {/* ── Network coverage banner (always visible) ───────────────────────── */}
       <div style={{
-        flexShrink: 0, padding: '8px 18px',
+        flexShrink: 0, padding: '5px 14px',
         background: 'linear-gradient(180deg, rgba(0,245,255,0.05), transparent)',
         borderBottom: '1px solid rgba(0,245,255,0.08)',
         display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap', fontSize: 10,
@@ -540,7 +540,7 @@ export default function LifecycleSection() {
         <span style={{ color: 'rgba(148,163,184,0.55)' }}>not yet in geodata</span>
       </div>
 
-      <div style={{ flex: 1, padding: '16px 18px 24px', overflowY: showAllLinks ? 'auto' : 'visible' }}>
+      <div style={{ flex: 1, padding: '8px 14px 12px', overflowY: showAllLinks ? 'auto' : 'visible' }}>
       {loading && (
         <div style={{ textAlign: 'center', padding: 40, color: '#64748b', fontSize: 12 }}>
           Loading 1,013 road links from network2026.geojson…
@@ -563,37 +563,18 @@ export default function LifecycleSection() {
       {!showAllLinks && !loading && (
       <>
 
-      {/* ── Header ── */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
-        <div style={{
-          width: 36, height: 36, borderRadius: 10, flexShrink: 0,
-          background: `linear-gradient(135deg,rgba(${hexRgb(C.teal)},0.25),rgba(${hexRgb(C.cyan)},0.08))`,
-          border: `1px solid rgba(${hexRgb(C.teal)},0.4)`,
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-        }}>
-          <Clock size={16} style={{ color: C.teal }}/>
-        </div>
-        <div>
-          <div style={{ fontSize: 17, fontWeight: 900, color: '#e2eaf4' }}>Life Cycle Management</div>
-          <div style={{ fontSize: 10, color: 'rgba(148,163,184,0.55)', marginTop: 1 }}>
-            Per-link timeline · IRI trajectory · intervention history · projected maintenance
-          </div>
-        </div>
-      </div>
-
-      {/* ── Summary Stats Bar ── */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 10, marginBottom: 14 }}>
+      {/* ── Compact KPI chips ── */}
+      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 10 }}>
         {[
-          { label: 'Total km managed',       value: `${statsAll.totalKm.toLocaleString()} km`, color: C.teal  },
-          { label: 'Interventions logged',   value: String(statsAll.totalInts),                 color: C.purple},
-          { label: 'Avg IRI (current)',       value: `${statsAll.avgIri} m/km`,                 color: conditionColor(statsAll.avgIri) },
-          { label: 'Projected cost to 2035', value: `UGX ${statsAll.projCost2035}B`,            color: C.orange },
-        ].map(s => (
-          <div key={s.label} style={{ ...glass(s.color), padding: '10px 14px' }}>
-            <div style={{ fontSize: 18, fontWeight: 900, color: s.color, lineHeight: 1 }}>{s.value}</div>
-            <div style={{ fontSize: 8, color: 'rgba(148,163,184,0.5)', marginTop: 4, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-              {s.label}
-            </div>
+          { label: 'Interventions', value: String(statsAll.totalInts), color: C.purple },
+          { label: 'Avg IRI', value: `${statsAll.avgIri} m/km`, color: conditionColor(statsAll.avgIri) },
+          { label: 'Projected cost to 2035', value: `UGX ${statsAll.projCost2035}B`, color: C.orange },
+        ].map(k => (
+          <div key={k.label} style={{ display: 'flex', alignItems: 'baseline', gap: 6,
+            padding: '4px 11px', borderRadius: 8,
+            background: `rgba(${hexRgb(k.color)},0.07)`, border: `1px solid rgba(${hexRgb(k.color)},0.25)` }}>
+            <span style={{ fontSize: 13, fontWeight: 900, color: k.color }}>{k.value}</span>
+            <span style={{ fontSize: 8, fontWeight: 700, color: 'rgba(148,163,184,0.6)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{k.label}</span>
           </div>
         ))}
       </div>

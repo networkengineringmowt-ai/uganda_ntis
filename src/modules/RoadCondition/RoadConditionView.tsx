@@ -1372,13 +1372,12 @@ export default function RoadConditionView() {
 
       {/* ── Network Coverage banner ─────────────────────────────────────── */}
       <div style={{
-        padding: '8px 14px', borderRadius: 8, marginBottom: 12,
+        padding: '5px 12px', borderRadius: 8, marginBottom: 8,
         background: 'rgba(99,102,241,0.06)', border: '1px solid rgba(99,102,241,0.18)',
         fontSize: 10, color: '#94a3b8',
       }}>
-        <div style={{ fontWeight: 800, color: '#a5b4fc', marginBottom: 3, fontSize: 9.5, letterSpacing: '0.06em', textTransform: 'uppercase' }}>Network Coverage</div>
-        <div>Official NDPIV FY25-26: <b style={{ color: '#fff' }}>21,302 km total</b> · <b style={{ color: '#22c55e' }}>6,405 km paved (30.1%)</b> · <b style={{ color: '#f59e0b' }}>14,897 km unpaved (69.9%)</b></div>
-        <div style={{ marginTop: 2 }}>Mapped in GeoJSON: <b style={{ color: '#fff' }}>21,160 km (mapped) (1,013 links)</b> · <b style={{ color: '#fb923c' }}>Unmapped: 142 km</b> — recently gazetted or under survey</div>
+        <span style={{ fontWeight: 800, color: '#a5b4fc', fontSize: 9, letterSpacing: '0.06em', textTransform: 'uppercase', marginRight: 8 }}>NDPIV FY25-26</span>
+        <b style={{ color: '#fff' }}>21,302 km</b> · <b style={{ color: '#22c55e' }}>6,405 paved (30.1%)</b> · <b style={{ color: '#f59e0b' }}>14,897 unpaved</b> · GeoJSON <b style={{ color: '#fff' }}>21,160 km / 1,013 links</b> · <b style={{ color: '#fb923c' }}>142 km gap</b>
       </div>
 
       {/* ══════════ DASHBOARD (Overview) ══════════ */}
@@ -1398,21 +1397,13 @@ export default function RoadConditionView() {
               { label: 'Interventions',   value: (d.intervention_schedule?.length ?? 0).toLocaleString(),         unit: 'triggers',   color: '#ff6b35' },
             ];
             return (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5,1fr)', gap: 10 }}>
+              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                 {kpis.map(k => (
-                  <div key={k.label} style={{
-                    background: `rgba(${rgb(k.color)},0.07)`,
-                    border: `1px solid rgba(${rgb(k.color)},0.18)`,
-                    borderLeft: `4px solid ${k.color}`,
-                    borderRadius: 10, padding: '13px 15px 11px',
-                    boxShadow: `0 0 16px rgba(${rgb(k.color)},0.1)`,
-                  }}>
-                    <div style={{ fontSize: 20, fontWeight: 900, color: k.color, lineHeight: 1.1,
-                      fontVariantNumeric: 'tabular-nums',
-                      textShadow: `0 0 16px rgba(${rgb(k.color)},0.65)` }}>{k.value}</div>
-                    <div style={{ fontSize: 9, fontWeight: 800, color: 'rgba(148,163,184,0.55)',
-                      letterSpacing: '0.12em', textTransform: 'uppercase', marginTop: 5 }}>{k.label}</div>
-                    <div style={{ fontSize: 9, color: `rgba(${rgb(k.color)},0.5)`, fontWeight: 700, marginTop: 2 }}>{k.unit}</div>
+                  <div key={k.label} style={{ display: 'flex', alignItems: 'baseline', gap: 6,
+                    padding: '4px 11px', borderRadius: 8,
+                    background: `rgba(${rgb(k.color)},0.07)`, border: `1px solid rgba(${rgb(k.color)},0.25)` }}>
+                    <span style={{ fontSize: 13, fontWeight: 900, color: k.color, fontVariantNumeric: 'tabular-nums' }}>{k.value}</span>
+                    <span style={{ fontSize: 8, fontWeight: 700, color: 'rgba(148,163,184,0.6)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{k.label}</span>
                   </div>
                 ))}
               </div>

@@ -87,6 +87,24 @@ export default function BudgetSection() {
   const [tab, setTab] = useState<TabId>('gap');
   const { budgetAlignment, networkSummary } = useSectionData();
   const [regionData, setRegionData] = useState(DEFAULT_REGION_DATA);
+  const [wp, setWp] = useState<{ current_fy: string; years: Record<string, { total_planned_ugx_bn: number }> } | null>(null);
+  useEffect(() => {
+    fetch(`${import.meta.env.BASE_URL}data/annual_workplans.json`)
+      .then(r => r.json()).then(setWp).catch(() => setWp(null));
+  }, []);
+  // Historic series corrected with the REAL URF work-plan allocations
+  const budgetSeries = (() => {
+    const series = MAINT_BUDGET.map(r => {
+      const real = wp?.years?.[r.fy]?.total_planned_ugx_bn;
+      return real != null ? { ...r, allocated: real, gap: r.required - real } : r;
+    });
+    const cur = wp?.years?.['2025/26']?.total_planned_ugx_bn;
+    if (cur != null && !series.some(r => r.fy === '2025/26')) {
+      series.push({ fy: '2025/26', required: 960, allocated: cur, received: null as unknown as number, gap: 960 - cur });
+    }
+    return series;
+  })();
+  const allocated2526 = wp?.years?.['2025/26']?.total_planned_ugx_bn ?? null;
 
   // Update region data when budget alignment loads
   useEffect(() => {
@@ -133,9 +151,9 @@ export default function BudgetSection() {
         </div>
         <div style={{ flex: 1 }} />
         {[
-          { label: 'Required FY24/25', value: `UGX ${totalRequired}B`, color: C.red },
-          { label: 'Allocated', value: `UGX ${currentAlloc}B`, color: C.yellow },
-          { label: 'Funding gap', value: `UGX ${fundingGap.toFixed(0)}B`, color: C.pink },
+          { label: 'Required FY25/26', value: `UGX ${totalRequired}B`, color: C.red },
+          { label: 'Allocated FY25/26 (URF WP)', value: allocated2526 != null ? `UGX ${allocated2526.toFixed(1)}B` : `UGX ${currentAlloc}B`, color: C.yellow },
+          { label: 'Funding gap', value: `UGX ${(totalRequired - (allocated2526 ?? currentAlloc)).toFixed(0)}B`, color: C.pink },
           { label: 'Network', value: `${networkSummary?.total_length_km || 21160} km`, color: C.green },
         ].map(k => (
           <div key={k.label} style={{ display: 'flex', alignItems: 'baseline', gap: 6,
@@ -174,13 +192,13 @@ export default function BudgetSection() {
           <div style={card(C.pink)}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 14 }}>
               <div style={{ fontSize: 11, fontWeight: 900, color: C.pink, textTransform: 'uppercase', letterSpacing: '0.1em' }}>
-                Maintenance Budget vs Needs 2015/16–2024/25 (UGX Billions)
+                Maintenance Budget vs Needs 2015/16–2025/26 (UGX Billions) — allocations from URF Annual Work Plans
               </div>
               <SourceTableButton anchor="tbl-020" />
             </div>
             <Chart3DWrap>
               <ResponsiveContainer width="100%" height={290}>
-                <BarChart data={MAINT_BUDGET} margin={{ top: 8, right: 12, left: 0, bottom: 20 }}>
+                <BarChart data={budgetSeries} margin={{ top: 8, right: 12, left: 0, bottom: 20 }}>
                   <CartesianGrid stroke="rgba(255,255,255,0.05)" strokeDasharray="3 3"/>
                   <XAxis dataKey="fy" tick={{ ...TK, fontSize: 8 }} angle={-30} textAnchor="end"/>
                   <YAxis tick={TK} label={{ value: 'UGX Bn', angle: -90, position: 'insideLeft', style: { fontSize: 9, fill: 'rgba(148,163,184,0.5)' } }}/>
@@ -198,7 +216,7 @@ export default function BudgetSection() {
               Cumulative Funding Gap Trend (UGX Bn)
             </div>
             <ResponsiveContainer width="100%" height={200}>
-              <LineChart data={MAINT_BUDGET} margin={{ top: 8, right: 12, left: 0, bottom: 20 }}>
+              <LineChart data={budgetSeries} margin={{ top: 8, right: 12, left: 0, bottom: 20 }}>
                 <CartesianGrid stroke="rgba(255,255,255,0.05)" strokeDasharray="3 3"/>
                 <XAxis dataKey="fy" tick={{ ...TK, fontSize: 8 }} angle={-30} textAnchor="end"/>
                 <YAxis tick={TK}/>
@@ -219,7 +237,7 @@ export default function BudgetSection() {
       {tab === 'matrix' && (
         <div style={card(C.cyan)}>
           <div style={{ fontSize: 11, fontWeight: 900, color: C.cyan, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 4 }}>
-            Road Maintenance Intervention Cost Matrix — Uganda FY 2024/25
+            Road Maintenance Intervention Cost Matrix — Uganda FY 2025/26
           </div>
           <div style={{ fontSize: 10, color: 'rgba(148,163,184,0.6)', marginBottom: 14 }}>
             Source: MoWT Schedule of Rates + Department of National Roads Contract Management. Costs per km unless noted. Excludes VAT.
@@ -262,7 +280,7 @@ export default function BudgetSection() {
           <div style={card(C.green)}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 14 }}>
               <div style={{ fontSize: 11, fontWeight: 900, color: C.green, textTransform: 'uppercase', letterSpacing: '0.1em' }}>
-                Required Maintenance Budget by Region (UGX Billions, FY 2024/25)
+                Required Maintenance Budget by Region (UGX Billions, FY 2025/26)
               </div>
               <SourceTableButton anchor="tbl-021" />
             </div>
