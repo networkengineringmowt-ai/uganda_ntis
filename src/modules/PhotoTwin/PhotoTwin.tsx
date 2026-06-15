@@ -380,43 +380,31 @@ function PhotosView({ structure: s }: { structure: Structure }) {
           ))}
         </div>
       </div>
-    </div>
-  );
 
-  /* ─── Lightbox ─── */
-  function Lightbox() {
-    if (!lightbox || !currentPhoto) return null;
-    return (
-      <div
-        className="fixed inset-0 z-[9999] bg-black/95 flex flex-col items-center justify-center"
-        onClick={() => setLightbox(false)}
-      >
-        <button className="absolute top-4 right-4 p-2 rounded-full bg-white/10 text-white hover:bg-white/20" onClick={() => setLightbox(false)}>
-          <X size={20} />
-        </button>
-        <img
-          src={currentPhoto.url}
-          alt={`${s.name} fullscreen`}
-          className="max-w-[95vw] max-h-[90vh] object-contain"
-          onClick={e => e.stopPropagation()}
-        />
-        <div className="mt-3 text-white/60 text-xs">{currentPhoto.filename} · {s.name} · {currentPhoto.year}</div>
-        <div className="flex gap-4 mt-3">
-          <button onClick={e => { e.stopPropagation(); prev(); }} disabled={current === 0} className="px-4 py-2 rounded-lg bg-white/10 text-white disabled:opacity-30"><ChevronLeft size={16} /></button>
-          <span className="px-4 py-2 text-white/50 text-xs">{current + 1}/{displayPhotos.length}</span>
-          <button onClick={e => { e.stopPropagation(); next(); }} disabled={current === displayPhotos.length - 1} className="px-4 py-2 rounded-lg bg-white/10 text-white disabled:opacity-30"><ChevronRight size={16} /></button>
+      {/* ─── Lightbox (fullscreen) — rendered inline so the ⛶ button works ─── */}
+      {lightbox && currentPhoto && (
+        <div
+          className="fixed inset-0 z-[9999] bg-black/95 flex flex-col items-center justify-center"
+          onClick={() => setLightbox(false)}
+        >
+          <button className="absolute top-4 right-4 p-2 rounded-full bg-white/10 text-white hover:bg-white/20" onClick={() => setLightbox(false)}>
+            <X size={20} />
+          </button>
+          <img
+            src={currentPhoto.url}
+            alt={`${s.name} fullscreen`}
+            className="max-w-[95vw] max-h-[90vh] object-contain"
+            onClick={e => e.stopPropagation()}
+          />
+          <div className="mt-3 text-white/60 text-xs">{currentPhoto.filename} · {s.name} · {currentPhoto.year}</div>
+          <div className="flex gap-4 mt-3">
+            <button onClick={e => { e.stopPropagation(); prev(); }} disabled={current === 0} className="px-4 py-2 rounded-lg bg-white/10 text-white disabled:opacity-30"><ChevronLeft size={16} /></button>
+            <span className="px-4 py-2 text-white/50 text-xs">{current + 1}/{displayPhotos.length}</span>
+            <button onClick={e => { e.stopPropagation(); next(); }} disabled={current === displayPhotos.length - 1} className="px-4 py-2 rounded-lg bg-white/10 text-white disabled:opacity-30"><ChevronRight size={16} /></button>
+          </div>
         </div>
-      </div>
-    );
-  }
-
-  return (
-    <>
-      <div className="flex flex-col h-full">
-        <PhotosView structure={s} />
-      </div>
-      <Lightbox />
-    </>
+      )}
+    </div>
   );
 }
 
@@ -460,7 +448,7 @@ function TwinView({ structure: s }: { structure: Structure }) {
           {/* Quick specs */}
           <div className="grid grid-cols-2 gap-2 text-[10px]">
             <SpecRow label="Year Built"    value={String(s.yearBuilt)} />
-            <SpecRow label="Age"           value={`${2024 - s.yearBuilt} yrs`} />
+            <SpecRow label="Age"           value={`${new Date().getFullYear() - s.yearBuilt} yrs`} />
             <SpecRow label="Material"      value={s.material} />
             <SpecRow label="Span"          value={`${s.spanLength} m × ${s.noOfSpans}`} />
             <SpecRow label="Width"         value={`${s.width} m`} />

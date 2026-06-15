@@ -106,7 +106,8 @@ export default function BMSSection() {
         @keyframes bms-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
       `}</style>
 
-      <CrossLinkChipBar sectionId="bms" />
+      {/* Cross-section links are hidden in the standalone NBMS build (no other sections to jump to) */}
+      {!import.meta.env.VITE_STANDALONE_NBMS && <CrossLinkChipBar sectionId="bms" />}
 
       {/* ── Main tab bar ── */}
       <div style={{
