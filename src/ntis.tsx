@@ -5,16 +5,23 @@
  * overloading & ESAL, network analytics) in its own provider stack with a
  * branded header. Supersedes the older uganda_atc app with the current UI.
  * Deployed separately to networkengineringmowt-ai/uganda_ntis.
+ *
+ * Three access levels (matching the main NRMS platform):
+ *   rms   → mobile-first field capture shell (data entry only)
+ *   super → full TIS dashboards & reports (read-only)
+ *   admin → everything
  */
 import { StrictMode, Suspense, lazy, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import './index.css';
 import './styles/transitions.css';
 import { BMSProvider } from './store/BMSContext';
-import { AuthProvider } from './modules/Auth/AuthContext';
+import { AuthProvider, useAuth } from './modules/Auth/AuthContext';
+import { LoginPage } from './modules/Auth/LoginPage';
 import { BotHighlightContext } from './modules/AssetBot/types';
 
 const TrafficSection = lazy(() => import('./modules/Traffic/TrafficSection'));
+const RMSFieldShell = lazy(() => import('./modules/RMS/RMSFieldShell'));
 
 function Header() {
   return (
@@ -43,27 +50,52 @@ function Header() {
   );
 }
 
+function ModuleSpinner() {
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
+      <div style={{ width: 30, height: 30, borderRadius: '50%',
+        border: '2px solid rgba(75,99,130,0.4)', borderTopColor: '#00f5ff',
+        animation: 'bms-spin 0.8s linear infinite' }} />
+    </div>
+  );
+}
+
+// ── Level gate — three logins, three interfaces ───────────────────────────────
+function AppGate() {
+  const { user, isAuthenticated } = useAuth();
+
+  if (!isAuthenticated || !user) return <LoginPage />;
+
+  // tis → mobile-first field capture shell (traffic count data entry)
+  if (user.role === 'tis') {
+    return (
+      <Suspense fallback={<ModuleSpinner />}>
+        <RMSFieldShell />
+      </Suspense>
+    );
+  }
+
+  // super / admin → full TIS dashboards & reports
+  return (
+    <div style={{ height: '100vh', display: 'flex', flexDirection: 'column',
+      background: '#0a0f1e', overflow: 'hidden' }}>
+      <Header />
+      <div style={{ flex: 1, minHeight: 0, overflow: 'hidden' }}>
+        <Suspense fallback={<ModuleSpinner />}>
+          <TrafficSection />
+        </Suspense>
+      </div>
+    </div>
+  );
+}
+
 function NTISApp() {
   const [highlightedLinks, setHighlightedLinks] = useState<string[]>([]);
   return (
     <AuthProvider>
       <BotHighlightContext.Provider value={{ highlightedLinks, setHighlightedLinks }}>
         <BMSProvider>
-          <div style={{ height: '100vh', display: 'flex', flexDirection: 'column',
-            background: '#0a0f1e', overflow: 'hidden' }}>
-            <Header />
-            <div style={{ flex: 1, minHeight: 0, overflow: 'hidden' }}>
-              <Suspense fallback={
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
-                  <div style={{ width: 30, height: 30, borderRadius: '50%',
-                    border: '2px solid rgba(75,99,130,0.4)', borderTopColor: '#00f5ff',
-                    animation: 'bms-spin 0.8s linear infinite' }} />
-                </div>
-              }>
-                <TrafficSection />
-              </Suspense>
-            </div>
-          </div>
+          <AppGate />
         </BMSProvider>
       </BotHighlightContext.Provider>
     </AuthProvider>

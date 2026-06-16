@@ -1,8 +1,13 @@
-// Three access levels — three interfaces:
-//  rms   → field data-entry ONLY (mobile-friendly capture shell)
+// Five access levels — per-app field capture + shared dashboard/admin tiers:
+//  rms   → NRMS platform field data-entry ONLY (mobile-friendly capture shell)
+//  bms   → NBMS standalone field data-entry ONLY (mobile-friendly capture shell)
+//  tis   → NTIS standalone field data-entry ONLY (mobile-friendly capture shell)
 //  super → dashboards/reports of everything, read-only (no input, no admin/audit)
 //  admin → everything, all at once
-export type UserRole = 'rms' | 'super' | 'admin';
+export type UserRole = 'rms' | 'bms' | 'tis' | 'super' | 'admin';
+
+/** Convenience set of all field-capture roles */
+export const FIELD_ROLES: ReadonlySet<UserRole> = new Set(['rms', 'bms', 'tis']);
 
 export interface User {
   id: string;
@@ -30,8 +35,12 @@ export interface Permission {
   canViewConfidential: boolean;
 }
 
+const FIELD_PERMS: Permission = { canViewMaps:false, canViewTraffic:false, canViewBudget:false, canViewBridges:false, canViewML:false, canEditRoads:true,  canEditBridges:true,  canSubmitSurvey:true,  canApproveMaintenance:false, canManageUsers:false, canExportData:false, canViewConfidential:false };
+
 export const ROLE_PERMISSIONS: Record<UserRole, Permission> = {
-  rms:   { canViewMaps:false, canViewTraffic:false, canViewBudget:false, canViewBridges:false, canViewML:false, canEditRoads:true,  canEditBridges:true,  canSubmitSurvey:true,  canApproveMaintenance:false, canManageUsers:false, canExportData:false, canViewConfidential:false },
+  rms:   FIELD_PERMS,
+  bms:   FIELD_PERMS,
+  tis:   FIELD_PERMS,
   super: { canViewMaps:true,  canViewTraffic:true,  canViewBudget:true,  canViewBridges:true,  canViewML:true,  canEditRoads:false, canEditBridges:false, canSubmitSurvey:false, canApproveMaintenance:false, canManageUsers:false, canExportData:true,  canViewConfidential:true  },
   admin: { canViewMaps:true,  canViewTraffic:true,  canViewBudget:true,  canViewBridges:true,  canViewML:true,  canEditRoads:true,  canEditBridges:true,  canSubmitSurvey:true,  canApproveMaintenance:true,  canManageUsers:true,  canExportData:true,  canViewConfidential:true  },
 };

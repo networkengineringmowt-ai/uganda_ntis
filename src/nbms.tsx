@@ -3,16 +3,23 @@
  * Mounts ONLY the BMS section (Dashboard · Structure Map · Inventory & Condition
  * incl. the Digital Twin · Bridge Works) in the providers it needs, with its own
  * branded header. Deployed separately to networkengineringmowt-ai/uganda_nbms.
+ *
+ * Three access levels (matching the main NRMS platform):
+ *   rms   → mobile-first field capture shell (data entry only)
+ *   super → full BMS dashboards & reports (read-only)
+ *   admin → everything
  */
 import { StrictMode, Suspense, lazy, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import './index.css';
 import './styles/transitions.css';
 import { BMSProvider } from './store/BMSContext';
-import { AuthProvider } from './modules/Auth/AuthContext';
+import { AuthProvider, useAuth } from './modules/Auth/AuthContext';
+import { LoginPage } from './modules/Auth/LoginPage';
 import { BotHighlightContext } from './modules/AssetBot/types';
 
 const BMSSection = lazy(() => import('./modules/BMS/BMSSection'));
+const RMSFieldShell = lazy(() => import('./modules/RMS/RMSFieldShell'));
 
 function Header() {
   return (
@@ -41,27 +48,52 @@ function Header() {
   );
 }
 
+function ModuleSpinner() {
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
+      <div style={{ width: 30, height: 30, borderRadius: '50%',
+        border: '2px solid rgba(75,99,130,0.4)', borderTopColor: '#4d9fff',
+        animation: 'bms-spin 0.8s linear infinite' }} />
+    </div>
+  );
+}
+
+// ── Level gate — three logins, three interfaces ───────────────────────────────
+function AppGate() {
+  const { user, isAuthenticated } = useAuth();
+
+  if (!isAuthenticated || !user) return <LoginPage />;
+
+  // bms → mobile-first field capture shell (bridge inspection data entry)
+  if (user.role === 'bms') {
+    return (
+      <Suspense fallback={<ModuleSpinner />}>
+        <RMSFieldShell />
+      </Suspense>
+    );
+  }
+
+  // super / admin → full BMS dashboards & reports
+  return (
+    <div style={{ height: '100vh', display: 'flex', flexDirection: 'column',
+      background: '#0a0f1e', overflow: 'hidden' }}>
+      <Header />
+      <div style={{ flex: 1, minHeight: 0, overflow: 'hidden' }}>
+        <Suspense fallback={<ModuleSpinner />}>
+          <BMSSection />
+        </Suspense>
+      </div>
+    </div>
+  );
+}
+
 function NBMSApp() {
   const [highlightedLinks, setHighlightedLinks] = useState<string[]>([]);
   return (
     <AuthProvider>
       <BotHighlightContext.Provider value={{ highlightedLinks, setHighlightedLinks }}>
         <BMSProvider>
-          <div style={{ height: '100vh', display: 'flex', flexDirection: 'column',
-            background: '#0a0f1e', overflow: 'hidden' }}>
-            <Header />
-            <div style={{ flex: 1, minHeight: 0, overflow: 'hidden' }}>
-              <Suspense fallback={
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
-                  <div style={{ width: 30, height: 30, borderRadius: '50%',
-                    border: '2px solid rgba(75,99,130,0.4)', borderTopColor: '#4d9fff',
-                    animation: 'bms-spin 0.8s linear infinite' }} />
-                </div>
-              }>
-                <BMSSection />
-              </Suspense>
-            </div>
-          </div>
+          <AppGate />
         </BMSProvider>
       </BotHighlightContext.Provider>
     </AuthProvider>

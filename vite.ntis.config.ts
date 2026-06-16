@@ -14,6 +14,7 @@ export default defineConfig({
   base: process.env.NODE_ENV === 'production' ? '/uganda_ntis/' : '/',
   define: {
     'import.meta.env.VITE_STANDALONE': JSON.stringify('1'),
+    'import.meta.env.VITE_APP_ID': JSON.stringify('ntis'),
   },
   build: {
     outDir: 'dist-ntis',

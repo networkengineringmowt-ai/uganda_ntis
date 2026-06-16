@@ -4,7 +4,7 @@ import { BMSProvider, useBMS } from './store/BMSContext';
 import { BotHighlightContext } from './modules/AssetBot/types';
 import { AuthProvider, useAuth } from './modules/Auth/AuthContext';
 import { LoginPage } from './modules/Auth/LoginPage';
-import { canAccessView } from './modules/Auth/permissions';
+import { canAccessView, isFieldRole } from './modules/Auth/permissions';
 
 const RMSFieldShell = lazy(() => import('./modules/RMS/RMSFieldShell'));
 import Sidebar from './components/Layout/Sidebar';
@@ -262,7 +262,7 @@ function AppGate() {
 
   if (!isAuthenticated || !user) return <LoginPage />;
 
-  if (user.role === 'rms') {
+  if (isFieldRole(user.role)) {
     return (
       <Suspense fallback={<ModuleSpinner />}>
         <RMSFieldShell />
