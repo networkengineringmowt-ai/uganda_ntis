@@ -4,6 +4,7 @@ import { BMSProvider, useBMS } from './store/BMSContext';
 import { BotHighlightContext } from './modules/AssetBot/types';
 import { AuthProvider, useAuth } from './modules/Auth/AuthContext';
 import { LoginPage } from './modules/Auth/LoginPage';
+import { AccessPending } from './modules/Auth/AccessPending';
 import { canAccessView, isFieldRole } from './modules/Auth/permissions';
 import { roleLabel } from './modules/Auth/authTypes';
 
@@ -262,6 +263,9 @@ function AppGate() {
   const { user, isAuthenticated } = useAuth();
 
   if (!isAuthenticated || !user) return <LoginPage />;
+
+  // Identity Manager: new users await admin approval; revoked users are blocked.
+  if (user.access === 'pending' || user.access === 'revoked') return <AccessPending />;
 
   if (isFieldRole(user.role)) {
     return (

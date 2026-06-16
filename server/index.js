@@ -147,6 +147,69 @@ app.get('/api/audit', (req, res) => {
   }
 });
 
+// ── Identity directory (G: Drive) — the "active directory" of users ──────────
+// Persisted as directory/users.json next to captures/logs. New users land as
+// 'pending'; an admin approves (→ active) or revokes. Legacy roster users are
+// auto-accepted client-side and never written here unless they're decided on.
+const DIR_DIR  = path.join(DRIVE_DIR, '..', 'directory');
+const DIR_FILE = path.join(DIR_DIR, 'users.json');
+
+function readDirectory() {
+  try { return JSON.parse(fs.readFileSync(DIR_FILE, 'utf-8')); }
+  catch { return { users: {} }; }
+}
+function writeDirectory(dir) {
+  fs.mkdirSync(DIR_DIR, { recursive: true });
+  fs.writeFileSync(DIR_FILE, JSON.stringify(dir, null, 2), 'utf-8');
+}
+
+// List the whole directory (admin Identity Manager).
+app.get('/api/directory', (_req, res) => {
+  try {
+    const dir = readDirectory();
+    res.json({ users: Object.values(dir.users || {}) });
+  } catch (err) { handleError(res, err); }
+});
+
+// Upsert a directory entry. Body: { action, email, name?, role?, by? }
+//   action: 'request' | 'approve' | 'reject' | 'revoke' | 'restore'
+app.post('/api/directory', (req, res) => {
+  try {
+    const { action, email, name, role, by } = req.body || {};
+    const id = String(email || '').trim().toLowerCase();
+    if (!id || !id.endsWith('@unra.go.ug')) {
+      return res.status(400).json({ error: 'valid @unra.go.ug email required' });
+    }
+    const dir = readDirectory();
+    dir.users = dir.users || {};
+    const now = new Date().toISOString();
+    const cur = dir.users[id] || { email: id, requestedAt: now };
+
+    if (action === 'request') {
+      // Never downgrade an already-decided user.
+      if (!dir.users[id]) {
+        dir.users[id] = { ...cur, name: name || cur.name, role: role || cur.role,
+          status: 'pending', requestedAt: now };
+      }
+    } else if (action === 'approve') {
+      dir.users[id] = { ...cur, name: name || cur.name, role: role || cur.role,
+        status: 'active', decidedAt: now, decidedBy: by || 'admin' };
+    } else if (action === 'reject') {
+      dir.users[id] = { ...cur, status: 'rejected', decidedAt: now, decidedBy: by || 'admin' };
+    } else if (action === 'revoke') {
+      dir.users[id] = { ...cur, status: 'revoked', decidedAt: now, decidedBy: by || 'admin' };
+    } else if (action === 'restore') {
+      dir.users[id] = { ...cur, status: 'active', decidedAt: now, decidedBy: by || 'admin' };
+    } else {
+      return res.status(400).json({ error: 'unknown action' });
+    }
+    writeDirectory(dir);
+    try { persistAudit([{ type: 'access', at: now, user: by || id, role,
+      detail: { action, target: id } }]); } catch { /* non-fatal */ }
+    res.status(201).json({ user: dir.users[id] });
+  } catch (err) { handleError(res, err); }
+});
+
 // ── Health check ──────────────────────────────────────────────────────────────
 app.get('/health', (_req, res) => {
   res.json({ ok: true, service: 'uganda-roads-data-entry-server', time: new Date().toISOString() });

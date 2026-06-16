@@ -1,13 +1,16 @@
-import { createContext, useContext, useState, type ReactNode } from 'react';
+import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 import type { User } from './authTypes';
-import { ALLOWED_USERS, LEVEL_PASSWORDS } from './allowedUsers';
+import { LEVEL_PASSWORDS } from './allowedUsers';
 import { logEvent } from './auditLog';
+import { getStatus, requestAccess } from './directory';
 
 interface AuthCtx {
   user: User | null;
   login: (email: string, password: string) => Promise<boolean>;
   logout: () => void;
   isAuthenticated: boolean;
+  /** Re-check this user's directory status (after an admin decision). */
+  refreshAccess: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthCtx>({
@@ -15,6 +18,7 @@ const AuthContext = createContext<AuthCtx>({
   login: async () => false,
   logout: () => {},
   isAuthenticated: false,
+  refreshAccess: async () => {},
 });
 
 export const useAuth = () => useContext(AuthContext);
@@ -51,18 +55,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const nameParts = id.split('@')[0].split('.');
       const name = nameParts.map(p => p.charAt(0).toUpperCase() + p.slice(1)).join(' ');
 
+      // ── Identity Manager gate ──────────────────────────────────────────────
+      // Legacy roster users → active. New @unra.go.ug users raise an access
+      // request and wait for admin approval; revoked/rejected users are blocked.
+      const status = await getStatus(id);
+      let access: User['access'] = 'active';
+      if (status === 'new') { await requestAccess({ email: id, name, role: roleMatch }); access = 'pending'; }
+      else if (status === 'pending') access = 'pending';
+      else if (status === 'revoked' || status === 'rejected') access = 'revoked';
+
       const withLogin: User = {
-        name,
-        email: id,
-        role: roleMatch,
-        id,
-        isActive: true,
-        lastLogin: new Date().toISOString(),
+        name, email: id, role: roleMatch, id,
+        isActive: true, lastLogin: new Date().toISOString(), access,
       };
-      
+
       setUser(withLogin);
       localStorage.setItem('dnr_user', JSON.stringify(withLogin));
-      logEvent('login', { level: roleMatch });
+      logEvent('login', { level: roleMatch, access });
       return true;
     }
 
@@ -76,8 +85,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.removeItem('dnr_user');
   }
 
+  /** Re-evaluate the signed-in user's access (poll after an admin decision). */
+  async function refreshAccess() {
+    if (!user) return;
+    const status = await getStatus(user.email);
+    const access: User['access'] =
+      status === 'active' ? 'active'
+      : (status === 'revoked' || status === 'rejected') ? 'revoked'
+      : 'pending';
+    if (access !== user.access) {
+      const next = { ...user, access };
+      setUser(next);
+      localStorage.setItem('dnr_user', JSON.stringify(next));
+    }
+  }
+
+  // Re-validate access on load so revocations take effect even on a stored session.
+  useEffect(() => { void refreshAccess(); /* eslint-disable-next-line */ }, []);
+
   return (
-    <AuthContext.Provider value={{ user, login, logout, isAuthenticated: !!user }}>
+    <AuthContext.Provider value={{ user, login, logout, isAuthenticated: !!user, refreshAccess }}>
       {children}
     </AuthContext.Provider>
   );

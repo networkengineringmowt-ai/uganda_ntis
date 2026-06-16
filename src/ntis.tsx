@@ -18,6 +18,7 @@ import './styles/transitions.css';
 import { BMSProvider } from './store/BMSContext';
 import { AuthProvider, useAuth } from './modules/Auth/AuthContext';
 import { LoginPage } from './modules/Auth/LoginPage';
+import { AccessPending } from './modules/Auth/AccessPending';
 import { BotHighlightContext } from './modules/AssetBot/types';
 
 const TrafficSection = lazy(() => import('./modules/Traffic/TrafficSection'));
@@ -65,6 +66,9 @@ function AppGate() {
   const { user, isAuthenticated } = useAuth();
 
   if (!isAuthenticated || !user) return <LoginPage />;
+
+  // Identity Manager: new users await admin approval; revoked users blocked.
+  if (user.access === 'pending' || user.access === 'revoked') return <AccessPending />;
 
   // tis → mobile-first field capture shell (traffic count data entry)
   if (user.role === 'tis') {

@@ -4,9 +4,10 @@
  * Follows the exact BMS tab-bar pattern.
  */
 import { lazy, Suspense, useState } from 'react';
-import { Activity, BookOpen, Cpu, ShieldCheck } from 'lucide-react';
+import { Activity, BookOpen, Cpu, ShieldCheck, Users } from 'lucide-react';
 import type { ActiveView } from '../../types';
 
+const ADMIN_Identity  = lazy(() => import('./IdentityManager'));
 const ADMIN_Activity  = lazy(() => import('./ActivityLog'));
 const ADMIN_MindMap   = lazy(() => import('../MindMap/MindMapSection'));
 const ADMIN_DataAudit = lazy(() => import('../DataAudit/DataAuditPanel'));
@@ -25,6 +26,7 @@ function Spinner() {
 }
 
 const MAIN_TABS = [
+  { id: 'identity'  as const, label: 'Identity Manager',   icon: <Users size={13}/> },
   { id: 'activity'  as const, label: 'Activity Log',       icon: <Activity size={13}/> },
   { id: 'mindmap'   as const, label: 'Platform Mind Map',  icon: <Cpu size={13}/> },
   { id: 'dataaudit' as const, label: 'Data Audit',         icon: <ShieldCheck size={13}/> },
@@ -37,7 +39,7 @@ export default function AdminSection({
 }: {
   onNavigate?: (v: ActiveView) => void;
 }) {
-  const [tab, setTab] = useState<TabId>('activity');
+  const [tab, setTab] = useState<TabId>('identity');
 
   return (
     <div style={{
@@ -76,6 +78,11 @@ export default function AdminSection({
       {/* ── Content area ──────────────────────────────────────────────────── */}
       <div style={{ flex: 1, minHeight: 0, position: 'relative', overflow: 'hidden' }}>
         <Suspense fallback={<Spinner />}>
+          {tab === 'identity' && (
+            <div style={{ position:'absolute', inset:0, overflowY:'auto' }}>
+              <ADMIN_Identity />
+            </div>
+          )}
           {tab === 'activity' && (
             <div style={{ position:'absolute', inset:0, overflowY:'auto' }}>
               <ADMIN_Activity />

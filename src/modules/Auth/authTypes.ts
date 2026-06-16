@@ -32,6 +32,8 @@ export interface User {
   department?: string;
   lastLogin?: string;
   isActive: boolean;
+  /** Identity-manager access state: approved | awaiting admin | blocked. */
+  access?: 'active' | 'pending' | 'revoked';
 }
 
 export interface Permission {
