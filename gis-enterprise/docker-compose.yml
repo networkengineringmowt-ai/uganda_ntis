@@ -51,6 +51,22 @@ services:
     depends_on: [postgis]
     restart: unless-stopped
 
+  webadaptor:                           # L5 · Web Adaptor + Portal (single entry)
+    image: nginx:1.27-alpine
+    # One public origin for the whole stack (ArcGIS Web-Adaptor equivalent) and
+    # the Portal home/service catalogue. Routes /geoserver /tiles /features
+    # /pgadmin and serves /portal. Put TLS certs in ./webadaptor/certs and
+    # enable the 443 block in nginx.conf for production.
+    ports: ["8088:80"]                  # http://localhost:8088/ → portal
+    volumes:
+      - ./webadaptor/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./portal:/usr/share/nginx/portal:ro
+      - tilecache:/var/cache/nginx/tiles
+      # - ./webadaptor/certs:/etc/nginx/certs:ro   # TLS (production)
+    depends_on: [geoserver, pg_tileserv, pg_featureserv, pgadmin]
+    restart: unless-stopped
+
 volumes:
   pgdata:
   geoserver_data:
+  tilecache:

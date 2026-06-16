@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>UGROADS GIS Enterprise · Portal</title>
+<style>
+  :root{
+    --bg:#070b14; --card:rgba(13,20,38,.85); --line:rgba(120,160,255,.14);
+    --ink:#e2eaf4; --dim:#8aa0c0; --cyan:#00f5ff; --blue:#4d9fff; --green:#00ff88;
+    --amber:#ffd23f; --violet:#b967ff; --pink:#ff2d78;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--ink);font:14px/1.5 Inter,system-ui,sans-serif;
+    background-image:radial-gradient(rgba(120,160,255,.05) 1px,transparent 1px);background-size:30px 30px;min-height:100vh}
+  header{display:flex;align-items:center;gap:14px;padding:18px 28px;border-bottom:1px solid var(--line);
+    background:rgba(4,9,18,.7);backdrop-filter:blur(14px);position:sticky;top:0;z-index:10}
+  header img{width:42px;height:42px;border-radius:10px;background:#fff;padding:3px;object-fit:contain}
+  header h1{font-size:18px;font-weight:900;letter-spacing:.02em}
+  header .sub{font-size:11px;color:var(--dim);letter-spacing:.06em;text-transform:uppercase}
+  .wrap{max-width:1160px;margin:0 auto;padding:26px 28px 60px}
+  h2{font-size:12px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);
+    margin:30px 0 14px;display:flex;align-items:center;gap:8px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px;
+    text-decoration:none;color:inherit;display:block;transition:.18s;position:relative;overflow:hidden}
+  .card:hover{transform:translateY(-2px);border-color:var(--accent,#4d9fff);box-shadow:0 8px 30px rgba(0,0,0,.4)}
+  .card .ico{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;
+    font-size:18px;margin-bottom:10px;background:rgba(120,160,255,.1)}
+  .card .t{font-weight:800;font-size:14px}
+  .card .d{font-size:11.5px;color:var(--dim);margin-top:4px;line-height:1.45}
+  .card .ep{font-family:ui-monospace,monospace;font-size:10px;color:var(--blue);margin-top:8px;word-break:break-all}
+  .dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:6px;background:#475569}
+  .dot.up{background:var(--green);box-shadow:0 0 7px var(--green)}
+  .dot.down{background:var(--pink);box-shadow:0 0 7px var(--pink)}
+  .status{position:absolute;top:14px;right:14px;font-size:10px;color:var(--dim)}
+  .layers table{width:100%;border-collapse:collapse;font-size:12px}
+  .layers th{ text-align:left;color:var(--dim);font-size:10px;text-transform:uppercase;letter-spacing:.06em;
+    padding:8px 10px;border-bottom:1px solid var(--line)}
+  .layers td{padding:7px 10px;border-bottom:1px solid rgba(255,255,255,.04)}
+  .pill{font-size:9px;font-weight:800;padding:2px 8px;border-radius:999px}
+  footer{color:var(--dim);font-size:11px;text-align:center;padding:24px;border-top:1px solid var(--line);margin-top:30px}
+  code{background:rgba(120,160,255,.08);padding:1px 6px;border-radius:5px;font-size:11px}
+</style>
+</head>
+<body>
+<header>
+  <img src="/portal/mowt.jpg" alt="MoWT" onerror="this.style.display='none'"/>
+  <div>
+    <h1>UGROADS GIS Enterprise</h1>
+    <div class="sub">Ministry of Works &amp; Transport · Department of National Roads · Geospatial Portal</div>
+  </div>
+  <div style="margin-left:auto;text-align:right">
+    <div style="font-size:11px;color:var(--dim)">Web Adaptor</div>
+    <div style="font-weight:800"><span id="adaptorDot" class="dot"></span><span id="adaptorTxt">checking…</span></div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <!-- ── CLIENT LAYER — applications ─────────────────────────────────────── -->
+  <h2>🛰 Applications <span style="color:var(--dim);font-weight:500;text-transform:none;letter-spacing:0">— client layer</span></h2>
+  <div class="grid" id="apps"></div>
+
+  <!-- ── SERVICE LAYER — OGC + REST endpoints ───────────────────────────── -->
+  <h2>🧩 Geospatial Services <span style="color:var(--dim);font-weight:500;text-transform:none;letter-spacing:0">— service layer</span></h2>
+  <div class="grid" id="services"></div>
+
+  <!-- ── DATA LAYER — published layers catalogue ────────────────────────── -->
+  <h2>🗂 Published Layers <span style="color:var(--dim);font-weight:500;text-transform:none;letter-spacing:0">— data layer (PostGIS)</span></h2>
+  <div class="card layers" style="padding:0">
+    <table>
+      <thead><tr><th>Layer</th><th>Schema.Table</th><th>Geometry</th><th>Service endpoints</th></tr></thead>
+      <tbody id="layers"></tbody>
+    </table>
+  </div>
+
+  <!-- ── ADMIN ─────────────────────────────────────────────────────────── -->
+  <h2>🛠 Administration <span style="color:var(--dim);font-weight:500;text-transform:none;letter-spacing:0">— management layer</span></h2>
+  <div class="grid" id="admin"></div>
+
+</div>
+
+<footer>
+  UGROADS GIS Enterprise · 100% open-source (PostGIS · GeoServer · pg_tileserv · pg_featureserv · QGIS · nginx) ·
+  no licence fees · see <code>gis-enterprise/docs/</code> for the full architecture.
+</footer>
+
+<script>
+const APPS = [
+  {t:'NRMS Platform', d:'National Roads Management System — full platform (network, PMS, BMS, TIS, projects, budget).', ep:'https://priscananjehe1996.github.io/uganda-roads/', ico:'🛣', accent:'#6366f1'},
+  {t:'NBMS', d:'National Bridge Management System — 546 bridges, 485 culverts, digital twin.', ep:'https://networkengineringmowt-ai.github.io/uganda_nbms/', ico:'🌉', accent:'#4d9fff'},
+  {t:'NTIS', d:'National Traffic Information System — AADT, ATC, 2016-base projections.', ep:'https://networkengineringmowt-ai.github.io/uganda_ntis/', ico:'🚦', accent:'#00f5ff'},
+  {t:'QGIS Desktop', d:'Connect QGIS to the geodatabase / WFS / WMS — see connectors/qgis_connection.md.', ep:'/portal/#qgis', ico:'🖥', accent:'#00ff88'},
+];
+const SERVICES = [
+  {t:'GeoServer — OGC', d:'WMS · WFS-T · WMTS · WPS. Styled map images, editable features, cached tiles, geoprocessing.', ep:'/geoserver/web/', probe:'/geoserver/web/', ico:'🌐', accent:'#00ff88'},
+  {t:'pg_tileserv — MVT', d:'Instant Mapbox Vector Tiles straight from PostGIS, edge-cached by the adaptor.', ep:'/tiles/', probe:'/tiles/index.json', ico:'🔷', accent:'#4d9fff'},
+  {t:'pg_featureserv — OGC API', d:'OGC API – Features. REST/GeoJSON read access to every layer & function.', ep:'/features/', probe:'/features/index.json', ico:'🧬', accent:'#00f5ff'},
+  {t:'WMS GetCapabilities', d:'Service metadata for desktop/web clients (Esri, QGIS, Leaflet, OpenLayers).', ep:'/geoserver/ows?service=wms&version=1.3.0&request=GetCapabilities', ico:'📡', accent:'#ffd23f'},
+];
+const ADMIN = [
+  {t:'pgAdmin', d:'Visual PostgreSQL/PostGIS administration — query, edit, manage.', ep:'/pgadmin/', probe:'/pgadmin/', ico:'🐘', accent:'#b967ff'},
+  {t:'gisctl CLI', d:'Backend management without the front end: status, layers, sql, repair, vacuum, backup, restore, history, undo.', ep:'/portal/#gisctl', ico:'⌨', accent:'#ff2d78'},
+  {t:'Audit / Versioning', d:'Row-level history on every table (audit.history) with restore_row() — geodatabase-style archiving.', ep:'/portal/#audit', ico:'🕓', accent:'#ffd23f'},
+];
+const LAYERS = [
+  ['Road network (1,017 links)','core.network_links','MultiLineString','WMS · WFS · MVT · Features'],
+  ['Bridges & culverts (1,031)','core.bridges','Point','WMS · WFS · MVT · Features'],
+  ['Pavement condition (2024)','pms.link_condition','(joined)','WFS · Features'],
+  ['FWD deflection bowls (3,673)','pms.fwd_bowls','(table)','Features'],
+  ['ATC sites','traffic.atc_sites','Point','WMS · WFS · MVT · Features'],
+  ['Road inventory (per link)','rms.inventory_links','(jsonb)','Features'],
+];
+
+function card(s){
+  const probe = s.probe ? `<div class="status"><span class="dot" data-probe="${s.probe}"></span></div>` : '';
+  return `<a class="card" href="${s.ep}" style="--accent:${s.accent}" ${s.ep.startsWith('http')?'target="_blank" rel="noopener"':''}>
+    ${probe}<div class="ico" style="color:${s.accent};background:${s.accent}1a">${s.ico}</div>
+    <div class="t">${s.t}</div><div class="d">${s.d}</div><div class="ep">${s.ep}</div></a>`;
+}
+document.getElementById('apps').innerHTML = APPS.map(card).join('');
+document.getElementById('services').innerHTML = SERVICES.map(card).join('');
+document.getElementById('admin').innerHTML = ADMIN.map(card).join('');
+document.getElementById('layers').innerHTML = LAYERS.map(l=>`<tr>
+  <td style="font-weight:700">${l[0]}</td>
+  <td style="font-family:ui-monospace,monospace;color:var(--blue);font-size:11px">${l[1]}</td>
+  <td style="color:var(--dim)">${l[2]}</td>
+  <td>${l[3].split(' · ').map(x=>`<span class="pill" style="background:rgba(0,245,255,.1);color:var(--cyan)">${x}</span>`).join(' ')}</td>
+</tr>`).join('');
+
+// Live health probes (best-effort; cross-service via the single adaptor origin)
+async function probe(el){
+  try{ const r = await fetch(el.dataset.probe,{method:'GET'}); el.className = 'dot ' + (r.ok||r.status<500?'up':'down'); }
+  catch{ el.className = 'dot down'; }
+}
+document.querySelectorAll('[data-probe]').forEach(probe);
+(async()=>{ const d=document.getElementById('adaptorDot'),t=document.getElementById('adaptorTxt');
+  try{ const r=await fetch('/health'); d.className='dot '+(r.ok?'up':'down'); t.textContent=r.ok?'Online':'Degraded'; }
+  catch{ d.className='dot down'; t.textContent='Offline'; } })();
+</script>
+</body>
+</html>

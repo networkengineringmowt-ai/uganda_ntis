@@ -3,7 +3,30 @@
 
 > Companion to the UGROADS platform (React frontend · G: Drive canonical store).
 > Everything here is free and open source: PostgreSQL/PostGIS, GeoServer,
-> pg_tileserv/pg_featureserv, QGIS, GDAL, Python. No licence fees, ever.
+> pg_tileserv/pg_featureserv, QGIS, GDAL, Python, nginx. No licence fees, ever.
+
+---
+
+## 📚 Extensive documentation — built out by layer
+
+Full architecture written up layer by layer in [`docs/`](docs/):
+
+| Doc | Layer | Covers |
+|-----|-------|--------|
+| [00 · Architecture overview](docs/00-architecture-overview.md) | all | Esri→OSS map, 5-layer diagram, request lifecycle, cost |
+| [01 · Client layer](docs/01-client-layer.md) | L1 | web apps, QGIS, ArcGIS clients, mobile/field, programmatic |
+| [02 · Service layer](docs/02-service-layer.md) | L3 | GeoServer (WMS/WFS-T/WMTS/WPS), pg_tileserv, pg_featureserv, geoprocessing |
+| [03 · Data layer](docs/03-data-layer.md) | L4 | PostGIS schemas, roles, indexes, versioning/archiving, ETL |
+| [04 · Web adaptor + Portal](docs/04-webadaptor-portal.md) | L2 | nginx single-origin proxy, Portal home, connectors, front-door security |
+| [05 · Operations](docs/05-operations.md) | L5 | deploy, secrets, backup/restore, maintenance, scaling, monitoring, DR |
+
+**New components added in this build-out:**
+- **Web Adaptor** — [`webadaptor/nginx.conf`](webadaptor/nginx.conf): one TLS origin, reverse proxy, gzip, 2 GB tile cache, security headers (ArcGIS Web-Adaptor equivalent).
+- **Portal** — [`portal/index.html`](portal/index.html): branded home + live service catalogue (Portal-for-ArcGIS equivalent), served at `http://localhost:8088/`.
+- **Connectors** — [`connectors/`](connectors/): copy-paste connection guides for QGIS, Esri ArcGIS, web clients (MapLibre/Leaflet/OpenLayers) and REST/OGC-API/Python.
+
+**One front door:** `docker compose up -d` → open **`http://localhost:8088/`**
+(the Portal), which routes to `/geoserver` `/tiles` `/features` `/pgadmin`.
 
 ---
 
