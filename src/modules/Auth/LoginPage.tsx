@@ -5,8 +5,9 @@ import { useAuth } from './AuthContext';
 type AppBranding = { short: string; subtitle: string; accent: string; accentGlow: string };
 const APP_BRANDS: Record<string, AppBranding> = {
   nbms: { short: 'BMS',  subtitle: 'NATIONAL BRIDGE MANAGEMENT SYSTEM',   accent: '#4d9fff', accentGlow: 'rgba(77,159,255,0.35)' },
-  ntis: { short: 'TIS',  subtitle: 'NATIONAL TRAFFIC INFORMATION SYSTEM', accent: '#00f5ff', accentGlow: 'rgba(0,245,255,0.35)' },
-  nrms: { short: 'NRMS', subtitle: 'NATIONAL ROADS MANAGEMENT SYSTEM',    accent: '#6366f1', accentGlow: 'rgba(99,102,241,0.35)' },
+  ntis: { short: 'TIS',  subtitle: 'NATIONAL TRAFFIC INFORMATION SYSTEM', accent: '#4d9fff', accentGlow: 'rgba(77,159,255,0.35)' },
+  npms: { short: 'PMS',  subtitle: 'NATIONAL PAVEMENT MANAGEMENT SYSTEM', accent: '#4d9fff', accentGlow: 'rgba(77,159,255,0.35)' },
+  nrms: { short: 'NRMS', subtitle: 'NATIONAL ROADS MANAGEMENT SYSTEM',    accent: '#4d9fff', accentGlow: 'rgba(77,159,255,0.35)' },
 };
 function getBranding(): AppBranding {
   const id = (import.meta.env.VITE_APP_ID as string | undefined) ?? 'nrms';

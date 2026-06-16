@@ -59,6 +59,9 @@ const DataCaptureHub     = lazy(() => import('./modules/DataEntry/DataCaptureHub
 // ── BMS unified view ──────────────────────────────────────────────────────────
 const BMSSection = lazy(() => import('./modules/BMS/BMSSection'));
 
+// ── PMS unified view ──────────────────────────────────────────────────────────
+const PMSSection = lazy(() => import('./modules/PMS/PMSSection'));
+
 // ── RMS top-level hub ─────────────────────────────────────────────────────────
 const RMSSection            = lazy(() => import('./modules/RMS/RMSSection'));
 const GlobalCaseStudiesSection = lazy(() => import('./modules/GlobalCaseStudies/GlobalCaseStudiesSection'));
@@ -229,6 +232,7 @@ function AppShell() {
                 )}
 
                 {activeView === 'bms' && <BMSSection />}
+                {activeView === 'pms' && <PMSSection />}
               </div>
             )}
 

@@ -28,6 +28,7 @@ export const LEVEL_PASSWORDS: Record<UserRole, string> = {
   rms:   'rms',
   bms:   'bms',
   tis:   'tis',
+  pms:   'pms',
   super: 'super',
   admin: 'admin',
 };

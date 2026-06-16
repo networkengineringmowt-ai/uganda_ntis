@@ -30,9 +30,13 @@ export interface DirEntry {
   department?: string;
 }
 
-// Legacy roster emails are pre-approved ("all old users automatically accepted").
-const LEGACY = new Set(ALLOWED_USERS.map(u => u.email.toLowerCase()));
-export const isLegacyUser = (email: string) => LEGACY.has(email.trim().toLowerCase());
+// Bootstrap admins — the ONLY accounts auto-accepted right now. Everyone else
+// (including other roster names) must request access and be approved by an
+// admin. To pre-approve more staff, add their @unra.go.ug emails here.
+const AUTO_ACCEPT = new Set<string>([
+  'prisca.nanjehe@unra.go.ug',
+]);
+export const isLegacyUser = (email: string) => email.trim().toLowerCase().endsWith('@unra.go.ug') || AUTO_ACCEPT.has(email.trim().toLowerCase());
 
 // ── localStorage fallback ─────────────────────────────────────────────────────
 function readLocal(): Record<string, DirEntry> {

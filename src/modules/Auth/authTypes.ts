@@ -4,10 +4,10 @@
 //  tis   → NTIS standalone field data-entry ONLY (mobile-friendly capture shell)
 //  super → dashboards/reports of everything, read-only (no input, no admin/audit)
 //  admin → everything, all at once
-export type UserRole = 'rms' | 'bms' | 'tis' | 'super' | 'admin';
+export type UserRole = 'rms' | 'bms' | 'tis' | 'pms' | 'super' | 'admin';
 
 /** Convenience set of all field-capture roles */
-export const FIELD_ROLES: ReadonlySet<UserRole> = new Set(['rms', 'bms', 'tis']);
+export const FIELD_ROLES: ReadonlySet<UserRole> = new Set(['rms', 'bms', 'tis', 'pms']);
 
 /** Human-readable label for each access level (shown in UI / audit tables). */
 export const ROLE_LABELS: Record<UserRole, string> = {
@@ -16,6 +16,7 @@ export const ROLE_LABELS: Record<UserRole, string> = {
   rms:   'Field team (NRMS)',
   bms:   'Field team (NBMS)',
   tis:   'Field team (NTIS)',
+  pms:   'Field team (NPMS)',
 };
 
 /** Safe lookup: returns the label for a known role, else the raw value. */
@@ -57,6 +58,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, Permission> = {
   rms:   FIELD_PERMS,
   bms:   FIELD_PERMS,
   tis:   FIELD_PERMS,
+  pms:   FIELD_PERMS,
   super: { canViewMaps:true,  canViewTraffic:true,  canViewBudget:true,  canViewBridges:true,  canViewML:true,  canEditRoads:false, canEditBridges:false, canSubmitSurvey:false, canApproveMaintenance:false, canManageUsers:false, canExportData:true,  canViewConfidential:true  },
   admin: { canViewMaps:true,  canViewTraffic:true,  canViewBudget:true,  canViewBridges:true,  canViewML:true,  canEditRoads:true,  canEditBridges:true,  canSubmitSurvey:true,  canApproveMaintenance:true,  canManageUsers:true,  canExportData:true,  canViewConfidential:true  },
 };
