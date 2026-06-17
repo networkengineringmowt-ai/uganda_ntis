@@ -8,6 +8,8 @@ import { useMemo, useState } from 'react';
 import { ArrowUp, ArrowDown, ArrowUpDown, Search, Download, FileSpreadsheet } from 'lucide-react';
 import { exportTableToCSV } from './exportUtils';
 import { exportTableToExcel } from './excelExport';
+import { InfoTip } from './InfoTip';
+import { lookup } from './dataDictionary';
 
 export interface STColumn<T> {
   key: keyof T & string;
@@ -156,6 +158,9 @@ export function SortableFilterableTable<T extends Record<string, any>>({
                   }}>
                     <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
                       {c.label}
+                      {(lookup(c.key) || lookup(c.label)) && (
+                        <InfoTip term={lookup(c.key) ? c.key : c.label} />
+                      )}
                       {active
                         ? (sortAsc ? <ArrowUp size={10} /> : <ArrowDown size={10} />)
                         : <ArrowUpDown size={10} style={{ opacity: 0.35 }} />}

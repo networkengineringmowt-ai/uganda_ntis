@@ -4,10 +4,11 @@
  * Follows the exact BMS tab-bar pattern.
  */
 import { lazy, Suspense, useState } from 'react';
-import { FileText, Table2 } from 'lucide-react';
+import { FileText, Table2, BookOpen } from 'lucide-react';
 
 const SRC_Catalogue = lazy(() => import('./SourcesCatalogueSection'));
 const SRC_Tables    = lazy(() => import('./TabularSummaries'));
+const SRC_Dictionary = lazy(() => import('./DataDictionary'));
 
 function Spinner() {
   return (
@@ -22,8 +23,9 @@ function Spinner() {
 }
 
 const MAIN_TABS = [
-  { id: 'catalogue' as const, label: 'Evidence Catalogue',  icon: <FileText size={13}/> },
-  { id: 'tables'    as const, label: 'Tabular Summaries',   icon: <Table2 size={13}/> },
+  { id: 'catalogue'  as const, label: 'Evidence Catalogue',  icon: <FileText size={13}/> },
+  { id: 'tables'     as const, label: 'Tabular Summaries',   icon: <Table2 size={13}/> },
+  { id: 'dictionary' as const, label: 'Data Dictionary',     icon: <BookOpen size={13}/> },
 ];
 type TabId = typeof MAIN_TABS[number]['id'];
 
@@ -67,8 +69,9 @@ export default function SourcesSection() {
       {/* ── Content area ──────────────────────────────────────────────────── */}
       <div style={{ flex: 1, minHeight: 0, overflowY: 'auto' }}>
         <Suspense fallback={<Spinner />}>
-          {tab === 'catalogue' && <SRC_Catalogue />}
-          {tab === 'tables'    && <SRC_Tables />}
+          {tab === 'catalogue'  && <SRC_Catalogue />}
+          {tab === 'tables'     && <SRC_Tables />}
+          {tab === 'dictionary' && <SRC_Dictionary />}
         </Suspense>
       </div>
     </div>
