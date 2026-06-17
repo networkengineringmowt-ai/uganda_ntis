@@ -1,11 +1,12 @@
 import { lazy, Suspense, useState } from 'react';
-import { LayoutDashboard, Book } from 'lucide-react';
+import { LayoutDashboard, Book, Database } from 'lucide-react';
 import CrossLinkChipBar from '../../shared/CrossLinkChipBar';
 
 const CrossSectionAnalytics = lazy(() => import('./CrossSectionAnalytics'));
 const PavementCatalogue = lazy(() => import('./PavementCatalogue'));
 const AIVisionDashboard = lazy(() => import('./AIVisionDashboard'));
 const DigitalTwin = lazy(() => import('./DigitalTwin'));
+const PMSDataView = lazy(() => import('./PMSDataView'));
 
 function Spinner() {
   return (
@@ -19,6 +20,7 @@ function Spinner() {
 
 const MAIN_TABS = [
   { id: 'dashboard', label: 'Analytics Dashboard', icon: <LayoutDashboard size={13}/> },
+  { id: 'dataview',  label: 'ROMDAS Data View',    icon: <Database size={13}/> },
   { id: 'catalogue', label: 'Design Catalogue',    icon: <Book size={13}/> },
   { id: 'ai_vision', label: 'AI Defect Vision',    icon: <LayoutDashboard size={13}/> },
   { id: 'digital_twin', label: '3D Digital Twin',  icon: <Book size={13}/> },
@@ -68,6 +70,7 @@ export default function PMSSection() {
       <div style={{ flex: 1, minHeight: 0, overflowY: 'auto', overflowX: 'hidden' }}>
         <Suspense fallback={<Spinner />}>
           {mainTab === 'dashboard' && <CrossSectionAnalytics />}
+          {mainTab === 'dataview'  && <PMSDataView />}
           {mainTab === 'catalogue' && <PavementCatalogue />}
           {mainTab === 'ai_vision' && <AIVisionDashboard />}
           {mainTab === 'digital_twin' && <DigitalTwin />}

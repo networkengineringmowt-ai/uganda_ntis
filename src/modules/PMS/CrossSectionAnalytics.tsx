@@ -57,6 +57,41 @@ export default function CrossSectionAnalytics() {
     });
   }, []);
 
+  // Process data BEFORE any early return so every hook below runs each render
+  // (moving useTableSort above the loading/!data returns fixes React error #310).
+  const pmsRegions = data ? Array.from(new Set(data.pms_by_region.map(d => d.region_name))) : [];
+  const filteredPMS = !data ? [] : (selectedRegion === 'All'
+    ? data.pms_by_region
+    : data.pms_by_region.filter(d => d.region_name === selectedRegion));
+
+  // Prepare cost vs IRI scatter data
+  const costVsCondition = filteredPMS.map(d => ({
+    region: d.region_name,
+    cost_per_km: d.total_maintenance_cost / Math.max(d.total_length_km, 1),
+    avg_iri: d.avg_iri,
+    length: d.total_length_km,
+    num_links: d.num_links,
+  }));
+
+  // Regional summary
+  const regionalSummary = data ? pmsRegions.map(region => {
+    const regionData = data.pms_by_region.filter(d => d.region_name === region);
+    const totalCost = regionData.reduce((sum, d) => sum + d.total_maintenance_cost, 0);
+    const totalLength = regionData.reduce((sum, d) => sum + d.total_length_km, 0);
+    const avgIRI = regionData.reduce((sum, d) => sum + d.avg_iri, 0) / regionData.length;
+    const totalLinks = regionData.reduce((sum, d) => sum + d.num_links, 0);
+
+    return {
+      region,
+      total_cost: totalCost,
+      total_length_km: totalLength,
+      avg_iri: Number(avgIRI.toFixed(2)),
+      num_links: totalLinks,
+      cost_per_km: Math.round(totalCost / Math.max(totalLength, 1)),
+    };
+  }) : [];
+  const rs = useTableSort(regionalSummary, 'region');
+
   if (loading) {
     return (
       <div style={{ padding: '20px', textAlign: 'center' }}>
@@ -74,40 +109,6 @@ export default function CrossSectionAnalytics() {
       </div>
     );
   }
-
-  // Process data for visualizations
-  const pmsRegions = Array.from(new Set(data.pms_by_region.map(d => d.region_name)));
-  const filteredPMS = selectedRegion === 'All'
-    ? data.pms_by_region
-    : data.pms_by_region.filter(d => d.region_name === selectedRegion);
-
-  // Prepare cost vs IRI scatter data
-  const costVsCondition = filteredPMS.map(d => ({
-    region: d.region_name,
-    cost_per_km: d.total_maintenance_cost / Math.max(d.total_length_km, 1),
-    avg_iri: d.avg_iri,
-    length: d.total_length_km,
-    num_links: d.num_links,
-  }));
-
-  // Regional summary
-  const regionalSummary = pmsRegions.map(region => {
-    const regionData = data.pms_by_region.filter(d => d.region_name === region);
-    const totalCost = regionData.reduce((sum, d) => sum + d.total_maintenance_cost, 0);
-    const totalLength = regionData.reduce((sum, d) => sum + d.total_length_km, 0);
-    const avgIRI = regionData.reduce((sum, d) => sum + d.avg_iri, 0) / regionData.length;
-    const totalLinks = regionData.reduce((sum, d) => sum + d.num_links, 0);
-
-    return {
-      region,
-      total_cost: totalCost,
-      total_length_km: totalLength,
-      avg_iri: Number(avgIRI.toFixed(2)),
-      num_links: totalLinks,
-      cost_per_km: Math.round(totalCost / Math.max(totalLength, 1)),
-    };
-  });
-  const rs = useTableSort(regionalSummary, 'region');
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 24, padding: '20px', background: 'rgba(8,14,28,0.5)' }}>
