@@ -12,7 +12,9 @@
     "build": "npm run export-data && tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "deploy": "npm run build && gh-pages -d dist -b gh-pages"
+    "deploy": "npm run build && gh-pages -d dist -b gh-pages",
+    "watch": "node watcher.mjs",
+    "watch:bg": "start /B node watcher.mjs > uganda-roads-watcher.log 2>&1"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.107.0",
@@ -34,6 +36,7 @@
     "@types/uuid": "^10.0.0",
     "@vitejs/plugin-react": "^4.3.4",
     "autoprefixer": "^10.4.20",
+    "chokidar": "^4.0.3",
     "concurrently": "^9.1.0",
     "gh-pages": "^6.3.0",
     "postcss": "^8.4.49",

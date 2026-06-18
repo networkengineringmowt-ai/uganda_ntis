@@ -16,7 +16,7 @@ export default function DataDictionary() {
     return DICTIONARY.filter(e => {
       if (group !== 'all' && e.group !== group) return false;
       if (!n) return true;
-      return `${e.term} ${e.label ?? ''} ${e.description} ${(e.values ?? []).map(v => v.value + v.meaning).join(' ')}`
+      return `${e.term} ${e.abbr ?? ''} ${e.label ?? ''} ${e.group} ${e.description} ${(e.values ?? []).map(v => v.value + v.meaning).join(' ')}`
         .toLowerCase().includes(n);
     });
   }, [q, group]);
@@ -55,6 +55,7 @@ export default function DataDictionary() {
             borderRadius: 12, padding: '13px 15px' }}>
             <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginBottom: 3 }}>
               <span style={{ fontWeight: 800, fontSize: 14, color: '#4d9fff' }}>{e.term}</span>
+              {e.abbr && e.abbr !== e.term && <span style={{ fontSize: 9, fontWeight: 800, color: '#00f5ff', background: 'rgba(0,245,255,0.1)', padding: '1px 6px', borderRadius: 5 }}>{e.abbr}</span>}
               {e.unit && <span style={{ fontSize: 10, color: '#94a3b8' }}>({e.unit})</span>}
               <span style={{ marginLeft: 'auto', fontSize: 8.5, color: 'rgba(148,163,184,0.5)',
                 textTransform: 'uppercase', letterSpacing: '0.07em' }}>{e.group}</span>
