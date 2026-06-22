@@ -27,7 +27,7 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci
+        run: npm install --no-audit --no-fund --legacy-peer-deps
 
       # Build directly with Vite (skip local-only export-data/tsc). See deploy.yml.
       - name: Build
