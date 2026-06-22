@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:   # allow manual runs from the Actions tab
 
 concurrency:
   group: github-pages-deploy
@@ -31,10 +32,17 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      # Build the platform directly with Vite. We deliberately skip `npm run
+      # build` because that also runs the local-only `export-data` (Python,
+      # reads G: Drive) and `tsc -b` steps, which don't belong on a CI runner —
+      # the app's data is already committed under public/data, and Vite bundles
+      # public/ (including media) from the full checkout.
       - name: Build
-        run: npm run build
+        run: npx vite build
         env:
           NODE_ENV: production
+          VITE_SUPABASE_URL: https://vbidhkvzjigatfygnyc.supabase.co
+          VITE_SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZiaWRoa3Z6amlnYXRmeWdueWNnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE3Mzg0NDQsImV4cCI6MjA5NzMxNDQ0NH0.4M5lsUvcoh2giNpbF5X7nMPepNVp1U9Em6Ro4aZwgY4
 
       - name: Deploy to gh-pages branch
         uses: peaceiris/actions-gh-pages@v4
