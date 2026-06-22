@@ -50,7 +50,7 @@ const DOCS: DocSection[] = [
         ['App data bundle', 'uganda-roads/public/data/ (44+ JSON/GeoJSON files)', 'What the deployed site reads'],
         ['Field captures', 'captures/<table>.jsonl (G: root)', 'Append-only submissions from the data-entry server'],
         ['Audit logs', 'logs/audit_YYYY-MM.jsonl (G: root)', 'Logins, failed logins, page views, changes'],
-        ['Supabase mirror', 'Project udionwmqmjcfzbdhoetv (42 tables)', 'Optional mirror; RLS read-only for the public'],
+        ['Supabase mirror', 'Project vbidhkvzjigatfygnyc (42 tables)', 'Optional mirror; RLS read-only for the public'],
         ['Git history', 'github.com/priscananjehe1996/uganda-roads (main + gh-pages)', 'Versioned source + deploys'],
       ]}},
       { p: 'Key bundle files: network2026.geojson (road network), network_links.json (1,017 links, FY25-26), network_stats.json, link_condition_lookup.json, bridges2026.geojson (546, BMS inventory + element conditions + predicted 2026 AADT), tcs_stations.json, traffic/ROMDAS/overloading summaries, bundle.json (RoadAtlas), plus rail/ferry/airport/hydrology layers.' },

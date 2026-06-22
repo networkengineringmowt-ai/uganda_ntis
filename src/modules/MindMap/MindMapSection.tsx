@@ -74,7 +74,7 @@ const NODES: Node[] = [
   { id:'out-json',     label:'Public JSON Export',    sub:'central_network_db.json',    layer:4, x:680,  y:235,  w:160, h:68, color:'#14b8a6',
     detail:'export_unified_data.py writes public/data/*.json — per-link IRI summaries, table counts, AADT, ML metrics for fast client-side reads. A cached mirror of the Unified DB.' },
   { id:'out-db',       label:'Unified DB · Supabase', sub:'Postgres · 41 tables',       layer:4, x:680,  y:340,  w:160, h:68, color:'#3ecf8e',
-    detail:'Supabase Postgres (project udionwmqmjcfzbdhoetv) — the single source of truth. 41 tables across all layers: RMS, BMS, TIS, PMS, Road Reserve (incl. road_reserve_applications/applicants MOWT Form 2), AI/ML analytics, lifecycle, budgeting. Reads via the anon key (src/lib/supabase.ts); privileged writes via the service_role server. Schema: supabase_schema.sql.' },
+    detail:'Supabase Postgres (project vbidhkvzjigatfygnyc) — the single source of truth. 41 tables across all layers: RMS, BMS, TIS, PMS, Road Reserve (incl. road_reserve_applications/applicants MOWT Form 2), AI/ML analytics, lifecycle, budgeting. Reads via the anon key (src/lib/supabase.ts); privileged writes via the service_role server. Schema: supabase_schema.sql.' },
 
   // ── L5 — Algorithms · Queries · Decision Trees (x=900) ────────────────────
   { id:'alg-engine',   label:'Algorithm Library',     sub:'HDM-4 · ESAL · LCCA',        layer:5, x:900,  y:165,  w:170, h:66, color:'#a78bfa',
