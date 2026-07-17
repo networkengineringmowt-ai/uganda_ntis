@@ -1,0 +1,231 @@
+{
+  "vehicle_classes": [
+    {
+      "id": "saloon_taxis",
+      "code": "C1",
+      "name": "Saloon Cars and Taxis",
+      "description": "Passenger cars, saloon vehicles, and taxis including sedans, hatchbacks, station wagons, and SUVs used for private or hire transport.",
+      "axle_config": "1-1 (2 axles, single tyres)",
+      "typical_gvw_tonnes": 2.0,
+      "growth_rate_pct": 5.0,
+      "network_share_pct": 24.8,
+      "icon": "car"
+    },
+    {
+      "id": "light_goods",
+      "code": "C2",
+      "name": "Light Goods, Vans, Pickups and 4WD",
+      "description": "Light commercial vehicles including vans, pickups (single and double cab), and four-wheel-drive utility vehicles. Gross Vehicle Weight typically under 3.5 tonnes.",
+      "axle_config": "1-1 (2 axles, single tyres)",
+      "typical_gvw_tonnes": 3.5,
+      "growth_rate_pct": 4.0,
+      "network_share_pct": 11.8,
+      "icon": "pickup"
+    },
+    {
+      "id": "minibus_matatu",
+      "code": "C3a",
+      "name": "Small Bus / Minibuses and Matatus",
+      "description": "Minibuses (14–18 seats) commonly known as Matatus or taxis in Uganda. Primary mode of public transport on most national roads.",
+      "axle_config": "1-1 (2 axles, single tyres)",
+      "typical_gvw_tonnes": 5.0,
+      "growth_rate_pct": 4.0,
+      "network_share_pct": 8.2,
+      "icon": "minibus"
+    },
+    {
+      "id": "medium_bus",
+      "code": "C3b",
+      "name": "Medium Bus - Coasters",
+      "description": "Medium-sized buses (25–35 seats), commonly Toyota Coasters. Used for intercity and semi-urban public transport.",
+      "axle_config": "1-1 (2 axles, rear dual tyres)",
+      "typical_gvw_tonnes": 7.0,
+      "growth_rate_pct": 3.0,
+      "network_share_pct": 5.3,
+      "icon": "bus"
+    },
+    {
+      "id": "large_bus",
+      "code": "C3c",
+      "name": "Large Buses",
+      "description": "Full-size passenger buses (45+ seats) including intercity coaches and urban transit buses. Two or three axle configurations.",
+      "axle_config": "1-2 (2 axles, rear dual tyres) or 1-1-2 (3 axles)",
+      "typical_gvw_tonnes": 16.0,
+      "growth_rate_pct": 3.0,
+      "network_share_pct": 4.2,
+      "icon": "coach"
+    },
+    {
+      "id": "light_truck",
+      "code": "C4a",
+      "name": "Light Single Unit Trucks - Dynas and Tractors",
+      "description": "Light single-unit trucks (2 axles), typically Toyota Dynas and Isuzu NPRs. Used for local goods distribution and agriculture. GVW 3.5–7.5 tonnes.",
+      "axle_config": "1-2 (2 axles, rear dual tyres)",
+      "typical_gvw_tonnes": 7.5,
+      "growth_rate_pct": 4.0,
+      "network_share_pct": 6.2,
+      "icon": "light_truck"
+    },
+    {
+      "id": "medium_large_truck",
+      "code": "C4b",
+      "name": "Medium/Large Single Unit Trucks (2-4 Axles, 7+ Ton)",
+      "description": "Medium and large rigid trucks with 2 to 4 axles. Includes tipper trucks, tankers, and heavy rigid freight vehicles. GVW exceeds 7 tonnes.",
+      "axle_config": "1-2 (2 axles) to 1-2-2 (3 axles) or 1-1-2-2 (4 axles)",
+      "typical_gvw_tonnes": 22.0,
+      "growth_rate_pct": 3.5,
+      "network_share_pct": 7.4,
+      "icon": "heavy_truck"
+    },
+    {
+      "id": "truck_trailer",
+      "code": "C5",
+      "name": "Truck Trailer and Semi-Trailer (5+ Axles)",
+      "description": "Articulated vehicles with tractor unit and semi-trailer, or rigid truck with drawbar trailer. Total of 5 or more axles. Dominant mode for long-haul freight on Northern Corridor (Mombasa–Kampala–Juba/Kigali).",
+      "axle_config": "1-2-3 (6 axles typical) or 1-1-2-3 (7 axles)",
+      "typical_gvw_tonnes": 42.0,
+      "growth_rate_pct": 2.5,
+      "network_share_pct": 2.6,
+      "icon": "articulated"
+    },
+    {
+      "id": "motorcycle",
+      "code": "M",
+      "name": "Motorcycles and Scooters",
+      "description": "Motorized two-wheelers including boda-bodas (motorcycle taxis), personal motorcycles, and scooters. Dominant mode of transport by vehicle count across Uganda.",
+      "axle_config": "1-1 (2 wheels)",
+      "typical_gvw_tonnes": 0.2,
+      "growth_rate_pct": 6.0,
+      "network_share_pct": 29.5,
+      "icon": "motorcycle"
+    },
+    {
+      "id": "bicycle",
+      "code": "NMT-B",
+      "name": "Bicycles",
+      "description": "Non-motorised transport — pedal-powered bicycles used for personal transport and goods carriage.",
+      "axle_config": "N/A",
+      "typical_gvw_tonnes": 0.0,
+      "growth_rate_pct": 1.0,
+      "network_share_pct": 0.8,
+      "icon": "bicycle"
+    },
+    {
+      "id": "cart",
+      "code": "NMT-C",
+      "name": "Carts",
+      "description": "Animal-drawn or human-powered carts used for goods transport, particularly in rural areas.",
+      "axle_config": "N/A",
+      "typical_gvw_tonnes": 0.0,
+      "growth_rate_pct": 0.5,
+      "network_share_pct": 0.2,
+      "icon": "cart"
+    }
+  ],
+  "axle_load_limits": {
+    "title": "Schedule 4 — Permissible Axle Loads (Uganda National Roads Authority Vehicle Dimensions and Load Control Regulations, 2017)",
+    "limits": [
+      {
+        "id": "single_2_conv",
+        "axle_type": "Single",
+        "no_of_tyres": 2,
+        "tyre_type": "Conventional",
+        "permissible_limit_tonnes": 8.0,
+        "description": "Single axle with 2 conventional tyres (steering axle)"
+      },
+      {
+        "id": "single_4_conv",
+        "axle_type": "Single",
+        "no_of_tyres": 4,
+        "tyre_type": "Conventional",
+        "permissible_limit_tonnes": 10.0,
+        "description": "Single axle with 4 conventional tyres (dual rear)"
+      },
+      {
+        "id": "tandem_8_conv",
+        "axle_type": "Tandem",
+        "no_of_tyres": 8,
+        "tyre_type": "Conventional",
+        "permissible_limit_tonnes": 18.0,
+        "description": "Tandem axle group with 8 conventional tyres"
+      },
+      {
+        "id": "tandem_steering_4_conv",
+        "axle_type": "Tandem Steering",
+        "no_of_tyres": 4,
+        "tyre_type": "Conventional",
+        "permissible_limit_tonnes": 16.0,
+        "description": "Tandem steering axle group with 4 conventional tyres"
+      },
+      {
+        "id": "tandem_4_super",
+        "axle_type": "Tandem",
+        "no_of_tyres": 4,
+        "tyre_type": "Super Single",
+        "permissible_limit_tonnes": 16.0,
+        "description": "Tandem axle group with 4 super-single tyres"
+      },
+      {
+        "id": "tridem_12_conv",
+        "axle_type": "Tridem",
+        "no_of_tyres": 12,
+        "tyre_type": "Conventional",
+        "permissible_limit_tonnes": 24.0,
+        "description": "Tridem axle group with 12 conventional tyres"
+      },
+      {
+        "id": "tridem_6_super",
+        "axle_type": "Tridem",
+        "no_of_tyres": 6,
+        "tyre_type": "Super Single",
+        "permissible_limit_tonnes": 22.5,
+        "description": "Tridem axle group with 6 super-single tyres"
+      },
+      {
+        "id": "liftable_single_4_conv",
+        "axle_type": "Liftable Single",
+        "no_of_tyres": 4,
+        "tyre_type": "Conventional",
+        "permissible_limit_tonnes": 10.0,
+        "description": "Liftable single axle with 4 conventional tyres"
+      },
+      {
+        "id": "liftable_single_2_super",
+        "axle_type": "Liftable Single",
+        "no_of_tyres": 2,
+        "tyre_type": "Super Single",
+        "permissible_limit_tonnes": 8.5,
+        "description": "Liftable single axle with 2 super-single tyres"
+      }
+    ]
+  },
+  "vehicle_dimensions": {
+    "title": "Maximum Vehicle Dimensions (Uganda National Roads Authority Regulations, 2017)",
+    "limits": {
+      "max_length_single_vehicle_m": 12.5,
+      "max_length_articulated_m": 17.0,
+      "max_length_truck_trailer_m": 22.0,
+      "max_width_m": 2.6,
+      "max_height_m": 4.2,
+      "max_gvw_single_vehicle_tonnes": 25.0,
+      "max_gvw_articulated_tonnes": 48.0,
+      "max_gvw_truck_trailer_tonnes": 53.0
+    }
+  },
+  "encoder_mapping": {
+    "description": "Maps the ML model's LabelEncoder vehicle_class values to the classification IDs above",
+    "model_to_class": {
+      "Saloon_Cars_Taxis": "saloon_taxis",
+      "Light_Goods_Vans_Pickups_4WD": "light_goods",
+      "Minibuses_Matatus": "minibus_matatu",
+      "Medium_Bus_Coasters": "medium_bus",
+      "Buses": "large_bus",
+      "Light_Single_Unit_Truck": "light_truck",
+      "Medium_Large_Unit_Truck": "medium_large_truck",
+      "Truck_Trailer_Semi_Trailer": "truck_trailer",
+      "Motorcycles": "motorcycle",
+      "Bicycles": "bicycle",
+      "Carts": "cart"
+    }
+  }
+}

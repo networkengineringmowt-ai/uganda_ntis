@@ -71,6 +71,7 @@ const RoadReserveSection    = lazy(() => import('./modules/RoadReserve/RoadReser
 const AdminSection    = lazy(() => import('./modules/Admin/AdminSection'));
 const DataAuditPanel  = lazy(() => import('./modules/DataAudit/DataAuditPanel'));
 const MindMapSection  = lazy(() => import('./modules/MindMap/MindMapSection'));
+const GisEnterpriseSection = lazy(() => import('./modules/GisEnterprise/GisEnterpriseSection'));
 
 const FULL_VIEWS      = new Set(['gismap', 'roadnetwork']);
 const SELF_SCROLL_VIEWS = new Set(['networkstory']);
@@ -198,6 +199,7 @@ function AppShell() {
                 {activeView === 'lifecycle'       && <LifecycleSection />}
                 {activeView === 'sources'         && <SourcesSection />}
                 {activeView === 'tabularsummaries' && <TabularSummaries />}
+                {activeView === 'gisenterprise'    && <GisEnterpriseSection />}
 
                 {activeView === 'admin' && (
                   <Suspense fallback={<ModuleSpinner />}>

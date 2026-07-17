@@ -20,8 +20,8 @@ export const ROAD_STYLES = {
 
 // Structure markers — minZoom keeps them hidden at country-overview zoom.
 export const STRUCTURE_STYLES = {
-  bridge:  { color: '#3B82F6', radius: 5, minZoom: 10 },
-  culvert: { color: '#F59E0B', radius: 4, minZoom: 10 },
+  bridge:  { color: '#3B82F6', radius: 3, minZoom: 10 },
+  culvert: { color: '#F59E0B', radius: 2.5, minZoom: 10 },
 };
 
 // Congestion risk palette — shared between PredictionsPanel and ATCView.

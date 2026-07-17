@@ -81,12 +81,11 @@ function inUganda(lon: number, lat: number): boolean {
 }
 
 // ── Zoom-aware sizing ──────────────────────────────────────────────────────────
-// zoom < 8 → 6px · zoom 8–10 → 10px · zoom 11–12 → 14px · zoom > 12 → 18px
 function iconSizeForZoom(zoom: number): number {
-  if (zoom > 12) return 18;
-  if (zoom >= 11) return 14;
-  if (zoom >= 8)  return 10;
-  return 6;
+  if (zoom > 12) return 12;
+  if (zoom >= 11) return 10;
+  if (zoom >= 8)  return 7;
+  return 4;
 }
 
 // Simple solid circle — used at zoom < 10 for performance

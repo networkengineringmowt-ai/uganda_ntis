@@ -709,7 +709,7 @@ function GlobalCaseStudies() {
     <div style={{ padding: '12px 14px' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16, flexWrap: 'wrap', gap: 10 }}>
         <div>
-          <div style={{ fontSize: 18, fontWeight: 900, color: '#e2eaf4' }}>Global RMS Case Studies</div>
+          <div style={{ fontSize: 18, fontWeight: 900, color: '#e2eaf4' }}>National RMS Case Studies</div>
           <div style={{ fontSize: 11, color: 'rgba(148,163,184,0.65)', marginTop: 2 }}>
             {CASE_STUDIES.length} countries analysed — click any card to expand &amp; see applicability to DNR
           </div>

@@ -147,13 +147,13 @@ function formatLongDate(d: Date): string {
 
 // ─── Custom pulsing Leaflet divIcon for stations ──────────────────────────────
 function makeStationIcon(color: string, isATC: boolean): L.DivIcon {
-  const size = isATC ? 20 : 12;
+  const size = isATC ? 16 : 8;
   return L.divIcon({
     html: `<div class="ts-wrap ts-wrap-${isATC ? 'atc' : 'tis'}" style="width:${size}px;height:${size}px">
       ${isATC ? `
         <div class="ts-ring ts-r1" style="border-color:${color}"></div>
         <div class="ts-ring ts-r2" style="border-color:${color}"></div>` : ''}
-      <div class="ts-dot" style="background:${color};box-shadow:0 0 6px ${color}88;width:${isATC?8:6}px;height:${isATC?8:6}px"></div>
+      <div class="ts-dot" style="background:${color};box-shadow:0 0 6px ${color}88;width:${isATC?6:4}px;height:${isATC?6:4}px"></div>
     </div>`,
     className: 'ts-icon',
     iconSize:   [size, size],

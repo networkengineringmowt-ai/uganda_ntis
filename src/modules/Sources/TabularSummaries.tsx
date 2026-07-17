@@ -875,7 +875,7 @@ const NETWORK_COMPLETENESS = [
   { dimension:'Pave year recorded',       target:'100%', achieved:'88.0%', gap:'121 links unknown age' },
 ];
 
-// ── §21 Global RMS Case Studies ──────────────────────────────────────────────
+// ── §21 National RMS Case Studies ──────────────────────────────────────────────
 const GLOBAL_CASES_TABLE = [
   { id:1,  agency:'TANROADS',       country:'Tanzania',        flag:'🇹🇿', km:35000,  paved_pct:25, system:'RAMS / HDM-4 (IDA)',          yrs_active:'2015–now', budget_km_usd:8000,  innovation:'Tropical HDM-4 calibration (−18% treatment costs)',      dnr:'Uganda-specific calibration for Class C/B; ROMDAS + visual survey integration' },
   { id:2,  agency:'KeNHA',          country:'Kenya',           flag:'🇰🇪', km:11189,  paved_pct:22, system:'RAMS + dTIMS CT',              yrs_active:'2016–now', budget_km_usd:22000, innovation:'Mobile survey apps halved survey costs (KoboToolbox)',     dnr:'Mobile-first Class C survey; twice-yearly frequency achievable' },
@@ -1331,7 +1331,7 @@ export default function TabularSummaries() {
       <SectionHeader
         icon={<Table2 size={15} style={{ color: C.cyan }} />}
         title="Sources & Evidence — Data Hub"
-        sub="104 tables · all rows visible · §21 Global RMS Case Studies · §22 B-Standards · §23 C-Research · §24 GeoJSON Links"
+        sub="104 tables · all rows visible · §21 National RMS Case Studies · §22 B-Standards · §23 C-Research · §24 GeoJSON Links"
         accent={C.cyan}
       />
 
@@ -2365,14 +2365,14 @@ export default function TabularSummaries() {
             <tbody>{NETWORK_COMPLETENESS.map(r=><tr key={r.dimension}><Td>{r.dimension}</Td><Td align="right" mono style={{ color:'rgba(148,163,184,0.4)' }}>{r.target}</Td><Td align="right" mono style={{ color:parseFloat(r.achieved)>90?C.green:parseFloat(r.achieved)>80?C.yellow:C.orange, fontWeight:700 }}>{r.achieved}</Td><Td style={{ color:'rgba(148,163,184,0.5)', fontSize:10 }}>{r.gap}</Td></tr>)}</tbody></table>
           </TablePanel>
 
-          {/* ── SECTION 21: GLOBAL RMS CASE STUDIES ─── */}
+          {/* ── SECTION 21: National RMS Case Studies ─── */}
           <div style={{ fontSize: 10, fontWeight: 900, color: C.green, textTransform: 'uppercase',
             letterSpacing: '0.12em', marginBottom: 10, marginTop: 20,
             borderBottom: '1px solid rgba(0,255,136,0.1)', paddingBottom: 6 }}>
-            §21 — Global RMS Case Studies (15 Countries)
+            §21 — National RMS Case Studies (15 Countries)
           </div>
           {/* tbl-101 */}
-          <TablePanel id="tbl-101" title="Global RMS Case Studies — All 15 Countries Analysed" accent={C.green}
+          <TablePanel id="tbl-101" title="National RMS Case Studies — All 15 Countries Analysed" accent={C.green}
             source="DNR RMS research synthesis (Jun 2026) — RMS section case studies" chartTab="rms" chartLabel="🌍 View in RMS →" onNavigate={navigate}>
             <table style={{ width:'100%', borderCollapse:'collapse', fontSize:9 }}>
               <thead><tr>

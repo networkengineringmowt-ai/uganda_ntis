@@ -173,7 +173,7 @@ const DOCS: DocSection[] = [
         ['Projects & Works / Tracker', 'Ongoing projects, progress vs plan, OPRC'],
         ['Public Investment / Budget', 'PIM pipeline, budget & maintenance financing'],
         ['Life Cycle Management', 'Intervention timeline map, deterioration modelling, HDM-4'],
-        ['Global Case Studies', '195-country road-agency literature matrix'],
+        ['National Case Studies', '195-country road-agency literature matrix'],
         ['Sources & Evidence', 'Dataset catalogue, tabular summaries, downloads, spec audit'],
         ['Admin Tools', 'Activity Log (audit) · Platform Mind Map · Data Audit · this documentation'],
         ['Road Asset Bot', 'Fable 5 LLM assistant grounded in platform data (server proxy or local key)'],

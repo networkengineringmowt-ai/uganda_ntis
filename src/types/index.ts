@@ -161,13 +161,14 @@ export type ActiveView =
   | 'pms'               // Pavement Management System — unified view (NPMS)
   | 'network'           // Network Overview — 4-tab unified view
   | 'rms'               // RMS — Road Management System hub (4-tab: overview, road map, network story, DNR RMS Engine architecture)
-  | 'casestudies'       // Global RMS Case Studies — world map, cards, comparative analytics, lessons
+  | 'casestudies'       // National RMS Case Studies — world map, cards, comparative analytics, lessons
   | 'roadreserve'       // Road Reserve Management — gazette status, encroachment register, reserve map
   | 'admin'             // Admin Tools — 2-tab unified view (Mind Map + Data Audit)
   | 'pendingsurveys'    // Pending condition survey submissions
   | 'dataaudit'         // Data Audit Panel — admin-only cross-section KPI validation
   | 'datacapture'       // Data Capture Hub — login-gated forms that write to Supabase
-  | 'mindmap';          // Platform Mind Map — 5D architectural schematic
+  | 'mindmap'           // Platform Mind Map — 5D architectural schematic
+  | 'gisenterprise';    // GIS Enterprise Dashboard
 
 // ─── Road network types ───────────────────────────────────────────────────────
 export type RoadClass   = 'A' | 'B' | 'C' | 'M';

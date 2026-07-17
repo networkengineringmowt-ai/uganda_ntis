@@ -41,9 +41,10 @@ const SECTIONS: Record<string, Section> = {
   pim:           { id: 'pim',           label: 'Public Investment',         icon: <Building2 size={14}/>,    color: N.yellow },
   budget:        { id: 'budget',        label: 'Budget & Maintenance',      icon: <DollarSign size={14}/>,   color: N.pink   },
   lifecycle:     { id: 'lifecycle',     label: 'Life Cycle Management',     icon: <Clock size={14}/>,        color: N.teal   },
-  casestudies:   { id: 'casestudies',   label: 'Global Case Studies',       icon: <Globe size={14}/>,        color: N.teal   },
+  casestudies:   { id: 'casestudies',   label: 'National Case Studies',       icon: <Globe size={14}/>,        color: N.teal   },
   sources:       { id: 'sources',       label: 'Sources & Evidence',        icon: <Database size={14}/>,     color: N.gray   },
   admin:         { id: 'admin',         label: 'Admin Tools',               icon: <ShieldCheck size={14}/>,  color: N.cyan   },
+  gisenterprise: { id: 'gisenterprise', label: 'GIS Enterprise',            icon: <Layers size={14}/>,       color: N.purple },
 };
 
 // Four top-level tabs — each groups its child sections. Navigation is unchanged
@@ -52,7 +53,7 @@ const GROUPS: Group[] = [
   { id: 'assets',    label: 'Network & Assets',      icon: <Network size={15}/>,      color: N.cyan,   items: ['rms', 'roadcondition', 'bms', 'roadreserve'] },
   { id: 'traffic',   label: 'Traffic & Performance', icon: <Activity size={15}/>,     color: N.orange, items: ['traffic'] },
   { id: 'planning',  label: 'Planning & Investment', icon: <Building2 size={15}/>,    color: N.green,  items: ['projects', 'pim', 'budget', 'lifecycle'] },
-  { id: 'knowledge', label: 'Knowledge & Admin',     icon: <Shield size={15}/>,       color: N.purple, items: ['casestudies', 'sources', 'admin'] },
+  { id: 'knowledge', label: 'Knowledge & Admin',     icon: <Shield size={15}/>,       color: N.purple, items: ['casestudies', 'sources', 'gisenterprise', 'admin'] },
 ];
 
 export default function Sidebar() {

@@ -840,7 +840,7 @@ const SOURCES: Source[] = [
     notes: 'Bridge AMP methodology; structure used in DNR BMS 5-year inspection and maintenance planning.' },
 
   // ──────────────────────────────────────────────────────────────────────────────
-  // CATEGORY D — Global Case Studies (one per RMS section country)
+  // CATEGORY D — National Case Studies (one per RMS section country)
   // ──────────────────────────────────────────────────────────────────────────────
   { name: 'TANROADS RAMS Implementation (IDA-funded, Tanzania 2015–2022)',
     category: 'D', type: 'Case Study', owner: 'TANROADS / World Bank / Bentley Systems', yearRange: '2015–2022',

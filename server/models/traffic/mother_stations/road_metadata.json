@@ -1,0 +1,74 @@
+{
+  "Buwama-Lukaya-Nyendo": {
+    "region": "Central",
+    "station": "Mpigi",
+    "lat": -0.206556,
+    "lon": 31.843214
+  },
+  "Ibanda-Kamwenge": {
+    "region": "South",
+    "station": "Ibanda",
+    "lat": 0.140984,
+    "lon": 30.440641
+  },
+  "Ishaka-Katunguru": {
+    "region": "South",
+    "station": "Kabale",
+    "lat": -1.015023,
+    "lon": 29.848275
+  },
+  "Kampala-Mukono": {
+    "region": "Central",
+    "station": "Kampala",
+    "lat": 0.354184,
+    "lon": 32.674175
+  },
+  "Kasangati-Kyaliwajala": {
+    "region": "Central",
+    "station": "Kampala",
+    "lat": 0.412133,
+    "lon": 32.627893
+  },
+  "Kumi-Brooks Corner": {
+    "region": "North East",
+    "station": "Soroti",
+    "lat": 1.48769,
+    "lon": 33.9341
+  },
+  "Lamogi-Amuru Junction": {
+    "region": "North",
+    "station": "Kitgum",
+    "lat": 2.827651,
+    "lon": 32.058582
+  },
+  "Lira-C Kilak": {
+    "region": "North",
+    "station": "Lira",
+    "lat": 2.405071,
+    "lon": 33.237418
+  },
+  "Lya-Ntusi": {
+    "region": "West",
+    "station": "Hoima",
+    "lat": 1.230394,
+    "lon": 30.92587
+  },
+  "Mukono-Kalagi": {
+    "region": "Central",
+    "station": "Kampala",
+    "lat": 0.4906456726368159,
+    "lon": 32.8035325800995
+  },
+  "Nebbi-Olevu": {
+    "region": "North",
+    "station": "Arua",
+    "lat": 2.438181,
+    "lon": 31.049571
+  },
+  "Njeru-Bukoloto": {
+    "region": "Central",
+    "station": "Kampala",
+    "lat": 0.618155,
+    "lon": 33.000428
+  }
+}

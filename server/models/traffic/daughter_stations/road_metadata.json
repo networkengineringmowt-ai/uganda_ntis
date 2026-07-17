@@ -1,0 +1,2018 @@
+{
+  "C68001": {
+    "link_name": "Gulu-Opit",
+    "region": "North",
+    "station": "Gulu",
+    "lat": 32.477746,
+    "lon": 2.615778
+  },
+  "C17501": {
+    "link_name": "Abayita Ababiri - Kasenyi",
+    "region": "Central",
+    "station": "Kampala",
+    "lat": 32.51606,
+    "lon": 0.077184
+  },
+  "A00906": {
+    "link_name": "Busunju - Kiboga - Lwamata",
+    "region": "Central",
+    "station": "Kampala",
+    "lat": 32.142553,
+    "lon": 0.60548
+  },
+  "C04101": {
+    "link_name": "Namataba - Kyampisi",
+    "region": "Central",
+    "station": "Kampala",
+    "lat": 32.906525,
+    "lon": 0.493977
+  },
+  "B101_LINK01": {
+    "link_name": "Mukono - Kalagi",
+    "region": "Central",
+    "station": "Kampala",
+    "lat": 0.0,
+    "lon": 0.0
+  },
+  "C19401": {
+    "link_name": "Matugga - Kasangati",
+    "region": "Central",
+    "station": "Kampala",
+    "lat": 32.56469,
+    "lon": 0.455449
+  },
+  "C15301": {
+    "link_name": "Lweza - Kigo Prison",
+    "region": "Central",
+    "station": "Kampala",
+    "lat": 32.575616,
+    "lon": 0.207
+  },
+  "C04501": {
+    "link_name": "Kabimbiri - Misindye",
+    "region": "Central",
+    "station": "Kampala",
+    "lat": 32.846684,
+    "lon": 0.526095
+  },
+  "B10202": {
+    "link_name": "Njeru - Bukoloto",
+    "region": "Central",
+    "station": "Kampala",
+    "lat": 33.000428,
+    "lon": 0.618155
+  },
+  "C02902": {
+    "link_name": "Njeru-Nyenga-Buikwe",
+    "region": "Central",
+    "station": "Kampala",
+    "lat": 33.163594,
+    "lon": 0.386987
+  },
+  "A00109": {
+    "link_name": "Mukono - Lugazi",
+    "region": "Central",
+    "station": "Kampala",
+    "lat": 32.75632,
+    "lon": 0.354546
+  },
+  "B10105": {
+    "link_name": "Kayunga - Busana - River Nile",
+    "region": "Central",
+    "station": "Kampala",
+    "lat": 32.973489,
+    "lon": 0.755185
+  },
+  "B10004": {
+    "link_name": "Gayaza - Kalagi",
+    "region": "Central",
+    "station": "Kampala",
+    "lat": 32.611877,
+    "lon": 0.449001
+  },
+  "B25001": {
+    "link_name": "Atiak - Moyo",
+    "region": "North",
+    "station": "Moyo",
+    "lat": 32.078262,
+    "lon": 3.301995
+  },
+  "B30501": {
+    "link_name": "Tirinyi - Pallisa",
+    "region": "East",
+    "station": "Mbale",
+    "lat": 33.749118,
+    "lon": 1.088482
+  },
+  "A00704": {
+    "link_name": "Tororo - Magodes - Nabumali",
+    "region": "East",
+    "station": "Tororo",
+    "lat": 34.160358,
+    "lon": 0.923931
+  },
+  "C92501": {
+    "link_name": "Soroti - Serere",
+    "region": "North East",
+    "station": "Soroti",
+    "lat": 33.531421,
+    "lon": 1.61685
+  },
+  "B30302": {
+    "link_name": "Soroti - Arapai",
+    "region": "North East",
+    "station": "Soroti",
+    "lat": 33.628538,
+    "lon": 1.779603
+  },
+  "C96401": {
+    "link_name": "Soroti-Toroma",
+    "region": "North East",
+    "station": "Soroti",
+    "lat": 33.799291,
+    "lon": 1.721511
+  },
+  "C17803": {
+    "link_name": "Natete - Nakawuka - Kisubi",
+    "region": "Central",
+    "station": "Kampala",
+    "lat": 32.495108,
+    "lon": 0.238627
+  },
+  "C18201": {
+    "link_name": "Buloba - Wakiso",
+    "region": "Central",
+    "station": "Kampala",
+    "lat": 32.470516,
+    "lon": 0.365901
+  },
+  "C19501": {
+    "link_name": "Nakawuka Kasanje ",
+    "region": "Central",
+    "station": "Kampala",
+    "lat": 32.428015,
+    "lon": 0.172569
+  },
+  "C83201": {
+    "link_name": "Tororo-Nagongera",
+    "region": "East",
+    "station": "Tororo",
+    "lat": 34.044244,
+    "lon": 0.759378
+  },
+  "B30601": {
+    "link_name": "Tororo(Malaba junction) - Busia",
+    "region": "East",
+    "station": "Tororo",
+    "lat": 34.131228,
+    "lon": 0.564168
+  },
+  "C19301": {
+    "link_name": "Wakiso-Kassengejja- Matugga",
+    "region": "Central",
+    "station": "Kampala",
+    "lat": 32.498758,
+    "lon": 0.434321
+  },
+  "A00623": {
+    "link_name": "Minakulu - Bobi - Gulu",
+    "region": "North",
+    "station": "Gulu",
+    "lat": 32.378133,
+    "lon": 2.460853
+  },
+  "A00721": {
+    "link_name": "Ayer - Kamdini",
+    "region": "North",
+    "station": "Lira",
+    "lat": 32.507782,
+    "lon": 2.239118
+  },
+  "A00801": {
+    "link_name": "Karuma - Olwiyo",
+    "region": "North",
+    "station": "Gulu",
+    "lat": 32.05125,
+    "lon": 2.383744
+  },
+  "C80601": {
+    "link_name": "Bugiri - Kiseitaka - Nabukalu - Naigaga",
+    "region": "East",
+    "station": "Jinja",
+    "lat": 33.688172,
+    "lon": 0.806054
+  },
+  "C782_LINK01": {
+    "link_name": "Musita-Mayuge - Nankoma",
+    "region": "East",
+    "station": "Jinja",
+    "lat": 0.0,
+    "lon": 0.0
+  },
+  "A008_LINK05": {
+    "link_name": "Eruba - Arua - Manibe",
+    "region": "North",
+    "station": "Arua",
+    "lat": 30.915265,
+    "lon": 2.985421
+  },
+  "A008_LINK06": {
+    "link_name": "Manibe - Maracha - Koboko",
+    "region": "North",
+    "station": "Arua",
+    "lat": 30.919381,
+    "lon": 3.23488
+  },
+  "A00810": {
+    "link_name": "Koboko - Oraba(Uganda/Sudan border)",
+    "region": "North",
+    "station": "Arua",
+    "lat": 30.938964,
+    "lon": 3.493313
+  },
+  "A00806": {
+    "link_name": "Nebbi - Eruba",
+    "region": "North",
+    "station": "Arua",
+    "lat": 31.082228,
+    "lon": 2.71155
+  },
+  "A00804": {
+    "link_name": "Packwach - Nebbi",
+    "region": "North",
+    "station": "Arua",
+    "lat": 31.481604,
+    "lon": 2.460245
+  },
+  "C83001": {
+    "link_name": "Busia - Majanji",
+    "region": "East",
+    "station": "Tororo",
+    "lat": 34.030027,
+    "lon": 0.402872
+  },
+  "C78401": {
+    "link_name": "Iganga-Kaliro",
+    "region": "East",
+    "station": "Jinja",
+    "lat": 33.507558,
+    "lon": 0.751834
+  },
+  "B30702": {
+    "link_name": "Buwenge - Kamuli",
+    "region": "East",
+    "station": "Jinja",
+    "lat": 33.146631,
+    "lon": 0.763143
+  },
+  "C30001": {
+    "link_name": "Kayunga-Bale-Galiraya-Lake Kyoga",
+    "region": "Central",
+    "station": "Kampala",
+    "lat": 32.888323,
+    "lon": 1.077025
+  },
+  "A00114": {
+    "link_name": "Lugazi - Njeru",
+    "region": "Central",
+    "station": "Kampala",
+    "lat": 33.179248,
+    "lon": 0.44049
+  },
+  "B101_Link01": {
+    "link_name": "Kalagi - Bukoloto - kayunga",
+    "region": "Central",
+    "station": "Kampala",
+    "lat": 32.808814,
+    "lon": 0.589747
+  },
+  "A001_LINK11": {
+    "link_name": "Tororo junction - Malaba(Uganda/Kenya border)",
+    "region": "East",
+    "station": "Tororo",
+    "lat": 0.0,
+    "lon": 0.0
+  },
+  "C93201": {
+    "link_name": "Serere-Pingire",
+    "region": "North East",
+    "station": "Soroti",
+    "lat": 33.353595,
+    "lon": 1.447302
+  },
+  "C84401": {
+    "link_name": "Rubongi - Mulanda",
+    "region": "East",
+    "station": "Tororo",
+    "lat": 34.083566,
+    "lon": 0.685011
+  },
+  "A00122": {
+    "link_name": "Kakira junction - Iganga",
+    "region": "East",
+    "station": "Jinja",
+    "lat": 33.333223,
+    "lon": 0.51135
+  },
+  "C81701": {
+    "link_name": "Nankoma - Kaluba",
+    "region": "East",
+    "station": "Jinja",
+    "lat": 33.627001,
+    "lon": 0.402527
+  },
+  "C86502": {
+    "link_name": "Busumbu-Munamba",
+    "region": "East",
+    "station": "Tororo",
+    "lat": 34.238734,
+    "lon": 0.823911
+  },
+  "C92001": {
+    "link_name": "Kumi-Brooks corner",
+    "region": "North East",
+    "station": "Soroti",
+    "lat": 33.9341,
+    "lon": 1.48769
+  },
+  "C79203": {
+    "link_name": "Namagera - Lubanyi",
+    "region": "East",
+    "station": "Jinja",
+    "lat": 33.078342,
+    "lon": 0.734108
+  },
+  "A00121": {
+    "link_name": "Jinja - Kakira Junction(Dual section)",
+    "region": "East",
+    "station": "Jinja",
+    "lat": 33.235366,
+    "lon": 0.465198
+  },
+  "C96302": {
+    "link_name": "Lokitanyara-Loro-Amudat",
+    "region": "North East",
+    "station": "Moroto",
+    "lat": 34.898627,
+    "lon": 2.202535
+  },
+  "C96703": {
+    "link_name": "Kokeris - Lopei",
+    "region": "North East",
+    "station": "Moroto",
+    "lat": 34.366595,
+    "lon": 2.513746
+  },
+  "C87201": {
+    "link_name": "Budaka - Kaderuna",
+    "region": "East",
+    "station": "Mbale",
+    "lat": 33.933242,
+    "lon": 1.065014
+  },
+  "C80001": {
+    "link_name": "Bugiri - Nankoma ",
+    "region": "East",
+    "station": "Jinja",
+    "lat": 33.728199,
+    "lon": 0.502031
+  },
+  "C84002": {
+    "link_name": "Apokor - Kwapa - Tuba",
+    "region": "East",
+    "station": "Tororo",
+    "lat": 34.22404,
+    "lon": 0.761605
+  },
+  "C93901": {
+    "link_name": "Arapai-Amuria",
+    "region": "North East",
+    "station": "Soroti",
+    "lat": 33.630621,
+    "lon": 1.905648
+  },
+  "C98101": {
+    "link_name": "Koputh-Koputh Junction (Lololia)",
+    "region": "North East",
+    "station": "Kotido",
+    "lat": 34.095997,
+    "lon": 3.364094
+  },
+  "C98501": {
+    "link_name": "Kaabong - Kalapata - Piire",
+    "region": "North East",
+    "station": "Kotido",
+    "lat": 34.176601,
+    "lon": 3.677369
+  },
+  "C98302": {
+    "link_name": "Kotein - Kenya Border",
+    "region": "North East",
+    "station": "Kotido",
+    "lat": 34.225536,
+    "lon": 3.017955
+  },
+  "B30103": {
+    "link_name": "Kapelimoru - Kotido",
+    "region": "North East",
+    "station": "Kotido",
+    "lat": 34.115303,
+    "lon": 2.972008
+  },
+  "B302_LINK01": {
+    "link_name": "Kotido - Abim",
+    "region": "North East",
+    "station": "Kotido",
+    "lat": 0.0,
+    "lon": 0.0
+  },
+  "C96303": {
+    "link_name": "Amudat-Alakasi-Kalita",
+    "region": "North East",
+    "station": "Moroto",
+    "lat": 34.953363,
+    "lon": 1.796953
+  },
+  "C96001": {
+    "link_name": "Angatun-Nabilatuk-Lokapel",
+    "region": "North East",
+    "station": "Moroto",
+    "lat": 34.569361,
+    "lon": 2.038523
+  },
+  "C86201": {
+    "link_name": "Namagumba - Budadiri",
+    "region": "East",
+    "station": "Mbale",
+    "lat": 34.264365,
+    "lon": 1.147174
+  },
+  "B30801": {
+    "link_name": "Namutere - Busia",
+    "region": "East",
+    "station": "Tororo",
+    "lat": 34.019887,
+    "lon": 0.480938
+  },
+  "C78203": {
+    "link_name": "Nankoma-Namayingo-Lumino",
+    "region": "East",
+    "station": "Tororo",
+    "lat": 33.936703,
+    "lon": 0.319814
+  },
+  "B30005": {
+    "link_name": "Muyembe - Namalu",
+    "region": "East",
+    "station": "Mbale",
+    "lat": 34.411237,
+    "lon": 1.475982
+  },
+  "B30401": {
+    "link_name": "Muyembe - Kaserem - Kapchorwa",
+    "region": "East",
+    "station": "Mbale",
+    "lat": 34.319641,
+    "lon": 1.339773
+  },
+  "C87601": {
+    "link_name": "Nabiganda -Nambale - Kamoto - Malukhu",
+    "region": "East",
+    "station": "Mbale",
+    "lat": 34.129963,
+    "lon": 1.051926
+  },
+  "B30502": {
+    "link_name": "Pallisa - Kanyago Bridge",
+    "region": "East",
+    "station": "Mbale",
+    "lat": 33.794974,
+    "lon": 1.216074
+  },
+  "B30001": {
+    "link_name": "Namunsi - Sironko",
+    "region": "East",
+    "station": "Mbale",
+    "lat": 34.182165,
+    "lon": 1.138424
+  },
+  "B300_LINK02": {
+    "link_name": "Sironko - Muyembe",
+    "region": "East",
+    "station": "Mbale",
+    "lat": 0.0,
+    "lon": 0.0
+  },
+  "C83701": {
+    "link_name": "Nagongera - Merikit - Kidoko",
+    "region": "East",
+    "station": "Tororo",
+    "lat": 34.087433,
+    "lon": 0.806075
+  },
+  "C87801": {
+    "link_name": "Nakaloke-Kabwangasi-Butebo",
+    "region": "East",
+    "station": "Mbale",
+    "lat": 34.138713,
+    "lon": 1.141863
+  },
+  "C81101": {
+    "link_name": "Kamuli - Nabirumba",
+    "region": "East",
+    "station": "Jinja",
+    "lat": 33.153909,
+    "lon": 0.98417
+  },
+  "C80901": {
+    "link_name": "Kaliro - Namwiwa",
+    "region": "East",
+    "station": "Jinja",
+    "lat": 33.518067,
+    "lon": 0.996526
+  },
+  "C31001": {
+    "link_name": "Kamuli - Namasagali",
+    "region": "East",
+    "station": "Jinja",
+    "lat": 33.026061,
+    "lon": 0.958745
+  },
+  "C93802": {
+    "link_name": "Katakwi - Toroma",
+    "region": "North East",
+    "station": "Soroti",
+    "lat": 33.945743,
+    "lon": 1.836107
+  },
+  "C94402": {
+    "link_name": "Kaberamaido - Dokolo",
+    "region": "North East",
+    "station": "Soroti",
+    "lat": 33.168622,
+    "lon": 1.826832
+  },
+  "C79703": {
+    "link_name": "Kakira - Namasiga",
+    "region": "East",
+    "station": "Jinja",
+    "lat": 33.315337,
+    "lon": 0.585291
+  },
+  "C78103": {
+    "link_name": "Mayuge - Kaluuba",
+    "region": "East",
+    "station": "Jinja",
+    "lat": 33.493992,
+    "lon": 0.420334
+  },
+  "C840_LINK01": {
+    "link_name": "Malaba - Mella - Apokor",
+    "region": "East",
+    "station": "Tororo",
+    "lat": 0.0,
+    "lon": 0.0
+  },
+  "A00711": {
+    "link_name": "Mbale - Namunsi - Kumi",
+    "region": "East",
+    "station": "Mbale",
+    "lat": 34.16464,
+    "lon": 1.14575
+  },
+  "C92702": {
+    "link_name": "Korir - Malera - Kumi",
+    "region": "East",
+    "station": "Mbale",
+    "lat": 34.09247,
+    "lon": 1.440615
+  },
+  "C88202": {
+    "link_name": "Korir - Sironko",
+    "region": "East",
+    "station": "Mbale",
+    "lat": 34.195733,
+    "lon": 1.284688
+  },
+  "C67703": {
+    "link_name": "Kalongo - Kitgum Matidi",
+    "region": "North",
+    "station": "Kitgum",
+    "lat": 33.258229,
+    "lon": 3.104025
+  },
+  "C677_LINK03": {
+    "link_name": "Kalongo - Kitgum Matidi",
+    "region": "North",
+    "station": "Kitgum",
+    "lat": 33.090625,
+    "lon": 3.215927
+  },
+  "C67502": {
+    "link_name": "Pader - Kwonkwic (Palwo)",
+    "region": "North",
+    "station": "Kitgum",
+    "lat": 33.018038,
+    "lon": 2.920284
+  },
+  "C67802": {
+    "link_name": "Lokapel - Adilang",
+    "region": "North",
+    "station": "Kitgum",
+    "lat": 33.448003,
+    "lon": 3.23503
+  },
+  "C67301": {
+    "link_name": "Ngetta-Apala",
+    "region": "North",
+    "station": "Lira",
+    "lat": 32.977097,
+    "lon": 2.342636
+  },
+  "C67101": {
+    "link_name": "Aloi - Aboko - Bata - Dokolo",
+    "region": "North",
+    "station": "Lira",
+    "lat": 33.206423,
+    "lon": 2.0293
+  },
+  "C68501": {
+    "link_name": "Katikati - Tenumu - Nwoya",
+    "region": "North",
+    "station": "Gulu",
+    "lat": 32.091341,
+    "lon": 2.73164
+  },
+  "C68102": {
+    "link_name": "Aswa - Gulu",
+    "region": "North",
+    "station": "Gulu",
+    "lat": 32.432623,
+    "lon": 2.880954
+  },
+  "C68601": {
+    "link_name": "Lamogi - Amuru Junction",
+    "region": "North",
+    "station": "Kitgum",
+    "lat": 32.058582,
+    "lon": 2.827651
+  },
+  "C65302": {
+    "link_name": "Ochero-Namasale",
+    "region": "North",
+    "station": "Lira",
+    "lat": 32.7552909,
+    "lon": 1.61158889
+  },
+  "C65601": {
+    "link_name": "Namasale - Alemere",
+    "region": "North",
+    "station": "Lira",
+    "lat": 32.697394,
+    "lon": 1.657852
+  },
+  "C65301": {
+    "link_name": "Dokolo-Ochero",
+    "region": "North",
+    "station": "Lira",
+    "lat": 33.099465,
+    "lon": 1.821397
+  },
+  "C66101": {
+    "link_name": "Apac-Cegere",
+    "region": "North",
+    "station": "Lira",
+    "lat": 32.52059,
+    "lon": 2.038383
+  },
+  "C65001": {
+    "link_name": "Lira - Akia",
+    "region": "North",
+    "station": "Lira",
+    "lat": 33.237418,
+    "lon": 2.405071
+  },
+  "B30203": {
+    "link_name": "Abim - Kilak",
+    "region": "North",
+    "station": "Kitgum",
+    "lat": 33.241919,
+    "lon": 2.767392
+  },
+  "C67001": {
+    "link_name": "Lira - Boroboro - Abako - Okude",
+    "region": "North",
+    "station": "Lira",
+    "lat": 33.040724,
+    "lon": 2.128526
+  },
+  "C66901": {
+    "link_name": "Lira Railway Access",
+    "region": "North",
+    "station": "Lira",
+    "lat": 32.914734,
+    "lon": 2.254235
+  },
+  "C66502": {
+    "link_name": "Anyeke-Minakulu",
+    "region": "North",
+    "station": "Gulu",
+    "lat": 32.516017,
+    "lon": 2.335687
+  },
+  "C74701": {
+    "link_name": "Panyimur - Paidha Via Erusi-Goli",
+    "region": "North",
+    "station": "Arua",
+    "lat": 31.150803,
+    "lon": 2.320146
+  },
+  "C75201": {
+    "link_name": "Arua - Lia",
+    "region": "North",
+    "station": "Arua",
+    "lat": 30.852252,
+    "lon": 3.053662
+  },
+  "C74302": {
+    "link_name": "Inde-Ocoko",
+    "region": "North",
+    "station": "Arua",
+    "lat": 31.088542,
+    "lon": 2.900401
+  },
+  "C75701": {
+    "link_name": "Keri - Lima - Midigo - Kerila",
+    "region": "North",
+    "station": "Moyo",
+    "lat": 31.082759,
+    "lon": 3.56471
+  },
+  "C74401": {
+    "link_name": "Eruba - Vurra",
+    "region": "North",
+    "station": "Arua",
+    "lat": 30.889242,
+    "lon": 2.926435
+  },
+  "C74501": {
+    "link_name": "Nebbi - Goli",
+    "region": "North",
+    "station": "Arua",
+    "lat": 31.049571,
+    "lon": 2.438181
+  },
+  "C76203": {
+    "link_name": "Biliafe - Otrevu",
+    "region": "North",
+    "station": "Arua",
+    "lat": 31.087811,
+    "lon": 3.123189
+  },
+  "C758_LINK01": {
+    "link_name": "Keriri - Midigo",
+    "region": "North",
+    "station": "Moyo",
+    "lat": 31.252246,
+    "lon": 3.551795
+  },
+  "C76301": {
+    "link_name": "Paidha-Zombo",
+    "region": "North",
+    "station": "Arua",
+    "lat": 30.928623,
+    "lon": 2.56814
+  },
+  "C75802": {
+    "link_name": "Midigo - Kerwa",
+    "region": "North",
+    "station": "Moyo",
+    "lat": 31.286321,
+    "lon": 3.676747
+  },
+  "C70301": {
+    "link_name": "Kitgum - Orom",
+    "region": "North",
+    "station": "Kitgum",
+    "lat": 33.222132,
+    "lon": 3.273647
+  },
+  "C70502": {
+    "link_name": "Paloga - Madiopei",
+    "region": "North",
+    "station": "Kitgum",
+    "lat": 32.879807,
+    "lon": 3.535938
+  },
+  "C705_LINK01": {
+    "link_name": "Padibe - Paloga",
+    "region": "North",
+    "station": "Kitgum",
+    "lat": 33.013591,
+    "lon": 3.615427
+  },
+  "C68901": {
+    "link_name": "Pakele - Pabbo",
+    "region": "North",
+    "station": "Moyo",
+    "lat": 32.071465,
+    "lon": 3.116529
+  },
+  "C70001": {
+    "link_name": "Atiak-Palabek",
+    "region": "North",
+    "station": "Kitgum",
+    "lat": 32.272349,
+    "lon": 3.260528
+  },
+  "C74001": {
+    "link_name": "Koboko - Yumbe",
+    "region": "North",
+    "station": "Arua",
+    "lat": 31.100868,
+    "lon": 3.406444
+  },
+  "C72602": {
+    "link_name": "Adjumani - Sinyanya Ferry landing",
+    "region": "North",
+    "station": "Moyo",
+    "lat": 31.688425,
+    "lon": 3.297278
+  },
+  "C72201": {
+    "link_name": "Moyo - Obongi",
+    "region": "North",
+    "station": "Moyo",
+    "lat": 31.621765,
+    "lon": 3.441716
+  },
+  "B25302": {
+    "link_name": "Masindi Port-Akokoro-Apac-Aduku",
+    "region": "North",
+    "station": "Lira",
+    "lat": 32.36627,
+    "lon": 1.822429
+  },
+  "B250_LINK03": {
+    "link_name": "Yumbe - Manibe",
+    "region": "North",
+    "station": "Arua",
+    "lat": 31.114355,
+    "lon": 3.274894
+  },
+  "B25202": {
+    "link_name": "Lira - Puranga Bridge",
+    "region": "North",
+    "station": "Lira",
+    "lat": 32.935763,
+    "lon": 2.481173
+  },
+  "B25207": {
+    "link_name": "Acholibur - Kitgum",
+    "region": "North",
+    "station": "Kitgum",
+    "lat": 32.885703,
+    "lon": 3.287627
+  },
+  "B252_LINK02": {
+    "link_name": "Puranga Bridge - Corner Kilak - Pejule - Acholibur",
+    "region": "North",
+    "station": "Kitgum",
+    "lat": 32.9406356,
+    "lon": 2.9493592
+  },
+  "B25005": {
+    "link_name": "Moyo - Yumbe",
+    "region": "North",
+    "station": "Moyo",
+    "lat": 31.409521,
+    "lon": 3.556128
+  },
+  "B25303": {
+    "link_name": "Aduku - Lira",
+    "region": "North",
+    "station": "Lira",
+    "lat": 32.795815,
+    "lon": 2.127102
+  },
+  "C36401": {
+    "link_name": "Ruti - Mwizi - Kabuyanda - Kikagati",
+    "region": "South",
+    "station": "Mbarara",
+    "lat": 30.606583,
+    "lon": -0.783312
+  },
+  "C54201": {
+    "link_name": "Fortportal - Kijura - Kabende Bridge-Sogahe-Kyarusozi",
+    "region": "West",
+    "station": "Fort Portal",
+    "lat": 30.426489,
+    "lon": 0.839621
+  },
+  "B20205": {
+    "link_name": "Kagadi - Mabale - Kabwoya",
+    "region": "West",
+    "station": "Hoima",
+    "lat": 31.037739,
+    "lon": 1.188799
+  },
+  "B25301": {
+    "link_name": "Rwekunye - Masindi Port",
+    "region": "West",
+    "station": "Masindi",
+    "lat": 32.0607,
+    "lon": 1.7031
+  },
+  "B20101": {
+    "link_name": "Kigumba - Masindi",
+    "region": "West",
+    "station": "Masindi",
+    "lat": 31.871027,
+    "lon": 1.785426
+  },
+  "C54101": {
+    "link_name": "Karugutu - Ntoroko",
+    "region": "West",
+    "station": "Fort Portal",
+    "lat": 30.371081,
+    "lon": 0.92966
+  },
+  "C27106": {
+    "link_name": "Kitumbi Bridge - Bukwiri",
+    "region": "West",
+    "station": "Hoima",
+    "lat": 31.58527,
+    "lon": 1.002188
+  },
+  "A005_LINK09": {
+    "link_name": "Kyegegwa - Kakabala - Kyenjojo",
+    "region": "West",
+    "station": "Fort Portal",
+    "lat": 0.0,
+    "lon": 0.0
+  },
+  "C57801": {
+    "link_name": "Accesses to Ibuga",
+    "region": "South",
+    "station": "Kasese",
+    "lat": 30.224375,
+    "lon": 0.345257
+  },
+  "A00518": {
+    "link_name": "Lubaale - kyegegwa",
+    "region": "West",
+    "station": "Fort Portal",
+    "lat": 31.098898,
+    "lon": 0.481522
+  },
+  "C57201": {
+    "link_name": "Mbarara Bypass",
+    "region": "South",
+    "station": "Mbarara",
+    "lat": 30.382213,
+    "lon": 0.028417
+  },
+  "C51901": {
+    "link_name": "Nkenda - Bugoye ",
+    "region": "South",
+    "station": "Kasese",
+    "lat": 30.099932,
+    "lon": 0.295868
+  },
+  "A00617": {
+    "link_name": "Kigumba - Karuma",
+    "region": "West",
+    "station": "Masindi",
+    "lat": 32.174714,
+    "lon": 2.001194
+  },
+  "A00522": {
+    "link_name": "Kyenjojo - Rugombe - Fortportal",
+    "region": "West",
+    "station": "Fort Portal",
+    "lat": 30.392845,
+    "lon": 0.642924
+  },
+  "C35602": {
+    "link_name": "Kazo-Buremba",
+    "region": "South",
+    "station": "Ibanda",
+    "lat": 30.830342,
+    "lon": 0.042202
+  },
+  "C356_LINK01": {
+    "link_name": "Ibanda-Kanoni-Kazo",
+    "region": "South",
+    "station": "Ibanda",
+    "lat": 0.0,
+    "lon": 0.0
+  },
+  "C35501": {
+    "link_name": "Nyakahita-Rushere",
+    "region": "South",
+    "station": "Ibanda",
+    "lat": 31.04145,
+    "lon": -0.301855
+  },
+  "C35901": {
+    "link_name": "Rugaaga-Rushasha-Rwentaha",
+    "region": "South",
+    "station": "Mbarara",
+    "lat": 31.106637,
+    "lon": -0.689097
+  },
+  "C35001": {
+    "link_name": "Katete-Isingiro",
+    "region": "South",
+    "station": "Mbarara",
+    "lat": 30.720703,
+    "lon": -0.714058
+  },
+  "B15203": {
+    "link_name": "Ishaka - Buhinda - Rugazi",
+    "region": "South",
+    "station": "Mbarara",
+    "lat": 30.093253,
+    "lon": -0.341037
+  },
+  "C35301": {
+    "link_name": "Nsongezi-Kyaka",
+    "region": "South",
+    "station": "Mbarara",
+    "lat": 30.80971,
+    "lon": -0.995063
+  },
+  "C54901": {
+    "link_name": "Kakabara-Bujuzo-Katooke",
+    "region": "West",
+    "station": "Fort Portal",
+    "lat": 30.868113,
+    "lon": 0.690028
+  },
+  "C548_LINK01": {
+    "link_name": "Rugombe-Kyarusozi-Katooke",
+    "region": "West",
+    "station": "Fort Portal",
+    "lat": 0.0,
+    "lon": 0.0
+  },
+  "C55601": {
+    "link_name": "Bukuku - Rubona",
+    "region": "West",
+    "station": "Fort Portal",
+    "lat": 30.158426,
+    "lon": 0.619333
+  },
+  "C36001": {
+    "link_name": "Ekitindo - Ngarama - Kasheshe",
+    "region": "South",
+    "station": "Mbarara",
+    "lat": 30.886715,
+    "lon": -0.865288
+  },
+  "C36301": {
+    "link_name": "Kabingo - Nyakitunda - Kabuyanda - Kyezi",
+    "region": "South",
+    "station": "Mbarara",
+    "lat": 30.706505,
+    "lon": -0.864157
+  },
+  "C42901": {
+    "link_name": "Butobere - Muyumbu - Rwamucucu",
+    "region": "South",
+    "station": "Kabale",
+    "lat": 30.035398,
+    "lon": -1.202294
+  },
+  "C41503": {
+    "link_name": "Kafunzo-Kikagati",
+    "region": "South",
+    "station": "Mbarara",
+    "lat": 30.517604,
+    "lon": -0.424468
+  },
+  "C41601": {
+    "link_name": "Kikagati-Nsongezi",
+    "region": "South",
+    "station": "Mbarara",
+    "lat": 30.452486,
+    "lon": -0.424255
+  },
+  "C41501": {
+    "link_name": "Nsiika -  Bihanga -Katerera(Ishaka T/C)",
+    "region": "South",
+    "station": "Ibanda",
+    "lat": 30.39121,
+    "lon": -0.49499
+  },
+  "C41401": {
+    "link_name": "Katunguru - Ishasha",
+    "region": "South",
+    "station": "Kasese",
+    "lat": 29.858177,
+    "lon": -0.433091
+  },
+  "C41701": {
+    "link_name": "Ntungamo-Kakukuru",
+    "region": "South",
+    "station": "Kabale",
+    "lat": 30.298435,
+    "lon": -0.916506
+  },
+  "C42501": {
+    "link_name": "Katuna - Rubaya - Muko",
+    "region": "South",
+    "station": "Kabale",
+    "lat": 29.888181,
+    "lon": -1.396305
+  },
+  "C419_LINK02": {
+    "link_name": "Kikagati-Nsongezi",
+    "region": "South",
+    "station": "Ibanda",
+    "lat": 0.0,
+    "lon": 0.0
+  },
+  "C36803": {
+    "link_name": "Biharwe - Bwizibwera",
+    "region": "South",
+    "station": "Mbarara",
+    "lat": 30.686824,
+    "lon": -0.490537
+  },
+  "C36702": {
+    "link_name": "Biharwe - Rushozi - Ruhengere - Kikatsi",
+    "region": "South",
+    "station": "Ibanda",
+    "lat": 30.810951,
+    "lon": -0.363462
+  },
+  "C37003": {
+    "link_name": "Byanamira - Kashwa",
+    "region": "South",
+    "station": "Ibanda",
+    "lat": 30.749957,
+    "lon": -0.249794
+  },
+  "C36501": {
+    "link_name": "Nyakiraguju - Ruzinga (Bugamba) Chitwe",
+    "region": "South",
+    "station": "Mbarara",
+    "lat": 30.51192,
+    "lon": -0.741937
+  },
+  "C41001": {
+    "link_name": "Kagamba-Kebisoni",
+    "region": "South",
+    "station": "Kabale",
+    "lat": 30.082709,
+    "lon": -0.832882
+  },
+  "C37304": {
+    "link_name": "Kabujogera - Mahyoro Junction",
+    "region": "South",
+    "station": "Ibanda",
+    "lat": 30.328925,
+    "lon": -0.088715
+  },
+  "C44702": {
+    "link_name": "Kabira - Rukungiri",
+    "region": "South",
+    "station": "Kabale",
+    "lat": 30.014301,
+    "lon": -0.696094
+  },
+  "C44601": {
+    "link_name": "Kihihi - Nyamirama - Kikongi - Burama",
+    "region": "South",
+    "station": "Kabale",
+    "lat": 29.773471,
+    "lon": -0.694873
+  },
+  "C44901": {
+    "link_name": "Buhindagye - Mahyoro",
+    "region": "South",
+    "station": "Ibanda",
+    "lat": 30.320065,
+    "lon": -0.428669
+  },
+  "C44503": {
+    "link_name": "Bugangari - Bwambara",
+    "region": "South",
+    "station": "Kabale",
+    "lat": 29.793744,
+    "lon": -0.583489
+  },
+  "C51201": {
+    "link_name": "Rugendabara - Kaswangali",
+    "region": "South",
+    "station": "Kasese",
+    "lat": 30.153141,
+    "lon": 0.423809
+  },
+  "C45201": {
+    "link_name": "Rukungiri - Station Boundary",
+    "region": "South",
+    "station": "Kabale",
+    "lat": 29.973939,
+    "lon": -0.639819
+  },
+  "C43102": {
+    "link_name": "Kyempene - Rubirizi",
+    "region": "South",
+    "station": "Kabale",
+    "lat": 30.058603,
+    "lon": -1.012911
+  },
+  "C43201": {
+    "link_name": "Kanungu - Rugyeyo - Kabaranga",
+    "region": "South",
+    "station": "Kabale",
+    "lat": 29.892419,
+    "lon": -0.94286
+  },
+  "C43002": {
+    "link_name": "Rwashamaire - Rwahi",
+    "region": "South",
+    "station": "Kabale",
+    "lat": 30.144096,
+    "lon": -0.92668
+  },
+  "C43602": {
+    "link_name": "Nyabwishenya - Nteko",
+    "region": "South",
+    "station": "Kabale",
+    "lat": 29.673685,
+    "lon": -1.138458
+  },
+  "C43401": {
+    "link_name": "Ikumba - Nfasha - Ruhija - Mpungu - Hama",
+    "region": "South",
+    "station": "Kabale",
+    "lat": 29.76228,
+    "lon": -1.026009
+  },
+  "C43301": {
+    "link_name": "Ikumba - Kanungu",
+    "region": "South",
+    "station": "Kabale",
+    "lat": 29.848275,
+    "lon": -1.015023
+  },
+  "C62701": {
+    "link_name": "Masoode-Nkooko",
+    "region": "West",
+    "station": "Hoima",
+    "lat": 31.669182,
+    "lon": 0.947955
+  },
+  "C62501": {
+    "link_name": "Kisanja-Park jctn - Buliisa",
+    "region": "West",
+    "station": "Masindi",
+    "lat": 31.723207,
+    "lon": 2.020282
+  },
+  "C63501": {
+    "link_name": "Katulikile - Mutunda - Atura / Nanda",
+    "region": "West",
+    "station": "Masindi",
+    "lat": 32.255722,
+    "lon": 2.049141
+  },
+  "C63901": {
+    "link_name": "Bukommero-Dwaniro-Kyankwanzi ",
+    "region": "West",
+    "station": "Hoima",
+    "lat": 31.98052,
+    "lon": 0.963066
+  },
+  "C60601": {
+    "link_name": "Rwera-Kaseeta",
+    "region": "West",
+    "station": "Hoima",
+    "lat": 30.993897,
+    "lon": 1.321774
+  },
+  "C62101": {
+    "link_name": "Rekunye - Masindi",
+    "region": "West",
+    "station": "Masindi",
+    "lat": 31.8861,
+    "lon": 1.7328
+  },
+  "C62201": {
+    "link_name": "Masindi - Biiso",
+    "region": "West",
+    "station": "Masindi",
+    "lat": 31.530892,
+    "lon": 1.632703
+  },
+  "C62301": {
+    "link_name": "Bukumi-Bulisa",
+    "region": "West",
+    "station": "Masindi",
+    "lat": 31.456133,
+    "lon": 1.95643
+  },
+  "C56301": {
+    "link_name": "Muhooro-Ndaiga-L. Albert",
+    "region": "West",
+    "station": "Hoima",
+    "lat": 30.65075,
+    "lon": 0.953045
+  },
+  "C56602": {
+    "link_name": "Bugwara-Kikwaya",
+    "region": "West",
+    "station": "Hoima",
+    "lat": 30.976202,
+    "lon": 0.962239
+  },
+  "C56801": {
+    "link_name": "Kihura - Bwizi",
+    "region": "West",
+    "station": "Fort Portal",
+    "lat": 30.69529,
+    "lon": 0.491474
+  },
+  "C59201": {
+    "link_name": "Parajwoki-Buseruka",
+    "region": "West",
+    "station": "Hoima",
+    "lat": 31.255495,
+    "lon": 1.507352
+  },
+  "C59401": {
+    "link_name": "Bugambe-Kidoma",
+    "region": "West",
+    "station": "Hoima",
+    "lat": 31.299078,
+    "lon": 1.429625
+  },
+  "C57101": {
+    "link_name": "Kamwenge - Kabambiro - Bigusyo - Bihanga",
+    "region": "West",
+    "station": "Fort Portal",
+    "lat": 30.510655,
+    "lon": 0.157971
+  },
+  "C59101": {
+    "link_name": "Kabwoya - Kituti",
+    "region": "West",
+    "station": "Hoima",
+    "lat": 30.92587,
+    "lon": 1.230394
+  },
+  "C57301": {
+    "link_name": "Kamwenge Railway Access",
+    "region": "West",
+    "station": "Fort Portal",
+    "lat": 30.450401,
+    "lon": 0.186708
+  },
+  "C59001": {
+    "link_name": "Hoima (Parajwoki) -Biso",
+    "region": "West",
+    "station": "Hoima",
+    "lat": 31.312852,
+    "lon": 1.576503
+  },
+  "C96501": {
+    "link_name": "Apeitolim - Iriri",
+    "region": "North East",
+    "station": "Moroto",
+    "lat": 34.055852,
+    "lon": 2.217853
+  },
+  "C27201": {
+    "link_name": "Hoima Road/Kituuma-Kiryoka-Mutetema ",
+    "region": "Central",
+    "station": "Mpigi",
+    "lat": 32.058627,
+    "lon": 0.586722
+  },
+  "C18801": {
+    "link_name": "Kyabadaza - Kibibi",
+    "region": "Central",
+    "station": "Mpigi",
+    "lat": 32.188076,
+    "lon": 0.176945
+  },
+  "C22501": {
+    "link_name": "Kyabakuza - Kiwangala - Ndagwe - Namabal",
+    "region": "Central",
+    "station": "Masaka",
+    "lat": 31.51139,
+    "lon": -0.486379
+  },
+  "A00515": {
+    "link_name": "Kitenga-Mubende-Lusalira",
+    "region": "Central",
+    "station": "Mubende",
+    "lat": 31.396642,
+    "lon": 0.550429
+  },
+  "C27701": {
+    "link_name": "Kitenga -Ikula-Kanyogoga",
+    "region": "Central",
+    "station": "Mubende",
+    "lat": 31.422578,
+    "lon": 0.360869
+  },
+  "C22601": {
+    "link_name": "Kyabakuza - Kyogya - Matete",
+    "region": "Central",
+    "station": "Masaka",
+    "lat": 31.612846,
+    "lon": -0.263429
+  },
+  "C19001": {
+    "link_name": "Kayabwe - Nkozi - Kinyika - Ngando - Wab",
+    "region": "Central",
+    "station": "Mpigi",
+    "lat": 31.912953,
+    "lon": 0.083083
+  },
+  "C31701": {
+    "link_name": "Katuugo-Kinyogogga",
+    "region": "Central",
+    "station": "Luwero",
+    "lat": 32.337544,
+    "lon": 1.134985
+  },
+  "A00514": {
+    "link_name": "Kiganda-Kitenga",
+    "region": "Central",
+    "station": "Mubende",
+    "lat": 31.587595,
+    "lon": 0.484048
+  },
+  "C31301": {
+    "link_name": "Katikamu - Kikyusa",
+    "region": "Central",
+    "station": "Luwero",
+    "lat": 32.576613,
+    "lon": 0.782032
+  },
+  "C30401": {
+    "link_name": "Kisule - Nakaseke - Kapeeka",
+    "region": "Central",
+    "station": "Luwero",
+    "lat": 32.387496,
+    "lon": 0.716847
+  },
+  "C32501": {
+    "link_name": "Kikyusa- Bamugolode - Kazwama - Nakasongola",
+    "region": "Central",
+    "station": "Luwero",
+    "lat": 32.741114,
+    "lon": 1.188836
+  },
+  "C21401": {
+    "link_name": "Lyantonde - Lumbugu",
+    "region": "Central",
+    "station": "Masaka",
+    "lat": 31.26532,
+    "lon": -0.569819
+  },
+  "C16204": {
+    "link_name": "Madu - Kasambya",
+    "region": "Central",
+    "station": "Mpigi",
+    "lat": 31.511686,
+    "lon": 0.182245
+  },
+  "C22702": {
+    "link_name": "Lyantonde - Kaliro - Nabitanga - Ntusi",
+    "region": "Central",
+    "station": "Masaka",
+    "lat": 31.1528,
+    "lon": -0.201182
+  },
+  "A00610": {
+    "link_name": "Luweero - Nakasongola",
+    "region": "Central",
+    "station": "Luwero",
+    "lat": 32.467194,
+    "lon": 1.048777
+  },
+  "C27402": {
+    "link_name": "Madudu - Kiyuya",
+    "region": "Central",
+    "station": "Mubende",
+    "lat": 31.659021,
+    "lon": 0.58666
+  },
+  "A00401": {
+    "link_name": "Masaka round about - Kyotera",
+    "region": "Central",
+    "station": "Masaka",
+    "lat": 31.728986,
+    "lon": -0.336988
+  },
+  "C21801": {
+    "link_name": "Masaka - Kidda - Buwunga - Nkuke - Kyana",
+    "region": "Central",
+    "station": "Masaka",
+    "lat": 31.77043,
+    "lon": -0.444723
+  },
+  "C16601": {
+    "link_name": "Madu-Kisozi-R.Katonga",
+    "region": "Central",
+    "station": "Mpigi",
+    "lat": 31.614129,
+    "lon": 0.137016
+  },
+  "C22901": {
+    "link_name": "Luku Pier - Kalangala HQ",
+    "region": "Central",
+    "station": "Masaka",
+    "lat": 32.155794,
+    "lon": -0.315556
+  },
+  "C21601": {
+    "link_name": "Lukaya - Miwuula ",
+    "region": "Central",
+    "station": "Masaka",
+    "lat": 31.841074,
+    "lon": -0.041711
+  },
+  "A00516": {
+    "link_name": "Lusalira - Nabingoola - Lubaale",
+    "region": "Central",
+    "station": "Mubende",
+    "lat": 31.235609,
+    "lon": 0.487317
+  },
+  "C22103": {
+    "link_name": "Lusakalwamese - Bikira",
+    "region": "Central",
+    "station": "Masaka",
+    "lat": 31.649127,
+    "lon": -0.649277
+  },
+  "C31101": {
+    "link_name": "Bombo - Ndejje - Kalasa",
+    "region": "Central",
+    "station": "Luwero",
+    "lat": 32.466247,
+    "lon": 0.615545
+  },
+  "A005_LINK02": {
+    "link_name": "Bujuuko - Mityana",
+    "region": "Central",
+    "station": "Mpigi",
+    "lat": 0.0,
+    "lon": 0.0
+  },
+  "C30701": {
+    "link_name": "Butalangwa - Ngoma - Bulyamusenyu",
+    "region": "Central",
+    "station": "Luwero",
+    "lat": 32.034579,
+    "lon": 1.081372
+  },
+  "A002_LINK02": {
+    "link_name": "Busega - Mpigi",
+    "region": "Central",
+    "station": "Mpigi",
+    "lat": 0.0,
+    "lon": 0.0
+  },
+  "A00211": {
+    "link_name": "Buwama - Lukaya",
+    "region": "Central",
+    "station": "Mpigi",
+    "lat": 31.843214,
+    "lon": -0.206556
+  },
+  "C31201": {
+    "link_name": "Kalule - Bowa - Nakaseke ",
+    "region": "Central",
+    "station": "Luwero",
+    "lat": 32.450019,
+    "lon": 0.669153
+  },
+  "C16202": {
+    "link_name": "Kanoni - Kabulasoke",
+    "region": "Central",
+    "station": "Mpigi",
+    "lat": 31.857702,
+    "lon": 0.173679
+  },
+  "C56701": {
+    "link_name": "Kakumiro - Nkooko",
+    "region": "Central",
+    "station": "Mubende",
+    "lat": 31.40123,
+    "lon": 0.852378
+  },
+  "C23001": {
+    "link_name": "Kalangala HQ - Mulabana",
+    "region": "Central",
+    "station": "Masaka",
+    "lat": 32.278503,
+    "lon": -0.417041
+  },
+  "C27302": {
+    "link_name": "Kasanda - Bukuya",
+    "region": "Central",
+    "station": "Mubende",
+    "lat": 31.834065,
+    "lon": 0.608924
+  },
+  "B10305": {
+    "link_name": "Kasambya - Lusalira",
+    "region": "Central",
+    "station": "Mubende",
+    "lat": 31.289959,
+    "lon": 0.424849
+  },
+  "C15404": {
+    "link_name": "Kapeka-Butalangwa",
+    "region": "Central",
+    "station": "Luwero",
+    "lat": 32.230805,
+    "lon": 0.754602
+  },
+  "C162_LINK03": {
+    "link_name": "Kabulasoke - Madu",
+    "region": "Central",
+    "station": "Mpigi",
+    "lat": 0.0,
+    "lon": 0.0
+  },
+  "C30201": {
+    "link_name": "Gayaza-Zirobwe",
+    "region": "Central",
+    "station": "Luwero",
+    "lat": 32.617826,
+    "lon": 0.512864
+  },
+  "C18401": {
+    "link_name": "Kakiri-Masulita-Danze-Mawale",
+    "region": "Central",
+    "station": "Luwero",
+    "lat": 32.369254,
+    "lon": 0.489692
+  },
+  "C55001": {
+    "link_name": "Kakumiro-Kibale",
+    "region": "Central",
+    "station": "Mubende",
+    "lat": 31.198825,
+    "lon": 0.776754
+  },
+  "C15003": {
+    "link_name": "Najanankumbi - Busabala",
+    "region": "Central",
+    "station": "Kampala",
+    "lat": 32.592027,
+    "lon": 0.249396
+  },
+  "C18701": {
+    "link_name": "Namayumba - Kitalya Prison - Kamuli",
+    "region": "Central",
+    "station": "Kampala",
+    "lat": 32.244426,
+    "lon": 0.462876
+  },
+  "C03601": {
+    "link_name": "Nambole - Kampala Industrial Park - Mukono",
+    "region": "Central",
+    "station": "Kampala",
+    "lat": 32.674404,
+    "lon": 0.349804
+  },
+  "A006_LINK02": {
+    "link_name": "Kawempe - Matuga ",
+    "region": "Central",
+    "station": "Kampala",
+    "lat": 0.0,
+    "lon": 0.0
+  },
+  "A00902": {
+    "link_name": "Nansana - Busunju ",
+    "region": "Central",
+    "station": "Kampala",
+    "lat": 32.469052,
+    "lon": 0.406898
+  },
+  "C30101": {
+    "link_name": "Zirobwe -Kikyusa - Luweero",
+    "region": "Central",
+    "station": "Luwero",
+    "lat": 32.645401,
+    "lon": 0.832981
+  },
+  "A00107": {
+    "link_name": "Kampala - Mukono",
+    "region": "Central",
+    "station": "Kampala",
+    "lat": 32.674175,
+    "lon": 0.354184
+  },
+  "A00304": {
+    "link_name": "Zana - Entebbe Airport ",
+    "region": "Central",
+    "station": "Kampala",
+    "lat": 32.459875,
+    "lon": 0.042243
+  },
+  "B10302": {
+    "link_name": "Villa Maria - Sembabule ",
+    "region": "Central",
+    "station": "Masaka",
+    "lat": 31.439757,
+    "lon": -0.070925
+  },
+  "A010_LINK01": {
+    "link_name": "Nsambya-Kabalagala-Gaba",
+    "region": "Central",
+    "station": "Kampala",
+    "lat": 0.0,
+    "lon": 0.0
+  },
+  "A006_LINK04": {
+    "link_name": "Wobulenzi - Kasana - L uweero",
+    "region": "Central",
+    "station": "Luwero",
+    "lat": 0.0,
+    "lon": 0.0
+  },
+  "C27101": {
+    "link_name": "Wakitundu - Bulera - Mutetema",
+    "region": "Central",
+    "station": "Mubende",
+    "lat": 32.021063,
+    "lon": 0.491971
+  },
+  "C26202": {
+    "link_name": "Mityana-Misigi-Kanoni",
+    "region": "Central",
+    "station": "Mpigi",
+    "lat": 31.894334,
+    "lon": 0.19725
+  },
+  "A00509": {
+    "link_name": "Mityana - Naama - Myanzi",
+    "region": "Central",
+    "station": "Mubende",
+    "lat": 31.987974,
+    "lon": 0.416103
+  },
+  "C26001": {
+    "link_name": "Mityana - Busunju",
+    "region": "Central",
+    "station": "Mpigi",
+    "lat": 32.112133,
+    "lon": 0.487025
+  },
+  "C16301": {
+    "link_name": "MitalaMaria-Bulo-Kanoni",
+    "region": "Central",
+    "station": "Mpigi",
+    "lat": 32.00991,
+    "lon": 0.113643
+  },
+  "C16201": {
+    "link_name": "Mpigi - Kanoni",
+    "region": "Central",
+    "station": "Mpigi",
+    "lat": 32.116242,
+    "lon": 0.180936
+  },
+  "C16001": {
+    "link_name": "Mpigi-Kasanje-Buwaya",
+    "region": "Central",
+    "station": "Mpigi",
+    "lat": 32.392632,
+    "lon": 0.159778
+  },
+  "A00205": {
+    "link_name": "Mpigi - Buwama",
+    "region": "Central",
+    "station": "Mpigi",
+    "lat": 32.3344,
+    "lon": 0.220085
+  },
+  "C22602": {
+    "link_name": "Matete - Kakinga - Kaliro",
+    "region": "Central",
+    "station": "Masaka",
+    "lat": 31.273725,
+    "lon": -0.24354
+  },
+  "A00214": {
+    "link_name": "Masaka  - Lyantonde",
+    "region": "Central",
+    "station": "Masaka",
+    "lat": 31.434408,
+    "lon": -0.393421
+  },
+  "C16604": {
+    "link_name": "Matete - Mbirizi",
+    "region": "Central",
+    "station": "Masaka",
+    "lat": 31.474279,
+    "lon": -0.318433
+  },
+  "A00606": {
+    "link_name": "Matuga - Wobulenzi",
+    "region": "Central",
+    "station": "Luwero",
+    "lat": 32.525945,
+    "lon": 0.67852
+  },
+  "C15401": {
+    "link_name": "Matugga - Semuto - Kapeka",
+    "region": "Central",
+    "station": "Luwero",
+    "lat": 32.468461,
+    "lon": 0.503904
+  },
+  "C21101": {
+    "link_name": "Nyendo - Lambu port Junction",
+    "region": "Central",
+    "station": "Masaka",
+    "lat": 31.87179,
+    "lon": -0.31246
+  },
+  "B10304": {
+    "link_name": "Nkonge - Kibula - Magege - Kasambya",
+    "region": "Central",
+    "station": "Mubende",
+    "lat": 31.185256,
+    "lon": 0.307506
+  },
+  "B103_LINK01": {
+    "link_name": "Nyendo - Villa Maria",
+    "region": "Central",
+    "station": "Masaka",
+    "lat": 0.0,
+    "lon": 0.0
+  },
+  "C18603": {
+    "link_name": "Namyumba-Kakonda-Wabikokoma-Semuto",
+    "region": "Central",
+    "station": "Luwero",
+    "lat": 32.321237,
+    "lon": 0.600388
+  },
+  "C22301": {
+    "link_name": "Taba -Kyeesiga-Ddimo Landing site",
+    "region": "Central",
+    "station": "Masaka",
+    "lat": 31.710245,
+    "lon": -0.574127
+  },
+  "C16602": {
+    "link_name": "R. Katonga - Sembabule",
+    "region": "Central",
+    "station": "Masaka",
+    "lat": 31.508165,
+    "lon": -0.001209
+  },
+  "C27102": {
+    "link_name": "Mutetema-Kyamusisi - Bukuya",
+    "region": "Central",
+    "station": "Mubende",
+    "lat": 31.903307,
+    "lon": 0.60767
+  },
+  "C312_LINK02": {
+    "link_name": "Nakaseke - Kiwoko",
+    "region": "Central",
+    "station": "Luwero",
+    "lat": 0.0,
+    "lon": 0.0
+  },
+  "B20301": {
+    "link_name": "Mubende - Kiboyo - Kakumiro",
+    "region": "Central",
+    "station": "Mubende",
+    "lat": 31.374654,
+    "lon": 0.646954
+  },
+  "C18003": {
+    "link_name": "Nakawuka - Namutamala - Katende - Bujuko",
+    "region": "Central",
+    "station": "Mpigi",
+    "lat": 32.421719,
+    "lon": 0.221347
+  },
+  "C32601": {
+    "link_name": "Nakasongola - Lwampanga - Zengebe Access",
+    "region": "Central",
+    "station": "Luwero",
+    "lat": 32.514186,
+    "lon": 1.460026
+  },
+  "A00612": {
+    "link_name": "Nakasongola - Kafu",
+    "region": "Central",
+    "station": "Luwero",
+    "lat": 32.214069,
+    "lon": 1.416181
+  },
+  "C79202": {
+    "link_name": "Kaitabawaala - Buyala - Namagera",
+    "region": "East",
+    "station": "Jinja",
+    "lat": 33.155255,
+    "lon": 0.522596
+  },
+  "B30009": {
+    "link_name": "Lokapel - Ariamoi",
+    "region": "North East",
+    "station": "Moroto",
+    "lat": 34.602362,
+    "lon": 2.320386
+  },
+  "C92401": {
+    "link_name": "Katine to Ochero",
+    "region": "North East",
+    "station": "Soroti",
+    "lat": 33.268813,
+    "lon": 1.723948
+  },
+  "C98001": {
+    "link_name": "Akwanamoru - Opua - Orogom - Oreta",
+    "region": "North East",
+    "station": "Kotido",
+    "lat": 33.883942,
+    "lon": 2.6952
+  },
+  "C96101": {
+    "link_name": "Chosan to Amudat",
+    "region": "North East",
+    "station": "Moroto",
+    "lat": 34.828089,
+    "lon": 1.942511
+  },
+  "B30105": {
+    "link_name": "Kotido - Apaan - Kabong",
+    "region": "North East",
+    "station": "Kotido",
+    "lat": 34.121318,
+    "lon": 3.538836
+  },
+  "C98201": {
+    "link_name": "Kotido - Loslang - Layoro",
+    "region": "North East",
+    "station": "Kotido",
+    "lat": 34.186581,
+    "lon": 3.159014
+  },
+  "C80301": {
+    "link_name": "Idudi - Busembatya",
+    "region": "East",
+    "station": "Jinja",
+    "lat": 33.642046,
+    "lon": 0.685383
+  },
+  "B20203": {
+    "link_name": "R. Muzizi - Muhooro - Kagadi",
+    "region": "West",
+    "station": "Hoima",
+    "lat": 30.732997,
+    "lon": 0.86364
+  },
+  "B15202": {
+    "link_name": "Kagamba - Ishaka",
+    "region": "South",
+    "station": "Kabale",
+    "lat": 30.162317,
+    "lon": -0.679494
+  },
+  "B15005": {
+    "link_name": "Ibanda - Muziza - Kamwenge",
+    "region": "South",
+    "station": "Ibanda",
+    "lat": 30.440641,
+    "lon": 0.140984
+  },
+  "A002_LINK09": {
+    "link_name": "Ntungamo - Rubaale",
+    "region": "South",
+    "station": "Kabale",
+    "lat": 0.0,
+    "lon": 0.0
+  },
+  "A005_LINK12": {
+    "link_name": "Rwimi(bridge)-Hima-Mubuku",
+    "region": "South",
+    "station": "Kasese",
+    "lat": 0.0,
+    "lon": 0.0
+  },
+  "C19402": {
+    "link_name": "Kasangati - Kyaliwajala",
+    "region": "Central",
+    "station": "Kampala",
+    "lat": 32.627893,
+    "lon": 0.412133
+  }
+}

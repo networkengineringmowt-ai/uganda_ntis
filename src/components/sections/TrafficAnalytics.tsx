@@ -1061,7 +1061,7 @@ function StrategicTab({ features, stations }: { features: PredFeature[]; station
 
 // ─── Tab types ────────────────────────────────────────────────────────────────
 type TabId = 'macro'|'regions'|'classes'|'assets'|'analysis'|'stations'|'strategic';
-type RegionTarget = 'GLOBAL'|'CENTRAL'|'EASTERN'|'SOUTHERN'|'WESTERN'|'NORTHERN'|'NORTH EASTERN';
+type RegionTarget = 'NATIONAL'|'CENTRAL'|'EASTERN'|'SOUTHERN'|'WESTERN'|'NORTHERN'|'NORTH EASTERN';
 const TABS: { id:TabId; label:string }[] = [
   { id:'macro',     label:'MACRO'    },
   { id:'regions',   label:'REGIONS'  },
@@ -1078,7 +1078,7 @@ export default function TrafficAnalytics() {
   const [stations, setStations] = useState<StationFeature[]>([]);
   const [loading,  setLoading]  = useState(true);
   const [tab,      setTab]      = useState<TabId>('macro');
-  const [target,   setTarget]   = useState<RegionTarget>('GLOBAL');
+  const [target,   setTarget]   = useState<RegionTarget>('NATIONAL');
 
   useEffect(() => {
     const base = import.meta.env.BASE_URL;
@@ -1093,14 +1093,14 @@ export default function TrafficAnalytics() {
   }, []);
 
   const filteredFeatures = useMemo(() =>
-    target === 'GLOBAL'
+    target === 'NATIONAL'
       ? features
       : features.filter(f => (f.properties.region??'').toUpperCase() === target),
     [features, target]
   );
 
   const filteredStations = useMemo(() =>
-    target === 'GLOBAL'
+    target === 'NATIONAL'
       ? stations
       : stations.filter(s => (s.properties.REGION??'').toUpperCase() === target),
     [stations, target]
@@ -1140,14 +1140,14 @@ export default function TrafficAnalytics() {
             style={{ background:'rgba(255,210,63,0.08)', border:'1px solid rgba(255,210,63,0.3)',
               borderRadius:8, color:'#ffd23f', fontSize:11, fontWeight:700,
               padding:'5px 12px', cursor:'pointer', outline:'none', fontFamily:'inherit' }}>
-            {(['GLOBAL','CENTRAL','EASTERN','SOUTHERN','WESTERN','NORTHERN','NORTH EASTERN'] as RegionTarget[]).map(r=>(
+            {(['NATIONAL','CENTRAL','EASTERN','SOUTHERN','WESTERN','NORTHERN','NORTH EASTERN'] as RegionTarget[]).map(r=>(
               <option key={r} value={r}>{r}</option>
             ))}
           </select>
         </div>
         <div style={{ fontSize:11, color:'rgba(148,163,184,0.5)', marginTop:4 }}>
           {filteredFeatures.length.toLocaleString()} road links · 25 ATC + {filteredStations.length} TIS survey stations
-          {target!=='GLOBAL' && ` · filtered: ${target}`}
+          {target!=='NATIONAL' && ` · filtered: ${target}`}
         </div>
       </div>
 

@@ -152,10 +152,10 @@ export const QUERY_LIBRARY: Record<string, string> = {
     30.1 AS paved_pct, 1013 AS mapped_links, 1019 AS total_structures,
     9 AS oprc_lots, 25 AS atc_stations, 6 AS maintenance_regions, 23 AS maintenance_stations`,
 
-  Q22: `-- Global case studies reference (non-DB query — platform knowledge)
-  SELECT 'Global RMS Case Studies' AS source,
+  Q22: `-- National Case Studies reference (non-DB query — platform knowledge)
+  SELECT 'National RMS Case Studies' AS source,
     'TANROADS,KeNHA,RTDA,SANRAL,Highways England,Austroads,NZTA,FHWA,NHAI,Trafikverket,RWS,MLIT,DNIT,GHA,ERA' AS agencies,
-    'See RMS > Global Case Studies tab for full analysis' AS navigation`,
+    'See RMS > National Case Studies tab for full analysis' AS navigation`,
 
   Q23: `-- International standards reference
   SELECT 'Standards' AS category,
