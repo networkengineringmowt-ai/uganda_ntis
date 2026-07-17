@@ -414,10 +414,11 @@ export default function TrafficSummary() {
   useEffect(() => {
     const base = import.meta.env.BASE_URL;
     Promise.all([
-      fetch(`${base}data/traffic_predictions.geojson`).then(r=>r.json()),
+      fetch(`${base}data/traffic_predictions_lite.json`).then(r=>r.json()),
       fetch(`${base}atc_stations.geojson`).then(r=>r.json()),
-    ]).then(([gj, stGJ]) => {
-      setFeatures((gj.features??[]) as PredFeature[]);
+    ]).then(([gjLite, stGJ]) => {
+      const mappedFeatures = (gjLite || []).map((p: any) => ({ type: 'Feature', geometry: null, properties: p }));
+      setFeatures(mappedFeatures as PredFeature[]);
       setStations((stGJ.features??[]) as StationFeature[]);
     }).catch(() => {})
       .finally(() => setLoading(false));
