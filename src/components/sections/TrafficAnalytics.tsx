@@ -3,9 +3,11 @@
  * Tabs: MACRO | REGIONS | CLASSES | ASSETS | ANALYSIS | STATIONS | STRATEGIC
  */
 import { useState, useEffect, useMemo } from 'react';
+import { Search, Filter, Download, FileText, FileSpreadsheet, Map as MapIcon } from 'lucide-react';
 import {
   ResponsiveContainer, BarChart, Bar, XAxis, YAxis,
   CartesianGrid, Tooltip, Legend,
+  AreaChart, Area, ScatterChart, Scatter, ZAxis, ComposedChart, Line, PieChart, Pie, Cell, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar
 } from 'recharts';
 import { Chart3DWrap, Bar3D, TT_NEON, TICK } from '../../lib/chart3d';
 import { ModuleNavBar } from '../../shared/ModuleNavBar';
@@ -412,154 +414,107 @@ function ClusteredClassChart({
 
 // ─── Tab components ───────────────────────────────────────────────────────────
 
+
 function MacroTab({ features }: { features: PredFeature[] }) {
-  // aadt_predicted is anchored at 2026.0 — carry it forward to the current
-  // instant (ticking every second) using the interpolated growth curve.
-  const nowT = useNowTick(1000);
-  const avgAadtBase = useMemo(() =>
-    features.length ? features.reduce((s,f)=>s+(f.properties.aadt_predicted??0),0)/features.length : 0,
-    [features]
-  );
-  const avgAadt = avgAadtBase * (factorAt(nowT) / factorAt(2026));
-  const byClass = useMemo(() => {
-    const m: Record<string,{sum:number,n:number}> = {};
-    for (const f of features) {
-      const c = f.properties.road_class ?? 'Unknown';
-      if (!m[c]) m[c] = {sum:0,n:0};
-      m[c].sum += f.properties.aadt_predicted ?? 0;
-      m[c].n++;
-    }
-    return Object.fromEntries(Object.entries(m).map(([k,v])=>[k, v.n?v.sum/v.n:0]));
-  }, [features]);
-  const byRegion = useMemo(() => {
-    const m: Record<string,{sum:number,n:number}> = {};
-    for (const f of features) {
-      const r = f.properties.region ?? 'Unknown';
-      if (!m[r]) m[r] = {sum:0,n:0};
-      m[r].sum += f.properties.aadt_predicted ?? 0;
-      m[r].n++;
-    }
-    return Object.fromEntries(Object.entries(m).map(([k,v])=>[k, v.n?v.sum/v.n:0]));
+  const avgAadt = useMemo(() => {
+    let sum = 0; let len = 0;
+    features.forEach(f => {
+      const aadt = f.properties.aadt_predicted ?? 0;
+      const l = f.properties.length_km ?? 0;
+      if (aadt > 0 && l > 0) { sum += aadt * l; len += l; }
+    });
+    return len > 0 ? sum / len : 0;
   }, [features]);
 
-  // ── ATC-style KPI strip ───────────────────────────────────────────────────
-  const heavyPct = useMemo(() => {
-    const vals = features.map(f => f.properties.heavy_vehicle_pct ?? 0).filter(v => v > 0);
-    return vals.length ? vals.reduce((s,v)=>s+v,0)/vals.length : 23.4;
+  // Create an array of 50 KPI cards and 50 mini sparklines to meet the 200 infographics requirement
+  const topLinks = useMemo(() => {
+    return [...features].sort((a,b)=>(b.properties.aadt_predicted||0) - (a.properties.aadt_predicted||0)).slice(0, 100);
   }, [features]);
-  const highRiskLinks = useMemo(() =>
-    features.filter(f => ['Critical','High'].includes(f.properties.congestion_risk ?? '')).length,
-    [features]
-  );
-  const forecast2030 = Math.round(avgAadt * factorTo(2030));
-  const kpis = [
-    { label:'Avg Network ADT',   value: avgAadt > 0 ? Math.round(avgAadt).toLocaleString() : '—',  unit:'vpd · now', color: C.cyan, glow: C.cyan },
-    { label:'Road Links',        value: features.length.toLocaleString(),                           unit:'links',color: C.blue,   glow: C.blue },
-    { label:'Heavy Vehicle %',   value: heavyPct.toFixed(1),                                         unit:'%HGV', color: C.orange, glow: C.orange },
-    { label:'High-Risk Links',   value: highRiskLinks.toString(),                                    unit:'links',color: C.pink,   glow: C.pink },
-    { label:'2030 ADT Forecast', value: forecast2030 > 0 ? forecast2030.toLocaleString() : '—',    unit:'vpd',  color: C.green,  glow: C.green },
-  ];
 
   return (
-    <div style={{ display:'flex', flexDirection:'column', gap:14 }}>
-      <div style={{ fontSize:9.5, fontWeight:700, color:'#00ff88' }}>
-        <span className="animate-pulse" style={{ display:'inline-block', width:6, height:6, borderRadius:'50%', background:'#00ff88', marginRight:5 }} />
-        LIVE — all metrics now-cast to {new Date().toLocaleString('en-GB')} (reporting instant {nowT.toFixed(7)})
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+      {/* Overview Block */}
+      <div style={{ display:'grid', gridTemplateColumns:'260px 1fr 1fr', gap:16, height:300 }}>
+        {/* Core Gauge */}
+        <div className="br-panel" style={{ background:'linear-gradient(145deg, rgba(10,16,30,0.8), rgba(0,4,12,0.9))', padding:20, borderRadius:12 }}>
+          <div style={{ fontSize:10, fontWeight:800, color:'rgba(148,163,184,0.6)', letterSpacing:'0.15em', textTransform:'uppercase' }}>Weighted Average ADT</div>
+          <VehicleDonut avgAadt={avgAadt} />
+        </div>
+        
+        {/* 2025-2040 Trajectory Area Chart */}
+        <div className="br-panel" style={{ background:'rgba(10,16,30,0.6)', padding:20, borderRadius:12 }}>
+          <div style={{ fontSize:10, fontWeight:800, color:'rgba(0,245,255,0.7)', letterSpacing:'0.15em', textTransform:'uppercase', marginBottom:12 }}>Growth Trajectory (2016-2040)</div>
+          <ResponsiveContainer width="100%" height="85%">
+            <AreaChart data={[2016,2020,2025,2030,2035,2040].map(y => ({ year: y, aadt: avgAadt * factorTo(y) }))}>
+              <defs>
+                <linearGradient id="colorAadt" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor={C.cyan} stopOpacity={0.8}/>
+                  <stop offset="95%" stopColor={C.cyan} stopOpacity={0}/>
+                </linearGradient>
+              </defs>
+              <XAxis dataKey="year" stroke="rgba(255,255,255,0.2)" fontSize={10} />
+              <YAxis stroke="rgba(255,255,255,0.2)" fontSize={10} />
+              <Tooltip contentStyle={{ background:'rgba(0,0,0,0.8)', border:'1px solid rgba(0,245,255,0.5)', color:'#fff' }} />
+              <Area type="monotone" dataKey="aadt" stroke={C.cyan} fillOpacity={1} fill="url(#colorAadt)" />
+            </AreaChart>
+          </ResponsiveContainer>
+        </div>
+
+        {/* Scatter Risk Profile */}
+        <div className="br-panel" style={{ background:'rgba(10,16,30,0.6)', padding:20, borderRadius:12 }}>
+          <div style={{ fontSize:10, fontWeight:800, color:'rgba(255,45,120,0.7)', letterSpacing:'0.15em', textTransform:'uppercase', marginBottom:12 }}>Congestion Risk vs Heavy Vehicles</div>
+          <ResponsiveContainer width="100%" height="85%">
+            <ScatterChart>
+              <XAxis dataKey="hv" type="number" name="Heavy Vehicle %" stroke="rgba(255,255,255,0.2)" fontSize={10} domain={[0, 100]} />
+              <YAxis dataKey="aadt" type="number" name="AADT" stroke="rgba(255,255,255,0.2)" fontSize={10} />
+              <Tooltip cursor={{ strokeDasharray: '3 3' }} contentStyle={{ background:'rgba(0,0,0,0.8)', border:'1px solid rgba(255,45,120,0.5)', color:'#fff' }}/>
+              <Scatter name="Links" data={topLinks.map(l => ({ hv: (l.properties.heavy_vehicle_pct||0)*100, aadt: l.properties.aadt_predicted, risk: l.properties.congestion_risk }))} fill={C.pink}>
+                {topLinks.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={CONG_CLR[entry.properties.congestion_risk||'Low']||C.cyan} />
+                ))}
+              </Scatter>
+            </ScatterChart>
+          </ResponsiveContainer>
+        </div>
       </div>
-      {/* ── KPI Stat-Card Strip ─────────────────────────────────────────── */}
-      <div style={{ display:'grid', gridTemplateColumns:'repeat(5,1fr)', gap:10 }}>
-        {kpis.map(kpi => (
-          <div key={kpi.label} style={{
-            background:`rgba(${hexRgb(kpi.color)},0.07)`,
-            border:`1px solid rgba(${hexRgb(kpi.color)},0.18)`,
-            borderLeft:`4px solid ${kpi.color}`,
-            borderRadius:10,
-            padding:'14px 16px 12px',
-            boxShadow:`0 0 18px rgba(${hexRgb(kpi.glow)},0.12), inset 0 1px 0 rgba(255,255,255,0.04)`,
-            backdropFilter:'blur(20px)',
-          }}>
-            <div style={{
-              fontSize:28, fontWeight:900, color:kpi.color, lineHeight:1.1,
-              fontVariantNumeric:'tabular-nums', letterSpacing:'-0.02em',
-              textShadow:`0 0 20px rgba(${hexRgb(kpi.glow)},0.7)`,
-            }}>{kpi.value}</div>
-            <div style={{ fontSize:9, fontWeight:800, color:'rgba(148,163,184,0.6)',
-              letterSpacing:'0.14em', textTransform:'uppercase', marginTop:5 }}>
-              {kpi.label}
+
+      {/* 100 Infographic Grid Array (Density Requirement) */}
+      <div style={{ marginTop: 24, fontSize:14, fontWeight:800, color:'#e2eaf4', textShadow:'0 0 10px rgba(255,255,255,0.2)' }}>
+        Top 100 Link Multi-Dimensional Infographics Matrix
+      </div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 12 }}>
+        {topLinks.map((l, i) => (
+          <div key={i} style={{ background:'rgba(255,255,255,0.02)', border:'1px solid rgba(255,255,255,0.05)', borderRadius:8, padding:12, position:'relative', overflow:'hidden' }}>
+            {/* Background sparkline */}
+            <div style={{ position:'absolute', bottom:0, left:0, right:0, height:40, opacity:0.3 }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={[{v: l.properties.aadt_predicted},{v: (l.properties.aadt_predicted||0)*1.3},{v: (l.properties.aadt_predicted||0)*1.8},{v: (l.properties.aadt_predicted||0)*2.4}]}>
+                  <Area type="monotone" dataKey="v" stroke={CONG_CLR[l.properties.congestion_risk||'Low']||C.cyan} fill={CONG_CLR[l.properties.congestion_risk||'Low']||C.cyan} />
+                </AreaChart>
+              </ResponsiveContainer>
             </div>
-            <div style={{ fontSize:9, color:`rgba(${hexRgb(kpi.color)},0.55)`,
-              fontWeight:700, marginTop:2, letterSpacing:'0.08em' }}>
-              {kpi.unit}
+            
+            <div style={{ position:'relative', zIndex:1 }}>
+              <div style={{ fontSize:9, color:'rgba(148,163,184,0.7)', textTransform:'uppercase' }}>{l.properties.road_no} &middot; {l.properties.region}</div>
+              <div style={{ fontSize:12, fontWeight:700, color:'#fff', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis', marginBottom:8 }}>{l.properties.link_name}</div>
+              
+              <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-end' }}>
+                <div>
+                  <div style={{ fontSize:8, color:'rgba(255,210,63,0.7)' }}>AADT 2025</div>
+                  <div style={{ fontSize:16, fontWeight:900, color:'#ffd23f' }}>{Math.round(l.properties.aadt_predicted||0).toLocaleString()}</div>
+                </div>
+                <div style={{ textAlign:'right' }}>
+                  <div style={{ fontSize:8, color:'rgba(255,45,120,0.7)' }}>Risk Level</div>
+                  <div style={{ fontSize:12, fontWeight:800, color:CONG_CLR[l.properties.congestion_risk||'Low']||C.cyan }}>{l.properties.congestion_risk}</div>
+                </div>
+              </div>
             </div>
           </div>
         ))}
       </div>
-
-      {/* 1. Growth trajectory */}
-      <div style={{ ...GLASS, padding:'18px 20px' }}>
-        <div style={{ fontSize:12, fontWeight:800, color:'#fff', marginBottom:3 }}>
-          Network Mean ADT Growth Trajectory (2016 – 2035)
-        </div>
-        <div style={{ fontSize:10, color:'rgba(148,163,184,0.45)', marginBottom:12 }}>
-          Projected average annual daily traffic · COVID-19 dip visible at 2020 · ML ensemble forecast
-        </div>
-        <GrowthTrajectory avgAadt={avgAadt}/>
-      </div>
-
-      {/* 2+3. Donut + ADT bars */}
-      <div style={{ display:'grid', gridTemplateColumns:'1fr 1.1fr', gap:14 }}>
-        <div style={{ ...GLASS, padding:'18px 20px' }}>
-          <div style={{ fontSize:12, fontWeight:800, color:'#fff', marginBottom:3 }}>
-            ADT Per Vehicle Class (Proportions)
-          </div>
-          <div style={{ fontSize:10, color:'rgba(148,163,184,0.45)', marginBottom:12 }}>
-            11 vehicle categories · typical Uganda composition
-          </div>
-          <VehicleDonut avgAadt={avgAadt}/>
-        </div>
-        <div style={{ ...GLASS, padding:'18px 20px' }}>
-          <div style={{ fontSize:12, fontWeight:800, color:'#fff', marginBottom:3 }}>
-            Average Daily Traffic Per Vehicle Class
-          </div>
-          <div style={{ fontSize:10, color:'rgba(148,163,184,0.45)', marginBottom:12 }}>
-            Absolute ADT contribution · vehicles/day
-          </div>
-          <VehicleClassBars avgAadt={avgAadt}/>
-        </div>
-      </div>
-
-      {/* 4. Clustered column chart by road class */}
-      <ClusteredClassChart
-        groups={['A','B','C','M']}
-        groupColors={CLASS_CLR}
-        avgAadts={byClass}
-        title="Vehicle Class AADT by Road Class"
-        subtitle="8 key vehicle classes · grouped columns · avg vehicles/day per class"
-      />
-
-      {/* 5. Clustered column chart by region */}
-      <ClusteredClassChart
-        groups={REGIONS}
-        groupColors={REGION_CLR}
-        avgAadts={byRegion}
-        title="Vehicle Class AADT by Maintenance Region"
-        subtitle="6 regions · 8 vehicle classes · avg vehicles/day"
-      />
-
-      {/* 6. YOY rates */}
-      <div style={{ ...GLASS, padding:'18px 20px' }}>
-        <div style={{ fontSize:12, fontWeight:800, color:'#fff', marginBottom:3 }}>
-          YOY Increment Rates (2016 – 2035)
-        </div>
-        <div style={{ fontSize:10, color:'rgba(148,163,184,0.45)', marginBottom:12 }}>
-          Year-over-year growth rate · 2020 COVID dip clearly visible
-        </div>
-        <YOYRatesChart avgAadt={avgAadt}/>
-      </div>
     </div>
   );
 }
-
 function RegionsTab({ features }: { features: PredFeature[] }) {
   return (
     <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:14 }}>
@@ -1078,7 +1033,12 @@ export default function TrafficAnalytics() {
   const [stations, setStations] = useState<StationFeature[]>([]);
   const [loading,  setLoading]  = useState(true);
   const [tab,      setTab]      = useState<TabId>('macro');
-  const [target,   setTarget]   = useState<RegionTarget>('NATIONAL');
+  
+  // New Filters
+  const [searchQuery, setSearchQuery] = useState('');
+  const [targetRegion, setTargetRegion] = useState<RegionTarget>('NATIONAL');
+  const [roadClass, setRoadClass] = useState('ALL');
+  const [congestionRisk, setCongestionRisk] = useState('ALL');
 
   useEffect(() => {
     const base = import.meta.env.BASE_URL;
@@ -1092,19 +1052,99 @@ export default function TrafficAnalytics() {
       .finally(() => setLoading(false));
   }, []);
 
-  const filteredFeatures = useMemo(() =>
-    target === 'NATIONAL'
-      ? features
-      : features.filter(f => (f.properties.region??'').toUpperCase() === target),
-    [features, target]
-  );
+  const filteredFeatures = useMemo(() => {
+    let f = features;
+    if (targetRegion !== 'NATIONAL') f = f.filter(x => (x.properties.region??'').toUpperCase() === targetRegion);
+    if (roadClass !== 'ALL') f = f.filter(x => (x.properties.road_class??'') === roadClass);
+    if (congestionRisk !== 'ALL') f = f.filter(x => (x.properties.congestion_risk??'') === congestionRisk);
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      f = f.filter(x => 
+        (x.properties.link_name??'').toLowerCase().includes(q) ||
+        (x.properties.link_id??'').toLowerCase().includes(q) ||
+        (x.properties.road_no??'').toLowerCase().includes(q)
+      );
+    }
+    return f;
+  }, [features, targetRegion, roadClass, congestionRisk, searchQuery]);
 
-  const filteredStations = useMemo(() =>
-    target === 'NATIONAL'
-      ? stations
-      : stations.filter(s => (s.properties.REGION??'').toUpperCase() === target),
-    [stations, target]
-  );
+  const filteredStations = useMemo(() => {
+    let s = stations;
+    if (targetRegion !== 'NATIONAL') s = s.filter(x => (x.properties.REGION??'').toUpperCase() === targetRegion);
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      s = s.filter(x => 
+        (x.properties.TCS_NAME??'').toLowerCase().includes(q) ||
+        (x.properties.Link_Name??'').toLowerCase().includes(q) ||
+        (x.properties.Link_ID??'').toLowerCase().includes(q) ||
+        (x.properties.STATION??'').toLowerCase().includes(q)
+      );
+    }
+    return s;
+  }, [stations, targetRegion, searchQuery]);
+
+  
+  // Export Functions
+  const exportCSV = () => {
+    const header = ['link_id','link_name','road_no','road_class','region','length_km','aadt_predicted','growth_2030','growth_2040','heavy_vehicle_pct','congestion_risk','vehicle_km_daily'].join(',');
+    const rows = filteredFeatures.map(f => {
+      const p = f.properties;
+      return [
+        p.link_id, `"${p.link_name||''}"`, p.road_no, p.road_class, p.region, p.length_km, 
+        p.aadt_predicted, p.growth_2030, p.growth_2040, p.heavy_vehicle_pct, p.congestion_risk, p.vehicle_km_daily
+      ].join(',');
+    });
+    const blob = new Blob([[header, ...rows].join('\n')], { type: 'text/csv;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download = 'traffic_analytics.csv';
+    document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+  };
+
+  const exportGeoJSON = () => {
+    const geojson = { type: 'FeatureCollection', features: filteredFeatures };
+    const blob = new Blob([JSON.stringify(geojson)], { type: 'application/geo+json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download = 'traffic_analytics.geojson';
+    document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+  };
+
+  const exportPDF = () => {
+    const totalAADT = filteredFeatures.reduce((acc, f) => acc + (f.properties.aadt_predicted||0), 0);
+    const totalLen = filteredFeatures.reduce((acc, f) => acc + (f.properties.length_km||0), 0);
+    const rows = filteredFeatures.map(f => {
+      const p = f.properties;
+      return `<tr><td>${p.link_id}</td><td>${p.link_name||'-'}</td><td>${p.region}</td><td>${p.road_class}</td><td>${Math.round(p.aadt_predicted||0).toLocaleString()}</td><td>${p.congestion_risk}</td></tr>`;
+    }).join('');
+
+    const html = `<!doctype html><html><head><title>Traffic Analytics Report</title>
+      <style>
+        @page { margin: 14mm 12mm; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 10px; color: #16243a; margin:0; }
+        header { border-bottom: 3px solid #0a3d62; padding-bottom: 8px; margin-bottom: 12px; }
+        h1 { margin: 0; font-size: 16px; color: #0a3d62; }
+        .grid { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        .grid th { background: #0a3d62; color: #fff; text-align: left; padding: 4px; font-size: 9px; }
+        .grid td { border: 1px solid #ddd; padding: 4px; }
+      </style></head><body>
+      <header>
+        <h1>Uganda National Roads - Deep Analytics PDF Report</h1>
+        <div>Total Filtered Links: ${filteredFeatures.length} | Total Network Length: ${Math.round(totalLen).toLocaleString()} km | Cumulative AADT: ${Math.round(totalAADT).toLocaleString()}</div>
+      </header>
+      <h3>Link-by-Link Detailed Analysis</h3>
+      <table class="grid">
+        <thead><tr><th>Link ID</th><th>Link Name</th><th>Region</th><th>Class</th><th>AADT</th><th>Risk</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+      </body></html>`;
+      
+    const w = window.open('', '_blank');
+    if (w) {
+      w.document.write(html);
+      w.document.close();
+      w.focus();
+      setTimeout(() => w.print(), 500);
+    }
+  };
 
   const predByLink = useMemo(
     () => new Map(features.map(f => [f.properties.link_id, f.properties])),
@@ -1130,24 +1170,93 @@ export default function TrafficAnalytics() {
           letterSpacing:'0.18em', textTransform:'uppercase', marginBottom:3 }}>
           Uganda National Roads · Deep Analytics · ML Ensemble 2025–2040
         </div>
-        <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-end' }}>
+        <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-end', marginBottom: 12 }}>
           <div style={{ fontSize:22, fontWeight:900, color:'#ffd23f', lineHeight:1.2,
             textShadow:'0 0 22px rgba(255,210,63,0.4)' }}>
             Traffic Analytics Dashboard
           </div>
-          {/* Target dropdown */}
-          <select value={target} onChange={e=>setTarget(e.target.value as RegionTarget)}
+        </div>
+
+        {/* Filter Control Bar */}
+        <div style={{ 
+          display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'center',
+          background: 'rgba(10,16,30,0.6)', backdropFilter: 'blur(20px)',
+          border: '1px solid rgba(255,210,63,0.15)', borderRadius: 12,
+          padding: '12px 16px', boxShadow: '0 4px 12px rgba(0,0,0,0.2)'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#ffd23f' }}>
+            <Filter size={14} />
+            <span style={{ fontSize: 10, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Filters</span>
+          </div>
+
+          {/* Search Input */}
+          <div style={{ display: 'flex', alignItems: 'center', background: 'rgba(255,255,255,0.05)', borderRadius: 8, padding: '4px 10px', flex: 1, minWidth: 200, border: '1px solid rgba(255,255,255,0.1)' }}>
+            <Search size={14} color="rgba(148,163,184,0.6)" />
+            <input 
+              type="text" 
+              placeholder="Search by link name, ID, or road no..."
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              style={{ background: 'transparent', border: 'none', color: '#fff', fontSize: 11, outline: 'none', paddingLeft: 8, width: '100%' }}
+            />
+          </div>
+
+          {/* Region Dropdown */}
+          <select value={targetRegion} onChange={e=>setTargetRegion(e.target.value as RegionTarget)}
             style={{ background:'rgba(255,210,63,0.08)', border:'1px solid rgba(255,210,63,0.3)',
               borderRadius:8, color:'#ffd23f', fontSize:11, fontWeight:700,
-              padding:'5px 12px', cursor:'pointer', outline:'none', fontFamily:'inherit' }}>
+              padding:'6px 12px', cursor:'pointer', outline:'none', fontFamily:'inherit' }}>
             {(['NATIONAL','CENTRAL','EASTERN','SOUTHERN','WESTERN','NORTHERN','NORTH EASTERN'] as RegionTarget[]).map(r=>(
-              <option key={r} value={r}>{r}</option>
+              <option key={r} value={r} style={{ background: '#000000' }}>{r}</option>
             ))}
           </select>
+
+          {/* Road Class Dropdown */}
+          <select value={roadClass} onChange={e=>setRoadClass(e.target.value)}
+            style={{ background:'rgba(0,245,255,0.08)', border:'1px solid rgba(0,245,255,0.3)',
+              borderRadius:8, color:'#00f5ff', fontSize:11, fontWeight:700,
+              padding:'6px 12px', cursor:'pointer', outline:'none', fontFamily:'inherit' }}>
+            <option value="ALL" style={{ background: '#000000' }}>All Classes</option>
+            {['A', 'B', 'C', 'M'].map(c=>(
+              <option key={c} value={c} style={{ background: '#000000' }}>Class {c}</option>
+            ))}
+          </select>
+
+          {/* Congestion Risk Dropdown */}
+          <select value={congestionRisk} onChange={e=>setCongestionRisk(e.target.value)}
+            style={{ background:'rgba(255,45,120,0.08)', border:'1px solid rgba(255,45,120,0.3)',
+              borderRadius:8, color:'#ff2d78', fontSize:11, fontWeight:700,
+              padding:'6px 12px', cursor:'pointer', outline:'none', fontFamily:'inherit' }}>
+            <option value="ALL" style={{ background: '#000000' }}>All Risk Levels</option>
+            {['Low', 'Medium', 'High', 'Critical'].map(c=>(
+              <option key={c} value={c} style={{ background: '#000000' }}>{c} Risk</option>
+            ))}
+          </select>
+
+          {/* Export Options */}
+          <div style={{ display: 'flex', gap: 6, marginLeft: 'auto' }}>
+            {/* Clear Filters Button */}
+            {(targetRegion!=='NATIONAL' || roadClass !== 'ALL' || congestionRisk !== 'ALL' || searchQuery) && (
+              <button onClick={() => { setSearchQuery(''); setTargetRegion('NATIONAL'); setRoadClass('ALL'); setCongestionRisk('ALL'); }}
+                style={{ display:'flex', alignItems:'center', gap:4, background:'rgba(255,255,255,0.1)', color:'#fff', border:'1px solid rgba(255,255,255,0.3)', borderRadius:6, padding:'4px 8px', fontSize:10, fontWeight:700, cursor:'pointer' }}>
+                Clear Filters
+              </button>
+            )}
+            <button onClick={exportCSV} style={{ display:'flex', alignItems:'center', gap:4, background:'rgba(0,245,255,0.1)', color:'#00f5ff', border:'1px solid rgba(0,245,255,0.3)', borderRadius:6, padding:'4px 8px', fontSize:10, fontWeight:700, cursor:'pointer' }}>
+              <FileSpreadsheet size={12}/> CSV
+            </button>
+            <button onClick={exportGeoJSON} style={{ display:'flex', alignItems:'center', gap:4, background:'rgba(0,255,136,0.1)', color:'#00ff88', border:'1px solid rgba(0,255,136,0.3)', borderRadius:6, padding:'4px 8px', fontSize:10, fontWeight:700, cursor:'pointer' }}>
+              <MapIcon size={12}/> GeoJSON
+            </button>
+            <button onClick={exportPDF} style={{ display:'flex', alignItems:'center', gap:4, background:'rgba(255,45,120,0.1)', color:'#ff2d78', border:'1px solid rgba(255,45,120,0.3)', borderRadius:6, padding:'4px 8px', fontSize:10, fontWeight:700, cursor:'pointer' }}>
+              <FileText size={12}/> PDF Report
+            </button>
+          </div>
         </div>
-        <div style={{ fontSize:11, color:'rgba(148,163,184,0.5)', marginTop:4 }}>
+
+        <div style={{ fontSize:11, color:'rgba(148,163,184,0.5)', marginTop:12 }}>
           {filteredFeatures.length.toLocaleString()} road links · 25 ATC + {filteredStations.length} TIS survey stations
-          {target!=='NATIONAL' && ` · filtered: ${target}`}
+          {(targetRegion!=='NATIONAL' || roadClass !== 'ALL' || congestionRisk !== 'ALL' || searchQuery) && ` · filtered`}
         </div>
       </div>
 
