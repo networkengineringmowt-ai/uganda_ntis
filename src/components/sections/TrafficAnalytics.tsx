@@ -2,6 +2,7 @@
  * TrafficAnalytics — ATC-style multi-tab analytics dashboard.
  * Tabs: MACRO | REGIONS | CLASSES | ASSETS | ANALYSIS | STATIONS | STRATEGIC
  */
+import { fetchJson } from '../../utils/fetchCache';
 import { useState, useEffect, useMemo } from 'react';
 import { Search, Filter, Download, FileText, FileSpreadsheet, Map as MapIcon } from 'lucide-react';
 import {
@@ -1089,8 +1090,8 @@ export default function TrafficAnalytics() {
   useEffect(() => {
     const base = import.meta.env.BASE_URL;
     Promise.all([
-      fetch(`${base}data/traffic_predictions_lite.json`).then(r=>r.json()),
-      fetch(`${base}atc_stations.geojson`).then(r=>r.json()),
+      fetchJson(`${base}data/traffic_predictions_lite.json`),
+      fetchJson(`${base}atc_stations.geojson`),
     ]).then(([gjLite, stGJ]) => {
       const mappedFeatures = (gjLite || []).map((p: any) => ({ type: 'Feature', geometry: null, properties: p }));
       setFeatures(mappedFeatures as PredFeature[]);

@@ -4,6 +4,7 @@
  * Year pills 2016-2035 with interpolated AADT values.
  * Export CSV, search, sortable columns.
  */
+import { fetchJson } from '../../utils/fetchCache';
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { CURRENT_YEAR } from '../../shared/year';
 
@@ -414,8 +415,8 @@ export default function TrafficSummary() {
   useEffect(() => {
     const base = import.meta.env.BASE_URL;
     Promise.all([
-      fetch(`${base}data/traffic_predictions_lite.json`).then(r=>r.json()),
-      fetch(`${base}atc_stations.geojson`).then(r=>r.json()),
+      fetchJson(`${base}data/traffic_predictions_lite.json`),
+      fetchJson(`${base}atc_stations.geojson`),
     ]).then(([gjLite, stGJ]) => {
       const mappedFeatures = (gjLite || []).map((p: any) => ({ type: 'Feature', geometry: null, properties: p }));
       setFeatures(mappedFeatures as PredFeature[]);

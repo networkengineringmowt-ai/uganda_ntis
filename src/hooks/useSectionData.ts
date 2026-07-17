@@ -1,3 +1,4 @@
+import { fetchJson } from '../utils/fetchCache';
 import { useState, useEffect } from 'react';
 
 interface SectionData {
@@ -29,11 +30,11 @@ export const useSectionData = (): SectionData => {
     const loadData = async () => {
       try {
         const [summary, regional, ml, budget, infrastructure] = await Promise.all([
-          fetch('/data/network_summary.json').then(r => r.json()),
-          fetch('/data/regional_performance.json').then(r => r.json()),
-          fetch('/data/ml_model_metrics.json').then(r => r.json()),
-          fetch('/data/budget_alignment.json').then(r => r.json()),
-          fetch('/data/infrastructure_coverage.json').then(r => r.json()),
+          fetchJson(`${import.meta.env.BASE_URL}data/network_summary.json`),
+          fetchJson(`${import.meta.env.BASE_URL}data/regional_performance.json`),
+          fetchJson(`${import.meta.env.BASE_URL}data/ml_model_metrics.json`),
+          fetchJson(`${import.meta.env.BASE_URL}data/budget_alignment.json`),
+          fetchJson(`${import.meta.env.BASE_URL}data/infrastructure_coverage.json`),
         ]);
 
         setData({
@@ -68,7 +69,7 @@ export const useRegionalAnalytics = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('/data/regional_analytics.json')
+    fetch(`${import.meta.env.BASE_URL}data/regional_analytics.json`)
       .then(r => r.json())
       .then(setData)
       .catch((err) => {

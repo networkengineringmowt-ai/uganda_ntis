@@ -1,3 +1,4 @@
+import { fetchJson } from '../utils/fetchCache';
 import React, { useEffect, useState } from 'react';
 import ReactDOM from 'react-dom/client';
 import { GeoJSON, CircleMarker, Popup } from 'react-leaflet';
@@ -23,9 +24,9 @@ export function ImprovedInfraLayers() {
   useEffect(() => {
     // Load infrastructure geometries
     Promise.all([
-      fetch(`${import.meta.env.BASE_URL}data/airports.geojson`).then(r => r.json()).catch(() => null),
-      fetch(`${import.meta.env.BASE_URL}data/ferries.geojson`).then(r => r.json()).catch(() => null),
-      fetch(`${import.meta.env.BASE_URL}data/protected_areas.geojson`).then(r => r.json()).catch(() => null),
+      fetchJson(`${import.meta.env.BASE_URL}data/airports.geojson`).catch(() => null),
+      fetchJson(`${import.meta.env.BASE_URL}data/ferries.geojson`).catch(() => null),
+      fetchJson(`${import.meta.env.BASE_URL}data/protected_areas.geojson`).catch(() => null),
     ]).then(([ap, fer, pa]) => {
       if (ap) setAirports(ap);
       if (fer) setFerries(fer);

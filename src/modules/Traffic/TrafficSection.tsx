@@ -11,6 +11,7 @@
  *   • Vehicle-class breakdown + AADT trend fed into FeatureAnalyticsPanel
  *   • Corrected station counts: 25 ATC (15 legacy + 10 new) + 298 TIS
  */
+import { fetchJson } from '../../utils/fetchCache';
 import { useEffect, useState, useCallback, useMemo, useRef } from 'react';
 import {
   MapContainer, TileLayer, ZoomControl, GeoJSON,
@@ -487,9 +488,9 @@ export default function TrafficSection() {
   useEffect(() => {
     const base = import.meta.env.BASE_URL;
     Promise.all([
-      fetch(`${base}data/traffic_predictions.geojson`).then(r => r.json()),
-      fetch(`${base}data/road_surface.json`).then(r => r.json()),
-      fetch(`${base}atc_stations.geojson`).then(r => r.json()),
+      fetchJson(`${base}data/traffic_predictions.geojson`),
+      fetchJson(`${base}data/road_surface.json`),
+      fetchJson(`${base}atc_stations.geojson`),
     ]).then(([gj, surf, stGJ]) => {
       setFeatures((gj.features ?? []) as PredFeature[]);
       setSurfMap(surf as Record<string, string>);

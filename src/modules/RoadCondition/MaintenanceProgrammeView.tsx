@@ -58,7 +58,7 @@ export default function MaintenanceProgrammeView() {
   const [pageIdx, setPageIdx] = useState(0);
 
   useEffect(() => {
-    fetch('/data/maintenance_programme.json')
+    fetch(`${import.meta.env.BASE_URL}data/maintenance_programme.json`)
       .then(r => r.json())
       .then(d => {
         // Add priority_rank to all_links
