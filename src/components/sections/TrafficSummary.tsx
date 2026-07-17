@@ -1,4 +1,4 @@
-﻿/**
+/**
  * TrafficSummary â€” Summary Tables view.
  * Sub-tabs: Road Links Data | Traffic Counting Stations
  * Year pills 2016-2035 with interpolated AADT values.
@@ -45,7 +45,8 @@ const GF: Record<number,number> = {
 // aadt_predicted is a 2025-anchored reading — scale a year's 2016-base factor
 // relative to 2025 when projecting it.
 const gfTo = (y: number) => (GF[y] ?? 1) / (GF[2025] ?? 1);
-const ALL_YEARS = Object.keys(GF).map(Number).sort((a,b)=>a-b);
+const rawYears = Object.keys(GF).map(Number).sort((a,b)=>a-b);
+const ALL_YEARS = [CURRENT_YEAR, ...rawYears.filter(y => y !== CURRENT_YEAR)];
 
 function hexRgb(hex: string): string {
   const h = hex.replace('#','');

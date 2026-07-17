@@ -433,14 +433,14 @@ function MacroTab({ features }: { features: PredFeature[] }) {
     return { avgAadt: len > 0 ? sum / len : 0, totalVkm: vkm, heavyVkm: hvkm };
   }, [features]);
 
-  // Derive fleet composition using standard Uganda factors
-  const fleetComposition = [
-    { name: 'Boda-Bodas (Motorcycles)', value: totalVkm * 0.295, fill: C.cyan },
-    { name: 'Saloon Cars / Taxis', value: totalVkm * 0.248, fill: C.green },
-    { name: 'Matatus (Minibuses)', value: totalVkm * 0.150, fill: C.yellow },
-    { name: 'Light Goods Vehicles', value: totalVkm * 0.120, fill: C.pink },
-    { name: 'Heavy Freight (Trailers)', value: heavyVkm, fill: C.orange }
-  ];
+  // Derive fleet composition using the standard 11 Uganda vehicle classes
+  const fleetComposition = useMemo(() => {
+    return VEHICLE_CLASSES.map(vc => ({
+      name: vc.name,
+      value: totalVkm * vc.pct,
+      fill: vc.color
+    }));
+  }, [totalVkm]);
 
   const topLinks = useMemo(() => {
     return [...features].sort((a,b)=>(b.properties.aadt_predicted||0) - (a.properties.aadt_predicted||0)).slice(0, 100);
@@ -513,9 +513,16 @@ function MacroTab({ features }: { features: PredFeature[] }) {
         {topLinks.map((l, i) => {
           const aadt = l.properties.aadt_predicted || 0;
           const hvPct = l.properties.heavy_vehicle_pct || 0;
-          const mcPct = 0.295; // Boda boda proxy
           const heavyCount = aadt * hvPct;
-          const mcCount = aadt * mcPct;
+          
+          // Adjust 11-class standard distribution to match the exact Heavy vs Light ratio of this link
+          const stdHeavyTotal = 0.162;
+          const stdLightTotal = 0.838;
+          const hvScale = stdHeavyTotal > 0 ? (hvPct / stdHeavyTotal) : 0;
+          const lvScale = stdLightTotal > 0 ? ((1 - hvPct) / stdLightTotal) : 0;
+          
+          const mcAdjustedPct = 0.295 * lvScale;
+
           return (
           <div key={i} style={{ background:'rgba(255,255,255,0.02)', border:'1px solid rgba(255,255,255,0.05)', borderRadius:8, padding:12, position:'relative', overflow:'hidden' }}>
             <div style={{ position:'relative', zIndex:1 }}>
@@ -533,14 +540,18 @@ function MacroTab({ features }: { features: PredFeature[] }) {
                 </div>
               </div>
 
-              {/* Mini Boda-Boda vs Freight split bar */}
+              {/* 11-Class Vehicle Composition Split Bar */}
               <div style={{ height: 4, width: '100%', display: 'flex', background: 'rgba(255,255,255,0.1)', borderRadius: 2, overflow: 'hidden' }}>
-                <div style={{ width: `${mcPct*100}%`, background: C.cyan }} title="Boda-Boda %" />
-                <div style={{ width: `${(1 - mcPct - hvPct)*100}%`, background: C.green }} title="Light Vehicles %" />
-                <div style={{ width: `${hvPct*100}%`, background: C.orange }} title="Heavy Freight %" />
+                {VEHICLE_CLASSES.map(vc => {
+                  const isHeavy = ['LT','MT','HT','TT','T5'].includes(vc.abbr);
+                  const adjustedPct = isHeavy ? (vc.pct * hvScale) : (vc.pct * lvScale);
+                  return (
+                    <div key={vc.abbr} style={{ width: `${adjustedPct * 100}%`, background: vc.color }} title={`${vc.name}: ${Math.round(adjustedPct * 100)}%`} />
+                  );
+                })}
               </div>
               <div style={{ display:'flex', justifyContent:'space-between', fontSize: 8, marginTop: 4, color:'rgba(148,163,184,0.6)' }}>
-                <span>{Math.round(mcPct*100)}% Boda</span>
+                <span>{Math.round(mcAdjustedPct*100)}% Boda</span>
                 <span>{Math.round(hvPct*100)}% Freight</span>
               </div>
             </div>
