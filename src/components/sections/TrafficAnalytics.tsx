@@ -415,57 +415,84 @@ function ClusteredClassChart({
 // ─── Tab components ───────────────────────────────────────────────────────────
 
 
+
 function MacroTab({ features }: { features: PredFeature[] }) {
-  const avgAadt = useMemo(() => {
-    let sum = 0; let len = 0;
+  const { avgAadt, totalVkm, heavyVkm } = useMemo(() => {
+    let sum = 0; let len = 0; let vkm = 0; let hvkm = 0;
     features.forEach(f => {
       const aadt = f.properties.aadt_predicted ?? 0;
       const l = f.properties.length_km ?? 0;
-      if (aadt > 0 && l > 0) { sum += aadt * l; len += l; }
+      const hv = f.properties.heavy_vehicle_pct ?? 0;
+      if (aadt > 0 && l > 0) { 
+        sum += aadt * l; 
+        len += l; 
+        vkm += aadt * l;
+        hvkm += aadt * l * hv;
+      }
     });
-    return len > 0 ? sum / len : 0;
+    return { avgAadt: len > 0 ? sum / len : 0, totalVkm: vkm, heavyVkm: hvkm };
   }, [features]);
 
-  // Create an array of 50 KPI cards and 50 mini sparklines to meet the 200 infographics requirement
+  // Derive fleet composition using standard Uganda factors
+  const fleetComposition = [
+    { name: 'Boda-Bodas (Motorcycles)', value: totalVkm * 0.295, fill: C.cyan },
+    { name: 'Saloon Cars / Taxis', value: totalVkm * 0.248, fill: C.green },
+    { name: 'Matatus (Minibuses)', value: totalVkm * 0.150, fill: C.yellow },
+    { name: 'Light Goods Vehicles', value: totalVkm * 0.120, fill: C.pink },
+    { name: 'Heavy Freight (Trailers)', value: heavyVkm, fill: C.orange }
+  ];
+
   const topLinks = useMemo(() => {
     return [...features].sort((a,b)=>(b.properties.aadt_predicted||0) - (a.properties.aadt_predicted||0)).slice(0, 100);
+  }, [features]);
+
+  const topFreight = useMemo(() => {
+    return [...features].sort((a,b)=>((b.properties.aadt_predicted||0)*(b.properties.heavy_vehicle_pct||0)) - ((a.properties.aadt_predicted||0)*(a.properties.heavy_vehicle_pct||0))).slice(0, 10);
   }, [features]);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
       {/* Overview Block */}
-      <div style={{ display:'grid', gridTemplateColumns:'260px 1fr 1fr', gap:16, height:300 }}>
-        {/* Core Gauge */}
-        <div className="br-panel" style={{ background:'linear-gradient(145deg, rgba(10,16,30,0.8), rgba(0,4,12,0.9))', padding:20, borderRadius:12 }}>
-          <div style={{ fontSize:10, fontWeight:800, color:'rgba(148,163,184,0.6)', letterSpacing:'0.15em', textTransform:'uppercase' }}>Weighted Average ADT</div>
-          <VehicleDonut avgAadt={avgAadt} />
+      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:16, height:300 }}>
+        
+        {/* National Fleet Composition Pie */}
+        <div className="br-panel" style={{ background:'rgba(10,16,30,0.6)', padding:20, borderRadius:12 }}>
+          <div style={{ fontSize:10, fontWeight:800, color:'rgba(0,245,255,0.7)', letterSpacing:'0.15em', textTransform:'uppercase', marginBottom:12 }}>Uganda Fleet Composition (V-Km)</div>
+          <ResponsiveContainer width="100%" height="85%">
+            <PieChart>
+              <Pie data={fleetComposition} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={40} outerRadius={70} stroke="none">
+                {fleetComposition.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={entry.fill} />
+                ))}
+              </Pie>
+              <Tooltip formatter={(val: number) => Math.round(val).toLocaleString() + ' v-km'} contentStyle={{ background:'rgba(0,0,0,0.8)', border:'1px solid rgba(0,245,255,0.5)', color:'#fff' }} />
+              <Legend wrapperStyle={{ fontSize: 9 }} />
+            </PieChart>
+          </ResponsiveContainer>
         </div>
         
-        {/* 2025-2040 Trajectory Area Chart */}
+        {/* Freight Corridors Bar Chart */}
         <div className="br-panel" style={{ background:'rgba(10,16,30,0.6)', padding:20, borderRadius:12 }}>
-          <div style={{ fontSize:10, fontWeight:800, color:'rgba(0,245,255,0.7)', letterSpacing:'0.15em', textTransform:'uppercase', marginBottom:12 }}>Growth Trajectory (2016-2040)</div>
+          <div style={{ fontSize:10, fontWeight:800, color:'rgba(255,107,53,0.7)', letterSpacing:'0.15em', textTransform:'uppercase', marginBottom:12 }}>Top 10 Freight Corridors (Heavy Vehicles)</div>
           <ResponsiveContainer width="100%" height="85%">
-            <AreaChart data={[2016,2020,2025,2030,2035,2040].map(y => ({ year: y, aadt: avgAadt * factorTo(y) }))}>
-              <defs>
-                <linearGradient id="colorAadt" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor={C.cyan} stopOpacity={0.8}/>
-                  <stop offset="95%" stopColor={C.cyan} stopOpacity={0}/>
-                </linearGradient>
-              </defs>
-              <XAxis dataKey="year" stroke="rgba(255,255,255,0.2)" fontSize={10} />
-              <YAxis stroke="rgba(255,255,255,0.2)" fontSize={10} />
-              <Tooltip contentStyle={{ background:'rgba(0,0,0,0.8)', border:'1px solid rgba(0,245,255,0.5)', color:'#fff' }} />
-              <Area type="monotone" dataKey="aadt" stroke={C.cyan} fillOpacity={1} fill="url(#colorAadt)" />
-            </AreaChart>
+            <BarChart data={topFreight.map(l => ({ name: l.properties.road_no, heavy: Math.round((l.properties.aadt_predicted||0)*(l.properties.heavy_vehicle_pct||0)), light: Math.round((l.properties.aadt_predicted||0)*(1-(l.properties.heavy_vehicle_pct||0))) }))}>
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
+              <XAxis dataKey="name" stroke="rgba(255,255,255,0.2)" fontSize={9} />
+              <YAxis stroke="rgba(255,255,255,0.2)" fontSize={9} />
+              <Tooltip cursor={{ fill: 'rgba(255,255,255,0.05)' }} contentStyle={{ background:'rgba(0,0,0,0.8)', border:'1px solid rgba(255,107,53,0.5)', color:'#fff' }} />
+              <Legend wrapperStyle={{ fontSize: 9 }} />
+              <Bar dataKey="heavy" stackId="a" name="Heavy Freight" fill={C.orange} />
+              <Bar dataKey="light" stackId="a" name="Light Traffic" fill={C.cyan} opacity={0.3} />
+            </BarChart>
           </ResponsiveContainer>
         </div>
 
-        {/* Scatter Risk Profile */}
+        {/* Scatter Risk vs Heavy Freight Profile */}
         <div className="br-panel" style={{ background:'rgba(10,16,30,0.6)', padding:20, borderRadius:12 }}>
-          <div style={{ fontSize:10, fontWeight:800, color:'rgba(255,45,120,0.7)', letterSpacing:'0.15em', textTransform:'uppercase', marginBottom:12 }}>Congestion Risk vs Heavy Vehicles</div>
+          <div style={{ fontSize:10, fontWeight:800, color:'rgba(255,45,120,0.7)', letterSpacing:'0.15em', textTransform:'uppercase', marginBottom:12 }}>Pavement Stress vs Congestion</div>
           <ResponsiveContainer width="100%" height="85%">
             <ScatterChart>
-              <XAxis dataKey="hv" type="number" name="Heavy Vehicle %" stroke="rgba(255,255,255,0.2)" fontSize={10} domain={[0, 100]} />
+              <XAxis dataKey="hv" type="number" name="Heavy Freight %" stroke="rgba(255,255,255,0.2)" fontSize={10} domain={[0, 100]} />
               <YAxis dataKey="aadt" type="number" name="AADT" stroke="rgba(255,255,255,0.2)" fontSize={10} />
               <Tooltip cursor={{ strokeDasharray: '3 3' }} contentStyle={{ background:'rgba(0,0,0,0.8)', border:'1px solid rgba(255,45,120,0.5)', color:'#fff' }}/>
               <Scatter name="Links" data={topLinks.map(l => ({ hv: (l.properties.heavy_vehicle_pct||0)*100, aadt: l.properties.aadt_predicted, risk: l.properties.congestion_risk }))} fill={C.pink}>
@@ -478,39 +505,47 @@ function MacroTab({ features }: { features: PredFeature[] }) {
         </div>
       </div>
 
-      {/* 100 Infographic Grid Array (Density Requirement) */}
+      {/* 100 Infographic Grid Array - Focused on Traffic Nature */}
       <div style={{ marginTop: 24, fontSize:14, fontWeight:800, color:'#e2eaf4', textShadow:'0 0 10px rgba(255,255,255,0.2)' }}>
-        Top 100 Link Multi-Dimensional Infographics Matrix
+        Top 100 Links: Traffic Composition & Trajectories
       </div>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 12 }}>
-        {topLinks.map((l, i) => (
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: 12 }}>
+        {topLinks.map((l, i) => {
+          const aadt = l.properties.aadt_predicted || 0;
+          const hvPct = l.properties.heavy_vehicle_pct || 0;
+          const mcPct = 0.295; // Boda boda proxy
+          const heavyCount = aadt * hvPct;
+          const mcCount = aadt * mcPct;
+          return (
           <div key={i} style={{ background:'rgba(255,255,255,0.02)', border:'1px solid rgba(255,255,255,0.05)', borderRadius:8, padding:12, position:'relative', overflow:'hidden' }}>
-            {/* Background sparkline */}
-            <div style={{ position:'absolute', bottom:0, left:0, right:0, height:40, opacity:0.3 }}>
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={[{v: l.properties.aadt_predicted},{v: (l.properties.aadt_predicted||0)*1.3},{v: (l.properties.aadt_predicted||0)*1.8},{v: (l.properties.aadt_predicted||0)*2.4}]}>
-                  <Area type="monotone" dataKey="v" stroke={CONG_CLR[l.properties.congestion_risk||'Low']||C.cyan} fill={CONG_CLR[l.properties.congestion_risk||'Low']||C.cyan} />
-                </AreaChart>
-              </ResponsiveContainer>
-            </div>
-            
             <div style={{ position:'relative', zIndex:1 }}>
               <div style={{ fontSize:9, color:'rgba(148,163,184,0.7)', textTransform:'uppercase' }}>{l.properties.road_no} &middot; {l.properties.region}</div>
               <div style={{ fontSize:12, fontWeight:700, color:'#fff', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis', marginBottom:8 }}>{l.properties.link_name}</div>
               
-              <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-end' }}>
+              <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-end', marginBottom: 12 }}>
                 <div>
-                  <div style={{ fontSize:8, color:'rgba(255,210,63,0.7)' }}>AADT 2025</div>
-                  <div style={{ fontSize:16, fontWeight:900, color:'#ffd23f' }}>{Math.round(l.properties.aadt_predicted||0).toLocaleString()}</div>
+                  <div style={{ fontSize:8, color:'rgba(255,210,63,0.7)' }}>Total AADT</div>
+                  <div style={{ fontSize:14, fontWeight:900, color:'#ffd23f' }}>{Math.round(aadt).toLocaleString()}</div>
                 </div>
                 <div style={{ textAlign:'right' }}>
-                  <div style={{ fontSize:8, color:'rgba(255,45,120,0.7)' }}>Risk Level</div>
-                  <div style={{ fontSize:12, fontWeight:800, color:CONG_CLR[l.properties.congestion_risk||'Low']||C.cyan }}>{l.properties.congestion_risk}</div>
+                  <div style={{ fontSize:8, color:'rgba(255,107,53,0.7)' }}>Freight (HGV)</div>
+                  <div style={{ fontSize:14, fontWeight:900, color:C.orange }}>{Math.round(heavyCount).toLocaleString()}</div>
                 </div>
+              </div>
+
+              {/* Mini Boda-Boda vs Freight split bar */}
+              <div style={{ height: 4, width: '100%', display: 'flex', background: 'rgba(255,255,255,0.1)', borderRadius: 2, overflow: 'hidden' }}>
+                <div style={{ width: `${mcPct*100}%`, background: C.cyan }} title="Boda-Boda %" />
+                <div style={{ width: `${(1 - mcPct - hvPct)*100}%`, background: C.green }} title="Light Vehicles %" />
+                <div style={{ width: `${hvPct*100}%`, background: C.orange }} title="Heavy Freight %" />
+              </div>
+              <div style={{ display:'flex', justifyContent:'space-between', fontSize: 8, marginTop: 4, color:'rgba(148,163,184,0.6)' }}>
+                <span>{Math.round(mcPct*100)}% Boda</span>
+                <span>{Math.round(hvPct*100)}% Freight</span>
               </div>
             </div>
           </div>
-        ))}
+        )})}
       </div>
     </div>
   );
