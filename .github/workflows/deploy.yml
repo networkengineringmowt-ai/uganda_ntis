@@ -30,17 +30,12 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        # npm install (not ci) tolerates lock drift; legacy-peer-deps avoids
-        # ERESOLVE peer-dependency hard-fails on the runner.
         run: npm install --no-audit --no-fund --legacy-peer-deps
 
-      # Build the platform directly with Vite. We deliberately skip `npm run
-      # build` because that also runs the local-only `export-data` (Python,
-      # reads G: Drive) and `tsc -b` steps, which don't belong on a CI runner —
-      # the app's data is already committed under public/data, and Vite bundles
-      # public/ (including media) from the full checkout.
-      - name: Build
-        run: npx vite build
+      - name: Build NTIS Dashboard
+        run: |
+          npx vite build --config vite.ntis.config.ts
+          mv dist-ntis/index.ntis.html dist-ntis/index.html
         env:
           NODE_ENV: production
           VITE_SUPABASE_URL: https://vbidhkvzjigatfygnyc.supabase.co
@@ -50,6 +45,6 @@ jobs:
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./dist
+          publish_dir: ./dist-ntis
           publish_branch: gh-pages
           force_orphan: true
