@@ -1,0 +1,1 @@
+const r={async getStations(){return[]},async getLinkTrend(n){return[]},async getProjectionsByYear(n){return[]},async getAtcStation(n){return[]},async getTisByLinkYear(n,t){return[]},async getLinkCondition(n){return null},async getBridgeWorks(){return[]}};export{r as RoadsAPI};
