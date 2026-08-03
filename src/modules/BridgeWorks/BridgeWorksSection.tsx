@@ -1,5 +1,5 @@
 /**
- * BridgeWorksSection — MOWT "Bridges Development Projects" status (April 2026).
+ * BridgeWorksSection â MOWT "Bridges Development Projects" status (April 2026).
  * Source: app_data/bridge_works_2026.json (extracted from the MOWT Projects
  * Status Report). Reads live from Supabase `bridge_works` when available, else
  * the bundled JSON. Styled with Glassmorphism / Neumorphism / Liquid-Glass.
@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { glass, neu, liquidGlass, neuProgressTrack, progressFill } from '../../shared/glass';
 import { supabase } from '../../lib/supabase';
+import SectionDashboard from '../Dashboard/SectionDashboard';
 
 interface BridgeWork {
   id: string; lot: string; funder: string;
@@ -25,7 +26,7 @@ interface BridgeWork {
 const C = { cyan: '#00f5ff', teal: '#00d4aa', blue: '#4d9fff', green: '#00ff88',
   yellow: '#ffd23f', orange: '#ff6b35', red: '#ff3366', purple: '#b967ff', gray: '#94a3b8' };
 
-const bn = (n?: number | null) => (n == null ? '—' : `${(n / 1e9).toFixed(2)} Bn`);
+const bn = (n?: number | null) => (n == null ? 'â' : `${(n / 1e9).toFixed(2)} Bn`);
 function progColor(p: number | null): string {
   if (p == null) return C.gray;
   if (p >= 90) return C.green;
@@ -78,7 +79,7 @@ export default function BridgeWorksSection() {
     <div style={{ padding: '22px 20px', minHeight: '100%',
       background: 'radial-gradient(1200px 600px at 80% -10%, rgba(0,212,170,0.10), transparent), linear-gradient(180deg, rgba(8,14,28,0.5), transparent)' }}>
 
-      {/* ── Liquid-glass header ── */}
+      {/* ââ Liquid-glass header ââ */}
       <div style={{ ...liquidGlass(C.teal, 20), padding: '18px 22px', marginBottom: 18 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
           <div style={{ ...glass(C.teal, 14), width: 46, height: 46, display: 'flex',
@@ -87,20 +88,20 @@ export default function BridgeWorksSection() {
           </div>
           <div style={{ flex: 1 }}>
             <div style={{ fontSize: 19, fontWeight: 900, color: '#eaf6ff', letterSpacing: '-0.01em' }}>
-              Bridge Works — Development Projects
+              Bridge Works â Development Projects
             </div>
             <div style={{ fontSize: 11.5, color: 'rgba(200,225,235,0.7)', marginTop: 2 }}>
-              MOWT Projects Status Report · End of April 2026 · {kpis.count} active lots
+              MOWT Projects Status Report Â· End of April 2026 Â· {kpis.count} active lots
             </div>
           </div>
           <span style={{ ...glass(src === 'supabase' ? C.green : C.gray, 999), padding: '5px 12px',
             fontSize: 10, fontWeight: 800, color: src === 'supabase' ? C.green : C.gray }}>
-            {src === 'supabase' ? '● SUPABASE MIRROR' : src === 'bundle' ? '● DRIVE DATA (G:)' : '… loading'}
+            {src === 'supabase' ? 'â SUPABASE MIRROR' : src === 'bundle' ? 'â DRIVE DATA (G:)' : 'â¦ loading'}
           </span>
         </div>
       </div>
 
-      {/* ── KPI cards (liquid glass) ── */}
+      {/* ââ KPI cards (liquid glass) ââ */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))', gap: 14, marginBottom: 18 }}>
         {[
           { label: 'Active Projects', value: String(kpis.count), icon: <Layers size={18} />, c: C.cyan },
@@ -122,14 +123,14 @@ export default function BridgeWorksSection() {
         ))}
       </div>
 
-      {/* ── Search ── */}
+      {/* ââ Search ââ */}
       <div style={{ ...glass(C.gray, 12), display: 'flex', alignItems: 'center', gap: 9, padding: '9px 14px', marginBottom: 16, maxWidth: 420 }}>
         <Search size={14} style={{ color: 'rgba(200,225,235,0.5)' }} />
-        <input value={q} onChange={e => setQ(e.target.value)} placeholder="Search lot, contractor, funder, PM…"
+        <input value={q} onChange={e => setQ(e.target.value)} placeholder="Search lot, contractor, funder, PMâ¦"
           style={{ flex: 1, background: 'transparent', border: 'none', outline: 'none', color: '#eaf6ff', fontSize: 12 }} />
       </div>
 
-      {/* ── Project cards (glass + neumorphic progress) ── */}
+      {/* ââ Project cards (glass + neumorphic progress) ââ */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: 16 }}>
         {filtered.map(w => {
           const pc = progColor(w.physical_progress_pct);
@@ -143,7 +144,7 @@ export default function BridgeWorksSection() {
 
               {/* contractor */}
               <div style={{ display: 'flex', alignItems: 'center', gap: 7, fontSize: 11, color: 'rgba(200,225,235,0.85)' }}>
-                <Building2 size={13} style={{ color: C.blue }} /> {w.contractor || '—'}
+                <Building2 size={13} style={{ color: C.blue }} /> {w.contractor || 'â'}
               </div>
 
               {/* progress */}
@@ -191,7 +192,7 @@ export default function BridgeWorksSection() {
       </div>
 
       <div style={{ fontSize: 9, color: 'rgba(148,163,184,0.45)', marginTop: 18, textAlign: 'center' }}>
-        Source: MOWT Projects Status Report — §1.4 Bridges Development Projects (April 2026).
+        Source: MOWT Projects Status Report â Â§1.4 Bridges Development Projects (April 2026).
         {src === 'bundle' && ' Serving from the G: Drive data bundle (canonical store).'}
       </div>
     </div>
