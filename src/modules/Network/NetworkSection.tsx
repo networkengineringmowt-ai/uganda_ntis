@@ -1,9 +1,9 @@
 /**
- * NetworkSection — Network Overview unified 4-tab view.
+ * NetworkSection â Network Overview unified 4-tab view.
  * Tabs:
- *   1. Platform Dashboard  — high-level KPI overview
- *   2. Road Network Map    — full-screen GeoJSON map + timeline
- *   3. Network Story       — scrollytelling 1986-to-now narrative
+ *   1. Platform Dashboard  â high-level KPI overview
+ *   2. Road Network Map    â full-screen GeoJSON map + timeline
+ *   3. Network Story       â scrollytelling 1986-to-now narrative
  *
  * Follows the exact BMS tab-bar pattern:
  *   borderBottom '1px solid rgba(77,159,255,0.15)'
@@ -13,6 +13,7 @@
 import { lazy, Suspense, useState } from 'react';
 import { LayoutDashboard, Map, BookOpen } from 'lucide-react';
 import type { ActiveView } from '../../types';
+import SectionDashboard from '../Dashboard/SectionDashboard';
 
 const NET_PlatformDashboard   = lazy(() => import('../PlatformDashboard/PlatformDashboard'));
 const NET_RoadNetworkView     = lazy(() => import('../RoadNetwork/RoadNetworkView'));
@@ -58,7 +59,7 @@ export default function NetworkSection() {
         @keyframes net-spin { from { transform:rotate(0deg) } to { transform:rotate(360deg) } }
       `}</style>
 
-      {/* ── BMS-style main tab bar ─────────────────────────────────────────── */}
+      {/* ââ BMS-style main tab bar âââââââââââââââââââââââââââââââââââââââââââ */}
       <div style={{
         display: 'flex', gap: 2, padding: '0 14px', flexShrink: 0,
         borderBottom: '1px solid rgba(77,159,255,0.15)',
@@ -82,21 +83,21 @@ export default function NetworkSection() {
         })}
       </div>
 
-      {/* ── Content area ──────────────────────────────────────────────────── */}
+      {/* ââ Content area ââââââââââââââââââââââââââââââââââââââââââââââââââââ */}
       <div style={contentStyle}>
         <Suspense fallback={<Spinner />}>
 
-          {/* Tab 1: Platform Dashboard — scrollable */}
+          {/* Tab 1: Platform Dashboard â scrollable */}
           {tab === 'dashboard' && <NET_PlatformDashboard />}
 
-          {/* Tab 2: Road Network Map — full-height, position absolute */}
+          {/* Tab 2: Road Network Map â full-height, position absolute */}
           {tab === 'roadnetwork' && (
             <div style={{ position: 'absolute', inset: 0 }}>
               <NET_RoadNetworkView />
             </div>
           )}
 
-          {/* Tab 3: Network Story — full-height, self-scrolling */}
+          {/* Tab 3: Network Story â full-height, self-scrolling */}
           {tab === 'networkstory' && (
             <div style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}>
               <NET_NetworkStory />
