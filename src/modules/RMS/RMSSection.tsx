@@ -1,5 +1,5 @@
 /**
- * RMSSection — Road Management System top-level hub.
+ * RMSSection â Road Management System top-level hub.
  * 4 tabs: Overview | Road Network Map | Network Story | RMS Architecture (DNR RMS Engine)
  */
 import { lazy, Suspense, useState, useEffect, useRef } from 'react';
@@ -8,6 +8,7 @@ import { useBMS } from '../../store/BMSContext';
 import CrossLinkChipBar from '../../shared/CrossLinkChipBar';
 import { CaptureButton } from '../../shared/CaptureButton';
 import type { ActiveView } from '../../types';
+import SectionDashboard from '../Dashboard/SectionDashboard';
 import {
   LayoutDashboard, Map, BookOpen, Network,
   CheckCircle, AlertCircle, XCircle,
@@ -29,7 +30,7 @@ function rgb(h: string) {
   return `${parseInt(c.slice(0,2),16)},${parseInt(c.slice(2,4),16)},${parseInt(c.slice(4,6),16)}`;
 }
 
-// ── Types ─────────────────────────────────────────────────────────────────────
+// ââ Types âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 
 interface CaseStudy {
   id: number;
@@ -63,11 +64,11 @@ interface Publication {
   relevance: string;
 }
 
-// ── Data ──────────────────────────────────────────────────────────────────────
+// ââ Data ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 
 const CASE_STUDIES: CaseStudy[] = [
   {
-    id: 1, agency: 'TANROADS', country: 'Tanzania', flag: '🇹🇿', networkKm: 35_000,
+    id: 1, agency: 'TANROADS', country: 'Tanzania', flag: 'ð¹ð¿', networkKm: 35_000,
     system: 'RAMS / HDM-4 (IDA-funded)',
     keyFeatures: [
       'Full HDM-4 implementation for 35,000 km national network',
@@ -78,10 +79,10 @@ const CASE_STUDIES: CaseStudy[] = [
     lessonsDNR: 'TANROADS demonstrated that HDM-4 calibration to local conditions (tropical heavy rainfall, overloading) reduced treatment cost estimates by 18%. DNR should prioritise Uganda-specific calibration coefficients for Class C and B roads.',
     dataApproach: 'Annual ROMDAS surveys + manual condition assessments; data stored in RAMS database (Bentley OpenRoads Asset);  linked to national GIS portal.',
     funding: 'World Bank IDA, AfDB, GIZ, GoT',
-    metrics: '68% of paved network in good/fair condition (2024); 12% reduction in road user costs 2018–2024',
+    metrics: '68% of paved network in good/fair condition (2024); 12% reduction in road user costs 2018â2024',
   },
   {
-    id: 2, agency: 'KeNHA', country: 'Kenya', flag: '🇰🇪', networkKm: 11_189,
+    id: 2, agency: 'KeNHA', country: 'Kenya', flag: 'ð°ðª', networkKm: 11_189,
     system: 'Road Asset Management System (RAMS) + GIS',
     keyFeatures: [
       'Pavement Management System (PMS) using dTIMS CT for strategic analysis',
@@ -92,10 +93,10 @@ const CASE_STUDIES: CaseStudy[] = [
     lessonsDNR: 'KeNHA\'s mobile data collection for condition surveys (using KYOSK/KoboToolbox-style apps) reduced survey costs by 40% and improved data frequency to twice-yearly. DNR could adopt similar mobile-first survey approach for Class C/B network.',
     dataApproach: 'Continuous monitoring via 48 WIM stations; annual ROMDAS surveys; bridge inspection database synchronised with central RAMS.',
     funding: 'World Bank, AfDB, JICA, GoK',
-    metrics: '74% paved network serviceability ≥ 3.5 PSI; bridge safety compliance 89%',
+    metrics: '74% paved network serviceability â¥ 3.5 PSI; bridge safety compliance 89%',
   },
   {
-    id: 3, agency: 'RTDA', country: 'Rwanda', flag: '🇷🇼', networkKm: 4_700,
+    id: 3, agency: 'RTDA', country: 'Rwanda', flag: 'ð·ð¼', networkKm: 4_700,
     system: 'Integrated RAMS + Performance-Based Contracts',
     keyFeatures: [
       'Rapid network expansion from 18% to 34% paved in 10 years',
@@ -106,10 +107,10 @@ const CASE_STUDIES: CaseStudy[] = [
     lessonsDNR: 'Rwanda\'s bundling of routine maintenance with emergency works under a single OPRC contractor eliminated mobilisation delays. DNR\'s Lot 9 (Karamoja) should evaluate a similar bundled emergency-response clause given high flood exposure.',
     dataApproach: 'Smartphone-based visual surveys by trained community monitors; drone surveys for remote sections; annual ROMDAS for paved network.',
     funding: 'World Bank, AfDB, EU, GoR',
-    metrics: 'Network roughness reduced from avg IRI 4.8 to 3.1 m/km (2015–2024); road sector GDP contribution +2.4%',
+    metrics: 'Network roughness reduced from avg IRI 4.8 to 3.1 m/km (2015â2024); road sector GDP contribution +2.4%',
   },
   {
-    id: 4, agency: 'SANRAL', country: 'South Africa', flag: '🇿🇦', networkKm: 21_400,
+    id: 4, agency: 'SANRAL', country: 'South Africa', flag: 'ð¿ð¦', networkKm: 21_400,
     system: 'iRAMS (Integrated Road Asset Management System)',
     keyFeatures: [
       'Whole-life cost optimisation across full 21,400 km national network',
@@ -124,7 +125,7 @@ const CASE_STUDIES: CaseStudy[] = [
     metrics: '92% network in acceptable condition; R3.2 benefit per R1 maintenance investment',
   },
   {
-    id: 5, agency: 'Highways England (NHTSA)', country: 'United Kingdom', flag: '🇬🇧', networkKm: 7_800,
+    id: 5, agency: 'Highways England (NHTSA)', country: 'United Kingdom', flag: 'ð¬ð§', networkKm: 7_800,
     system: 'HAPMS (Highways Agency Pavement Management System)',
     keyFeatures: [
       'Whole-life cost optimisation with 50-year planning horizon',
@@ -133,13 +134,13 @@ const CASE_STUDIES: CaseStudy[] = [
       'Digital twins of major motorways with real-time sensor integration',
       'ISO 55001 certified asset management framework',
     ],
-    lessonsDNR: 'HAPMS demonstrates the value of long-horizon (10–15 year) rolling works programmes. DNR should develop a 10-year rolling maintenance programme using HDM-4 multi-year analysis to reduce reactive emergency spending.',
+    lessonsDNR: 'HAPMS demonstrates the value of long-horizon (10â15 year) rolling works programmes. DNR should develop a 10-year rolling maintenance programme using HDM-4 multi-year analysis to reduce reactive emergency spending.',
     dataApproach: 'SCANNER surveys + surface skid resistance + structural GPR + deflectograph; all data in HAPMS central database with API access for contractors.',
-    funding: 'Road Investment Strategy (RIS) — dedicated ring-fenced budget',
-    metrics: '97.4% network meeting serviceability standard; £6 return per £1 preventive maintenance',
+    funding: 'Road Investment Strategy (RIS) â dedicated ring-fenced budget',
+    metrics: '97.4% network meeting serviceability standard; Â£6 return per Â£1 preventive maintenance',
   },
   {
-    id: 6, agency: 'DPTI / Austroads', country: 'Australia', flag: '🇦🇺', networkKm: 33_000,
+    id: 6, agency: 'DPTI / Austroads', country: 'Australia', flag: 'ð¦ðº', networkKm: 33_000,
     system: 'dTIMS CT + Austroads AP-R series',
     keyFeatures: [
       'dTIMS CT (Deighton Total Infrastructure Management System) for strategic programming',
@@ -154,10 +155,10 @@ const CASE_STUDIES: CaseStudy[] = [
     metrics: '88% paved national network meeting ride quality standard; A$4.2 VfM per A$1 maintenance',
   },
   {
-    id: 7, agency: 'NZTA Waka Kotahi', country: 'New Zealand', flag: '🇳🇿', networkKm: 11_000,
+    id: 7, agency: 'NZTA Waka Kotahi', country: 'New Zealand', flag: 'ð³ð¿', networkKm: 11_000,
     system: 'ONE Network Framework + Asset Management Plans',
     keyFeatures: [
-      'ONE Network Road Classification (ONRC) — road function-based service levels',
+      'ONE Network Road Classification (ONRC) â road function-based service levels',
       'Risk-based prioritisation linking condition to consequence of failure',
       'Asset management plans (AMPs) for every road controlling authority',
       'Resilience planning: flood/slip vulnerability assessments for all links',
@@ -169,7 +170,7 @@ const CASE_STUDIES: CaseStudy[] = [
     metrics: 'NZ$6.8 VfM per NZ$1 maintenance; 94% resilience target achieved on SH network',
   },
   {
-    id: 8, agency: 'FHWA / State DOTs', country: 'USA', flag: '🇺🇸', networkKm: 900_000,
+    id: 8, agency: 'FHWA / State DOTs', country: 'USA', flag: 'ðºð¸', networkKm: 900_000,
     system: 'FMIS / TAMP (MAP-21 / FAST Act requirements)',
     keyFeatures: [
       'Federal requirement for Transportation Asset Management Plans (TAMPs) for NHS',
@@ -184,10 +185,10 @@ const CASE_STUDIES: CaseStudy[] = [
     metrics: '43% NHS in good pavement condition (2023); IIJA targeting 10% improvement by 2030',
   },
   {
-    id: 9, agency: 'NHAI / NRRDA', country: 'India', flag: '🇮🇳', networkKm: 145_000,
+    id: 9, agency: 'NHAI / NRRDA', country: 'India', flag: 'ð®ð³', networkKm: 145_000,
     system: 'RCMS + PM Gati Shakti Digital Platform',
     keyFeatures: [
-      'PM Gati Shakti NMP — multi-modal national master plan integrating all transport',
+      'PM Gati Shakti NMP â multi-modal national master plan integrating all transport',
       'RCMS (Road Construction Management System) for PMGSY rural roads',
       'iRAM (Integrated Road Asset Management) for NH network',
       'Drone-based condition surveys at 30% lower cost than traditional methods',
@@ -199,7 +200,7 @@ const CASE_STUDIES: CaseStudy[] = [
     metrics: '98% PMGSY connectivity target achieved; 62% NH in good condition (2024)',
   },
   {
-    id: 10, agency: 'Trafikverket', country: 'Sweden', flag: '🇸🇪', networkKm: 98_000,
+    id: 10, agency: 'Trafikverket', country: 'Sweden', flag: 'ð¸ðª', networkKm: 98_000,
     system: 'Pavement Management System + LCC framework',
     keyFeatures: [
       'Long-term National Infrastructure Plan (12-year horizon)',
@@ -214,7 +215,7 @@ const CASE_STUDIES: CaseStudy[] = [
     metrics: '91% main roads in acceptable condition; SEK 9.2 bn annual maintenance budget',
   },
   {
-    id: 11, agency: 'Rijkswaterstaat (RWS)', country: 'Netherlands', flag: '🇳🇱', networkKm: 5_900,
+    id: 11, agency: 'Rijkswaterstaat (RWS)', country: 'Netherlands', flag: 'ð³ð±', networkKm: 5_900,
     system: 'Data-driven Predictive Asset Management',
     keyFeatures: [
       'Asset health index (AHI) for each road segment updated monthly',
@@ -223,13 +224,13 @@ const CASE_STUDIES: CaseStudy[] = [
       'Predictive maintenance reducing reactive emergency works by 60%',
       'Integrated with flood risk system (given Netherlands flood exposure)',
     ],
-    lessonsDNR: 'RWS\'s monthly AHI (Asset Health Index) providing a single condition number per link is an excellent model for DNR to adopt — simplifying reporting to MoWT and Parliament while retaining full technical detail in the underlying system.',
+    lessonsDNR: 'RWS\'s monthly AHI (Asset Health Index) providing a single condition number per link is an excellent model for DNR to adopt â simplifying reporting to MoWT and Parliament while retaining full technical detail in the underlying system.',
     dataApproach: 'Continuous monitoring via embedded pavement sensors + drone surveys + FWD testing; all data in national road data warehouse with public API.',
     funding: 'Rijksbegroting (national budget); Infrastructure Fund',
-    metrics: '99.2% availability of main road network; predictive maintenance savings €180m/yr',
+    metrics: '99.2% availability of main road network; predictive maintenance savings â¬180m/yr',
   },
   {
-    id: 12, agency: 'MLIT', country: 'Japan', flag: '🇯🇵', networkKm: 127_000,
+    id: 12, agency: 'MLIT', country: 'Japan', flag: 'ð¯ðµ', networkKm: 127_000,
     system: 'Bridge Inspection Law + Road Management Cycle',
     keyFeatures: [
       'Mandatory 5-year bridge inspection cycle (amended Road Act 2014)',
@@ -244,14 +245,14 @@ const CASE_STUDIES: CaseStudy[] = [
     metrics: '78% of bridges in good condition (2024, up from 59% in 2014); target 85% by 2030',
   },
   {
-    id: 13, agency: 'DNIT', country: 'Brazil', flag: '🇧🇷', networkKm: 75_000,
+    id: 13, agency: 'DNIT', country: 'Brazil', flag: 'ð§ð·', networkKm: 75_000,
     system: 'SGEPT / PRO-INFRA + Performance-Based Contracts',
     keyFeatures: [
       'Performance-based concession contracts on 22,000 km federal highways',
-      'SGEPT (Sistema de Gerência de Pavimentos e Tráfego) — national PMS',
+      'SGEPT (Sistema de GerÃªncia de Pavimentos e TrÃ¡fego) â national PMS',
       'SICRO cost system: standardised unit costs across all federal roads',
       'OPRC-style contracts (CREMA) on 45% of federal network',
-      'Annual SNV (Sistema Nacional de Viação) condition survey',
+      'Annual SNV (Sistema Nacional de ViaÃ§Ã£o) condition survey',
     ],
     lessonsDNR: 'Brazil\'s CREMA contracts (similar to OPRC) on dirt/gravel roads with performance standards for surface condition and drainage are a good model for DNR\'s Class C network in Northern Uganda where output-based approaches have struggled with baseline condition issues.',
     dataApproach: 'Annual automated surveys (laser profilometer + video); data stored in SGEPT and shared with concession contractors via API; public SNV portal.',
@@ -259,31 +260,31 @@ const CASE_STUDIES: CaseStudy[] = [
     metrics: '64% federal network in good/fair condition (2024); CREMA contracts 18% cheaper than traditional works',
   },
   {
-    id: 14, agency: 'GHA', country: 'Ghana', flag: '🇬🇭', networkKm: 15_000,
+    id: 14, agency: 'GHA', country: 'Ghana', flag: 'ð¬ð­', networkKm: 15_000,
     system: 'GHIAS (Ghana Highway Information and Asset System)',
     keyFeatures: [
-      'World Bank-funded RAMS implemented 2018–2022 (P164887)',
+      'World Bank-funded RAMS implemented 2018â2022 (P164887)',
       'Condition database with 3 survey cycles completed (2019, 2021, 2023)',
       'OPRC pilots on 2 lots of trunk network (A1 and A2 corridors)',
       'Bridge inventory system covering 1,240 structures',
       'RAMS integrated with GHA procurement system',
     ],
-    lessonsDNR: 'Ghana\'s GHIAS implementation shares many parallels with DNR — similar network size, tropical conditions, limited paved %. Key lesson: phased RAMS rollout starting with highest-traffic paved network and expanding to gravel reduced initial costs while building institutional capacity.',
+    lessonsDNR: 'Ghana\'s GHIAS implementation shares many parallels with DNR â similar network size, tropical conditions, limited paved %. Key lesson: phased RAMS rollout starting with highest-traffic paved network and expanding to gravel reduced initial costs while building institutional capacity.',
     dataApproach: 'ROMDAS surveys on paved network; visual surveys on gravel; data integrated into national GIS. Condition data shared with MRH (Ministry of Roads and Highways) annually.',
     funding: 'World Bank IDA (US$200m TSRP), AfDB, JICA, GoG Road Fund',
-    metrics: '58% paved network in good/fair condition; 22% reduction in average roughness 2019–2023',
+    metrics: '58% paved network in good/fair condition; 22% reduction in average roughness 2019â2023',
   },
   {
-    id: 15, agency: 'ERA (Ethiopian Roads Authority)', country: 'Ethiopia', flag: '🇪🇹', networkKm: 130_000,
+    id: 15, agency: 'ERA (Ethiopian Roads Authority)', country: 'Ethiopia', flag: 'ðªð¹', networkKm: 130_000,
     system: 'RRAMPS (Road and River Asset Management Planning System)',
     keyFeatures: [
       'AfDB-funded RAMS covering 15,000 km federal roads (Phase 1)',
       'HDM-4 strategic analysis linked to 10-year investment plan',
       'Road Asset Management Policy and Strategy 2021',
-      'Performance-based maintenance on Addis–Djibouti and Addis–Nairobi corridors',
+      'Performance-based maintenance on AddisâDjibouti and AddisâNairobi corridors',
       'Integration with Ethiopian budget management information system (IBEX)',
     ],
-    lessonsDNR: 'Ethiopia\'s RRAMPS phased approach — first establishing a condition baseline, then building the analysis framework, then linking to budget — matches DNR\'s current stage. DNR already has good condition data and should now prioritise the budget optimisation and programme generation modules.',
+    lessonsDNR: 'Ethiopia\'s RRAMPS phased approach â first establishing a condition baseline, then building the analysis framework, then linking to budget â matches DNR\'s current stage. DNR already has good condition data and should now prioritise the budget optimisation and programme generation modules.',
     dataApproach: 'Annual ROMDAS surveys on paved network; bi-annual visual surveys on gravel; ERA survey vehicles with video and GPS logging.',
     funding: 'AfDB ADB loan (UA 120m), World Bank, GoE Road Fund',
     metrics: '71% federal paved roads in good condition (2024); 35% reduction in maintenance backlog since 2019',
@@ -326,12 +327,12 @@ const TIERS = [
 
 const STANDARDS: Standard[] = [
   { code: 'HDM-4', name: 'Highway Development & Management Tool', body: 'World Bank / PIARC', scope: 'Global standard for pavement analysis, strategy analysis, project analysis and programme analysis', relevance: 'Core analytical engine for DNR PMS. Uganda-specific calibration 2023. Used for all treatment programming and budget optimisation on paved network.', color: C.blue },
-  { code: 'ISO 55001', name: 'Asset Management — Requirements', body: 'ISO / BSI', scope: 'International standard for asset management systems — requirements for managing physical assets', relevance: 'Provides the governance framework for DNR\'s RAMS. Defines asset management policy, strategy, objectives and plans. Uganda\'s Road Infrastructure Asset Management Policy (2017) aligns with ISO 55000 series.', color: C.cyan },
+  { code: 'ISO 55001', name: 'Asset Management â Requirements', body: 'ISO / BSI', scope: 'International standard for asset management systems â requirements for managing physical assets', relevance: 'Provides the governance framework for DNR\'s RAMS. Defines asset management policy, strategy, objectives and plans. Uganda\'s Road Infrastructure Asset Management Policy (2017) aligns with ISO 55000 series.', color: C.cyan },
   { code: 'SATCC TRH4', name: 'Structural Design of Flexible Pavements', body: 'SATCC / CSIR', scope: 'SADC region pavement design standard; vehicle classification and axle load equivalency factors', relevance: 'Source of ESAL factors used in all overloading calculations and HDM-4 structural analysis. SATCC TRH4:2020 is the current version applicable to Uganda.', color: C.teal },
   { code: 'AASHTO PP 104', name: 'Pavement Design Guide (MEPDG)', body: 'AASHTO', scope: 'Mechanistic-empirical pavement design; performance prediction methodologies', relevance: 'Reference for pavement structural design on high-volume roads (Class A). Uganda uses TRH4/HDM-4 approach but AASHTO provides supplementary guidance on bound layer design.', color: C.purple },
   { code: 'FHWA TAMP', name: 'Transportation Asset Management Plan Guidelines', body: 'FHWA (USA)', scope: 'Federal requirements for NHS asset management plans covering pavement and bridges', relevance: 'Provides a model for how DNR should structure its 10-year asset management plan submission to MoWT and Parliament. TAMP format directly applicable.', color: C.orange },
-  { code: 'World Bank RAMP', name: 'Road Asset Management Policy Guidelines', body: 'World Bank', scope: 'Framework for developing national road asset management policies and systems', relevance: 'Underpins DNR\'s RAMS procurement and implementation strategy. Used in project design for all World Bank-funded road projects in Uganda (RSDP I–IV).', color: C.yellow },
-  { code: 'AfDB IAMP', name: 'Infrastructure Asset Management Policy', body: 'African Development Bank', scope: 'AfDB requirements for road asset management systems in AfDB-financed operations', relevance: 'Applied to all AfDB-funded DNR projects (RSSP I–III, UTRP). Requires condition baseline, RAMS implementation plan, and annual reporting.', color: C.green },
+  { code: 'World Bank RAMP', name: 'Road Asset Management Policy Guidelines', body: 'World Bank', scope: 'Framework for developing national road asset management policies and systems', relevance: 'Underpins DNR\'s RAMS procurement and implementation strategy. Used in project design for all World Bank-funded road projects in Uganda (RSDP IâIV).', color: C.yellow },
+  { code: 'AfDB IAMP', name: 'Infrastructure Asset Management Policy', body: 'African Development Bank', scope: 'AfDB requirements for road asset management systems in AfDB-financed operations', relevance: 'Applied to all AfDB-funded DNR projects (RSSP IâIII, UTRP). Requires condition baseline, RAMS implementation plan, and annual reporting.', color: C.green },
   { code: 'MoWT DM', name: 'Design Manual for Roads & Bridges', body: 'Ministry of Works & Transport, Uganda', scope: 'Uganda national design standards for road geometry, pavement, drainage, bridges and structures', relevance: 'Primary design reference for all DNR works. Pavement thickness tables aligned with HDM-4. 2023 update incorporating climate adaptation and heavy vehicle considerations.', color: C.pink },
   { code: 'PIARC TMH', name: 'PIARC Technical Dictionary & Manuals', body: 'PIARC / World Road Association', scope: 'Global technical references on all aspects of road management including winter maintenance, tunnels, asset management', relevance: 'PIARC TC 4.1 (Asset Management) reports directly applicable to DNR RAMS development. PIARC hosts HDM-4 World Academy training.', color: C.cyan },
   { code: 'IRC SP:19', name: 'Guidelines for Road Maintenance', body: 'Indian Roads Congress', scope: 'Maintenance of bituminous and gravel roads in tropical/sub-tropical environments', relevance: 'Applicable to DNR\'s Class C gravel road maintenance. IRC standards developed for conditions similar to Uganda (tropical rainfall, heavy vehicles, limited resources).', color: C.blue },
@@ -349,27 +350,27 @@ const PUBLICATIONS: Publication[] = [
   { id: 'P09', title: 'Asset Management for Road Networks: Whole-of-Life Approach', authors: 'Austroads', year: 2020, publisher: 'Austroads AP-R615-20', relevance: 'LCC methodology applied in DNR Lifecycle Management module' },
   { id: 'P10', title: 'Road Deterioration in Developing Countries: Causes and Remedies', authors: 'Harral, C. & Faiz, A.', year: 1988, publisher: 'World Bank Policy Study', relevance: 'Seminal work establishing HDM-4 deterioration relationships; referenced in DNR calibration' },
   { id: 'P11', title: 'Overloading on African Roads: Costs and Policy Responses', authors: 'Gwilliam, K. & Meakin, R.', year: 2014, publisher: 'Africa Transport Policy Program (SSATP)', relevance: 'ESAL damage equivalency factors and overloading cost quantification methodology used by DNR' },
-  { id: 'P12', title: 'Road Safety in Sub-Saharan Africa: Technical and Economic Assessment', authors: 'Jacobs, G.D. & Cutting, C.A.', year: 2017, publisher: 'Transport Reviews, 37(1)', relevance: 'Road condition–safety correlation analysis used in DNR road safety module' },
+  { id: 'P12', title: 'Road Safety in Sub-Saharan Africa: Technical and Economic Assessment', authors: 'Jacobs, G.D. & Cutting, C.A.', year: 2017, publisher: 'Transport Reviews, 37(1)', relevance: 'Road conditionâsafety correlation analysis used in DNR road safety module' },
   { id: 'P13', title: 'Use of GIS in Road Network Management Systems', authors: 'Fletcher, A. & Petzold, C.', year: 2019, publisher: 'Transportation Research Record 2673', relevance: 'GIS integration methodology used in DNR network GIS and RAMS development' },
   { id: 'P14', title: 'Deep Learning for Road Surface Condition Monitoring from Smartphone Video', authors: 'Buza, E., Omanovic, S. & Huseinovic, A.', year: 2020, publisher: 'Journal of Computing in Civil Engineering, 34(3)', relevance: 'ML approach referenced in DNR platform AI/ML architecture for pavement condition detection' },
   { id: 'P15', title: 'Budget Optimisation for Road Asset Management: A Stochastic Approach', authors: 'Medury, A. & Madanat, S.', year: 2013, publisher: 'Transportation Research Part B, 54', relevance: 'Optimisation methodology applied in DNR multi-year programming and budget allocation module' },
 ];
 
-// ── Module health (static — in production this would use DataAuditEngine) ─────
+// ââ Module health (static â in production this would use DataAuditEngine) âââââ
 
 const MODULE_HEALTH: { id: string; name: string; status: 'ok' | 'warn' | 'info'; note: string; view: ActiveView }[] = [
   { id: 'PMS',   name: 'Pavement Management (PMS)',   status: 'ok',   note: '100% paved links surveyed 2023; calibration current', view: 'roadcondition' },
   { id: 'BMS',   name: 'Bridge Management (BMS)',      status: 'ok',   note: '1,019 structures registered; last inspection < 12 months', view: 'bms' },
   { id: 'TIS',   name: 'Traffic Information (TIS)',    status: 'ok',   note: '25 ATC stations active; 2025 count data loaded', view: 'traffic' },
   { id: 'NDPIV', name: 'NDP IV Investment (NDPIV)',    status: 'warn', note: '8/14 projects behind schedule; financial data Q3 2025', view: 'projects' },
-  { id: 'OPRC',  name: 'OPRC Contracts',               status: 'warn', note: 'Lot 9 suspended; Lot 7 completed — update needed', view: 'projects' },
+  { id: 'OPRC',  name: 'OPRC Contracts',               status: 'warn', note: 'Lot 9 suspended; Lot 7 completed â update needed', view: 'projects' },
   { id: 'HDM4',  name: 'HDM-4 Analysis Engine',        status: 'ok',   note: 'Calibration coefficients 2023; CESAL calculator active', view: 'hdm4' },
   { id: 'LIFECYCLE', name: 'Lifecycle Management',     status: 'ok',   note: 'LCC curves for 12 representative link types', view: 'lifecycle' },
   { id: 'BUDGET', name: 'Budget & Maintenance',        status: 'ok',   note: 'FY 2025/26 allocations loaded; 4-year programme', view: 'budget' },
   { id: 'SOURCES', name: 'Sources Catalogue',          status: 'ok',   note: '150+ sources catalogued across 4 categories', view: 'sources' },
 ];
 
-// ── Shared UI atoms ───────────────────────────────────────────────────────────
+// ââ Shared UI atoms âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 
 function Chip({ label, color }: { label: string; color: string }) {
   return (
@@ -439,7 +440,7 @@ function KpiCard({ label, value, unit, color, tooltip, navChips }: {
                 background: `rgba(${rgb(color)},0.15)`, border: `1px solid rgba(${rgb(color)},0.3)`,
                 color, fontWeight: 700,
               }}>
-              → {chip.label}
+              â {chip.label}
             </button>
           ))}
         </div>
@@ -448,7 +449,7 @@ function KpiCard({ label, value, unit, color, tooltip, navChips }: {
   );
 }
 
-// ── Tab 1: RMS Dashboard ──────────────────────────────────────────────────────
+// ââ Tab 1: RMS Dashboard ââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 
 function RMSDashboard({ navigate }: { navigate: (v: ActiveView) => void }) {
   const net = useNetworkStats();
@@ -475,12 +476,12 @@ function RMSDashboard({ navigate }: { navigate: (v: ActiveView) => void }) {
           </div>
           <div>
             <div style={{ fontSize: 16, fontWeight: 900, color: '#e2eaf4', marginBottom: 6 }}>
-              Road Management System (RMS) — Definition
+              Road Management System (RMS) â Definition
             </div>
             <div style={{ fontSize: 12, color: 'rgba(203,213,225,0.8)', lineHeight: 1.7 }}>
               The <strong style={{ color: C.cyan }}>DNR Road Management Engine</strong> is Uganda's
               integrated platform for the <em>planning, programming, budgeting, maintenance, and monitoring</em> of
-              road network assets throughout their life cycle — replacing traditional dTIMS functionality
+              road network assets throughout their life cycle â replacing traditional dTIMS functionality
               with an ML-powered RMS. It covers the full <strong>{OFFICIAL_NETWORK_KM.toLocaleString()} km</strong> national road network
               managed by the Department of National Roads (DNR), incorporating
               Pavement Management (PMS), Bridge Management (BMS), Traffic Information (TIS),
@@ -499,19 +500,19 @@ function RMSDashboard({ navigate }: { navigate: (v: ActiveView) => void }) {
       {/* KPI banner */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 10, marginBottom: 22 }}>
         <KpiCard label="Total Network" value={String(OFFICIAL_NETWORK_KM)} unit="km" color={C.cyan}
-          tooltip={`Official NDPIV FY 2025/26 figure · GIS-mapped: ${net.totalKm.toLocaleString()} km · Source: MoWT/DNR`}
+          tooltip={`Official NDPIV FY 2025/26 figure Â· GIS-mapped: ${net.totalKm.toLocaleString()} km Â· Source: MoWT/DNR`}
           navChips={[{ label: 'Road Network', view: 'roadnetwork' }]} />
         <KpiCard label="Paved Roads" value={String(net.pavedKm)} unit="km" color={C.green}
-          tooltip={`${net.pavedKm.toLocaleString()} km paved (bituminous) · ${net.pavedPct}% of mapped GeoJSON · Source: network2026.geojson`}
+          tooltip={`${net.pavedKm.toLocaleString()} km paved (bituminous) Â· ${net.pavedPct}% of mapped GeoJSON Â· Source: network2026.geojson`}
           navChips={[{ label: 'Condition Map', view: 'roadcondition' }, { label: 'Traffic', view: 'traffic' }]} />
         <KpiCard label="Paved %" value={String(net.pavedPct)} unit="%" color={C.teal}
-          tooltip={`Paved share = ${net.pavedKm.toLocaleString()} / ${net.totalKm.toLocaleString()} km · NDP IV target: 35% by 2030`}
+          tooltip={`Paved share = ${net.pavedKm.toLocaleString()} / ${net.totalKm.toLocaleString()} km Â· NDP IV target: 35% by 2030`}
           navChips={[{ label: 'Lifecycle', view: 'lifecycle' }]} />
         <KpiCard label="Structures" value={String(net.totalBridges)} unit="" color={C.blue}
-          tooltip={`${net.totalBridges} bridges and culverts registered in BMS · Source: bridges2026.geojson`}
+          tooltip={`${net.totalBridges} bridges and culverts registered in BMS Â· Source: bridges2026.geojson`}
           navChips={[{ label: 'BMS', view: 'bms' }]} />
         <KpiCard label="ATC Stations" value="25" unit="active" color={C.purple}
-          tooltip="25 ATC stations total: 15 legacy (2016–2022) + 10 new (2025+) · Plus 298 manual TIS stations"
+          tooltip="25 ATC stations total: 15 legacy (2016â2022) + 10 new (2025+) Â· Plus 298 manual TIS stations"
           navChips={[{ label: 'Traffic TIS', view: 'traffic' }]} />
         <KpiCard label="Data Sources" value="150" unit="+" color={C.yellow}
           tooltip="150+ catalogued data sources across 4 categories: surveys, studies, policy, GIS"
@@ -543,7 +544,7 @@ function RMSDashboard({ navigate }: { navigate: (v: ActiveView) => void }) {
         <div>
           <div style={{ fontSize: 11, fontWeight: 900, color: C.cyan,
             marginBottom: 10, textTransform: 'uppercase', letterSpacing: '0.1em' }}>
-            System Health — Module Status
+            System Health â Module Status
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
             {MODULE_HEALTH.map(m => {
@@ -573,7 +574,7 @@ function RMSDashboard({ navigate }: { navigate: (v: ActiveView) => void }) {
         <div>
           <div style={{ fontSize: 11, fontWeight: 900, color: C.cyan,
             marginBottom: 10, textTransform: 'uppercase', letterSpacing: '0.1em' }}>
-            Quick Navigation — All Modules
+            Quick Navigation â All Modules
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
             {[
@@ -606,7 +607,7 @@ function RMSDashboard({ navigate }: { navigate: (v: ActiveView) => void }) {
   );
 }
 
-// ── Unused legacy functions (kept to avoid breaking potential external references) ──
+// ââ Unused legacy functions (kept to avoid breaking potential external references) ââ
 
 function RMSArchitecture({ navigate }: { navigate: (v: ActiveView) => void }) {
   const [hovered, setHovered] = useState<number | null>(null);
@@ -621,7 +622,7 @@ function RMSArchitecture({ navigate }: { navigate: (v: ActiveView) => void }) {
       <div style={{ marginBottom: 18 }}>
         <div style={{ fontSize: 18, fontWeight: 900, color: '#e2eaf4' }}>RMS Functional Architecture</div>
         <div style={{ fontSize: 11, color: 'rgba(148,163,184,0.65)', marginTop: 2 }}>
-          5-tier architecture used in global road management systems — click a tier to navigate to the corresponding module
+          5-tier architecture used in global road management systems â click a tier to navigate to the corresponding module
         </div>
       </div>
 
@@ -711,7 +712,7 @@ function GlobalCaseStudies() {
         <div>
           <div style={{ fontSize: 18, fontWeight: 900, color: '#e2eaf4' }}>National RMS Case Studies</div>
           <div style={{ fontSize: 11, color: 'rgba(148,163,184,0.65)', marginTop: 2 }}>
-            {CASE_STUDIES.length} countries analysed — click any card to expand &amp; see applicability to DNR
+            {CASE_STUDIES.length} countries analysed â click any card to expand &amp; see applicability to DNR
           </div>
         </div>
         <div style={{ display: 'flex', gap: 5 }}>
@@ -750,7 +751,7 @@ function GlobalCaseStudies() {
                       <Chip label={region} color={regCol} />
                     </div>
                     <div style={{ fontSize: 10, color: 'rgba(148,163,184,0.65)', marginTop: 2 }}>
-                      {cs.country} · {cs.networkKm.toLocaleString()} km · {cs.system}
+                      {cs.country} Â· {cs.networkKm.toLocaleString()} km Â· {cs.system}
                     </div>
                   </div>
                   <ArrowRight size={12} style={{ color: 'rgba(100,116,139,0.4)', transform: isOpen ? 'rotate(90deg)' : 'none', transition: 'transform 0.2s' }} />
@@ -763,7 +764,7 @@ function GlobalCaseStudies() {
                     <div style={{ fontSize: 9, fontWeight: 900, color: regCol, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 6 }}>Key Features</div>
                     {cs.keyFeatures.map(f => (
                       <div key={f} style={{ display: 'flex', gap: 6, marginBottom: 4 }}>
-                        <span style={{ color: regCol, flexShrink: 0, marginTop: 1 }}>▸</span>
+                        <span style={{ color: regCol, flexShrink: 0, marginTop: 1 }}>â¸</span>
                         <span style={{ fontSize: 10, color: 'rgba(196,210,225,0.8)', lineHeight: 1.5 }}>{f}</span>
                       </div>
                     ))}
@@ -871,7 +872,7 @@ function StandardsEvidence() {
           </table>
         </div>
         <div style={{ marginTop: 10, fontSize: 9, color: 'rgba(100,116,139,0.5)', textAlign: 'right' }}>
-          Full bibliography available in Sources &amp; Evidence Catalogue — {PUBLICATIONS.length} key references shown above
+          Full bibliography available in Sources &amp; Evidence Catalogue â {PUBLICATIONS.length} key references shown above
         </div>
       </div>
     </div>
@@ -920,9 +921,9 @@ const UNRA_LAYERS = [
     desc: 'Analytical engines that convert raw data into condition forecasts, priorities and costs',
     tools: [
       'HDM-4 Pavement Deterioration & Strategy Analysis',
-      'ML Multi-Task IRI Prediction (PyTorch, R²=0.93)',
+      'ML Multi-Task IRI Prediction (PyTorch, RÂ²=0.93)',
       'Bridge Condition Scoring & Priority Ranking',
-      'Traffic Growth & Demand Forecasting (2016–2040)',
+      'Traffic Growth & Demand Forecasting (2016â2040)',
       'ESAL / Overloading Structural Damage Model (SATCC TRH4)',
       'Life Cycle Cost Analysis (NPV, 40-year horizon)',
       'Budget Optimisation (multi-year programming)',
@@ -967,12 +968,12 @@ const UNRA_LAYERS = [
 ];
 
 const CONNECTIONS: { from: string; to: string; label: string }[] = [
-  { from: 'Field surveys', to: 'Central RDB', label: 'Raw data → validated records' },
-  { from: 'CRD condition data', to: 'HDM-4 engine', label: 'IRI/distress → deterioration forecast' },
-  { from: 'HDM-4 outputs', to: 'AWP/MTEF', label: 'Priority interventions → programme' },
-  { from: 'AWP', to: 'Performance KPIs', label: 'Executed works → outcome measurement' },
-  { from: 'Traffic data', to: 'ESAL model', label: 'AADT + class → structural loading' },
-  { from: 'Bridge inspections', to: 'BMS analysis', label: 'Condition ratings → priority score' },
+  { from: 'Field surveys', to: 'Central RDB', label: 'Raw data â validated records' },
+  { from: 'CRD condition data', to: 'HDM-4 engine', label: 'IRI/distress â deterioration forecast' },
+  { from: 'HDM-4 outputs', to: 'AWP/MTEF', label: 'Priority interventions â programme' },
+  { from: 'AWP', to: 'Performance KPIs', label: 'Executed works â outcome measurement' },
+  { from: 'Traffic data', to: 'ESAL model', label: 'AADT + class â structural loading' },
+  { from: 'Bridge inspections', to: 'BMS analysis', label: 'Condition ratings â priority score' },
 ];
 
 function UNRARMSArchitecture({ navigate }: { navigate: (v: ActiveView) => void }) {
@@ -991,7 +992,7 @@ function UNRARMSArchitecture({ navigate }: { navigate: (v: ActiveView) => void }
 
       <div style={{ marginBottom: 22 }}>
         <div style={{ fontSize: 18, fontWeight: 900, color: '#e2eaf4', marginBottom: 6 }}>
-          UNRA Road Management System — Technical Architecture
+          UNRA Road Management System â Technical Architecture
         </div>
         <div style={{ fontSize: 11, color: 'rgba(148,163,184,0.65)', lineHeight: 1.6, maxWidth: 760 }}>
           Based on the <strong style={{ color: C.cyan }}>UNRA Road Management System User Manual (2017)</strong> and
@@ -1008,7 +1009,7 @@ function UNRARMSArchitecture({ navigate }: { navigate: (v: ActiveView) => void }
         {CONNECTIONS.map((conn, i) => (
           <div key={i} style={{ fontSize: 9, color: 'rgba(148,163,184,0.65)', lineHeight: 1.5 }}>
             <div style={{ color: C.cyan, fontWeight: 700, marginBottom: 2 }}>{conn.from}</div>
-            <div style={{ color: 'rgba(100,116,139,0.5)' }}>→ {conn.to}</div>
+            <div style={{ color: 'rgba(100,116,139,0.5)' }}>â {conn.to}</div>
             <div style={{ color: 'rgba(148,163,184,0.5)', fontSize: 8, marginTop: 1 }}>{conn.label}</div>
           </div>
         ))}
@@ -1069,7 +1070,7 @@ function UNRARMSArchitecture({ navigate }: { navigate: (v: ActiveView) => void }
                       background: `rgba(${r(col)},0.12)`, border: `1px solid rgba(${r(col)},0.35)`,
                       color: col, cursor: 'pointer', flexShrink: 0, whiteSpace: 'nowrap',
                     }}>
-                    Open Module →
+                    Open Module â
                   </button>
                 </div>
 
@@ -1086,7 +1087,7 @@ function UNRARMSArchitecture({ navigate }: { navigate: (v: ActiveView) => void }
                           background: `rgba(${r(col)},0.06)`,
                           borderRadius: 7, padding: '7px 10px',
                         }}>
-                          <span style={{ color: col, fontSize: 12, flexShrink: 0, lineHeight: 1.3 }}>▸</span>
+                          <span style={{ color: col, fontSize: 12, flexShrink: 0, lineHeight: 1.3 }}>â¸</span>
                           <span style={{ fontSize: 10, color: 'rgba(196,210,225,0.85)', lineHeight: 1.5 }}>{tool}</span>
                         </div>
                       ))}
@@ -1120,7 +1121,7 @@ function UNRARMSArchitecture({ navigate }: { navigate: (v: ActiveView) => void }
   );
 }
 
-// ── Tab 4: DNR RMS Engine Architecture Diagram ────────────────────────────────
+// ââ Tab 4: DNR RMS Engine Architecture Diagram ââââââââââââââââââââââââââââââââ
 
 interface ArchBoxProps {
   label: string;
@@ -1220,7 +1221,7 @@ export function DTIMSArchitecture({ navigate }: { navigate: (v: ActiveView) => v
       {/* Header */}
       <div style={{ marginBottom: 20 }}>
         <div style={{ fontSize: 18, fontWeight: 900, color: '#e2eaf4', marginBottom: 4 }}>
-          DNR Road Management Engine — System Architecture
+          DNR Road Management Engine â System Architecture
         </div>
         <div style={{ fontSize: 11, color: 'rgba(148,163,184,0.6)', lineHeight: 1.6, maxWidth: 820 }}>
           Interactive diagram of the DNR Road Management Engine (RMS) data architecture replacing traditional dTIMS functionality with an integrated ML-powered RMS.
@@ -1241,7 +1242,7 @@ export function DTIMSArchitecture({ navigate }: { navigate: (v: ActiveView) => v
         alignItems: 'start',
       }}>
 
-        {/* ── LEFT: Data Collection ─────────────────────────────────────────── */}
+        {/* ââ LEFT: Data Collection âââââââââââââââââââââââââââââââââââââââââââ */}
         <div style={colAnim('0s')}>
           <SectionHeader title="Data Collection" color="#7ec8e3" />
           <div style={{
@@ -1269,7 +1270,7 @@ export function DTIMSArchitecture({ navigate }: { navigate: (v: ActiveView) => v
             {/* Road inventory */}
             <ArchBox
               label="Road Inventory"
-              sub="Visual Condition · Roughness · GPS · Video · FWD/DCP · Photographs"
+              sub="Visual Condition Â· Roughness Â· GPS Â· Video Â· FWD/DCP Â· Photographs"
               color={C.teal}
               onClick={() => navigate('roadcondition')}
             />
@@ -1300,7 +1301,7 @@ export function DTIMSArchitecture({ navigate }: { navigate: (v: ActiveView) => v
           </div>
         </div>
 
-        {/* ── CENTER: Data Management ───────────────────────────────────────── */}
+        {/* ââ CENTER: Data Management âââââââââââââââââââââââââââââââââââââââââ */}
         <div style={colAnim('0.15s')}>
           <SectionHeader title="Data Management" color="#a8d5a2" />
           <div style={{
@@ -1314,20 +1315,20 @@ export function DTIMSArchitecture({ navigate }: { navigate: (v: ActiveView) => v
             {/* TIS */}
             <div>
               <ArchBox
-                label="TIS — Traffic Information System"
+                label="TIS â Traffic Information System"
                 sub="AADT, ESALs, Traffic Growth, Axle Load Statistics"
                 color={C.cyan}
                 badge="TIS"
                 onClick={() => navigate('traffic')}
               />
               <div style={{ fontSize: 8, color: 'rgba(0,245,255,0.4)', marginTop: 3, paddingLeft: 4 }}>
-                ← AADT / ESALs from Traffic Data
+                â AADT / ESALs from Traffic Data
               </div>
             </div>
 
             <FlowArrow vertical label="Road Network Characteristics" />
 
-            {/* Central DNR Asset Management Database — prominent */}
+            {/* Central DNR Asset Management Database â prominent */}
             <div style={{
               background: 'rgba(0,245,255,0.06)',
               border: '2px solid rgba(0,245,255,0.35)',
@@ -1347,7 +1348,7 @@ export function DTIMSArchitecture({ navigate }: { navigate: (v: ActiveView) => v
                 DNR Asset Management Database
               </div>
               <div style={{ fontSize: 9, color: 'rgba(0,245,255,0.6)', textAlign: 'center', lineHeight: 1.5 }}>
-                DNR Road Management Engine · Integrated Asset DB · ML-Powered
+                DNR Road Management Engine Â· Integrated Asset DB Â· ML-Powered
               </div>
               <div style={{ marginTop: 8, display: 'flex', flexWrap: 'wrap', gap: 4, justifyContent: 'center' }}>
                 {['Road Network', 'Condition Data', 'Traffic Data', 'Structures', 'Maintenance History'].map(t => (
@@ -1360,7 +1361,7 @@ export function DTIMSArchitecture({ navigate }: { navigate: (v: ActiveView) => v
 
             {/* BMS centre */}
             <ArchBox
-              label="BMS — Bridge Management System"
+              label="BMS â Bridge Management System"
               sub="Structure ratings, priority scores, works programme"
               color={C.purple}
               badge="BMS"
@@ -1371,8 +1372,8 @@ export function DTIMSArchitecture({ navigate }: { navigate: (v: ActiveView) => v
 
             {/* GIS */}
             <ArchBox
-              label="GIS — Geographic Information System"
-              sub="Network GeoJSON · Spatial analysis · Map outputs"
+              label="GIS â Geographic Information System"
+              sub="Network GeoJSON Â· Spatial analysis Â· Map outputs"
               color={C.teal}
               onClick={() => navigate('gismap')}
             />
@@ -1382,14 +1383,14 @@ export function DTIMSArchitecture({ navigate }: { navigate: (v: ActiveView) => v
             {/* RMS Reporting */}
             <ArchBox
               label="RMS Reporting Module"
-              sub="Annual reports · KPIs · Performance dashboards"
+              sub="Annual reports Â· KPIs Â· Performance dashboards"
               color={C.green}
               onClick={() => navigate('rms')}
             />
           </div>
         </div>
 
-        {/* ── RIGHT: Planning & Programming ─────────────────────────────────── */}
+        {/* ââ RIGHT: Planning & Programming âââââââââââââââââââââââââââââââââââ */}
         <div style={colAnim('0.3s')}>
           <SectionHeader title="Planning & Programming" color="#f4a261" />
           <div style={{
@@ -1404,42 +1405,42 @@ export function DTIMSArchitecture({ navigate }: { navigate: (v: ActiveView) => v
             </div>
 
             <ArchBox
-              label="LCCA — DNR RMS Life Cycle Cost Analysis"
-              sub="Roads + Bridges · 40-year NPV horizon"
+              label="LCCA â DNR RMS Life Cycle Cost Analysis"
+              sub="Roads + Bridges Â· 40-year NPV horizon"
               color={C.orange}
               onClick={() => navigate('hdm4')}
             />
 
             <ArchBox
-              label="HDM-4 — Highway Development and Management"
-              sub="Strategy analysis · Project prioritisation · ESAL modelling"
+              label="HDM-4 â Highway Development and Management"
+              sub="Strategy analysis Â· Project prioritisation Â· ESAL modelling"
               color={C.yellow}
               onClick={() => navigate('hdm4')}
             />
 
             <ArchBox
-              label="RED — Roads Economic Decision Model"
+              label="RED â Roads Economic Decision Model"
               sub="Economic appraisal for low-volume roads"
               color={C.orange}
             />
 
             <ArchBox
-              label="ROMAPS — Routine Maintenance & Planning System"
-              sub="AWP generation · Maintenance station programming"
+              label="ROMAPS â Routine Maintenance & Planning System"
+              sub="AWP generation Â· Maintenance station programming"
               color={C.teal}
               onClick={() => navigate('budget')}
             />
 
             <ArchBox
               label="Road Proclamation System"
-              sub="Gazettement · Road class amendments · Reserve management"
+              sub="Gazettement Â· Road class amendments Â· Reserve management"
               color={C.blue}
               onClick={() => navigate('projects')}
             />
 
             <ArchBox
               label="Project Control System"
-              sub="NDP IV pipeline · OPRC contracts · Financial progress"
+              sub="NDP IV pipeline Â· OPRC contracts Â· Financial progress"
               color={C.green}
               onClick={() => navigate('projects')}
             />
@@ -1457,9 +1458,9 @@ export function DTIMSArchitecture({ navigate }: { navigate: (v: ActiveView) => v
           Flow Legend
         </div>
         {[
-          { label: 'Left → Centre: Raw survey data feeds DNR Road Management Engine', color: C.blue },
-          { label: 'Centre → Right: Road network characteristics + works programs to planning tools', color: C.green },
-          { label: 'BMS data → DNR RMS: Bridge condition and priority scores', color: C.purple },
+          { label: 'Left â Centre: Raw survey data feeds DNR Road Management Engine', color: C.blue },
+          { label: 'Centre â Right: Road network characteristics + works programs to planning tools', color: C.green },
+          { label: 'BMS data â DNR RMS: Bridge condition and priority scores', color: C.purple },
           { label: 'Click any box to open the relevant platform module', color: C.cyan },
         ].map(item => (
           <div key={item.label} style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
@@ -1472,9 +1473,10 @@ export function DTIMSArchitecture({ navigate }: { navigate: (v: ActiveView) => v
   );
 }
 
-// ── Main ──────────────────────────────────────────────────────────────────────
+// ââ Main ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 
 const TABS = [
+  { id: 'dashboard' as const, label: 'Dashboard', icon: <LayoutDashboard size={13}/> },
   { id: 'overview'      as const, label: 'Overview',          icon: <LayoutDashboard size={13}/> },
   { id: 'roadmap'       as const, label: 'Road Network Map',  icon: <Map size={13}/> },
   { id: 'inventory'     as const, label: 'Road Inventory',    icon: <Database size={13}/> },
@@ -1537,13 +1539,14 @@ export default function RMSSection() {
           );
         })}
         <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', paddingRight: 4 }}>
-          <Chip label="RMS v4.0 · FY25-26" color={C.cyan} />
+          <Chip label="RMS v4.0 Â· FY25-26" color={C.cyan} />
         </div>
       </div>
 
       {/* Content */}
       <div style={contentStyle}>
 
+          {TABS[activeTab].id === 'dashboard' && <SectionDashboard sectionId="rms" />}
         {tab === 'overview' && (
           <RMSDashboard navigate={navigate} />
         )}
