@@ -10,6 +10,7 @@ import SourceTableButton from '../../shared/SourceTableButton';
 import { useSectionData } from '../../hooks/useSectionData';
 import CrossLinkChipBar from '../../shared/CrossLinkChipBar';
 import { useTableSort } from '../../shared/useTableSort';
+import SectionDashboard from '../Dashboard/SectionDashboard';
 
 const C = {
   cyan: '#00f5ff', green: '#00ff88', yellow: '#ffd23f',
@@ -41,12 +42,12 @@ const MAINT_BUDGET = [
 ];
 
 const INTERVENTION_MATRIX = [
-  { type: 'Routine',   label: 'Routine Maintenance',    trigger: 'IRI < 4.0 m/km; scheduled annual',          paved: 'UGX 42M/km/yr', unpaved: 'UGX 28M/km/yr', life_ext: '+0–2 yrs', color: C.green  },
-  { type: 'Preventive', label: 'Preventive Seal',        trigger: 'IRI 3.5–5.0; cracking <10% area',           paved: 'UGX 165M/km',  unpaved: '—',              life_ext: '+5–8 yrs',  color: C.teal   },
-  { type: 'Periodic',  label: 'Reseal (1-coat SD)',      trigger: 'IRI 4.0–5.5; cracking 10–20%',              paved: 'UGX 220M/km',  unpaved: '—',              life_ext: '+6–8 yrs',  color: C.cyan   },
-  { type: 'Periodic',  label: 'Thin overlay (30mm)',     trigger: 'IRI 5.0–6.5; cracking >20%, some rutting',  paved: 'UGX 520M/km',  unpaved: '—',              life_ext: '+8–10 yrs', color: C.yellow },
-  { type: 'Periodic',  label: 'Gravel Resheet',          trigger: 'Gravel loss >30mm; seasonal passability',   paved: '—',            unpaved: 'UGX 230M/km',    life_ext: '+3–5 yrs',  color: C.orange },
-  { type: 'Rehab',     label: 'Structural overlay 60mm', trigger: 'IRI 6.5–8.0; deep rutting; SN deficiency', paved: 'UGX 900M/km',  unpaved: '—',              life_ext: '+12–15 yrs',color: C.orange },
+  { type: 'Routine',   label: 'Routine Maintenance',    trigger: 'IRI < 4.0 m/km; scheduled annual',          paved: 'UGX 42M/km/yr', unpaved: 'UGX 28M/km/yr', life_ext: '+0â2 yrs', color: C.green  },
+  { type: 'Preventive', label: 'Preventive Seal',        trigger: 'IRI 3.5â5.0; cracking <10% area',           paved: 'UGX 165M/km',  unpaved: 'â',              life_ext: '+5â8 yrs',  color: C.teal   },
+  { type: 'Periodic',  label: 'Reseal (1-coat SD)',      trigger: 'IRI 4.0â5.5; cracking 10â20%',              paved: 'UGX 220M/km',  unpaved: 'â',              life_ext: '+6â8 yrs',  color: C.cyan   },
+  { type: 'Periodic',  label: 'Thin overlay (30mm)',     trigger: 'IRI 5.0â6.5; cracking >20%, some rutting',  paved: 'UGX 520M/km',  unpaved: 'â',              life_ext: '+8â10 yrs', color: C.yellow },
+  { type: 'Periodic',  label: 'Gravel Resheet',          trigger: 'Gravel loss >30mm; seasonal passability',   paved: 'â',            unpaved: 'UGX 230M/km',    life_ext: '+3â5 yrs',  color: C.orange },
+  { type: 'Rehab',     label: 'Structural overlay 60mm', trigger: 'IRI 6.5â8.0; deep rutting; SN deficiency', paved: 'UGX 900M/km',  unpaved: 'â',              life_ext: '+12â15 yrs',color: C.orange },
   { type: 'Rehab',     label: 'Full Rehabilitation',     trigger: 'IRI > 8.0; widespread failure',              paved: 'UGX 2,200M/km',unpaved: 'UGX 1,500M/km', life_ext: '+20 yrs',   color: C.red    },
   { type: 'Emergency', label: 'Emergency Repair',        trigger: 'Washout / landslip / sudden failure',        paved: 'UGX 48M/site', unpaved: 'UGX 32M/site',   life_ext: 'Varies',    color: C.pink   },
 ];
@@ -62,6 +63,7 @@ const DEFAULT_REGION_DATA = [
 
 
 const TABS = [
+  { id: 'dashboard' as const, label: 'Dashboard', icon: <LayoutDashboard size={13}/> },
   { id: 'gap',      label: 'Budget Gap Analysis' },
   { id: 'matrix',   label: 'Intervention Matrix' },
   { id: 'region',   label: 'Regional Breakdown' },
@@ -135,7 +137,7 @@ export default function BudgetSection() {
       <CrossLinkChipBar sectionId="budget" />
     <div style={{ padding: '8px 14px', flex: 1 }}>
       <ModuleNavBar module="Budget" />
-      {/* Header — compact single strip: title + KPI chips on one row */}
+      {/* Header â compact single strip: title + KPI chips on one row */}
       <div style={{
         display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap',
         padding: '8px 12px', marginBottom: 8, borderRadius: 10,
@@ -149,7 +151,7 @@ export default function BudgetSection() {
         </div>
         <div style={{ minWidth: 170 }}>
           <div style={{ fontSize: 14, fontWeight: 900, color: '#e2eaf4', lineHeight: 1.15 }}>Budget &amp; Maintenance</div>
-          <div style={{ fontSize: 9, color: 'rgba(148,163,184,0.6)' }}>M&amp;R budgets · funding gaps · cost matrix</div>
+          <div style={{ fontSize: 9, color: 'rgba(148,163,184,0.6)' }}>M&amp;R budgets Â· funding gaps Â· cost matrix</div>
         </div>
         <div style={{ flex: 1 }} />
         {[
@@ -167,7 +169,7 @@ export default function BudgetSection() {
         ))}
       </div>
 
-      {/* ── BMS-style tab bar ── */}
+      {/* ââ BMS-style tab bar ââ */}
       <div style={{
         display: 'flex', gap: 2, padding: '0 0 0 0', marginBottom: 10, flexShrink: 0,
         borderBottom: '1px solid rgba(77,159,255,0.15)',
@@ -194,7 +196,7 @@ export default function BudgetSection() {
           <div style={card(C.pink)}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 14 }}>
               <div style={{ fontSize: 11, fontWeight: 900, color: C.pink, textTransform: 'uppercase', letterSpacing: '0.1em' }}>
-                Maintenance Budget vs Needs 2015/16–2025/26 (UGX Billions) — allocations from URF Annual Work Plans
+                Maintenance Budget vs Needs 2015/16â2025/26 (UGX Billions) â allocations from URF Annual Work Plans
               </div>
               <SourceTableButton anchor="tbl-020" />
             </div>
@@ -228,7 +230,7 @@ export default function BudgetSection() {
               </LineChart>
             </ResponsiveContainer>
             <div style={{ fontSize: 10, color: 'rgba(148,163,184,0.5)', marginTop: 8 }}>
-              The maintenance funding gap averages UGX 340B/year (2018–2024), representing ~40% of required budget.
+              The maintenance funding gap averages UGX 340B/year (2018â2024), representing ~40% of required budget.
               Chronic underfunding accelerates network deterioration beyond what periodic rehabilitation can recover.
             </div>
           </div>
@@ -239,7 +241,7 @@ export default function BudgetSection() {
       {tab === 'matrix' && (
         <div style={card(C.cyan)}>
           <div style={{ fontSize: 11, fontWeight: 900, color: C.cyan, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 4 }}>
-            Road Maintenance Intervention Cost Matrix — Uganda FY 2025/26
+            Road Maintenance Intervention Cost Matrix â Uganda FY 2025/26
           </div>
           <div style={{ fontSize: 10, color: 'rgba(148,163,184,0.6)', marginBottom: 14 }}>
             Source: MoWT Schedule of Rates + Department of National Roads Contract Management. Costs per km unless noted. Excludes VAT.
@@ -393,7 +395,7 @@ export default function BudgetSection() {
             {[
               { source: 'Uganda Road Fund (URF)', amount: 'UGX 380B', share: '65%', desc: 'Fuel levy, transit tolls, road user charges', color: C.cyan },
               { source: 'GoU Consolidated Fund', amount: 'UGX 120B', share: '21%', desc: 'General government budget allocation', color: C.yellow },
-              { source: 'World Bank (RSSP)', amount: 'UGX 55B',  share: '9%',  desc: 'Road Sector Support Project — maintenance component', color: C.blue },
+              { source: 'World Bank (RSSP)', amount: 'UGX 55B',  share: '9%',  desc: 'Road Sector Support Project â maintenance component', color: C.blue },
               { source: 'AfDB Emergency',         amount: 'UGX 25B',  share: '4%',  desc: 'Disaster/emergency road repairs', color: C.green },
             ].map(s => (
               <div key={s.source} style={{ padding: '10px 0', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
