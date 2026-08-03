@@ -5,6 +5,7 @@ import {
 } from 'recharts';
 import { DollarSign, Globe, Building2, TrendingUp, FileText } from 'lucide-react';
 import { ModuleNavBar } from '../../shared/ModuleNavBar';
+import SectionDashboard from '../Dashboard/SectionDashboard';
 
 const C = {
   cyan: '#00f5ff', green: '#00ff88', yellow: '#ffd23f',
@@ -23,7 +24,7 @@ const card = (a: string) => ({
 });
 const TK = { fontSize: 9, fill: 'rgba(148,163,184,0.6)' };
 
-// ── Data ─────────────────────────────────────────────────────────────────────
+// ââ Data âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 const BUDGET_BY_YEAR = [
   { fy: '2015/16', roads: 1420, bridges: 180, total: 1600, donor: 680, gou: 920 },
   { fy: '2016/17', roads: 1580, bridges: 210, total: 1790, donor: 820, gou: 970 },
@@ -49,17 +50,17 @@ const DONOR_BREAKDOWN = [
 
 const PPP_PROJECTS = [
   {
-    name: 'Kampala–Jinja Expressway',
+    name: 'KampalaâJinja Expressway',
     status: 'Financial Close Stage',
     length_km: 95,
     value_usd_m: 1200,
     model: 'DBFOT (30-year concession)',
-    funder: 'PPP — GoU + Private consortium',
+    funder: 'PPP â GoU + Private consortium',
     notes: 'First major PPP expressway; toll-based; linking Kampala to Jinja SEZ',
     color: C.cyan,
   },
   {
-    name: 'Kampala–Entebbe Expressway',
+    name: 'KampalaâEntebbe Expressway',
     status: 'Operational (since 2018)',
     length_km: 51,
     value_usd_m: 476,
@@ -75,11 +76,11 @@ const PPP_PROJECTS = [
     value_usd_m: 145,
     model: 'EPC (AfDB grant)',
     funder: 'AfDB + GoU',
-    notes: 'Phase II (Bweyogerere–Kigowa) completed 2018; critical urban bypass',
+    notes: 'Phase II (BweyogerereâKigowa) completed 2018; critical urban bypass',
     color: C.blue,
   },
   {
-    name: 'Tirinyi–Mbale–Soroti',
+    name: 'TirinyiâMbaleâSoroti',
     status: 'Under Procurement',
     length_km: 272,
     value_usd_m: 780,
@@ -89,7 +90,7 @@ const PPP_PROJECTS = [
     color: C.yellow,
   },
   {
-    name: 'Gulu–Atiak Highway',
+    name: 'GuluâAtiak Highway',
     status: 'Under Construction',
     length_km: 74,
     value_usd_m: 210,
@@ -99,7 +100,7 @@ const PPP_PROJECTS = [
     color: C.orange,
   },
   {
-    name: 'Kyotera–Mutukula',
+    name: 'KyoteraâMutukula',
     status: 'Completed 2022',
     length_km: 76,
     value_usd_m: 95,
@@ -121,6 +122,7 @@ const PIM_FRAMEWORK = [
 ];
 
 const TABS = [
+  { id: 'dashboard' as const, label: 'Dashboard', icon: <LayoutDashboard size={13}/> },
   { id: 'pim',    label: 'PIM Framework', icon: <FileText size={13}/> },
   { id: 'budget', label: 'Budget Trends', icon: <DollarSign size={13}/> },
   { id: 'ppp',    label: 'PPP Projects',  icon: <Building2 size={13}/> },
@@ -160,7 +162,7 @@ export default function PublicInvestmentSection() {
           <div>
             <div style={{ fontSize: 18, fontWeight: 900, color: '#e2eaf4' }}>Public Investment Management</div>
             <div style={{ fontSize: 11, color: 'rgba(148,163,184,0.65)', marginTop: 1 }}>
-              Uganda national roads financing · PPPs · donor frameworks · NDP IV investment plan
+              Uganda national roads financing Â· PPPs Â· donor frameworks Â· NDP IV investment plan
             </div>
           </div>
         </div>
@@ -182,7 +184,7 @@ export default function PublicInvestmentSection() {
         </div>
       </div>
 
-      {/* ── BMS-style tab bar ── */}
+      {/* ââ BMS-style tab bar ââ */}
       <div style={{
         display: 'flex', gap: 2, marginBottom: 18, flexShrink: 0,
         borderBottom: '1px solid rgba(77,159,255,0.15)',
@@ -208,7 +210,7 @@ export default function PublicInvestmentSection() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
           <div style={card(C.yellow)}>
             <div style={{ fontSize: 11, fontWeight: 900, color: C.yellow, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 14 }}>
-              Uganda Public Investment Management Cycle — Roads Sector
+              Uganda Public Investment Management Cycle â Roads Sector
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               {PIM_FRAMEWORK.map((s, i) => (
@@ -232,22 +234,22 @@ export default function PublicInvestmentSection() {
               <div style={{ fontSize: 10, fontWeight: 900, color: C.blue, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 10 }}>Key Legal Framework</div>
               {[
                 'Public Finance Management Act, 2015 (as amended)',
-                'PPDA Act, 2003 (amended 2014) — Procurement',
-                'National Roads Act, 2017 — Department of National Roads mandate',
-                'Roads Act, Cap 358 — road classification',
-                'PPP Act, 2015 — private finance framework',
-                'National Environment Act, 2019 — ESIA requirements',
-                'National Development Plan IV (2020/21–2025/26)',
-                'Uganda Vision 2040 — long-term strategic goals',
+                'PPDA Act, 2003 (amended 2014) â Procurement',
+                'National Roads Act, 2017 â Department of National Roads mandate',
+                'Roads Act, Cap 358 â road classification',
+                'PPP Act, 2015 â private finance framework',
+                'National Environment Act, 2019 â ESIA requirements',
+                'National Development Plan IV (2020/21â2025/26)',
+                'Uganda Vision 2040 â long-term strategic goals',
               ].map(l => (
                 <div key={l} style={{ fontSize: 10, color: 'rgba(196,210,225,0.75)', padding: '4px 0',
-                  borderBottom: '1px solid rgba(255,255,255,0.04)' }}>• {l}</div>
+                  borderBottom: '1px solid rgba(255,255,255,0.04)' }}>â¢ {l}</div>
               ))}
             </div>
             <div style={card(C.green)}>
               <div style={{ fontSize: 10, fontWeight: 900, color: C.green, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 10 }}>Key Institutions</div>
               {[
-                { name: 'Department of National Roads', role: 'Implementing agency — national roads' },
+                { name: 'Department of National Roads', role: 'Implementing agency â national roads' },
                 { name: 'MoWT', role: 'Policy, standards, district roads oversight' },
                 { name: 'MFPED', role: 'Budget allocation, MTEF, donor coordination' },
                 { name: 'NPA', role: 'National development plan formulation' },
@@ -271,7 +273,7 @@ export default function PublicInvestmentSection() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           <div style={card(C.cyan)}>
             <div style={{ fontSize: 11, fontWeight: 900, color: C.cyan, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 14 }}>
-              Department of National Roads Budget Allocation 2015/16–2024/25 (UGX Billions)
+              Department of National Roads Budget Allocation 2015/16â2024/25 (UGX Billions)
             </div>
             <ResponsiveContainer width="100%" height={280}>
               <BarChart data={BUDGET_BY_YEAR} margin={{ top: 8, right: 12, left: 0, bottom: 20 }}>
@@ -351,7 +353,7 @@ export default function PublicInvestmentSection() {
           </div>
           <div style={card(C.green)}>
             <div style={{ fontSize: 11, fontWeight: 900, color: C.green, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 14 }}>
-              Donor Profiles — National Roads
+              Donor Profiles â National Roads
             </div>
             {[
               { donor: 'World Bank / IDA', share: '28%', focus: 'Rehabilitation, connectivity, OPRC maintenance', active: '4 operations' },
@@ -366,7 +368,7 @@ export default function PublicInvestmentSection() {
                   <span style={{ fontSize: 11, fontWeight: 800, color: '#d4dde8' }}>{d.donor}</span>
                   <span style={{ fontSize: 10, fontWeight: 800, color: C.yellow }}>{d.share}</span>
                 </div>
-                <div style={{ fontSize: 10, color: 'rgba(148,163,184,0.6)' }}>{d.focus} · {d.active}</div>
+                <div style={{ fontSize: 10, color: 'rgba(148,163,184,0.6)' }}>{d.focus} Â· {d.active}</div>
               </div>
             ))}
           </div>
@@ -378,7 +380,7 @@ export default function PublicInvestmentSection() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
           <div style={card(C.green)}>
             <div style={{ fontSize: 11, fontWeight: 900, color: C.green, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 14 }}>
-              NDP IV National Roads Targets (2020/21–2025/26)
+              NDP IV National Roads Targets (2020/21â2025/26)
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 10, marginBottom: 18 }}>
               {[
@@ -398,7 +400,7 @@ export default function PublicInvestmentSection() {
               ))}
             </div>
             <div style={{ fontSize: 10, color: 'rgba(148,163,184,0.5)', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: 10 }}>
-              Source: Uganda NDP IV (2020/21–2025/26) Chapter 5 — Infrastructure. Department of National Roads Performance Contract 2024/25.
+              Source: Uganda NDP IV (2020/21â2025/26) Chapter 5 â Infrastructure. Department of National Roads Performance Contract 2024/25.
               Vision 2040 long-term target: 17,000 km paved national road network.
             </div>
           </div>
