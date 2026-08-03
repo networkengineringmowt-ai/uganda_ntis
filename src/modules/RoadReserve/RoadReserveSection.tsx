@@ -14,8 +14,9 @@ import { hexRgb } from '../../lib/chart3d';
 import { ModuleNavBar } from '../../shared/ModuleNavBar';
 import { CaptureButton } from '../../shared/CaptureButton';
 import { useBMS } from '../../store/BMSContext';
+import SectionDashboard from '../Dashboard/SectionDashboard';
 
-// ── Color palette (matches platform convention) ──────────────────────────────
+// ââ Color palette (matches platform convention) ââââââââââââââââââââââââââââââ
 const C = {
   purple: '#b967ff', cyan: '#00f5ff', green: '#00ff88',
   blue: '#4d9fff', yellow: '#ffd23f', orange: '#ff6b35',
@@ -30,8 +31,9 @@ const card = (accent: string) => ({
   boxShadow: `0 0 20px rgba(${hexRgb(accent)},0.06)`,
 });
 
-// ── Tabs ──────────────────────────────────────────────────────────────────────
+// ââ Tabs ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 const TABS = [
+  { id: 'dashboard' as const, label: 'Dashboard', icon: <LayoutDashboard size={13}/> },
   { id: 'overview', label: 'Overview',              icon: <Landmark size={13}/> },
   { id: 'map',      label: 'Reserve Map',           icon: <MapPin size={13}/> },
   { id: 'register', label: 'Encroachment Register', icon: <ShieldAlert size={13}/> },
@@ -40,7 +42,7 @@ const TABS = [
 ] as const;
 type TabId = typeof TABS[number]['id'];
 
-// ── Reserve width policy by road class (visual proxy + reference table) ──────
+// ââ Reserve width policy by road class (visual proxy + reference table) ââââââ
 const RESERVE_WIDTHS: Record<string, { min: number; max: number; label: string }> = {
   A: { min: 30, max: 60, label: 'National roads' },
   B: { min: 30, max: 60, label: 'National roads' },
@@ -49,7 +51,7 @@ const RESERVE_WIDTHS: Record<string, { min: number; max: number; label: string }
   D: { min: 15, max: 20, label: 'Urban roads' },
 };
 
-// Polyline weight proportional to road class — visual proxy for reserve corridor width
+// Polyline weight proportional to road class â visual proxy for reserve corridor width
 const CLASS_WEIGHT: Record<string, number> = { A: 8, M: 8, B: 6, C: 4, D: 3 };
 const CLASS_COLOR:  Record<string, string>  = { A: C.cyan, M: C.purple, B: C.blue, C: C.yellow, D: C.gray };
 
@@ -59,12 +61,12 @@ function classGroup(cls: string): 'national' | 'regional' | 'district' {
   return 'district';
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// MOCK / PLACEHOLDER DATA — no real road-reserve dataset exists yet.
-// TODO: replace with Supabase query — table `road_reserve_records` (see
+// âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// MOCK / PLACEHOLDER DATA â no real road-reserve dataset exists yet.
+// TODO: replace with Supabase query â table `road_reserve_records` (see
 // supabase_schema.sql) is provisioned and ready to receive real survey /
 // enforcement data once the Lands & Surveys / DNR Legal teams supply it.
-// ─────────────────────────────────────────────────────────────────────────────
+// âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 
 type EncroachmentType = 'Structure' | 'Cultivation' | 'Billboard' | 'Utility';
 type EncroachmentStatus = 'Active' | 'Notice issued' | 'Evicted' | 'Resolved';
@@ -83,7 +85,7 @@ interface EncroachmentRecord {
   notes: string;
 }
 
-// TODO: replace with Supabase query — table `road_reserve_encroachments` (see supabase_schema.sql).
+// TODO: replace with Supabase query â table `road_reserve_encroachments` (see supabase_schema.sql).
 //   Columns map 1:1 to EncroachmentRecord:
 //   SELECT id, link_id, road_no, location, chainage_km, type, date_reported,
 //          status, region, road_class, notes
@@ -92,16 +94,16 @@ interface EncroachmentRecord {
 const ENCROACHMENT_RECORDS: EncroachmentRecord[] = [
   { id: 'ENC-2026-001', link_id: 'A001_Link01', road_no: 'A001', location: 'Mukono Town Centre',         chainage_km: 21.4, type: 'Structure',   date_reported: '2026-01-12', status: 'Notice issued', region: 'Central',  road_class: 'A', notes: 'Permanent shop structure built within 12m of carriageway centreline' },
   { id: 'ENC-2026-002', link_id: 'A001_Link01', road_no: 'A001', location: 'Najjera roundabout approach', chainage_km: 8.2,  type: 'Billboard',   date_reported: '2026-02-03', status: 'Active',        region: 'Central',  road_class: 'A', notes: 'Unlicensed advertising billboard erected on shoulder' },
-  { id: 'ENC-2026-003', link_id: 'B014_Link02', road_no: 'B014', location: 'Bugiri – Busia corridor',     chainage_km: 47.6, type: 'Cultivation', date_reported: '2025-11-20', status: 'Resolved',      region: 'Eastern',  road_class: 'B', notes: 'Maize gardens encroaching drainage reserve — cleared after notice' },
+  { id: 'ENC-2026-003', link_id: 'B014_Link02', road_no: 'B014', location: 'Bugiri â Busia corridor',     chainage_km: 47.6, type: 'Cultivation', date_reported: '2025-11-20', status: 'Resolved',      region: 'Eastern',  road_class: 'B', notes: 'Maize gardens encroaching drainage reserve â cleared after notice' },
   { id: 'ENC-2026-004', link_id: 'M3N2_Link01', road_no: 'M3N2', location: 'Munyonyo spur junction',      chainage_km: 3.1,  type: 'Utility',     date_reported: '2026-03-08', status: 'Active',        region: 'Central',  road_class: 'M', notes: 'Telecom mast and fibre cabinet sited within service strip' },
-  { id: 'ENC-2026-005', link_id: 'C228_Link04', road_no: 'C228', location: 'Kabale – Kisoro section',     chainage_km: 64.0, type: 'Structure',   date_reported: '2025-09-15', status: 'Evicted',       region: 'Western',  road_class: 'C', notes: 'Temporary kiosk removed by district enforcement team' },
-  { id: 'ENC-2026-006', link_id: 'A104_Link01', road_no: 'A104', location: 'Karuma – Pakwach',            chainage_km: 112.5,type: 'Cultivation', date_reported: '2026-01-29', status: 'Notice issued', region: 'Northern', road_class: 'A', notes: 'Sugarcane plantation extends 9m into gazetted reserve' },
-  { id: 'ENC-2026-007', link_id: 'B077_Link03', road_no: 'B077', location: 'Soroti – Katakwi',            chainage_km: 18.9, type: 'Billboard',   date_reported: '2026-02-22', status: 'Active',        region: 'Eastern',  road_class: 'B', notes: 'Two large-format billboards within sight-distance triangle' },
+  { id: 'ENC-2026-005', link_id: 'C228_Link04', road_no: 'C228', location: 'Kabale â Kisoro section',     chainage_km: 64.0, type: 'Structure',   date_reported: '2025-09-15', status: 'Evicted',       region: 'Western',  road_class: 'C', notes: 'Temporary kiosk removed by district enforcement team' },
+  { id: 'ENC-2026-006', link_id: 'A104_Link01', road_no: 'A104', location: 'Karuma â Pakwach',            chainage_km: 112.5,type: 'Cultivation', date_reported: '2026-01-29', status: 'Notice issued', region: 'Northern', road_class: 'A', notes: 'Sugarcane plantation extends 9m into gazetted reserve' },
+  { id: 'ENC-2026-007', link_id: 'B077_Link03', road_no: 'B077', location: 'Soroti â Katakwi',            chainage_km: 18.9, type: 'Billboard',   date_reported: '2026-02-22', status: 'Active',        region: 'Eastern',  road_class: 'B', notes: 'Two large-format billboards within sight-distance triangle' },
   { id: 'ENC-2026-008', link_id: 'A009_Link02', road_no: 'A009', location: 'Mbarara bypass',              chainage_km: 5.7,  type: 'Structure',   date_reported: '2025-12-04', status: 'Notice issued', region: 'Western',  road_class: 'A', notes: 'Fuel station canopy encroaches shoulder by 4.5m' },
-  { id: 'ENC-2026-009', link_id: 'C310_Link01', road_no: 'C310', location: 'Lira – Otuke road',           chainage_km: 33.2, type: 'Utility',     date_reported: '2026-03-19', status: 'Active',        region: 'Northern', road_class: 'C', notes: 'Water pipeline laid through culvert headwall without permit' },
-  { id: 'ENC-2026-010', link_id: 'A001_Link03', road_no: 'A001', location: 'Jinja – Iganga corridor',     chainage_km: 76.8, type: 'Cultivation', date_reported: '2025-10-02', status: 'Resolved',      region: 'Eastern',  road_class: 'A', notes: 'Banana plantation cleared from drainage easement' },
-  { id: 'ENC-2026-011', link_id: 'B045_Link01', road_no: 'B045', location: 'Hoima – Kigumba',             chainage_km: 41.0, type: 'Structure',   date_reported: '2026-04-01', status: 'Active',        region: 'Western',  road_class: 'B', notes: 'Roadside market stalls erected on shoulder during trading days' },
-  { id: 'ENC-2026-012', link_id: 'A104_Link04', road_no: 'A104', location: 'Gulu – Atiak',                chainage_km: 58.3, type: 'Billboard',   date_reported: '2026-01-05', status: 'Evicted',       region: 'Northern', road_class: 'A', notes: 'Illegal signage removed following joint DNR/UNRA operation' },
+  { id: 'ENC-2026-009', link_id: 'C310_Link01', road_no: 'C310', location: 'Lira â Otuke road',           chainage_km: 33.2, type: 'Utility',     date_reported: '2026-03-19', status: 'Active',        region: 'Northern', road_class: 'C', notes: 'Water pipeline laid through culvert headwall without permit' },
+  { id: 'ENC-2026-010', link_id: 'A001_Link03', road_no: 'A001', location: 'Jinja â Iganga corridor',     chainage_km: 76.8, type: 'Cultivation', date_reported: '2025-10-02', status: 'Resolved',      region: 'Eastern',  road_class: 'A', notes: 'Banana plantation cleared from drainage easement' },
+  { id: 'ENC-2026-011', link_id: 'B045_Link01', road_no: 'B045', location: 'Hoima â Kigumba',             chainage_km: 41.0, type: 'Structure',   date_reported: '2026-04-01', status: 'Active',        region: 'Western',  road_class: 'B', notes: 'Roadside market stalls erected on shoulder during trading days' },
+  { id: 'ENC-2026-012', link_id: 'A104_Link04', road_no: 'A104', location: 'Gulu â Atiak',                chainage_km: 58.3, type: 'Billboard',   date_reported: '2026-01-05', status: 'Evicted',       region: 'Northern', road_class: 'A', notes: 'Illegal signage removed following joint DNR/UNRA operation' },
 ];
 
 interface GazetteRecord {
@@ -115,26 +117,26 @@ interface GazetteRecord {
   road_class: string;
 }
 
-// TODO: replace with Supabase query — table `road_reserve_gazette` (see supabase_schema.sql).
+// TODO: replace with Supabase query â table `road_reserve_gazette` (see supabase_schema.sql).
 //   Columns map 1:1 to GazetteRecord (the table's auto `id` is omitted here):
 //   SELECT road_no, road_name, gazette_no, date_gazetted, reserve_width_m,
 //          survey_status, remarks, road_class
 //   FROM road_reserve_gazette
 //   ORDER BY date_gazetted;
 const GAZETTE_RECORDS: GazetteRecord[] = [
-  { road_no: 'A001', road_name: 'Kampala – Jinja – Busia',     gazette_no: 'GN 47/1964', date_gazetted: '1964-06-12', reserve_width_m: 50, survey_status: 'Outdated',    remarks: 'Re-survey scheduled FY2026/27 ahead of expressway works', road_class: 'A' },
-  { road_no: 'A009', road_name: 'Kampala – Mbarara – Kabale',  gazette_no: 'GN 112/1971', date_gazetted: '1971-09-03', reserve_width_m: 50, survey_status: 'Up to date',  remarks: 'Boundary pillars re-established 2024 along bypass sections', road_class: 'A' },
-  { road_no: 'A104', road_name: 'Karuma – Gulu – Nimule',      gazette_no: 'GN 88/1968', date_gazetted: '1968-04-22', reserve_width_m: 50, survey_status: 'Outdated',    remarks: 'Survey markers lost in several sections post-conflict era', road_class: 'A' },
+  { road_no: 'A001', road_name: 'Kampala â Jinja â Busia',     gazette_no: 'GN 47/1964', date_gazetted: '1964-06-12', reserve_width_m: 50, survey_status: 'Outdated',    remarks: 'Re-survey scheduled FY2026/27 ahead of expressway works', road_class: 'A' },
+  { road_no: 'A009', road_name: 'Kampala â Mbarara â Kabale',  gazette_no: 'GN 112/1971', date_gazetted: '1971-09-03', reserve_width_m: 50, survey_status: 'Up to date',  remarks: 'Boundary pillars re-established 2024 along bypass sections', road_class: 'A' },
+  { road_no: 'A104', road_name: 'Karuma â Gulu â Nimule',      gazette_no: 'GN 88/1968', date_gazetted: '1968-04-22', reserve_width_m: 50, survey_status: 'Outdated',    remarks: 'Survey markers lost in several sections post-conflict era', road_class: 'A' },
   { road_no: 'M3N2', road_name: 'Munyonyo Spur (dual)',        gazette_no: 'GN 03/2016', date_gazetted: '2016-02-18', reserve_width_m: 60, survey_status: 'Up to date',  remarks: 'Modern dual-carriageway gazette with full survey package', road_class: 'M' },
-  { road_no: 'B014', road_name: 'Bugiri – Busia',              gazette_no: 'GN 65/1979', date_gazetted: '1979-11-30', reserve_width_m: 30, survey_status: 'Not surveyed', remarks: 'Original gazette traced; no modern survey on record', road_class: 'B' },
-  { road_no: 'B045', road_name: 'Hoima – Kigumba',             gazette_no: 'GN 21/1985', date_gazetted: '1985-07-09', reserve_width_m: 30, survey_status: 'Outdated',    remarks: 'Encroachment pressure from oil-roads development corridor', road_class: 'B' },
-  { road_no: 'B077', road_name: 'Soroti – Katakwi – Moroto',   gazette_no: 'GN 54/1981', date_gazetted: '1981-03-14', reserve_width_m: 30, survey_status: 'Not surveyed', remarks: 'Pending Lands Ministry verification of original alignment', road_class: 'B' },
-  { road_no: 'C228', road_name: 'Kabale – Kisoro',             gazette_no: 'GN 19/1992', date_gazetted: '1992-05-27', reserve_width_m: 25, survey_status: 'Up to date',  remarks: 'Re-surveyed 2023 alongside DRIP-3 design works', road_class: 'C' },
-  { road_no: 'C310', road_name: 'Lira – Otuke',                gazette_no: 'GN 38/1998', date_gazetted: '1998-10-08', reserve_width_m: 25, survey_status: 'Not surveyed', remarks: 'Awaiting district land office boundary confirmation', road_class: 'C' },
+  { road_no: 'B014', road_name: 'Bugiri â Busia',              gazette_no: 'GN 65/1979', date_gazetted: '1979-11-30', reserve_width_m: 30, survey_status: 'Not surveyed', remarks: 'Original gazette traced; no modern survey on record', road_class: 'B' },
+  { road_no: 'B045', road_name: 'Hoima â Kigumba',             gazette_no: 'GN 21/1985', date_gazetted: '1985-07-09', reserve_width_m: 30, survey_status: 'Outdated',    remarks: 'Encroachment pressure from oil-roads development corridor', road_class: 'B' },
+  { road_no: 'B077', road_name: 'Soroti â Katakwi â Moroto',   gazette_no: 'GN 54/1981', date_gazetted: '1981-03-14', reserve_width_m: 30, survey_status: 'Not surveyed', remarks: 'Pending Lands Ministry verification of original alignment', road_class: 'B' },
+  { road_no: 'C228', road_name: 'Kabale â Kisoro',             gazette_no: 'GN 19/1992', date_gazetted: '1992-05-27', reserve_width_m: 25, survey_status: 'Up to date',  remarks: 'Re-surveyed 2023 alongside DRIP-3 design works', road_class: 'C' },
+  { road_no: 'C310', road_name: 'Lira â Otuke',                gazette_no: 'GN 38/1998', date_gazetted: '1998-10-08', reserve_width_m: 25, survey_status: 'Not surveyed', remarks: 'Awaiting district land office boundary confirmation', road_class: 'C' },
   { road_no: 'A001', road_name: 'Kampala Northern Bypass',     gazette_no: 'GN 07/2004', date_gazetted: '2004-01-20', reserve_width_m: 60, survey_status: 'Up to date',  remarks: 'High-pressure urban corridor; pillars monitored quarterly', road_class: 'A' },
 ];
 
-// TODO: replace with Supabase query — aggregate of road_reserve_gazette by gazette year:
+// TODO: replace with Supabase query â aggregate of road_reserve_gazette by gazette year:
 //   SELECT EXTRACT(YEAR FROM date_gazetted)::int AS year, COUNT(*) AS gazetted
 //   FROM road_reserve_gazette
 //   GROUP BY 1 ORDER BY 1;
@@ -145,12 +147,12 @@ const GAZETTE_TIMELINE = [
   { year: '2016', gazetted: 1 }, { year: '2023', gazetted: 0 }, { year: '2024', gazetted: 0 },
 ];
 
-// ─────────────────────────────────────────────────────────────────────────────
+// âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 // MOWT "Road Reserve Usage" online applications (Survey123 "Form 2":
 // APPLICATION FOR TEMPORARY USE OF NATIONAL ROAD, ROAD RESERVE OR FERRY
-// LANDING FACILITY). Fields mirror the official form Parts A–E — see the
+// LANDING FACILITY). Fields mirror the official form Parts AâE â see the
 // road_reserve_applications table in supabase_schema.sql.
-// ─────────────────────────────────────────────────────────────────────────────
+// âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 
 type ApplicationStatus = 'Draft' | 'Submitted' | 'Under Review' | 'Recommended' | 'Approved' | 'Rejected';
 
@@ -158,35 +160,35 @@ interface ApplicationRecord {
   application_number: string;      // auto-generated by the portal
   application_date: string;
   status: ApplicationStatus;
-  registered_name: string;         // Part A — applicant
+  registered_name: string;         // Part A â applicant
   applicant_tin: string;
   nature_of_activity: string;      // Advertising / Utility line / Parking / ...
   nature_of_structure: string;     // Billboard / LED / Optical Fibre Cable / Power Cable / Signpost / ...
   district: string;
   road_name: string;
   road_or_highway: 'road' | 'highway';
-  size_summary: string;            // human-readable dimensions (length×width×height, or Ø + coverage)
+  size_summary: string;            // human-readable dimensions (lengthÃwidthÃheight, or Ã + coverage)
   final_recommendation: 'Suitable' | 'Not Suitable' | 'Pending';   // Part E
   file_reference_number: string;
 }
 
-// TODO: replace with Supabase query — table `road_reserve_applications` (see supabase_schema.sql).
-//   Writes go through the service_role write-back server (PII) — reads only via anon:
+// TODO: replace with Supabase query â table `road_reserve_applications` (see supabase_schema.sql).
+//   Writes go through the service_role write-back server (PII) â reads only via anon:
 //   SELECT application_number, application_date, status, registered_name, applicant_tin,
 //          nature_of_activity, nature_of_structure, district, road_name, road_or_highway,
 //          final_recommendation, file_reference_number
 //   FROM road_reserve_applications ORDER BY application_date DESC;
 const ROAD_RESERVE_APPLICATIONS: ApplicationRecord[] = [
-  { application_number: 'RRU-2026-00142', application_date: '2026-05-28', status: 'Under Review', registered_name: 'Alliance Media (U) Ltd',     applicant_tin: '1000345672', nature_of_activity: 'Advertising',  nature_of_structure: 'Billboard',           district: 'Wakiso',   road_name: 'Kampala – Entebbe Expressway', road_or_highway: 'highway', size_summary: '12.0 × 6.0 m · h 9.0 m',  final_recommendation: 'Pending',      file_reference_number: 'DRIP/ADV/2026/142' },
-  { application_number: 'RRU-2026-00138', application_date: '2026-05-21', status: 'Approved',     registered_name: 'MTN Uganda Ltd',            applicant_tin: '1000019283', nature_of_activity: 'Utility line', nature_of_structure: 'Optical Fibre Cable', district: 'Mukono',   road_name: 'Kampala – Jinja (A109)',       road_or_highway: 'road',    size_summary: 'Ø 48 mm · 14.2 km',       final_recommendation: 'Suitable',     file_reference_number: 'DRIP/UTL/2026/138' },
-  { application_number: 'RRU-2026-00131', application_date: '2026-05-14', status: 'Recommended',  registered_name: 'Next Media Services',       applicant_tin: '1000456781', nature_of_activity: 'Advertising',  nature_of_structure: 'LED',                 district: 'Kampala',  road_name: 'Kampala Northern Bypass (A001)',road_or_highway: 'highway', size_summary: '8.0 × 4.0 m · h 7.5 m',  final_recommendation: 'Suitable',     file_reference_number: 'DRIP/ADV/2026/131' },
-  { application_number: 'RRU-2026-00125', application_date: '2026-05-09', status: 'Approved',     registered_name: 'Umeme Ltd',                 applicant_tin: '1000022914', nature_of_activity: 'Utility line', nature_of_structure: 'Power Cable',         district: 'Jinja',    road_name: 'Jinja – Iganga (A109)',        road_or_highway: 'road',    size_summary: 'Ø 120 mm · 6.8 km',       final_recommendation: 'Suitable',     file_reference_number: 'DRIP/UTL/2026/125' },
-  { application_number: 'RRU-2026-00119', application_date: '2026-04-30', status: 'Rejected',     registered_name: 'Bright Outdoor Ltd',        applicant_tin: '1000567892', nature_of_activity: 'Advertising',  nature_of_structure: 'Billboard',           district: 'Mbarara',  road_name: 'Kampala – Mbarara (A009)',     road_or_highway: 'highway', size_summary: '10.0 × 5.0 m · h 8.0 m', final_recommendation: 'Not Suitable', file_reference_number: 'DRIP/ADV/2026/119' },
-  { application_number: 'RRU-2026-00112', application_date: '2026-04-22', status: 'Submitted',    registered_name: 'Roke Telkom Ltd',           applicant_tin: '1000334451', nature_of_activity: 'Utility line', nature_of_structure: 'Optical Fibre Cable', district: 'Mbale',    road_name: 'Mbale – Soroti (A104)',        road_or_highway: 'road',    size_summary: 'Ø 36 mm · 22.0 km',       final_recommendation: 'Pending',      file_reference_number: 'DRIP/UTL/2026/112' },
-  { application_number: 'RRU-2026-00104', application_date: '2026-04-15', status: 'Under Review', registered_name: 'Vision Group',              applicant_tin: '1000118822', nature_of_activity: 'Advertising',  nature_of_structure: 'Price Board',         district: 'Masaka',   road_name: 'Kampala – Masaka (A007)',      road_or_highway: 'road',    size_summary: '3.0 × 2.0 m · h 4.0 m',  final_recommendation: 'Pending',      file_reference_number: 'DRIP/ADV/2026/104' },
-  { application_number: 'RRU-2026-00098', application_date: '2026-04-03', status: 'Approved',     registered_name: 'Kampala Parking Ltd',       applicant_tin: '1000771230', nature_of_activity: 'Parking',      nature_of_structure: 'Signpost',            district: 'Kampala',  road_name: 'Jinja Road Service Lane',      road_or_highway: 'road',    size_summary: '0.6 × 0.9 m · h 2.4 m',  final_recommendation: 'Suitable',     file_reference_number: 'DRIP/PRK/2026/098' },
-  { application_number: 'RRU-2026-00091', application_date: '2026-03-27', status: 'Recommended',  registered_name: 'Airtel Uganda Ltd',         applicant_tin: '1000044556', nature_of_activity: 'Utility line', nature_of_structure: 'Optical Fibre Cable', district: 'Gulu',     road_name: 'Karuma – Gulu (A104)',         road_or_highway: 'road',    size_summary: 'Ø 42 mm · 31.5 km',       final_recommendation: 'Suitable',     file_reference_number: 'DRIP/UTL/2026/091' },
-  { application_number: 'RRU-2026-00084', application_date: '2026-03-18', status: 'Draft',        registered_name: 'Standard Signs (U) Ltd',    applicant_tin: '1000662019', nature_of_activity: 'Advertising',  nature_of_structure: 'Billboard',           district: 'Fort Portal',road_name: 'Mubende – Fort Portal (A109)', road_or_highway: 'road',    size_summary: '6.0 × 3.0 m · h 6.0 m',  final_recommendation: 'Pending',      file_reference_number: '—' },
+  { application_number: 'RRU-2026-00142', application_date: '2026-05-28', status: 'Under Review', registered_name: 'Alliance Media (U) Ltd',     applicant_tin: '1000345672', nature_of_activity: 'Advertising',  nature_of_structure: 'Billboard',           district: 'Wakiso',   road_name: 'Kampala â Entebbe Expressway', road_or_highway: 'highway', size_summary: '12.0 Ã 6.0 m Â· h 9.0 m',  final_recommendation: 'Pending',      file_reference_number: 'DRIP/ADV/2026/142' },
+  { application_number: 'RRU-2026-00138', application_date: '2026-05-21', status: 'Approved',     registered_name: 'MTN Uganda Ltd',            applicant_tin: '1000019283', nature_of_activity: 'Utility line', nature_of_structure: 'Optical Fibre Cable', district: 'Mukono',   road_name: 'Kampala â Jinja (A109)',       road_or_highway: 'road',    size_summary: 'Ã 48 mm Â· 14.2 km',       final_recommendation: 'Suitable',     file_reference_number: 'DRIP/UTL/2026/138' },
+  { application_number: 'RRU-2026-00131', application_date: '2026-05-14', status: 'Recommended',  registered_name: 'Next Media Services',       applicant_tin: '1000456781', nature_of_activity: 'Advertising',  nature_of_structure: 'LED',                 district: 'Kampala',  road_name: 'Kampala Northern Bypass (A001)',road_or_highway: 'highway', size_summary: '8.0 Ã 4.0 m Â· h 7.5 m',  final_recommendation: 'Suitable',     file_reference_number: 'DRIP/ADV/2026/131' },
+  { application_number: 'RRU-2026-00125', application_date: '2026-05-09', status: 'Approved',     registered_name: 'Umeme Ltd',                 applicant_tin: '1000022914', nature_of_activity: 'Utility line', nature_of_structure: 'Power Cable',         district: 'Jinja',    road_name: 'Jinja â Iganga (A109)',        road_or_highway: 'road',    size_summary: 'Ã 120 mm Â· 6.8 km',       final_recommendation: 'Suitable',     file_reference_number: 'DRIP/UTL/2026/125' },
+  { application_number: 'RRU-2026-00119', application_date: '2026-04-30', status: 'Rejected',     registered_name: 'Bright Outdoor Ltd',        applicant_tin: '1000567892', nature_of_activity: 'Advertising',  nature_of_structure: 'Billboard',           district: 'Mbarara',  road_name: 'Kampala â Mbarara (A009)',     road_or_highway: 'highway', size_summary: '10.0 Ã 5.0 m Â· h 8.0 m', final_recommendation: 'Not Suitable', file_reference_number: 'DRIP/ADV/2026/119' },
+  { application_number: 'RRU-2026-00112', application_date: '2026-04-22', status: 'Submitted',    registered_name: 'Roke Telkom Ltd',           applicant_tin: '1000334451', nature_of_activity: 'Utility line', nature_of_structure: 'Optical Fibre Cable', district: 'Mbale',    road_name: 'Mbale â Soroti (A104)',        road_or_highway: 'road',    size_summary: 'Ã 36 mm Â· 22.0 km',       final_recommendation: 'Pending',      file_reference_number: 'DRIP/UTL/2026/112' },
+  { application_number: 'RRU-2026-00104', application_date: '2026-04-15', status: 'Under Review', registered_name: 'Vision Group',              applicant_tin: '1000118822', nature_of_activity: 'Advertising',  nature_of_structure: 'Price Board',         district: 'Masaka',   road_name: 'Kampala â Masaka (A007)',      road_or_highway: 'road',    size_summary: '3.0 Ã 2.0 m Â· h 4.0 m',  final_recommendation: 'Pending',      file_reference_number: 'DRIP/ADV/2026/104' },
+  { application_number: 'RRU-2026-00098', application_date: '2026-04-03', status: 'Approved',     registered_name: 'Kampala Parking Ltd',       applicant_tin: '1000771230', nature_of_activity: 'Parking',      nature_of_structure: 'Signpost',            district: 'Kampala',  road_name: 'Jinja Road Service Lane',      road_or_highway: 'road',    size_summary: '0.6 Ã 0.9 m Â· h 2.4 m',  final_recommendation: 'Suitable',     file_reference_number: 'DRIP/PRK/2026/098' },
+  { application_number: 'RRU-2026-00091', application_date: '2026-03-27', status: 'Recommended',  registered_name: 'Airtel Uganda Ltd',         applicant_tin: '1000044556', nature_of_activity: 'Utility line', nature_of_structure: 'Optical Fibre Cable', district: 'Gulu',     road_name: 'Karuma â Gulu (A104)',         road_or_highway: 'road',    size_summary: 'Ã 42 mm Â· 31.5 km',       final_recommendation: 'Suitable',     file_reference_number: 'DRIP/UTL/2026/091' },
+  { application_number: 'RRU-2026-00084', application_date: '2026-03-18', status: 'Draft',        registered_name: 'Standard Signs (U) Ltd',    applicant_tin: '1000662019', nature_of_activity: 'Advertising',  nature_of_structure: 'Billboard',           district: 'Fort Portal',road_name: 'Mubende â Fort Portal (A109)', road_or_highway: 'road',    size_summary: '6.0 Ã 3.0 m Â· h 6.0 m',  final_recommendation: 'Pending',      file_reference_number: 'â' },
 ];
 
 const APP_STATUS_COLOR: Record<ApplicationStatus, string> = {
@@ -205,18 +207,18 @@ const ENC_STATUS_COLOR: Record<EncroachmentStatus, string> = {
   Active: C.red, 'Notice issued': C.yellow, Evicted: C.blue, Resolved: C.green,
 };
 
-// ── Quick-nav chips ───────────────────────────────────────────────────────────
+// ââ Quick-nav chips âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 const QUICK_LINKS: { label: string; view: string; color: string; icon: React.ReactNode }[] = [
-  { label: 'RMS — Road Network',      view: 'rms',      color: C.cyan,   icon: <ChevronRight size={11}/> },
+  { label: 'RMS â Road Network',      view: 'rms',      color: C.cyan,   icon: <ChevronRight size={11}/> },
   { label: 'Bridge Management',       view: 'bms',      color: C.blue,   icon: <ChevronRight size={11}/> },
   { label: 'Sources & Evidence',      view: 'sources',  color: C.gray,   icon: <ChevronRight size={11}/> },
   { label: 'Admin Tools',             view: 'admin',    color: C.purple, icon: <ChevronRight size={11}/> },
 ];
 
-// ── KPI helpers (computed from mock data — would be backed by network_stats / reserve table) ──
+// ââ KPI helpers (computed from mock data â would be backed by network_stats / reserve table) ââ
 function useReserveKpis() {
   return useMemo(() => {
-    // TODO: replace with Supabase query — these aggregate KPIs should come from
+    // TODO: replace with Supabase query â these aggregate KPIs should come from
     // `road_reserve_records` (gazetted_width_m, reserve_status, encroachment_count,
     // encroachment_area_sqm, enforcement_status) plus COUNT/SUM over
     // `road_reserve_encroachments` and `road_reserve_gazette` once populated.
@@ -231,7 +233,7 @@ function useReserveKpis() {
   }, []);
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
+// âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 export default function RoadReserveSection() {
   const [activeTab, setActiveTab] = useState<TabId>('overview');
   const { dispatch } = useBMS();
@@ -243,7 +245,7 @@ export default function RoadReserveSection() {
 
       <ModuleNavBar module="Road Reserve" />
 
-      {/* ── Header ── */}
+      {/* ââ Header ââ */}
       <div style={{ marginBottom: 20 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
           <div style={{ width: 38, height: 38, borderRadius: 10, flexShrink: 0,
@@ -257,16 +259,16 @@ export default function RoadReserveSection() {
               Road Reserve Management
             </div>
             <div style={{ fontSize: 11, color: 'rgba(148,163,184,0.65)', marginTop: 1 }}>
-              Gazette status · Encroachment register · Reserve mapping · Usage permits (MOWT Form 2) · Legal enforcement
+              Gazette status Â· Encroachment register Â· Reserve mapping Â· Usage permits (MOWT Form 2) Â· Legal enforcement
             </div>
           </div>
         </div>
       </div>
 
-      {/* ── Capture screen launcher ── */}
+      {/* ââ Capture screen launcher ââ */}
       <CaptureButton capture="encroachment" label="road-reserve field data" accent={C.teal} />
 
-      {/* ── Tab bar ── */}
+      {/* ââ Tab bar ââ */}
       <div style={{
         display: 'flex', gap: 2, marginBottom: 20, flexShrink: 0,
         borderBottom: '1px solid rgba(77,159,255,0.15)',
@@ -289,6 +291,7 @@ export default function RoadReserveSection() {
         })}
       </div>
 
+          {TABS[activeTab].id === 'dashboard' && <SectionDashboard sectionId="roadreserve" />}
       {activeTab === 'overview' && (
         <OverviewTab kpis={kpis} onNavigate={(view) => dispatch({ type: 'SET_ACTIVE_VIEW', payload: view as any })} />
       )}
@@ -300,18 +303,18 @@ export default function RoadReserveSection() {
   );
 }
 
-// ═════════════════════════════════════════════════════════════════════════════
-// TAB 1 — OVERVIEW
-// ═════════════════════════════════════════════════════════════════════════════
+// âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// TAB 1 â OVERVIEW
+// âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 function OverviewTab({ kpis, onNavigate }: {
   kpis: { gazettedAreaSqKm: number; titledPct: number; activeEncroachments: number; noticesIssued: number };
   onNavigate: (view: string) => void;
 }) {
   const KPI_CARDS = [
-    { label: 'Total gazetted reserve area', value: `${kpis.gazettedAreaSqKm.toLocaleString()} km²`, sub: 'Estimated · weighted by class width', color: C.teal,   icon: <Landmark size={16}/> },
+    { label: 'Total gazetted reserve area', value: `${kpis.gazettedAreaSqKm.toLocaleString()} kmÂ²`, sub: 'Estimated Â· weighted by class width', color: C.teal,   icon: <Landmark size={16}/> },
     { label: '% with valid land titles',    value: `${kpis.titledPct}%`,                            sub: 'Of sampled gazette records (mock)',  color: C.green,  icon: <FileText size={16}/> },
-    { label: 'Encroachment incidents',      value: `${kpis.activeEncroachments}`,                   sub: 'Active cases — mock register',       color: C.red,    icon: <ShieldAlert size={16}/> },
-    { label: 'Eviction notices issued',     value: `${kpis.noticesIssued}`,                         sub: 'Pending action — mock register',     color: C.yellow, icon: <Megaphone size={16}/> },
+    { label: 'Encroachment incidents',      value: `${kpis.activeEncroachments}`,                   sub: 'Active cases â mock register',       color: C.red,    icon: <ShieldAlert size={16}/> },
+    { label: 'Eviction notices issued',     value: `${kpis.noticesIssued}`,                         sub: 'Pending action â mock register',     color: C.yellow, icon: <Megaphone size={16}/> },
   ];
 
   return (
@@ -343,22 +346,22 @@ function OverviewTab({ kpis, onNavigate }: {
             What is a Road Reserve?
           </div>
           <p style={{ fontSize: 11, color: 'rgba(196,210,225,0.85)', lineHeight: 1.7, margin: 0 }}>
-            The road reserve is the land corridor legally gazetted for road use — encompassing the
+            The road reserve is the land corridor legally gazetted for road use â encompassing the
             carriageway, shoulders, drains, slopes, service strips, and space reserved for future
             expansion. It is protected under the Uganda Roads Act and Land Act to preserve safety
             sight-lines, enable maintenance access, and secure land for long-term network growth.
           </p>
           <p style={{ fontSize: 11, color: 'rgba(196,210,225,0.85)', lineHeight: 1.7, margin: '10px 0 0' }}>
-            Encroachment — through permanent structures, cultivation, billboards, or utilities —
+            Encroachment â through permanent structures, cultivation, billboards, or utilities â
             erodes this corridor, creates road-safety hazards, and raises the cost and complexity
             of future upgrading and widening projects.
           </p>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 10, marginTop: 16 }}>
             {[
-              { cls: 'National roads', width: '30 – 60 m', color: C.cyan },
-              { cls: 'District roads', width: '20 – 30 m', color: C.yellow },
-              { cls: 'Urban roads',    width: '15 – 20 m', color: C.pink },
+              { cls: 'National roads', width: '30 â 60 m', color: C.cyan },
+              { cls: 'District roads', width: '20 â 30 m', color: C.yellow },
+              { cls: 'Urban roads',    width: '15 â 20 m', color: C.pink },
             ].map(r => (
               <div key={r.cls} style={{ background: `rgba(${hexRgb(r.color)},0.06)`,
                 border: `1px solid rgba(${hexRgb(r.color)},0.2)`, borderRadius: 8, padding: '10px 12px' }}>
@@ -398,16 +401,16 @@ function OverviewTab({ kpis, onNavigate }: {
   );
 }
 
-// ═════════════════════════════════════════════════════════════════════════════
-// TAB 2 — RESERVE MAP
-// ═════════════════════════════════════════════════════════════════════════════
+// âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// TAB 2 â RESERVE MAP
+// âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 interface LinkProps {
   link_id: string; road_no: string; road_class: string; length_km1: number;
   link_nam_1?: string; surface_ty?: string; maintena_1?: string;
 }
 
 function gazetteStatusFor(linkId: string): 'Gazetted' | 'Pending' | 'Unknown' {
-  // TODO: replace with Supabase query — join road_links.link_id = road_reserve_records.link_id,
+  // TODO: replace with Supabase query â join road_links.link_id = road_reserve_records.link_id,
   //        return road_reserve_records.reserve_status (Gazetted / Pending Gazettement / Disputed)
   const hash = linkId.split('').reduce((a, c) => a + c.charCodeAt(0), 0);
   const m = hash % 3;
@@ -513,9 +516,9 @@ function ReserveMapTab() {
           borderRadius: 10, padding: '8px 12px', display: 'flex', gap: 12, fontSize: 9.5, color: '#d4dde8',
         }}>
           {[
-            { cls: 'A / M — National', color: C.cyan },
-            { cls: 'B — Regional',     color: C.blue },
-            { cls: 'C — District',     color: C.yellow },
+            { cls: 'A / M â National', color: C.cyan },
+            { cls: 'B â Regional',     color: C.blue },
+            { cls: 'C â District',     color: C.yellow },
           ].map(l => (
             <div key={l.cls} style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
               <span style={{ width: 16, height: 4, borderRadius: 2, background: l.color, display: 'inline-block' }} />
@@ -532,7 +535,7 @@ function ReserveMapTab() {
         </div>
         {!selected && (
           <div style={{ fontSize: 11, color: 'rgba(148,163,184,0.6)', lineHeight: 1.7 }}>
-            Click any road link on the map to view its reserve corridor details — width policy,
+            Click any road link on the map to view its reserve corridor details â width policy,
             gazette status, and recorded encroachments.
           </div>
         )}
@@ -544,12 +547,12 @@ function ReserveMapTab() {
             </div>
             {[
               { label: 'Road class',       value: selected.road_class, color: CLASS_COLOR[selected.road_class] ?? C.gray },
-              { label: 'Reserve width (m)', value: `${detail.width.min} – ${detail.width.max} m (${detail.width.label})`, color: C.cyan },
+              { label: 'Reserve width (m)', value: `${detail.width.min} â ${detail.width.max} m (${detail.width.label})`, color: C.cyan },
               { label: 'Gazette status',   value: detail.gazette, color: detail.gazette === 'Gazetted' ? C.green : detail.gazette === 'Pending' ? C.yellow : C.gray },
               { label: 'Encroachment count', value: `${detail.encroachments}`, color: detail.encroachments > 0 ? C.red : C.green },
               { label: 'Length',           value: `${Number(selected.length_km1).toFixed(1)} km`, color: '#d4dde8' },
-              { label: 'Surface',          value: selected.surface_ty || '—', color: '#d4dde8' },
-              { label: 'Region',           value: selected.maintena_1 || '—', color: '#d4dde8' },
+              { label: 'Surface',          value: selected.surface_ty || 'â', color: '#d4dde8' },
+              { label: 'Region',           value: selected.maintena_1 || 'â', color: '#d4dde8' },
             ].map(r => (
               <div key={r.label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center',
                 padding: '6px 0', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
@@ -559,7 +562,7 @@ function ReserveMapTab() {
             ))}
             <div style={{ fontSize: 8.5, color: 'rgba(148,163,184,0.45)', marginTop: 6, lineHeight: 1.6 }}>
               Gazette status and encroachment counts are illustrative placeholders.
-              {/* TODO: replace with Supabase query — road_reserve_records (reserve_status, encroachment_count) joined on link_id */}
+              {/* TODO: replace with Supabase query â road_reserve_records (reserve_status, encroachment_count) joined on link_id */}
             </div>
           </div>
         )}
@@ -568,9 +571,9 @@ function ReserveMapTab() {
   );
 }
 
-// ═════════════════════════════════════════════════════════════════════════════
-// TAB 3 — ENCROACHMENT REGISTER
-// ═════════════════════════════════════════════════════════════════════════════
+// âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// TAB 3 â ENCROACHMENT REGISTER
+// âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 function exportToCsv(rows: EncroachmentRecord[]) {
   const headers = ['ID', 'Road Link', 'Location/Chainage', 'Type', 'Date Reported', 'Status', 'Region', 'Class', 'Notes'];
   const lines = rows.map(r => [
@@ -676,7 +679,7 @@ function EncroachmentRegisterTab() {
             <tbody>
               {filtered.map((r, i) => (
                 <tr key={r.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.04)', background: i % 2 ? 'rgba(255,255,255,0.012)' : 'transparent' }}>
-                  <td style={{ padding: '10px 14px', fontWeight: 800, color: '#d4dde8' }}>{r.link_id}<div style={{ fontSize: 9, color: 'rgba(148,163,184,0.5)', fontWeight: 500 }}>{r.road_no} · Class {r.road_class} · {r.region}</div></td>
+                  <td style={{ padding: '10px 14px', fontWeight: 800, color: '#d4dde8' }}>{r.link_id}<div style={{ fontSize: 9, color: 'rgba(148,163,184,0.5)', fontWeight: 500 }}>{r.road_no} Â· Class {r.road_class} Â· {r.region}</div></td>
                   <td style={{ padding: '10px 14px', color: '#c4d2e1' }}>{r.location}<div style={{ fontSize: 9, color: 'rgba(148,163,184,0.5)' }}>Chainage km {r.chainage_km.toFixed(1)}</div></td>
                   <td style={{ padding: '10px 14px' }}>
                     <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '3px 9px', borderRadius: 999,
@@ -711,7 +714,7 @@ function EncroachmentRegisterTab() {
         </div>
         <div style={{ padding: '8px 14px', fontSize: 8.5, color: 'rgba(148,163,184,0.4)', borderTop: '1px solid rgba(255,255,255,0.04)' }}>
           Showing {filtered.length} of {ENCROACHMENT_RECORDS.length} mock records.
-          {/* TODO: replace with Supabase query — SELECT id, link_id, road_no, location, chainage_km, type, date_reported, status, region, road_class, notes FROM road_reserve_encroachments */}
+          {/* TODO: replace with Supabase query â SELECT id, link_id, road_no, location, chainage_km, type, date_reported, status, region, road_class, notes FROM road_reserve_encroachments */}
         </div>
       </div>
     </div>
@@ -732,9 +735,9 @@ function selectStyle(): React.CSSProperties {
   };
 }
 
-// ═════════════════════════════════════════════════════════════════════════════
-// TAB 4 — GAZETTE & LEGAL STATUS
-// ═════════════════════════════════════════════════════════════════════════════
+// âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// TAB 4 â GAZETTE & LEGAL STATUS
+// âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 const SURVEY_COLOR: Record<GazetteRecord['survey_status'], string> = {
   'Up to date': C.green, 'Outdated': C.yellow, 'Not surveyed': C.red,
 };
@@ -784,7 +787,7 @@ function GazetteTab() {
               <tbody>
                 {GAZETTE_RECORDS.map((g, i) => (
                   <tr key={`${g.road_no}-${g.gazette_no}`} style={{ borderBottom: '1px solid rgba(255,255,255,0.04)', background: i % 2 ? 'rgba(255,255,255,0.012)' : 'transparent' }}>
-                    <td style={{ padding: '9px 14px', fontWeight: 800, color: '#d4dde8' }}>{g.road_name}<div style={{ fontSize: 9, color: 'rgba(148,163,184,0.5)', fontWeight: 500 }}>{g.road_no} · Class {g.road_class}</div></td>
+                    <td style={{ padding: '9px 14px', fontWeight: 800, color: '#d4dde8' }}>{g.road_name}<div style={{ fontSize: 9, color: 'rgba(148,163,184,0.5)', fontWeight: 500 }}>{g.road_no} Â· Class {g.road_class}</div></td>
                     <td style={{ padding: '9px 14px', color: '#c4d2e1', fontFamily: 'monospace' }}>{g.gazette_no}</td>
                     <td style={{ padding: '9px 14px', color: '#c4d2e1' }}>{g.date_gazetted}</td>
                     <td style={{ padding: '9px 14px', color: '#c4d2e1' }}>{g.reserve_width_m} m</td>
@@ -802,8 +805,8 @@ function GazetteTab() {
             </table>
           </div>
           <div style={{ padding: '8px 14px', fontSize: 8.5, color: 'rgba(148,163,184,0.4)', borderTop: '1px solid rgba(255,255,255,0.04)' }}>
-            {/* TODO: replace with Supabase query — SELECT road_no, road_name, gazette_no, date_gazetted, reserve_width_m, survey_status, remarks, road_class FROM road_reserve_gazette */}
-            Mock gazette records for illustration — Lands & Surveys verification pending for several entries.
+            {/* TODO: replace with Supabase query â SELECT road_no, road_name, gazette_no, date_gazetted, reserve_width_m, survey_status, remarks, road_class FROM road_reserve_gazette */}
+            Mock gazette records for illustration â Lands & Surveys verification pending for several entries.
           </div>
         </div>
 
@@ -828,7 +831,7 @@ function GazetteTab() {
             </BarChart>
           </ResponsiveContainer>
           <div style={{ fontSize: 8.5, color: 'rgba(148,163,184,0.4)', marginTop: 8 }}>
-            {/* TODO: replace with Supabase query — SELECT EXTRACT(YEAR FROM date_gazetted)::int AS year, COUNT(*) AS gazetted FROM road_reserve_gazette GROUP BY 1 ORDER BY 1 */}
+            {/* TODO: replace with Supabase query â SELECT EXTRACT(YEAR FROM date_gazetted)::int AS year, COUNT(*) AS gazetted FROM road_reserve_gazette GROUP BY 1 ORDER BY 1 */}
             Aggregated from mock gazette register above.
           </div>
         </div>
@@ -837,9 +840,9 @@ function GazetteTab() {
   );
 }
 
-// ═════════════════════════════════════════════════════════════════════════════
-// TAB 5 — PERMITS & APPLICATIONS  (MOWT "Road Reserve Usage" — Form 2)
-// ═════════════════════════════════════════════════════════════════════════════
+// âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// TAB 5 â PERMITS & APPLICATIONS  (MOWT "Road Reserve Usage" â Form 2)
+// âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 
 function exportApplicationsToCsv(rows: ApplicationRecord[]) {
   const headers = ['Application No', 'Date', 'Status', 'Applicant', 'TIN', 'Activity', 'Structure', 'District', 'Road', 'Road/Highway', 'Dimensions', 'Recommendation', 'File Ref'];
@@ -917,7 +920,7 @@ function PermitsTab() {
       {/* Applications table */}
       <div style={{ ...card(C.blue), padding: 0, overflow: 'hidden' }}>
         <div style={{ padding: '14px 18px 8px', fontSize: 11, fontWeight: 900, color: C.blue, textTransform: 'uppercase', letterSpacing: '0.1em' }}>
-          Road Reserve Usage Applications — MOWT Form 2
+          Road Reserve Usage Applications â MOWT Form 2
         </div>
         <div style={{ overflowX: 'auto' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 10.5 }}>
@@ -944,7 +947,7 @@ function PermitsTab() {
                       <div style={{ fontSize: 8.5, color: 'rgba(148,163,184,0.5)' }}>{a.nature_of_activity}</div>
                     </td>
                     <td style={{ padding: '9px 14px', color: 'rgba(196,210,225,0.85)' }}>{a.road_name}
-                      <div style={{ fontSize: 8.5, color: 'rgba(148,163,184,0.5)' }}>{a.district} · {a.road_or_highway}</div>
+                      <div style={{ fontSize: 8.5, color: 'rgba(148,163,184,0.5)' }}>{a.district} Â· {a.road_or_highway}</div>
                     </td>
                     <td style={{ padding: '9px 14px', color: 'rgba(196,210,225,0.8)', fontSize: 9.5 }}>{a.size_summary}</td>
                     <td style={{ padding: '9px 14px' }}>
@@ -965,7 +968,7 @@ function PermitsTab() {
         </div>
         <div style={{ padding: '8px 14px', fontSize: 8.5, color: 'rgba(148,163,184,0.4)', borderTop: '1px solid rgba(255,255,255,0.04)' }}>
           Showing {filtered.length} of {ROAD_RESERVE_APPLICATIONS.length} mock applications.
-          {/* TODO: replace with Supabase query — SELECT application_number, application_date, status, registered_name, applicant_tin, nature_of_activity, nature_of_structure, district, road_name, road_or_highway, final_recommendation, file_reference_number FROM road_reserve_applications ORDER BY application_date DESC. Writes (Form 2 Parts A–E) go through the service_role write-back server — see road_reserve_applications / road_reserve_applicants in supabase_schema.sql and WRITABLE_TABLES in server/index.js */}
+          {/* TODO: replace with Supabase query â SELECT application_number, application_date, status, registered_name, applicant_tin, nature_of_activity, nature_of_structure, district, road_name, road_or_highway, final_recommendation, file_reference_number FROM road_reserve_applications ORDER BY application_date DESC. Writes (Form 2 Parts AâE) go through the service_role write-back server â see road_reserve_applications / road_reserve_applicants in supabase_schema.sql and WRITABLE_TABLES in server/index.js */}
         </div>
       </div>
     </div>
