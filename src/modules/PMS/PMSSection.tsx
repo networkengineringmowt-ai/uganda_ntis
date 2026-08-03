@@ -1,6 +1,7 @@
 import { lazy, Suspense, useState } from 'react';
 import { LayoutDashboard, Book, Database } from 'lucide-react';
 import CrossLinkChipBar from '../../shared/CrossLinkChipBar';
+import SectionDashboard from '../Dashboard/SectionDashboard';
 
 const CrossSectionAnalytics = lazy(() => import('./CrossSectionAnalytics'));
 const PavementCatalogue = lazy(() => import('./PavementCatalogue'));
@@ -42,7 +43,7 @@ export default function PMSSection() {
       {/* Cross-section links hidden if standalone NPMS */}
       {!import.meta.env.VITE_STANDALONE && <CrossLinkChipBar sectionId="pms" />}
 
-      {/* ── Main tab bar ── */}
+      {/* ââ Main tab bar ââ */}
       <div style={{
         display: 'flex', gap: 2, padding: '0 14px',
         borderBottom: '1px solid rgba(245,158,11,0.15)',
@@ -66,7 +67,7 @@ export default function PMSSection() {
         })}
       </div>
 
-      {/* ── Content area ── */}
+      {/* ââ Content area ââ */}
       <div style={{ flex: 1, minHeight: 0, overflowY: 'auto', overflowX: 'hidden' }}>
         <Suspense fallback={<Spinner />}>
           {mainTab === 'dashboard' && <CrossSectionAnalytics />}
