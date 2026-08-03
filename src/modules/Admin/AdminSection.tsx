@@ -1,11 +1,12 @@
 /**
- * AdminSection — Admin Tools unified 2-tab view.
+ * AdminSection â Admin Tools unified 2-tab view.
  * Tabs: Platform Mind Map | Data Audit
  * Follows the exact BMS tab-bar pattern.
  */
 import { lazy, Suspense, useState } from 'react';
 import { Activity, BookOpen, Cpu, ShieldCheck, Users } from 'lucide-react';
 import type { ActiveView } from '../../types';
+import SectionDashboard from '../Dashboard/SectionDashboard';
 
 const ADMIN_Identity  = lazy(() => import('./IdentityManager'));
 const ADMIN_Activity  = lazy(() => import('./ActivityLog'));
@@ -51,7 +52,7 @@ export default function AdminSection({
         @keyframes admin-spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
       `}</style>
 
-      {/* ── BMS-style main tab bar ─────────────────────────────────────────── */}
+      {/* ââ BMS-style main tab bar âââââââââââââââââââââââââââââââââââââââââââ */}
       <div style={{
         display: 'flex', gap: 2, padding: '0 14px', flexShrink: 0,
         borderBottom: '1px solid rgba(77,159,255,0.15)',
@@ -75,7 +76,7 @@ export default function AdminSection({
         })}
       </div>
 
-      {/* ── Content area ──────────────────────────────────────────────────── */}
+      {/* ââ Content area ââââââââââââââââââââââââââââââââââââââââââââââââââââ */}
       <div style={{ flex: 1, minHeight: 0, position: 'relative', overflow: 'hidden' }}>
         <Suspense fallback={<Spinner />}>
           {tab === 'identity' && (
