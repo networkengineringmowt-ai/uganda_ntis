@@ -1,17 +1,18 @@
 /**
- * BMSSection — Bridge Management System unified view.
- * Main tabs: Dashboard · Structure Map · Inventory & Condition · Bridge Works.
+ * BMSSection â Bridge Management System unified view.
+ * Main tabs: Dashboard Â· Structure Map Â· Inventory & Condition Â· Bridge Works.
  * Analytics, Priority Ranking and the Digital Twin live as sub-tabs under
  * Inventory & Condition (merged from the former Analytics & Digital Twin tab).
  */
 import { lazy, Suspense, useState } from 'react';
 import CrossLinkChipBar from '../../shared/CrossLinkChipBar';
+import SectionDashboard from '../Dashboard/SectionDashboard';
 import {
   LayoutDashboard, Map, Table2, BarChart3,
   ClipboardCheck, Activity, Wrench, AlertTriangle, Camera, Hammer,
 } from 'lucide-react';
 
-// ── Lazy-load all BMS sub-modules ─────────────────────────────────────────────
+// ââ Lazy-load all BMS sub-modules âââââââââââââââââââââââââââââââââââââââââââââ
 const BMS_Dashboard   = lazy(() => import('../Dashboard/Dashboard'));
 const BMS_GISMap      = lazy(() => import('../GISMap/GISMapView'));
 const BMS_Registry    = lazy(() => import('../Registry/StructureRegistry'));
@@ -33,7 +34,7 @@ function Spinner() {
   );
 }
 
-// ── Sub-tab bar for Tabs 3 and 4 ──────────────────────────────────────────────
+// ââ Sub-tab bar for Tabs 3 and 4 ââââââââââââââââââââââââââââââââââââââââââââââ
 interface SubTab {
   id: string;
   label: string;
@@ -69,7 +70,7 @@ function SubTabBar({
   );
 }
 
-// ── Main BMS Section ──────────────────────────────────────────────────────────
+// ââ Main BMS Section ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 const MAIN_TABS = [
   { id: 'overview',   label: 'Dashboard',                 icon: <LayoutDashboard size={13}/> },
   { id: 'map',        label: 'Structure Map',              icon: <Map size={13}/> },
@@ -109,7 +110,7 @@ export default function BMSSection() {
       {/* Cross-section links are hidden in the standalone NBMS build (no other sections to jump to) */}
       {!import.meta.env.VITE_STANDALONE && <CrossLinkChipBar sectionId="bms" />}
 
-      {/* ── Main tab bar ── */}
+      {/* ââ Main tab bar ââ */}
       <div style={{
         display: 'flex', gap: 2, padding: '0 14px',
         borderBottom: '1px solid rgba(77,159,255,0.15)',
@@ -133,16 +134,17 @@ export default function BMSSection() {
         })}
       </div>
 
-      {/* ── Sub-tab bar for Inventory & Condition (incl. Analytics & Digital Twin) ── */}
+      {/* ââ Sub-tab bar for Inventory & Condition (incl. Analytics & Digital Twin) ââ */}
       {mainTab === 'inventory' && (
         <SubTabBar tabs={INVENTORY_TABS} active={inventoryTab} onSelect={setInventoryTab} />
       )}
 
-      {/* ── Content area ── */}
+      {/* ââ Content area ââ */}
       <div style={contentStyle}>
         <Suspense fallback={<Spinner />}>
 
           {/* Tab 1: Dashboard */}
+          {TABS[activeTab].id === 'dashboard' && <SectionDashboard sectionId="bms" />}
           {mainTab === 'overview' && <BMS_Dashboard />}
 
           {/* Tab 2: Structure Map (full-height, position absolute) */}
