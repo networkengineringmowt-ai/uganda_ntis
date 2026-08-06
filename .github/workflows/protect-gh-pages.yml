@@ -1,0 +1,85 @@
+name: Protect gh-pages from broken bundles
+
+on:
+  push:
+    branches:
+      - gh-pages
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  smoke-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Wait for GitHub Pages to propagate
+        run: sleep 60
+
+      - name: Smoke test deployed site
+        id: smoke
+        run: |
+          MAX_RETRIES=3
+          PASSED=0
+          for i in $(seq 1 $MAX_RETRIES); do
+            HTML=$(curl -s --max-time 30 https://networkengineringmowt-ai.github.io/uganda_ntis/ || true)
+            if echo "$HTML" | grep -q '<div id="root">' && echo "$HTML" | grep -q '<script'; then
+              echo "✅ Smoke test PASSED on attempt $i"
+              PASSED=1
+              break
+            else
+              echo "⚠️  Attempt $i failed — waiting 30s before retry"
+              sleep 30
+            fi
+          done
+
+          if [ "$PASSED" = "1" ]; then
+            echo "result=pass" >> $GITHUB_OUTPUT
+          else
+            echo "result=fail" >> $GITHUB_OUTPUT
+            echo "❌ Smoke test FAILED after $MAX_RETRIES attempts"
+          fi
+
+      - name: Create issue if smoke test failed
+        if: steps.smoke.outputs.result == 'fail'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            // Avoid duplicate issues
+            const { data: existing } = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: ['gh-pages-broken']
+            });
+            if (existing.length > 0) {
+              core.warning('Issue already open: ' + existing[0].html_url);
+              return;
+            }
+
+            const run_url = `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            const { data: issue } = await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: '🚨 gh-pages push broke the deployed site',
+              labels: ['gh-pages-broken', 'bug'],
+              body: [
+                '## Smoke Test Failed',
+                '',
+                `A push to \`gh-pages\` (commit \`${context.sha.slice(0,7)}\`) caused the deployed site to fail its smoke test.`,
+                '',
+                '**Site:** https://networkengineringmowt-ai.github.io/uganda_ntis/',
+                '**Failing checks:** `<div id="root">` and at least one `<script` tag must be present in the HTML.',
+                '',
+                '### Root cause',
+                'Manual pushes of pre-built bundles to `gh-pages` bypass Vite CI and can ship broken JS.',
+                '',
+                '### Fix',
+                '1. Go to **Actions → Deploy to GitHub Pages → Run workflow** to rebuild from `main`.',
+                '2. Never push raw build artefacts directly to `gh-pages` — use CI.',
+                '',
+                `**Failing run:** ${run_url}`,
+              ].join('\n')
+            });
+            core.info('Created issue: ' + issue.html_url);
