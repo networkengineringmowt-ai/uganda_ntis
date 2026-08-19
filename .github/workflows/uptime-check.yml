@@ -1,0 +1,15 @@
+name: Uptime Check
+on:
+  schedule:
+    - cron: '*/30 * * * *'
+  workflow_dispatch:
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check site uptime
+        run: |
+          URL=$(cat .github/site_url.txt 2>/dev/null || echo "https://networkengineringmowt-ai.github.io/${{ github.event.repository.name }}/")
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$URL")
+          echo "Site: $URL — Status: $STATUS"
+          if [ "$STATUS" != "200" ]; then exit 1; fi

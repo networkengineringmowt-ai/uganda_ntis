@@ -1,0 +1,20 @@
+name: Daily Audit
+on:
+  schedule:
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: UI cohesion check
+        run: |
+          echo "=== UI Cohesion Audit ==="
+          grep -r "#f59e0b\|amber" --include="*.html" --include="*.css" --include="*.js" . | head -5 || echo "WARN: No amber accent found"
+          grep -r "bg-gray-900\|#111\|#0f172a\|dark" --include="*.html" --include="*.css" . | head -5 || echo "WARN: No dark background found"
+          grep -ri "mowt\|ministry.*works\|uganda.*roads" --include="*.html" . | head -5 || echo "WARN: No MoWT branding found"
+          echo "Audit complete"
+      - name: Data freshness check
+        run: |
+          find . -name "*.json" -newer ./package.json 2>/dev/null | head -10 || echo "No recent JSON updates"
