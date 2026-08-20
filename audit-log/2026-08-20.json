@@ -1,0 +1,33 @@
+{
+  "date": "2026-08-20",
+  "repo": "uganda_ntis",
+  "url": "https://networkengineringmowt-ai.github.io/uganda_ntis/",
+  "technical": {
+    "httpStatus": 0,
+    "loadFailed": true,
+    "pageRendered": false,
+    "bodyTextLength": 0,
+    "consoleErrors": [
+      "navigation failed: page.goto: Timeout 30000ms exceeded.\nCall log:\n  - navigating to \"https://networkengineringmowt-ai.github.io/uganda_ntis/\", waiting until \"networkidle\"\n"
+    ],
+    "brokenImages": [],
+    "hashLinksFound": [],
+    "chartElementCount": 0
+  },
+  "uiCohesion": {
+    "amber": "fail",
+    "darkBackground": "fail",
+    "nav": "fail",
+    "mowtBranding": "fail"
+  },
+  "accuracy": {
+    "extractedFigures": [],
+    "discrepancies": []
+  },
+  "consistency": {
+    "districtList": null,
+    "notes": [
+      "uganda_gis_enterprise: no audit-log available yet for comparison"
+    ]
+  }
+}
