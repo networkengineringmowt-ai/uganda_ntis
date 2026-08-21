@@ -1,0 +1,29 @@
+{
+  "date": "2026-08-21",
+  "repo": "uganda_ntis",
+  "url": "https://networkengineringmowt-ai.github.io/uganda_ntis/",
+  "technical": {
+    "httpStatus": 200,
+    "loadFailed": false,
+    "pageRendered": true,
+    "bodyTextLength": 1184,
+    "consoleErrors": [],
+    "brokenImages": [],
+    "hashLinksFound": [],
+    "chartElementCount": 19
+  },
+  "uiCohesion": {
+    "amber": "fail",
+    "darkBackground": "fail",
+    "nav": "fail",
+    "mowtBranding": "fail"
+  },
+  "accuracy": {
+    "extractedFigures": [],
+    "discrepancies": []
+  },
+  "consistency": {
+    "districtList": null,
+    "notes": []
+  }
+}
