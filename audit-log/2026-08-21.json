@@ -12,18 +12,14 @@
     "hashLinksFound": [],
     "chartElementCount": 19
   },
-  "uiCohesion": {
-    "amber": "fail",
-    "darkBackground": "fail",
-    "nav": "fail",
-    "mowtBranding": "fail"
-  },
   "accuracy": {
     "extractedFigures": [],
     "discrepancies": []
   },
   "consistency": {
     "districtList": null,
-    "notes": []
+    "notes": [
+      "uganda_gis_enterprise: no audit-log available yet for comparison"
+    ]
   }
 }
