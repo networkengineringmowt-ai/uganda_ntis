@@ -22,8 +22,12 @@ function inUganda(lon: number, lat: number) {
       && lat >= UGANDA_BBOX.minLat && lat <= UGANDA_BBOX.maxLat;
 }
 
-// Department of National Roads real link_id format regex (from network2026.geojson)
-const LINK_ID_REGEX = /^[A-Z]\d{1,3}[A-Z]?\d*_Link\d{2,}$|^[A-Z]\d{1,3}[A-Z]?\d*Int\d+_S\d+$/;
+// Department of National Roads real link_id format regex (from network2026.geojson).
+// Most links are split into "<road_no>_LinkNN" or interchange slip segments
+// "<road_no>IntN_SN". A small number of roads (e.g. M20, M20N1 — the Kampala
+// Northern Bypass carriageways) are single, undivided links whose link_id is
+// just the bare road_no with no suffix — that form is also valid.
+const LINK_ID_REGEX = /^[A-Z]\d{1,3}[A-Z]?\d*_Link\d{2,}$|^[A-Z]\d{1,3}[A-Z]?\d*Int\d+_S\d+$|^[A-Z]\d{1,3}[A-Z]?\d*$/;
 
 type BotRow = Record<string, unknown>;
 
