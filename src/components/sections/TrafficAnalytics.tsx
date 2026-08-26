@@ -13,6 +13,7 @@ import {
 import { Chart3DWrap, Bar3D, TT_NEON, TICK } from '../../lib/chart3d';
 import { ModuleNavBar } from '../../shared/ModuleNavBar';
 import { factorAt, yearNow, useNowTick } from '../../shared/nowcast';
+import { DistributionStatsSection, DistributionTable } from '../../shared/DistributionStatsPanel';
 
 // ─── Data types ───────────────────────────────────────────────────────────────
 interface PredProps {
@@ -559,6 +560,18 @@ function MacroTab({ features }: { features: PredFeature[] }) {
           </div>
         )})}
       </div>
+
+      <DistributionStatsSection
+        title="Numeric Distribution Statistics — Macro"
+        subtitle="Full descriptive statistics across all road links (mean, median, mode, std dev, variance, quartiles, percentiles, skewness, kurtosis)"
+        fields={[
+          { key:'aadt2025', label:'AADT 2025', unit:'veh/day', accent:C.cyan,   values: features.map(f=>f.properties.aadt_predicted) },
+          { key:'heavy',    label:'Heavy Vehicle %', unit:'%', accent:C.orange, values: features.map(f=>f.properties.heavy_vehicle_pct!=null?f.properties.heavy_vehicle_pct*100:null) },
+          { key:'aadt2040', label:'AADT 2040 (Growth)', unit:'veh/day', accent:C.pink, values: features.map(f=>f.properties.growth_2040) },
+          { key:'vkm',      label:'Vehicle-km / Day', unit:'v-km', accent:C.teal, values: features.map(f=>f.properties.vehicle_km_daily) },
+          { key:'length',   label:'Link Length', unit:'km', accent:C.yellow, values: features.map(f=>f.properties.length_km) },
+        ]}
+      />
     </div>
   );
 }
@@ -615,6 +628,15 @@ function RegionsTab({ features }: { features: PredFeature[] }) {
           </div>
         );
       })}
+
+      <DistributionTable
+        title="Numeric Distribution Statistics — Regions"
+        subtitle="AADT distribution by region, plus network-wide (ALL REGIONS) totals"
+        groups={[
+          ...REGIONS.map(reg => ({ label: reg, values: features.filter(f=>(f.properties.region??'')===reg).map(f=>f.properties.aadt_predicted) })),
+          { label: 'ALL REGIONS', values: features.map(f=>f.properties.aadt_predicted) },
+        ]}
+      />
     </div>
   );
 }
@@ -719,6 +741,23 @@ function ClassesTab({ features }: { features: PredFeature[] }) {
           </div>
         );
       })}
+
+      <DistributionTable
+        title="Numeric Distribution Statistics — AADT by Road Class"
+        subtitle="Class A / B / C / M road links, plus network-wide (ALL CLASSES)"
+        groups={[
+          ...['A','B','C','M'].map(cls => ({ label: `Class ${cls}`, values: features.filter(f=>(f.properties.road_class??'')===cls).map(f=>f.properties.aadt_predicted) })),
+          { label: 'ALL CLASSES', values: features.map(f=>f.properties.aadt_predicted) },
+        ]}
+      />
+      <DistributionTable
+        title="Numeric Distribution Statistics — Heavy Vehicle % by Road Class"
+        subtitle="Heavy vehicle share of AADT, Class A / B / C / M, plus network-wide"
+        groups={[
+          ...['A','B','C','M'].map(cls => ({ label: `Class ${cls}`, values: features.filter(f=>(f.properties.road_class??'')===cls).map(f=>f.properties.heavy_vehicle_pct!=null?f.properties.heavy_vehicle_pct*100:null) })),
+          { label: 'ALL CLASSES', values: features.map(f=>f.properties.heavy_vehicle_pct!=null?f.properties.heavy_vehicle_pct*100:null) },
+        ]}
+      />
     </div>
   );
 }
@@ -736,6 +775,7 @@ function AssetsTab({ features }: { features: PredFeature[] }) {
     [features, search]
   );
   return (
+    <>
     <div style={{ ...GLASS, padding:'18px 20px' }}>
       <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:14 }}>
         <div>
@@ -807,6 +847,19 @@ function AssetsTab({ features }: { features: PredFeature[] }) {
         )}
       </div>
     </div>
+
+    <DistributionStatsSection
+      title="Numeric Distribution Statistics — Assets"
+      subtitle="Descriptive statistics across all asset/road-link fields shown in the table above"
+      fields={[
+        { key:'length',   label:'Link Length', unit:'km', accent:C.cyan,   values: features.map(f=>f.properties.length_km) },
+        { key:'aadt2025', label:'AADT 2025', unit:'veh/day', accent:C.green, values: features.map(f=>f.properties.aadt_predicted) },
+        { key:'aadt2040', label:'AADT 2040 (Growth)', unit:'veh/day', accent:C.orange, values: features.map(f=>f.properties.growth_2040) },
+        { key:'heavy',    label:'Heavy Vehicle %', unit:'%', accent:C.yellow, values: features.map(f=>f.properties.heavy_vehicle_pct!=null?f.properties.heavy_vehicle_pct*100:null) },
+        { key:'vkm',      label:'Vehicle-km / Day', unit:'v-km', accent:C.teal, values: features.map(f=>f.properties.vehicle_km_daily) },
+      ]}
+    />
+    </>
   );
 }
 
@@ -900,6 +953,20 @@ function AnalysisTab({ features }: { features: PredFeature[] }) {
           </div>
         );
       })()}
+
+      <DistributionStatsSection
+        title="Numeric Distribution Statistics — Analysis"
+        subtitle="AADT 2025, projected AADT 2040, computed growth, and heavy-vehicle share across the network"
+        fields={[
+          { key:'aadt2025', label:'AADT 2025', unit:'veh/day', accent:C.cyan, values: features.map(f=>f.properties.aadt_predicted) },
+          { key:'aadt2040', label:'AADT 2040 (Growth)', unit:'veh/day', accent:C.orange, values: features.map(f=>f.properties.growth_2040) },
+          { key:'growthpct', label:'Growth 2025→2040', unit:'%', accent:C.pink, values: features.map(f=>{
+            const a25 = f.properties.aadt_predicted; const a40 = f.properties.growth_2040;
+            return (a25!=null && a40!=null && a25>0) ? ((a40-a25)/a25)*100 : null;
+          }) },
+          { key:'heavy', label:'Heavy Vehicle %', unit:'%', accent:C.yellow, values: features.map(f=>f.properties.heavy_vehicle_pct!=null?f.properties.heavy_vehicle_pct*100:null) },
+        ]}
+      />
     </div>
   );
 }
@@ -945,6 +1012,7 @@ function StationsTab({ stations, predByLink }: {
   }
 
   return (
+    <>
     <div style={{ ...GLASS, padding:'18px 20px' }}>
       <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:14 }}>
         <div>
@@ -1001,6 +1069,19 @@ function StationsTab({ stations, predByLink }: {
         </table>
       </div>
     </div>
+
+    <DistributionStatsSection
+      title="Numeric Distribution Statistics — Stations"
+      subtitle="ML-ensemble AADT & heavy-vehicle predictions at ATC / TIS station locations"
+      fields={[
+        { key:'aadt', label:'AADT 2025 (at station)', unit:'veh/day', accent:C.teal, values: stations.map(s => predByLink.get(s.properties.Link_ID ?? '')?.aadt_predicted) },
+        { key:'heavy', label:'Heavy Vehicle %', unit:'%', accent:C.orange, values: stations.map(s => {
+          const v = predByLink.get(s.properties.Link_ID ?? '')?.heavy_vehicle_pct;
+          return v!=null ? v*100 : null;
+        }) },
+      ]}
+    />
+    </>
   );
 }
 
@@ -1057,6 +1138,17 @@ function StrategicTab({ features, stations }: { features: PredFeature[]; station
           </div>
         ))}
       </div>
+
+      <DistributionStatsSection
+        title="Numeric Distribution Statistics — Strategic"
+        subtitle="Network-wide descriptive statistics underlying the strategic assessment above"
+        fields={[
+          { key:'aadt', label:'AADT 2025', unit:'veh/day', accent:C.cyan, values: features.map(f=>f.properties.aadt_predicted) },
+          { key:'vkm', label:'Vehicle-km / Day', unit:'v-km', accent:C.teal, values: features.map(f=>f.properties.vehicle_km_daily) },
+          { key:'heavy', label:'Heavy Vehicle %', unit:'%', accent:C.orange, values: features.map(f=>f.properties.heavy_vehicle_pct!=null?f.properties.heavy_vehicle_pct*100:null) },
+          { key:'aadt2040', label:'AADT 2040 (Growth)', unit:'veh/day', accent:C.pink, values: features.map(f=>f.properties.growth_2040) },
+        ]}
+      />
     </div>
   );
 }
