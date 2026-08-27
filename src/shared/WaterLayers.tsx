@@ -1,21 +1,7 @@
-import { GeoJSON } from 'react-leaflet';
-import { useWaterLayers } from '../hooks/useWaterLayers';
-
-const LAKE_STYLE = {
-  color: '#60a5fa', fillColor: '#60a5fa', fillOpacity: 0.15,
-  weight: 0.8, opacity: 0.25,
-};
-const RIVER_STYLE = {
-  color: '#60a5fa', fillColor: 'none', fillOpacity: 0,
-  weight: 0.5, opacity: 0.08,
-};
-
+// Lakes/rivers overlay intentionally disabled: the base map already shows
+// this data, so rendering it again here would be redundant. Kept as a
+// no-op component rather than removed at each call site so every map view
+// that renders <WaterLayers /> is unaffected.
 export function WaterLayers() {
-  const { lakes, rivers } = useWaterLayers();
-  return (
-    <>
-      {lakes  && <GeoJSON key="wl-lakes"  data={lakes  as never} style={() => LAKE_STYLE}  />}
-      {rivers && <GeoJSON key="wl-rivers" data={rivers as never} style={() => RIVER_STYLE} />}
-    </>
-  );
+  return null;
 }

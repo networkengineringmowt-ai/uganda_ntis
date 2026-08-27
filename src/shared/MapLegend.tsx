@@ -203,8 +203,10 @@ export const LEGEND_LINES: LegendItem[] = [
 ];
 
 // 3. Area features
+// Protected areas (national parks / forest reserves) are intentionally
+// omitted — the base map already shows that data, so a legend entry for
+// an overlay that no longer renders would be misleading.
 export const LEGEND_AREAS: LegendItem[] = [
-  { color: '#059669', label: 'National Park / Forest Reserve', hollow: true },
   { color: '#94a3b8', label: 'District Boundary', hollow: true },
 ];
 
@@ -220,23 +222,26 @@ export const LEGEND_POINTS_FULL: LegendItem[] = [
   { color: '#92400e', label: 'Maintenance Depot', circle: true },
 ];
 
-// 5. Water features (at bottom — ESRI convention)
+// 5. Water features — kept defined for reuse, but intentionally left out of
+// LEGEND_FULL below: the base map already renders lakes/rivers, so this
+// overlay (and its legend entry) is disabled.
 export const LEGEND_WATER: LegendItem[] = [
   { color: '#1e3a5f', label: 'Lake / Water Body', hollow: true },
   { color: '#1d4ed8', label: 'River / Stream', dash: true },
 ];
 
 // LEGEND_FULL — all feature types in ESRI cartographic order for maps with
-// roads + InfraLayers + WaterLayers:
+// roads + InfraLayers:
 //   1. Roads (by class/condition — most important)
 //   2. Points of interest (stations, airports, ferries)
-//   3. Area features (regions, districts, reserves)
-//   4. Linear features (rivers, railways, ferry routes)
+//   3. Area features (districts)
+//   4. Linear features (railways, ferry routes)
 //   5. Base reference (scale bar / north arrow rendered separately on the map)
+// Protected areas and water bodies (lakes/rivers) are deliberately excluded
+// — the base map already shows that data, so this overlay would be redundant.
 export const LEGEND_FULL: LegendItem[] = [
   ...LEGEND_ROAD_CLASSES,
   ...LEGEND_POINTS_FULL,
   ...LEGEND_AREAS,
   ...LEGEND_LINES,
-  ...LEGEND_WATER,
 ];
