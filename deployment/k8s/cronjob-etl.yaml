@@ -1,0 +1,41 @@
+# HARDENING FIX: added resource requests/limits (an unbounded ETL job can
+# starve other pods on the node) and a note on pinning the image tag.
+# Already correctly loads Google credentials from a k8s Secret rather than
+# baking them into the image or manifest -- kept as-is.
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: etl-synthesizer-job
+spec:
+  schedule: "0 2 * * *" # Run at 2 AM daily
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: etl
+            # NOTE: pin this to a specific build tag, not ":latest".
+            image: uganda-roads/etl-worker:latest
+            env:
+            - name: GOOGLE_APPLICATION_CREDENTIALS
+              value: "/app/creds/service_account.json"
+            resources:
+              requests:
+                cpu: "500m"
+                memory: "1Gi"
+              limits:
+                cpu: "2"
+                memory: "4Gi"
+            volumeMounts:
+            - name: google-creds
+              mountPath: /app/creds
+              readOnly: true
+            - name: gdrive-data
+              mountPath: /app/data
+          restartPolicy: OnFailure
+          volumes:
+          - name: google-creds
+            secret:
+              secretName: google-service-account
+          - name: gdrive-data
+            emptyDir: {}
