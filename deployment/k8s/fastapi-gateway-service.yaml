@@ -1,0 +1,64 @@
+# HARDENING FIX: the original manifest had no resource requests/limits, no
+# liveness/readiness probes, and pulled the image by the floating ":latest"
+# tag (a redeploy or pod reschedule can silently pick up a different,
+# untested build). Also added a non-root securityContext, matching the
+# pattern already used for gpu-worker-deployment.
+apiVersion: v1
+kind: Service
+metadata:
+  name: fastapi-gateway
+spec:
+  selector:
+    app: fastapi-gateway
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8000
+  type: LoadBalancer
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fastapi-gateway
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: fastapi-gateway
+  template:
+    metadata:
+      labels:
+        app: fastapi-gateway
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+      - name: api
+        # NOTE: pin this to a specific build tag, not ":latest" -- see note
+        # on the ml-engine-worker deployment for why.
+        image: uganda-roads/fastapi-gateway:latest
+        securityContext:
+          allowPrivilegeEscalation: false
+        ports:
+        - containerPort: 8000
+        resources:
+          requests:
+            cpu: "250m"
+            memory: "256Mi"
+          limits:
+            cpu: "1"
+            memory: "1Gi"
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 15
+          periodSeconds: 20
