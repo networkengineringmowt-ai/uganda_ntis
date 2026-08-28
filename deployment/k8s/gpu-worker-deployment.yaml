@@ -1,0 +1,46 @@
+# HARDENING FIX (promoted from gpu-worker-deployment.fixed.yaml): added a
+# non-root securityContext and a CPU/memory ceiling alongside the existing
+# GPU request. Already used emptyDir (no host filesystem access), which is
+# the safer pattern — kept as-is.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ml-engine-worker
+  labels:
+    app: ml-engine
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ml-engine
+  template:
+    metadata:
+      labels:
+        app: ml-engine
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+      - name: ml-engine
+        # NOTE: pin this to a specific build tag (e.g. a git SHA or semver),
+        # not ":latest" -- with "latest" a re-deploy of this manifest can
+        # silently pull a different image than the one that was tested.
+        image: uganda-roads/ml-engine:latest
+        securityContext:
+          allowPrivilegeEscalation: false
+        resources:
+          requests:
+            cpu: "1"
+            memory: "2Gi"
+          limits:
+            cpu: "4"
+            memory: "8Gi"
+            nvidia.com/gpu: 1
+        volumeMounts:
+        - name: gdrive-data
+          mountPath: /app/data
+      volumes:
+      - name: gdrive-data
+        emptyDir: {}
