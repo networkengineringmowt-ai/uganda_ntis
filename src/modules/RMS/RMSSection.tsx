@@ -9,6 +9,7 @@ import CrossLinkChipBar from '../../shared/CrossLinkChipBar';
 import { CaptureButton } from '../../shared/CaptureButton';
 import type { ActiveView } from '../../types';
 import SectionDashboard from '../Dashboard/SectionDashboard';
+import { SortableFilterableTable, type STColumn } from '../../shared/SortableFilterableTable';
 import {
   LayoutDashboard, Map, BookOpen, Network,
   CheckCircle, AlertCircle, XCircle,
@@ -356,6 +357,20 @@ const PUBLICATIONS: Publication[] = [
   { id: 'P15', title: 'Budget Optimisation for Road Asset Management: A Stochastic Approach', authors: 'Medury, A. & Madanat, S.', year: 2013, publisher: 'Transportation Research Part B, 54', relevance: 'Optimisation methodology applied in DNR multi-year programming and budget allocation module' },
 ];
 
+const PUBLICATION_COLS: STColumn<Publication>[] = [
+  { key: 'id', label: 'Ref', width: 60,
+    render: p => (
+      <span style={{ fontSize: 9, padding: '2px 6px', borderRadius: 4, background: 'rgba(0,245,255,0.08)', color: C.cyan, fontWeight: 800 }}>
+        {p.id}
+      </span>
+    ) },
+  { key: 'title', label: 'Title', width: 280 },
+  { key: 'authors', label: 'Authors' },
+  { key: 'year', label: 'Year', numeric: true },
+  { key: 'publisher', label: 'Publisher' },
+  { key: 'relevance', label: 'DNR Relevance', width: 260 },
+];
+
 // ââ Module health (static â in production this would use DataAuditEngine) âââââ
 
 const MODULE_HEALTH: { id: string; name: string; status: 'ok' | 'warn' | 'info'; note: string; view: ActiveView }[] = [
@@ -399,15 +414,17 @@ function useCountUp(target: number, duration = 900): number {
   return count;
 }
 
-function KpiCard({ label, value, unit, color, tooltip, navChips }: {
+function KpiCard({ label, value, unit, color, tooltip, navChips, noData }: {
   label: string; value: string; unit?: string; color: string; tooltip?: string;
   navChips?: Array<{ label: string; view: ActiveView }>;
+  /** True when the underlying source hasn't loaded yet / errored — shows a "No data" flag instead of a misleading 0/blank value. */
+  noData?: boolean;
 }) {
   const numericPart = parseFloat(value.replace(/[^0-9.]/g, ''));
   const prefix = value.match(/^[^0-9]*/)?.[0] ?? '';
   const suffix = value.match(/[^0-9.]+$/)?.[0] ?? '';
   const isNumeric = !isNaN(numericPart) && value.trim() !== '';
-  const animated = useCountUp(isNumeric ? numericPart : 0);
+  const animated = useCountUp(isNumeric && !noData ? numericPart : 0);
   const displayValue = isNumeric
     ? `${prefix}${animated.toLocaleString()}${suffix}`
     : value;
@@ -415,7 +432,7 @@ function KpiCard({ label, value, unit, color, tooltip, navChips }: {
 
   return (
     <div
-      title={tooltip}
+      title={noData ? 'Source data not yet loaded' : tooltip}
       style={{
         background: `rgba(${rgb(color)},0.06)`,
         border: `1px solid rgba(${rgb(color)},0.2)`,
@@ -426,9 +443,18 @@ function KpiCard({ label, value, unit, color, tooltip, navChips }: {
       onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.boxShadow = `0 0 16px rgba(${rgb(color)},0.15)`; }}
       onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.boxShadow = ''; }}
     >
-      <div style={{ fontSize: 22, fontWeight: 900, color, lineHeight: 1 }}>
-        {displayValue}<span style={{ fontSize: 11, fontWeight: 500, marginLeft: 3 }}>{unit}</span>
-      </div>
+      {noData ? (
+        <div style={{
+          display: 'inline-block', padding: '2px 9px', borderRadius: 5, fontSize: 12, fontWeight: 800,
+          background: 'rgba(255,159,10,0.14)', border: '1px solid rgba(255,159,10,0.3)', color: '#ff9f0a',
+        }}>
+          No data
+        </div>
+      ) : (
+        <div style={{ fontSize: 22, fontWeight: 900, color, lineHeight: 1 }}>
+          {displayValue}<span style={{ fontSize: 11, fontWeight: 500, marginLeft: 3 }}>{unit}</span>
+        </div>
+      )}
       <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(148,163,184,0.5)',
         marginTop: 3, textTransform: 'uppercase', letterSpacing: '0.09em' }}>{label}</div>
       {navChips && navChips.length > 0 && (
@@ -504,13 +530,16 @@ function RMSDashboard({ navigate }: { navigate: (v: ActiveView) => void }) {
           navChips={[{ label: 'Road Network', view: 'roadnetwork' }]} />
         <KpiCard label="Paved Roads" value={String(net.pavedKm)} unit="km" color={C.green}
           tooltip={`${net.pavedKm.toLocaleString()} km paved (bituminous) Â· ${net.pavedPct}% of mapped GeoJSON Â· Source: network2026.geojson`}
-          navChips={[{ label: 'Condition Map', view: 'roadcondition' }, { label: 'Traffic', view: 'traffic' }]} />
+          navChips={[{ label: 'Condition Map', view: 'roadcondition' }, { label: 'Traffic', view: 'traffic' }]}
+          noData={!net.loaded || !!net.error} />
         <KpiCard label="Paved %" value={String(net.pavedPct)} unit="%" color={C.teal}
           tooltip={`Paved share = ${net.pavedKm.toLocaleString()} / ${net.totalKm.toLocaleString()} km Â· NDP IV target: 35% by 2030`}
-          navChips={[{ label: 'Lifecycle', view: 'lifecycle' }]} />
+          navChips={[{ label: 'Lifecycle', view: 'lifecycle' }]}
+          noData={!net.loaded || !!net.error} />
         <KpiCard label="Structures" value={String(net.totalBridges)} unit="" color={C.blue}
           tooltip={`${net.totalBridges} bridges and culverts registered in BMS Â· Source: bridges2026.geojson`}
-          navChips={[{ label: 'BMS', view: 'bms' }]} />
+          navChips={[{ label: 'BMS', view: 'bms' }]}
+          noData={!net.loaded || !!net.error} />
         <KpiCard label="ATC Stations" value="25" unit="active" color={C.purple}
           tooltip="25 ATC stations total: 15 legacy (2016â2022) + 10 new (2025+) Â· Plus 298 manual TIS stations"
           navChips={[{ label: 'Traffic TIS', view: 'traffic' }]} />
@@ -840,36 +869,14 @@ function StandardsEvidence() {
         <div style={{ fontSize: 14, fontWeight: 900, color: '#e2eaf4', marginBottom: 14 }}>
           Key Publications &amp; Research Papers
         </div>
-        <div style={{ background: 'rgba(8,14,28,0.6)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 12, overflow: 'hidden' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 10 }}>
-            <thead>
-              <tr style={{ background: 'rgba(8,14,28,0.9)' }}>
-                {['Ref', 'Title', 'Authors', 'Year', 'Publisher', 'DNR Relevance'].map(h => (
-                  <th key={h} style={{
-                    padding: '9px 12px', textAlign: 'left',
-                    fontSize: 8, fontWeight: 900, color: 'rgba(0,245,255,0.65)',
-                    textTransform: 'uppercase', letterSpacing: '0.09em',
-                    borderBottom: '1px solid rgba(0,245,255,0.1)',
-                    whiteSpace: 'nowrap',
-                  }}>{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {PUBLICATIONS.map((p, i) => (
-                <tr key={p.id} style={{ background: i % 2 === 0 ? 'rgba(255,255,255,0.015)' : 'transparent', borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
-                  <td style={{ padding: '8px 12px', whiteSpace: 'nowrap' }}>
-                    <span style={{ fontSize: 9, padding: '2px 6px', borderRadius: 4, background: 'rgba(0,245,255,0.08)', color: C.cyan, fontWeight: 800 }}>{p.id}</span>
-                  </td>
-                  <td style={{ padding: '8px 12px', minWidth: 240, maxWidth: 320, color: '#d4dde8', fontWeight: 600, lineHeight: 1.4 }}>{p.title}</td>
-                  <td style={{ padding: '8px 12px', color: 'rgba(148,163,184,0.7)', whiteSpace: 'nowrap', fontSize: 9 }}>{p.authors}</td>
-                  <td style={{ padding: '8px 12px', color: 'rgba(148,163,184,0.6)', whiteSpace: 'nowrap', fontFamily: 'monospace' }}>{p.year}</td>
-                  <td style={{ padding: '8px 12px', color: 'rgba(100,116,139,0.7)', fontSize: 9, minWidth: 140 }}>{p.publisher}</td>
-                  <td style={{ padding: '8px 12px', color: 'rgba(196,210,225,0.75)', fontSize: 9, minWidth: 200, lineHeight: 1.4 }}>{p.relevance}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div style={{ background: 'rgba(8,14,28,0.6)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 12, padding: 12 }}>
+          <SortableFilterableTable
+            columns={PUBLICATION_COLS}
+            rows={PUBLICATIONS}
+            accent={C.cyan}
+            exportName="rms-key-publications"
+            initialSort="id"
+          />
         </div>
         <div style={{ marginTop: 10, fontSize: 9, color: 'rgba(100,116,139,0.5)', textAlign: 'right' }}>
           Full bibliography available in Sources &amp; Evidence Catalogue â {PUBLICATIONS.length} key references shown above
@@ -1342,8 +1349,8 @@ export function DTIMSArchitecture({ navigate }: { navigate: (v: ActiveView) => v
                 fontSize: 7, padding: '2px 8px', borderRadius: 4, fontWeight: 900,
                 background: 'rgba(0,245,255,0.2)', color: C.cyan,
                 border: '1px solid rgba(0,245,255,0.4)',
-                whiteSpace: 'nowrap',
-              }}>CENTRAL DATABASE</div>
+                whiteSpace: 'nowrap', textTransform: 'uppercase', letterSpacing: '0.06em',
+              }}>Central Database</div>
               <div style={{ fontSize: 12, fontWeight: 900, color: C.cyan, textAlign: 'center', marginBottom: 4 }}>
                 DNR Asset Management Database
               </div>
@@ -1546,7 +1553,6 @@ export default function RMSSection() {
       {/* Content */}
       <div style={contentStyle}>
 
-          {TABS[activeTab].id === 'dashboard' && <SectionDashboard sectionId="rms" />}
         {tab === 'overview' && (
           <RMSDashboard navigate={navigate} />
         )}
