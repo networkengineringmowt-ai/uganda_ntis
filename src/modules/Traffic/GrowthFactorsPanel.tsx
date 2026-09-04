@@ -10,6 +10,9 @@ import {
 import { TrendingUp, BarChart2, Activity, ArrowUpDown } from 'lucide-react';
 import { NEON, REGION_NEON, GlowDefs, Chart3DWrap, TT_NEON, TICK } from '../../lib/chart3d';
 import { ModuleNavBar } from '../../shared/ModuleNavBar';
+import { SearchableSelect } from '../../shared/SearchableSelect';
+import { SortableFilterableTable, type STColumn } from '../../shared/SortableFilterableTable';
+import { NULL_ZERO_STYLE } from '../../shared/tableFormatting';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -106,6 +109,33 @@ const PILL_BASE: React.CSSProperties = {
 
 // ─── Monthly heatmap ─────────────────────────────────────────────────────────
 
+interface HeatRow {
+  region: string;
+  m1: number | null; m2: number | null; m3: number | null; m4: number | null;
+  m5: number | null; m6: number | null; m7: number | null; m8: number | null;
+  m9: number | null; m10: number | null; m11: number | null; m12: number | null;
+  a1: number | null; a2: number | null; a3: number | null; a4: number | null;
+  a5: number | null; a6: number | null; a7: number | null; a8: number | null;
+  a9: number | null; a10: number | null; a11: number | null; a12: number | null;
+}
+
+function MonthlyHeatCell({ value, monthlyAadt }: { value: number | null; monthlyAadt: number | null }) {
+  if (value == null) {
+    return <span style={{ ...NULL_ZERO_STYLE, fontSize: 8, padding: '1px 5px' }}>No data</span>;
+  }
+  return (
+    <span
+      title={monthlyAadt != null ? `MEF ${value.toFixed(3)} · ${Math.round(monthlyAadt).toLocaleString()} vpd` : undefined}
+      style={{
+        display: 'inline-block', minWidth: 34, padding: '3px 4px', borderRadius: 4,
+        background: mefColor(value), color: mefTextColor(value),
+        fontWeight: 800, fontFamily: 'monospace', fontSize: 9.5, textAlign: 'center',
+      }}>
+      {value.toFixed(2)}
+    </span>
+  );
+}
+
 function MonthlyHeatmap({
   data, selectedYear, selectedVC,
 }: { data: GFMonthly[]; selectedYear: number; selectedVC: string }) {
@@ -124,6 +154,32 @@ function MonthlyHeatmap({
     return m;
   }, [data, selectedYear, selectedVC]);
 
+  const rows: HeatRow[] = useMemo(() => regions.map(region => {
+    const row = { region } as HeatRow;
+    MONTHS.forEach((_, i) => {
+      const entry = lookup.get(`${region}|${i + 1}`);
+      (row as any)[`m${i + 1}`] = entry?.mef ?? null;
+      (row as any)[`a${i + 1}`] = entry?.monthly_aadt ?? null;
+    });
+    return row;
+  }), [regions, lookup]);
+
+  const columns: STColumn<HeatRow>[] = useMemo(() => [
+    { key: 'region', label: 'Region' },
+    ...MONTHS.map((m, i) => {
+      const k = `m${i + 1}` as keyof HeatRow & string;
+      const ak = `a${i + 1}` as keyof HeatRow & string;
+      return {
+        key: k,
+        label: m,
+        numeric: true,
+        render: (row: HeatRow) => (
+          <MonthlyHeatCell value={row[k] as number | null} monthlyAadt={row[ak] as number | null} />
+        ),
+      };
+    }),
+  ], []);
+
   if (!regions.length) {
     return (
       <div style={{ color: 'rgba(148,163,184,0.4)', fontSize: 12, padding: 20, textAlign: 'center' }}>
@@ -133,65 +189,25 @@ function MonthlyHeatmap({
   }
 
   return (
-    <div style={{ overflowX: 'auto' }}>
-      <table style={{ width: '100%', borderCollapse: 'separate', borderSpacing: 2 }}>
-        <thead>
-          <tr>
-            <th style={{ width: 90, textAlign: 'left', fontSize: 9, color: 'rgba(148,163,184,0.4)', padding: '0 4px 4px', fontWeight: 600 }}>
-              Region
-            </th>
-            {MONTHS.map((m, i) => (
-              <th key={m} style={{ fontSize: 9, color: 'rgba(148,163,184,0.45)', fontWeight: 700, padding: '0 0 4px', textAlign: 'center', minWidth: 40 }}>
-                {m}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {regions.map(region => (
-            <tr key={region}>
-              <td style={{ fontSize: 9, color: 'rgba(148,163,184,0.65)', padding: '2px 4px 2px 0', fontWeight: 600, whiteSpace: 'nowrap' }}>
-                {region}
-              </td>
-              {MONTHS.map((_, i) => {
-                const month = i + 1;
-                const entry = lookup.get(`${region}|${month}`);
-                const mef   = entry?.mef;
-                return (
-                  <td
-                    key={month}
-                    title={entry ? `MEF ${mef?.toFixed(3)} · ${Math.round(entry.monthly_aadt).toLocaleString()} vpd` : 'No data'}
-                    style={{
-                      background: mefColor(mef),
-                      borderRadius: 4,
-                      textAlign: 'center',
-                      padding: '5px 2px',
-                      fontSize: 8,
-                      fontWeight: 800,
-                      fontFamily: 'monospace',
-                      color: mefTextColor(mef),
-                      cursor: 'default',
-                      transition: 'opacity .15s',
-                    }}
-                  >
-                    {mef ? mef.toFixed(2) : '—'}
-                  </td>
-                );
-              })}
-            </tr>
-          ))}
-        </tbody>
-      </table>
+    <div>
+      <SortableFilterableTable
+        columns={columns}
+        rows={rows}
+        accent="#6366f1"
+        exportName="monthly-expansion-factors"
+        initialSort="region"
+        emptyText="No monthly factor data for this selection."
+      />
 
       {/* Legend */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 10 }}>
-        <span style={{ fontSize: 8, color: 'rgba(148,163,184,0.4)' }}>MEF scale:</span>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 10, flexWrap: 'wrap' }}>
+        <span style={{ fontSize: 8, color: 'rgba(148,163,184,0.4)' }}>MEF Scale:</span>
         {[
-          { color: 'rgba(0,200,136,0.7)', label: '< 0.85 low traffic' },
+          { color: 'rgba(0,200,136,0.7)', label: '< 0.85 (Low Traffic)' },
           { color: 'rgba(0,80,60,0.4)',   label: '0.85–1.0' },
-          { color: 'rgba(148,163,184,0.1)', label: '1.0 baseline' },
+          { color: 'rgba(148,163,184,0.1)', label: '1.0 (Baseline)' },
           { color: 'rgba(255,107,53,0.4)', label: '1.0–1.15' },
-          { color: 'rgba(255,40,10,0.7)',  label: '> 1.15 peak' },
+          { color: 'rgba(255,40,10,0.7)',  label: '> 1.15 (Peak)' },
         ].map(({ color, label }) => (
           <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
             <div style={{ width: 14, height: 14, background: color, borderRadius: 3 }} />
@@ -537,37 +553,37 @@ export default function GrowthFactorsPanel() {
           {/* Region */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
             <span style={{ fontSize: 9, fontWeight: 700, color: 'rgba(148,163,184,0.4)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Region</span>
-            <select value={selectedRegion} onChange={e => setSelectedRegion(e.target.value)}
+            <SearchableSelect value={selectedRegion} onChange={setSelectedRegion}
               style={{ background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.25)',
                 borderRadius: 7, color: '#e2eaf4', fontSize: 11, fontWeight: 600,
                 padding: '3px 8px', cursor: 'pointer', outline: 'none', fontFamily: 'inherit' }}>
               <option value="all">All Regions</option>
               {data.regions.map(r => <option key={r} value={r}>{r}</option>)}
-            </select>
+            </SearchableSelect>
           </div>
 
           {/* Vehicle class */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
             <span style={{ fontSize: 9, fontWeight: 700, color: 'rgba(148,163,184,0.4)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Class</span>
-            <select value={selectedVC} onChange={e => setSelectedVC(e.target.value)}
+            <SearchableSelect value={selectedVC} onChange={setSelectedVC}
               style={{ background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.25)',
                 borderRadius: 7, color: '#e2eaf4', fontSize: 11, fontWeight: 600,
                 padding: '3px 8px', cursor: 'pointer', outline: 'none', fontFamily: 'inherit' }}>
               {data.vehicle_classes.map(vc => (
                 <option key={vc} value={vc}>{VC_LABELS[vc] ?? vc}</option>
               ))}
-            </select>
+            </SearchableSelect>
           </div>
 
           {/* Year */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
             <span style={{ fontSize: 9, fontWeight: 700, color: 'rgba(148,163,184,0.4)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Year</span>
-            <select value={selectedYear} onChange={e => setSelectedYear(Number(e.target.value))}
+            <SearchableSelect value={String(selectedYear)} onChange={v => setSelectedYear(Number(v))}
               style={{ background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.25)',
                 borderRadius: 7, color: '#e2eaf4', fontSize: 11, fontWeight: 600,
                 padding: '3px 8px', cursor: 'pointer', outline: 'none', fontFamily: 'inherit' }}>
-              {availableYears.map(y => <option key={y} value={y}>{y}</option>)}
-            </select>
+              {availableYears.map(y => <option key={y} value={String(y)}>{y}</option>)}
+            </SearchableSelect>
           </div>
         </div>
       </div>
@@ -588,7 +604,10 @@ export default function GrowthFactorsPanel() {
           {
             label: 'Regions',
             value: String(data.regions.filter(r => r !== 'Unknown').length),
-            sub: 'Department of National Roads maintenance regions', color: '#00ff88',
+            sub: data.regions.includes('Unknown')
+              ? 'DNR maintenance regions (excl. records with unknown region)'
+              : 'Department of National Roads maintenance regions',
+            color: '#00ff88',
           },
           {
             label: 'Vehicle Classes',
@@ -615,6 +634,9 @@ export default function GrowthFactorsPanel() {
             </div>
             <div style={{ fontSize: 10, color: 'rgba(148,163,184,0.45)' }}>
               Monthly AADT ÷ Annual AADT · &gt;1.0 = peak · &lt;1.0 = trough
+              {selectedRegion === 'all' && data.regions.includes('Unknown') && (
+                <span> · records with unknown region excluded</span>
+              )}
             </div>
           </div>
         </div>
@@ -635,6 +657,9 @@ export default function GrowthFactorsPanel() {
             </div>
             <div style={{ fontSize: 10, color: 'rgba(148,163,184,0.45)' }}>
               Uganda seasons: Long Rains (Mar–May) · Dry 1 (Jun–Aug) · Short Rains (Sep–Nov) · Dry 2 (Dec–Feb)
+              {visibleRegions.length > 5 && (
+                <span> · showing top 5 of {visibleRegions.length} regions (select a single region above to see the rest)</span>
+              )}
             </div>
           </div>
         </div>
@@ -657,6 +682,7 @@ export default function GrowthFactorsPanel() {
             </div>
             <div style={{ fontSize: 10, color: 'rgba(148,163,184,0.45)' }}>
               Annual growth rate % per vehicle class between consecutive survey years
+              {data.vehicle_classes.includes('nmt') && <span> · NMT excluded</span>}
             </div>
           </div>
         </div>

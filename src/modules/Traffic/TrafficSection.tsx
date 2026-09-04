@@ -20,8 +20,8 @@ import {
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { lazy, Suspense } from 'react';
-import { Clock, Play, Pause, Radio, Wifi, BarChart3, Map as MapIcon, Table2, TrendingUp } from 'lucide-react';
-import { useTCSStations } from '../../data/networkDB';
+import { Clock, Play, Pause, Radio, Wifi, BarChart3, Map as MapIcon, Table2, TrendingUp, ArrowUp, ArrowDown, ArrowUpDown } from 'lucide-react';
+import { useTCSStations, type TCSStation } from '../../data/networkDB';
 
 // Sub-module lazy loads (previously separate sidebar items)
 const TrafficAnalyticsView     = lazy(() => import('../../components/sections/TrafficAnalytics'));
@@ -48,6 +48,9 @@ import { InfraLayers } from '../../shared/InfraLayers';
 import { MapLegend as MapOverlayLegend, LEGEND_TRAFFIC } from '../../shared/MapLegend';
 import SourceTableButton from '../../shared/SourceTableButton';
 import CrossLinkChipBar from '../../shared/CrossLinkChipBar';
+import { SearchableSelect } from '../../shared/SearchableSelect';
+import { SortableFilterableTable, type STColumn } from '../../shared/SortableFilterableTable';
+import { RoadClassPill, NullableCell, AadtHeatCell } from '../../shared/tableFormatting';
 // ModuleNavBar removed — global Header handles section title
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -327,10 +330,6 @@ function LinkClassTable({ features, surfMap: _surfMap }: { features: PredFeature
   const BASE_YEAR = 2016;
   const TIS_YEAR  = 2025;   // survey year of the raw TIS AADT readings
   const nowT = useNowTick(1000);
-  const sorted = useMemo(
-    () => [...features].sort((a, b) => (b.properties.aadt_predicted ?? 0) - (a.properties.aadt_predicted ?? 0)),
-    [features],
-  );
   const VCOLS = [
     { label: 'Motorcycles',         short: 'Moto',  color: '#b967ff', idx: 0 },
     { label: 'Saloon Cars & Taxis', short: 'Cars',  color: '#00f5ff', idx: 1 },
@@ -342,6 +341,71 @@ function LinkClassTable({ features, surfMap: _surfMap }: { features: PredFeature
     { label: 'Heavy Trucks',        short: 'H.Trk', color: '#ff2d78', idx: 7 },
     { label: 'Truck Trailers',      short: 'Artic', color: '#f59e0b', idx: 8 },
   ];
+
+  // Pre-compute every derived value once per tick — sorting below only
+  // re-orders this array, it never re-derives the projections.
+  const enriched = useMemo(() => features.map(f => {
+    const p = f.properties;
+    const baseAadt = p.aadt_predicted ?? 0;   // raw TIS reading (2025)
+    const projections = projectAllClasses(baseAadt, TIS_YEAR, nowT);
+    // deflate each class to the 2016 base year for the base column
+    const aadt2016 = Math.round(projections.reduce(
+      (s, c) => s + c.baseCount / Math.pow(1 + c.growth, TIS_YEAR - BASE_YEAR), 0));
+    const projAadt = projections.reduce((s, c) => s + c.projCount, 0);
+    // Blended growth (weighted by share) from the 2016 base to now
+    const blendedGrowthPct = projections.reduce(
+      (s, c) => s + c.share * (Math.pow(1 + c.growth, nowT - BASE_YEAR) - 1),
+      0,
+    ) * 100;
+    return { p, projections, aadt2016, projAadt, blendedGrowthPct };
+  }), [features, nowT]);
+
+  const TEXT_SORT_KEYS = new Set(['link_id', 'link_name', 'road_class', 'region']);
+  const SORT_LABELS: Record<string, string> = {
+    link_id: 'Link ID', link_name: 'Link Name', road_class: 'Class', region: 'Region',
+    length_km: 'km', aadt2016: 'AADT 2016', growth: 'Growth %', total: 'ADT now',
+  };
+  const [sortKey, setSortKey] = useState<string>('total');
+  const [sortAsc, setSortAsc] = useState(false);
+
+  function handleSort(key: string) {
+    if (sortKey === key) { setSortAsc(a => !a); return; }
+    setSortKey(key);
+    setSortAsc(TEXT_SORT_KEYS.has(key));
+  }
+  function sortIcon(key: string) {
+    if (sortKey !== key) return <ArrowUpDown size={9} style={{ opacity: 0.35 }} />;
+    return sortAsc ? <ArrowUp size={9} /> : <ArrowDown size={9} />;
+  }
+  function sortValue(row: typeof enriched[number], key: string): number | string {
+    switch (key) {
+      case 'link_id':    return row.p.link_id ?? '';
+      case 'link_name':  return row.p.link_name ?? '';
+      case 'road_class': return row.p.road_class ?? '';
+      case 'region':     return row.p.region ?? '';
+      case 'length_km':  return row.p.length_km ?? -Infinity;
+      case 'aadt2016':   return row.aadt2016;
+      case 'growth':     return row.blendedGrowthPct;
+      case 'total':      return row.projAadt;
+      default: {
+        const idx = VCOLS.findIndex(vc => vc.label === key);
+        return idx >= 0 ? row.projections[idx].projCount : 0;
+      }
+    }
+  }
+
+  const sorted = useMemo(() => {
+    const arr = [...enriched];
+    arr.sort((a, b) => {
+      const av = sortValue(a, sortKey), bv = sortValue(b, sortKey);
+      const cmp = typeof av === 'number' && typeof bv === 'number'
+        ? av - bv
+        : String(av).localeCompare(String(bv), undefined, { numeric: true });
+      return sortAsc ? cmp : -cmp;
+    });
+    return arr;
+  }, [enriched, sortKey, sortAsc]);
+
   return (
     <div style={{ flex: 1, overflowY: 'auto', overflowX: 'auto', background: '#0a0f1e', padding: '14px 18px' }}>
       <div style={{ marginBottom: 12, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
@@ -350,7 +414,7 @@ function LinkClassTable({ features, surfMap: _surfMap }: { features: PredFeature
             Traffic by Road Link × Vehicle Class — Now-cast to the Current Instant
           </div>
           <div style={{ fontSize: 10, color: 'rgba(148,163,184,0.55)', marginTop: 3 }}>
-            Base year {BASE_YEAR} · TIS {TIS_YEAR} readings back-cast to {BASE_YEAR} per class · compound growth applied · {features.length} links · sorted by total ↓
+            Base year {BASE_YEAR} · TIS {TIS_YEAR} readings back-cast to {BASE_YEAR} per class · compound growth applied · {features.length} links · sorted by {SORT_LABELS[sortKey] ?? sortKey} {sortAsc ? '↑' : '↓'}
           </div>
           <div style={{ fontSize: 9.5, fontWeight: 700, color: '#00ff88', marginTop: 3 }}>
             <span className="animate-pulse" style={{ display:'inline-block', width:6, height:6, borderRadius:'50%', background:'#00ff88', marginRight:5 }} />
@@ -363,45 +427,56 @@ function LinkClassTable({ features, surfMap: _surfMap }: { features: PredFeature
         <table style={{ width: '100%', fontSize: 9, borderCollapse: 'collapse', minWidth: 1280 }}>
           <thead>
             <tr style={{ borderBottom: '1px solid rgba(148,163,184,0.12)' }}>
-              <th style={{ textAlign: 'left', padding: '6px 10px', color: '#64748b', fontWeight: 700, whiteSpace: 'nowrap', background: '#0a0f1e', position: 'sticky', left: 0 }}>Link ID</th>
-              <th style={{ textAlign: 'left', padding: '6px 8px', color: '#64748b', fontWeight: 700, whiteSpace: 'nowrap' }}>Link Name</th>
-              <th style={{ textAlign: 'center', padding: '6px 6px', color: '#64748b', fontWeight: 700 }}>Cls</th>
-              <th style={{ textAlign: 'left', padding: '6px 8px', color: '#64748b', fontWeight: 700 }}>Region</th>
-              <th style={{ textAlign: 'right', padding: '6px 8px', color: '#64748b', fontWeight: 700, whiteSpace: 'nowrap' }}>km</th>
-              <th style={{ textAlign: 'center', padding: '6px 6px', color: '#94a3b8', fontWeight: 700, whiteSpace: 'nowrap' }} title="Base year for all traffic statistics (2016)">Base Yr</th>
-              <th style={{ textAlign: 'right', padding: '6px 8px', color: '#94a3b8', fontWeight: 700, whiteSpace: 'nowrap' }} title="AADT at the 2016 base year (TIS reading back-cast per class)">AADT 2016</th>
-              <th style={{ textAlign: 'right', padding: '6px 8px', color: '#94a3b8', fontWeight: 700, whiteSpace: 'nowrap' }} title="Blended class-weighted growth p.a.">Growth %</th>
-              {VCOLS.map(vc => (
-                <th key={vc.label} style={{ textAlign: 'right', padding: '6px 5px', color: vc.color, fontWeight: 700, minWidth: 50, whiteSpace: 'nowrap' }} title={`${vc.label} — now-cast to the current instant`}>{vc.short}</th>
+              {[
+                { key: 'link_id',    label: 'Link ID',   sticky: true },
+                { key: 'link_name',  label: 'Link Name' },
+                { key: 'road_class', label: 'Cls',        center: true },
+                { key: 'region',     label: 'Region' },
+                { key: 'length_km',  label: 'km',         right: true },
+              ].map(col => (
+                <th key={col.key} onClick={() => handleSort(col.key)} style={{
+                  textAlign: col.center ? 'center' : col.right ? 'right' : 'left',
+                  padding: col.sticky ? '6px 10px' : '6px 8px', color: '#64748b', fontWeight: 700,
+                  whiteSpace: 'nowrap', cursor: 'pointer', userSelect: 'none',
+                  ...(col.sticky ? { background: '#0a0f1e', position: 'sticky' as const, left: 0 } : {}),
+                }}>
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3, justifyContent: col.center ? 'center' : col.right ? 'flex-end' : 'flex-start' }}>
+                    {col.label} {sortIcon(col.key)}
+                  </span>
+                </th>
               ))}
-              <th style={{ textAlign: 'right', padding: '6px 10px', color: C.teal, fontWeight: 800, whiteSpace: 'nowrap' }} title="AADT now-cast to the current instant">ADT now</th>
+              <th style={{ textAlign: 'center', padding: '6px 6px', color: '#94a3b8', fontWeight: 700, whiteSpace: 'nowrap' }} title="Base year for all traffic statistics (2016)">Base Yr</th>
+              <th onClick={() => handleSort('aadt2016')} style={{ textAlign: 'right', padding: '6px 8px', color: '#94a3b8', fontWeight: 700, whiteSpace: 'nowrap', cursor: 'pointer', userSelect: 'none' }} title="AADT at the 2016 base year (TIS reading back-cast per class)">
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3, justifyContent: 'flex-end' }}>AADT 2016 {sortIcon('aadt2016')}</span>
+              </th>
+              <th onClick={() => handleSort('growth')} style={{ textAlign: 'right', padding: '6px 8px', color: '#94a3b8', fontWeight: 700, whiteSpace: 'nowrap', cursor: 'pointer', userSelect: 'none' }} title="Blended class-weighted growth p.a.">
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3, justifyContent: 'flex-end' }}>Growth % {sortIcon('growth')}</span>
+              </th>
+              {VCOLS.map(vc => (
+                <th key={vc.label} onClick={() => handleSort(vc.label)} style={{ textAlign: 'right', padding: '6px 5px', color: vc.color, fontWeight: 700, minWidth: 50, whiteSpace: 'nowrap', cursor: 'pointer', userSelect: 'none' }} title={`${vc.label} — now-cast to the current instant`}>
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 2, justifyContent: 'flex-end' }}>{vc.short} {sortIcon(vc.label)}</span>
+                </th>
+              ))}
+              <th onClick={() => handleSort('total')} style={{ textAlign: 'right', padding: '6px 10px', color: C.teal, fontWeight: 800, whiteSpace: 'nowrap', cursor: 'pointer', userSelect: 'none' }} title="AADT now-cast to the current instant">
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3, justifyContent: 'flex-end' }}>ADT now {sortIcon('total')}</span>
+              </th>
             </tr>
           </thead>
           <tbody>
-            {sorted.map((f, i) => {
-              const p = f.properties;
-              const baseAadt = p.aadt_predicted ?? 0;   // raw TIS reading (2025)
-              const projections = projectAllClasses(baseAadt, TIS_YEAR, nowT);
-              // deflate each class to the 2016 base year for the base column
-              const aadt2016 = Math.round(projections.reduce(
-                (s, c) => s + c.baseCount / Math.pow(1 + c.growth, TIS_YEAR - BASE_YEAR), 0));
-              const projAadt   = projections.reduce((s, c) => s + c.projCount, 0);
+            {sorted.map((row, i) => {
+              const { p, projections, aadt2016, projAadt, blendedGrowthPct } = row;
               const rowBg = i % 2 === 0 ? 'rgba(15,23,42,0.35)' : 'transparent';
-              const clsColor = CLASS_COLORS[p.road_class ?? ''] ?? '#94a3b8';
-              // Blended growth (weighted by share) from the 2016 base to now
-              const blendedGrowthPct = projections.reduce(
-                (s, c) => s + c.share * (Math.pow(1 + c.growth, nowT - BASE_YEAR) - 1),
-                0,
-              ) * 100;
               return (
                 <tr key={p.link_id} style={{ background: rowBg, borderBottom: '1px solid rgba(148,163,184,0.04)' }}>
                   <td style={{ padding: '5px 10px', color: C.teal, fontFamily: 'monospace', fontWeight: 700, fontSize: 9, background: rowBg, position: 'sticky', left: 0, whiteSpace: 'nowrap' }}>{p.link_id}</td>
                   <td style={{ padding: '5px 8px', color: '#94a3b8', maxWidth: 180, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.link_name ?? '—'}</td>
-                  <td style={{ padding: '5px 6px', textAlign: 'center', color: clsColor, fontWeight: 800 }}>{p.road_class}</td>
+                  <td style={{ padding: '5px 6px', textAlign: 'center' }}><RoadClassPill cls={p.road_class} /></td>
                   <td style={{ padding: '5px 8px', color: '#64748b', whiteSpace: 'nowrap' }}>{p.region ?? '—'}</td>
-                  <td style={{ padding: '5px 8px', textAlign: 'right', color: '#475569', fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap' }}>{p.length_km?.toFixed(1) ?? '—'}</td>
+                  <td style={{ padding: '5px 8px', textAlign: 'right', color: '#475569', fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap' }}>
+                    <NullableCell value={p.length_km}>{p.length_km?.toFixed(1)}</NullableCell>
+                  </td>
                   <td style={{ padding: '5px 6px', textAlign: 'center', color: '#94a3b8', fontVariantNumeric: 'tabular-nums' }}>{BASE_YEAR}</td>
-                  <td style={{ padding: '5px 8px', textAlign: 'right', color: '#94a3b8', fontVariantNumeric: 'tabular-nums' }}>{aadt2016.toLocaleString()}</td>
+                  <td style={{ padding: '5px 8px', fontVariantNumeric: 'tabular-nums' }}><AadtHeatCell value={aadt2016} /></td>
                   <td style={{ padding: '5px 8px', textAlign: 'right', color: '#fbbf24', fontVariantNumeric: 'tabular-nums', fontWeight: 700 }}>+{blendedGrowthPct.toFixed(1)}%</td>
                   {projections.map(pr => (
                     <td key={pr.key} style={{ padding: '5px 5px', textAlign: 'right', color: '#64748b', fontVariantNumeric: 'tabular-nums' }}>
@@ -418,18 +493,12 @@ function LinkClassTable({ features, surfMap: _surfMap }: { features: PredFeature
           <tfoot>
             <tr style={{ borderTop: '1px solid rgba(148,163,184,0.12)', background: 'rgba(0,212,170,0.04)' }}>
               <td colSpan={8} style={{ padding: '6px 10px', color: C.teal, fontWeight: 800, fontSize: 9 }}>Network Total (now-cast to the current instant)</td>
-              {VCOLS.map(vc => {
-                const total = sorted.reduce((s, f) => {
-                  const projs = projectAllClasses(f.properties.aadt_predicted ?? 0, TIS_YEAR, nowT);
-                  return s + projs[vc.idx].projCount;
-                }, 0);
+              {VCOLS.map((vc, idx) => {
+                const total = enriched.reduce((s, row) => s + row.projections[idx].projCount, 0);
                 return <td key={vc.label} style={{ padding: '6px 5px', textAlign: 'right', color: vc.color, fontWeight: 700, fontVariantNumeric: 'tabular-nums' }}>{total.toLocaleString()}</td>;
               })}
               <td style={{ padding: '6px 10px', textAlign: 'right', color: C.teal, fontWeight: 900, fontVariantNumeric: 'tabular-nums' }}>
-                {sorted.reduce((s, f) => {
-                  const projs = projectAllClasses(f.properties.aadt_predicted ?? 0, TIS_YEAR, nowT);
-                  return s + projs.reduce((ss, p) => ss + p.projCount, 0);
-                }, 0).toLocaleString()}
+                {enriched.reduce((s, row) => s + row.projAadt, 0).toLocaleString()}
               </td>
             </tr>
           </tfoot>
@@ -461,6 +530,29 @@ export default function TrafficSection() {
   const [trendsTab,    setTrendsTab]    = useState<'growthfactors' | 'seasonal' | 'overloading' | 'analytics'>('growthfactors');
   const { stations: tcsStations } = useTCSStations();
   const playRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const stationCols: STColumn<TCSStation>[] = useMemo(() => [
+    { key: 'tcs_no',    label: 'TCS No.',
+      render: (s) => <span style={{ color: C.yellow, fontFamily: 'monospace', fontSize: 8 }}>{s.tcs_no ?? '—'}</span> },
+    { key: 'tcs_name',  label: 'Station Name',
+      render: (s) => <span style={{ color: '#e2eaf4', fontWeight: 600 }}>{s.tcs_name ?? '—'}</span> },
+    { key: 'road_no',   label: 'Road No.',
+      render: (s) => <span style={{ fontFamily: 'monospace' }}>{s.road_no ?? '—'}</span> },
+    { key: 'link_id',   label: 'Link ID',
+      render: (s) => <span style={{ color: C.teal, fontFamily: 'monospace', fontSize: 8 }}>{s.link_id ?? '—'}</span> },
+    { key: 'link_name', label: 'Link Name',
+      render: (s) => s.link_name ?? '—' },
+    { key: 'station',   label: 'Station',
+      render: (s) => s.station ?? '—' },
+    { key: 'region',    label: 'Region',
+      render: (s) => <span style={{ color: REGION_CLR[s.region ?? ''] ?? '#94a3b8' }}>{s.region ?? '—'}</span> },
+    { key: 'surface',   label: 'Surface',
+      render: (s) => (
+        <span style={{ color: s.surface === 'Bituminous' ? C.cyan : C.amber, fontWeight: 600 }}>
+          {s.surface === 'Bituminous' ? 'Paved' : s.surface ?? '—'}
+        </span>
+      ) },
+  ], []);
 
   // Live clock (EAT)
   useEffect(() => {
@@ -749,7 +841,7 @@ export default function TrafficSection() {
               fontSize: 8, fontWeight: 800, color: 'rgba(148,163,184,0.45)',
               textTransform: 'uppercase', letterSpacing: '0.1em', whiteSpace: 'nowrap',
             }}>Symbology</span>
-            <select value={mode} onChange={e => setMode(e.target.value as MapMode)}
+            <SearchableSelect value={mode} onChange={v => setMode(v as MapMode)}
               style={{
                 background: 'rgba(0,245,255,0.08)', border: '1px solid rgba(0,245,255,0.28)',
                 borderRadius: 7, color: C.cyan, fontSize: 11, fontWeight: 700,
@@ -758,7 +850,7 @@ export default function TrafficSection() {
               <option value="adt">Traffic Delay (ADT)</option>
               <option value="surface">Surface Type</option>
               <option value="class">Road Class</option>
-            </select>
+            </SearchableSelect>
           </div>
 
           <div style={{ width: 1, height: 26, background: 'rgba(255,255,255,0.08)', flexShrink: 0 }} />
@@ -861,7 +953,7 @@ export default function TrafficSection() {
               border: '1px solid rgba(255,210,63,0.35)',
               borderRadius: 10, padding: '5px 12px', backdropFilter: 'blur(12px)',
             }}>
-              <span style={{ fontSize: 11, fontWeight: 900, color: C.yellow }}>YEAR {timelineYear}</span>
+              <span style={{ fontSize: 11, fontWeight: 900, color: C.yellow }}>Year {timelineYear}</span>
               <span style={{ fontSize: 9, color: 'rgba(148,163,184,0.45)', marginLeft: 6 }}>
                 ×{(GROWTH_FACTORS[timelineYear] ?? 1).toFixed(2)} vs 2016 base year
               </span>
@@ -1223,40 +1315,14 @@ export default function TrafficSection() {
                 {tcsStations.length} monitoring stations · TIS manual counts + {ATC_TOTAL} ATC permanent counters · source: TIS 2025 AADT analysis
               </div>
             </div>
-            <div style={{ overflowX: 'auto' }}>
-              <table style={{ width: '100%', fontSize: 9, borderCollapse: 'collapse', minWidth: 700 }}>
-                <thead>
-                  <tr style={{ borderBottom: '1px solid rgba(148,163,184,0.12)' }}>
-                    {['TCS No.','Station Name','Road No.','Link ID','Link Name','Station','Region','Surface'].map(h => (
-                      <th key={h} style={{ textAlign: 'left', padding: '6px 10px', color: '#64748b', fontWeight: 700, whiteSpace: 'nowrap' }}>{h}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {tcsStations.map((s, i) => (
-                    <tr key={s.tcs_no ?? i} style={{
-                      borderBottom: '1px solid rgba(148,163,184,0.04)',
-                      background: i % 2 === 0 ? 'rgba(15,23,42,0.3)' : 'transparent',
-                    }}>
-                      <td style={{ padding: '5px 10px', color: C.yellow, fontFamily: 'monospace', fontSize: 8, whiteSpace: 'nowrap' }}>{s.tcs_no}</td>
-                      <td style={{ padding: '5px 10px', color: '#e2eaf4', fontWeight: 600 }}>{s.tcs_name ?? '—'}</td>
-                      <td style={{ padding: '5px 10px', color: '#94a3b8', fontFamily: 'monospace' }}>{s.road_no ?? '—'}</td>
-                      <td style={{ padding: '5px 10px', color: C.teal, fontFamily: 'monospace', fontSize: 8 }}>{s.link_id ?? '—'}</td>
-                      <td style={{ padding: '5px 10px', color: '#64748b', maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.link_name ?? '—'}</td>
-                      <td style={{ padding: '5px 10px', color: '#94a3b8' }}>{s.station ?? '—'}</td>
-                      <td style={{ padding: '5px 10px' }}>
-                        <span style={{ color: REGION_CLR[s.region ?? ''] ?? '#94a3b8' }}>{s.region ?? '—'}</span>
-                      </td>
-                      <td style={{ padding: '5px 10px' }}>
-                        <span style={{ color: s.surface === 'Bituminous' ? C.cyan : C.amber, fontWeight: 600 }}>
-                          {s.surface === 'Bituminous' ? 'Paved' : s.surface ?? '—'}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            <SortableFilterableTable
+              columns={stationCols}
+              rows={tcsStations}
+              accent={C.teal}
+              exportName="tis-atc-station-directory"
+              initialSort="tcs_no"
+              emptyText="No monitoring stations available."
+            />
             <div style={{ marginTop: 10, fontSize: 9, color: 'rgba(148,163,184,0.3)' }}>
               Source: TIS 2025 AADT analysis.xlsx · TCS_Combined sheet · real Link IDs from network2026.geojson
             </div>

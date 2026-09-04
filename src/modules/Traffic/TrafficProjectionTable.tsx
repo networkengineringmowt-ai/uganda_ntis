@@ -5,7 +5,9 @@
  */
 import { useState, useMemo, useEffect } from 'react';
 import { VC_CLASSES, projectClass, VC_GROWTH } from '../../shared/trafficProjection';
-import { Download } from 'lucide-react';
+import { Download, ArrowUp, ArrowDown, ArrowUpDown } from 'lucide-react';
+import { SearchableSelect } from '../../shared/SearchableSelect';
+import { RoadClassPill, NullableCell } from '../../shared/tableFormatting';
 
 const BASE = import.meta.env.BASE_URL;
 
@@ -52,7 +54,19 @@ export default function TrafficProjectionTable() {
   const [regionFilter, setReg]  = useState('All');
   const [page, setPage]         = useState(0);
   const [expandedId, setExpId]  = useState<string | null>(null);
+  const [sortKey, setSortKey]   = useState<string>('link_id');
+  const [sortAsc, setSortAsc]   = useState(true);
   const PAGE_SIZE = 50;
+
+  function handleSort(key: string) {
+    if (sortKey === key) setSortAsc(asc => !asc);
+    else { setSortKey(key); setSortAsc(true); }
+  }
+
+  function sortIcon(key: string) {
+    if (sortKey !== key) return <ArrowUpDown size={9} style={{ opacity: 0.35 }} />;
+    return sortAsc ? <ArrowUp size={9} /> : <ArrowDown size={9} />;
+  }
 
   useEffect(() => {
     fetch(`${BASE}data/network2026.geojson`)
@@ -107,7 +121,34 @@ export default function TrafficProjectionTable() {
     return true;
   }), [links, classFilter, regionFilter, search]);
 
-  const paginated = filtered.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
+  function sortValue(l: LinkRow, key: string): number | string {
+    switch (key) {
+      case 'link_id':    return l.link_id;
+      case 'link_name':  return l.link_name;
+      case 'road_class': return l.road_class;
+      case 'region':     return l.region;
+      case 'length_km':  return l.length_km;
+      default: {
+        const y = Number(key);
+        if (!Number.isNaN(y)) return totalAt(l.base_aadt, l.base_year, y);
+        return '';
+      }
+    }
+  }
+
+  const sorted = useMemo(() => {
+    const arr = [...filtered];
+    arr.sort((a, b) => {
+      const av = sortValue(a, sortKey), bv = sortValue(b, sortKey);
+      const cmp = typeof av === 'number' && typeof bv === 'number'
+        ? av - bv
+        : String(av).localeCompare(String(bv), undefined, { numeric: true });
+      return sortAsc ? cmp : -cmp;
+    });
+    return arr;
+  }, [filtered, sortKey, sortAsc]);
+
+  const paginated = sorted.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
   const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
 
   function exportCSV() {
@@ -130,7 +171,6 @@ export default function TrafficProjectionTable() {
   }
 
   const BG = 'rgba(15,23,42,0.55)';
-  const classColor: Record<string,string> = { A:'#00f5ff', B:'#00ff88', C:'#ffd23f', M:'#b967ff' };
 
   if (loading) return (
     <div style={{ textAlign:'center', padding:40, color:'#64748b', fontSize:12 }}>
@@ -166,16 +206,16 @@ export default function TrafficProjectionTable() {
             placeholder="Search link ID or name…"
             style={{ fontSize:10, padding:'5px 10px', borderRadius:6, background:'rgba(15,23,42,0.7)',
               border:'1px solid rgba(148,163,184,0.18)', color:'#e2eaf4', outline:'none', minWidth:220 }}/>
-          <select value={classFilter} onChange={e => { setClass(e.target.value); setPage(0); }}
+          <SearchableSelect value={classFilter} onChange={v => { setClass(v); setPage(0); }}
             style={{ fontSize:10, padding:'5px 8px', borderRadius:6, background:'rgba(15,23,42,0.7)',
               border:'1px solid rgba(148,163,184,0.18)', color:'#e2eaf4' }}>
             {classes.map(c => <option key={c} value={c}>{c === 'All' ? 'All Classes' : `Class ${c}`}</option>)}
-          </select>
-          <select value={regionFilter} onChange={e => { setReg(e.target.value); setPage(0); }}
+          </SearchableSelect>
+          <SearchableSelect value={regionFilter} onChange={v => { setReg(v); setPage(0); }}
             style={{ fontSize:10, padding:'5px 8px', borderRadius:6, background:'rgba(15,23,42,0.7)',
               border:'1px solid rgba(148,163,184,0.18)', color:'#e2eaf4' }}>
             {regions.map(r => <option key={r} value={r}>{r}</option>)}
-          </select>
+          </SearchableSelect>
           <span style={{ fontSize:10, color:'rgba(148,163,184,0.5)' }}>
             {filtered.length.toLocaleString()} / {links.length.toLocaleString()} links
           </span>
@@ -196,15 +236,26 @@ export default function TrafficProjectionTable() {
         <table style={{ fontSize:10, borderCollapse:'collapse', minWidth:1200 }}>
           <thead style={{ position:'sticky', top:0, background:'rgba(15,23,42,0.97)', zIndex:2 }}>
             <tr>
-              <th style={TH} rowSpan={2}>Link ID</th>
-              <th style={{ ...TH, minWidth:160 }} rowSpan={2}>Road Name</th>
-              <th style={TH} rowSpan={2}>Cls</th>
-              <th style={TH} rowSpan={2}>Region</th>
-              <th style={TH} rowSpan={2}>km</th>
+              <th style={{ ...TH, cursor:'pointer', userSelect:'none' }} rowSpan={2} onClick={() => handleSort('link_id')}>
+                <span style={{ display:'inline-flex', alignItems:'center', gap:3 }}>Link ID {sortIcon('link_id')}</span>
+              </th>
+              <th style={{ ...TH, minWidth:160, cursor:'pointer', userSelect:'none' }} rowSpan={2} onClick={() => handleSort('link_name')}>
+                <span style={{ display:'inline-flex', alignItems:'center', gap:3 }}>Road Name {sortIcon('link_name')}</span>
+              </th>
+              <th style={{ ...TH, cursor:'pointer', userSelect:'none' }} rowSpan={2} onClick={() => handleSort('road_class')}>
+                <span style={{ display:'inline-flex', alignItems:'center', gap:3 }}>Cls {sortIcon('road_class')}</span>
+              </th>
+              <th style={{ ...TH, cursor:'pointer', userSelect:'none' }} rowSpan={2} onClick={() => handleSort('region')}>
+                <span style={{ display:'inline-flex', alignItems:'center', gap:3 }}>Region {sortIcon('region')}</span>
+              </th>
+              <th style={{ ...TH, cursor:'pointer', userSelect:'none' }} rowSpan={2} onClick={() => handleSort('length_km')}>
+                <span style={{ display:'inline-flex', alignItems:'center', gap:3 }}>km {sortIcon('length_km')}</span>
+              </th>
               {SNAPSHOT_YEARS.map(y => (
-                <th key={y} style={{ ...TH, textAlign:'center', minWidth:52, color: y===2026?'#00f5ff':'#94a3b8',
-                  background: y===2026?'rgba(0,245,255,0.06)':undefined }}>
-                  {y}
+                <th key={y} style={{ ...TH, textAlign:'center', minWidth:52, cursor:'pointer', userSelect:'none',
+                  color: y===2026?'#00f5ff':'#94a3b8',
+                  background: y===2026?'rgba(0,245,255,0.06)':undefined }} onClick={() => handleSort(String(y))}>
+                  <span style={{ display:'inline-flex', alignItems:'center', gap:3, justifyContent:'center' }}>{y} {sortIcon(String(y))}</span>
                 </th>
               ))}
               <th style={TH} rowSpan={2}>Detail</th>
@@ -220,7 +271,6 @@ export default function TrafficProjectionTable() {
           </thead>
           <tbody>
             {paginated.map((l, i) => {
-              const cc = classColor[l.road_class] ?? '#94a3b8';
               const isExp = expandedId === l.link_id;
               const totals = SNAPSHOT_YEARS.map(y => totalAt(l.base_aadt, l.base_year, y));
               return (
@@ -229,14 +279,14 @@ export default function TrafficProjectionTable() {
                     borderBottom:'1px solid rgba(255,255,255,0.03)' }}>
                     <td style={{ padding:'5px 8px', color:'#00f5ff', fontFamily:'monospace', fontSize:9, whiteSpace:'nowrap' }}>{l.link_id}</td>
                     <td style={{ padding:'5px 8px', color:'#e2eaf4', maxWidth:200, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{l.link_name}</td>
-                    <td style={{ padding:'5px 8px', color:cc, fontWeight:700 }}>{l.road_class}</td>
+                    <td style={{ padding:'5px 8px' }}><RoadClassPill cls={l.road_class} /></td>
                     <td style={{ padding:'5px 8px', color:'#94a3b8' }}>{l.region}</td>
-                    <td style={{ padding:'5px 8px', color:'#94a3b8' }}>{l.length_km.toFixed(0)}</td>
+                    <td style={{ padding:'5px 8px', color:'#94a3b8' }}><NullableCell value={l.length_km}>{l.length_km.toFixed(0)}</NullableCell></td>
                     {totals.map((t, j) => (
                       <td key={j} style={{ padding:'5px 8px', textAlign:'right', fontFamily:'monospace',
                         color: SNAPSHOT_YEARS[j]===2026?'#00f5ff':'#d4dde8',
                         background: SNAPSHOT_YEARS[j]===2026?'rgba(0,245,255,0.04)':undefined }}>
-                        {t.toLocaleString()}
+                        <NullableCell value={t}>{t.toLocaleString()}</NullableCell>
                       </td>
                     ))}
                     <td style={{ padding:'5px 8px' }}>

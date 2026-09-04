@@ -5,6 +5,8 @@
  */
 import { useState, useMemo } from 'react';
 import { Download } from 'lucide-react';
+import { SearchableSelect } from '../../shared/SearchableSelect';
+import { SortableFilterableTable, type STColumn } from '../../shared/SortableFilterableTable';
 
 const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 const MONTH_LABELS = ['January','February','March','April','May','June',
@@ -22,6 +24,16 @@ interface MEFRow {
   factors: number[]; // 12 values Jan-Dec
   annualGrowthRate: number; // % per year
   baseYear: number;
+}
+
+// Flattened, individually-sortable shape used by the SortableFilterableTable below.
+interface MEFTableRow {
+  region: string;
+  class: string;
+  annualGrowthRate: number;
+  m1: number; m2: number; m3: number; m4: number; m5: number; m6: number;
+  m7: number; m8: number; m9: number; m10: number; m11: number; m12: number;
+  avg: number;
 }
 
 const MEF_DATA: MEFRow[] = [
@@ -84,13 +96,6 @@ export default function SeasonalFactorsTable() {
     { months:[8,9,10],  label:'Short Rains (OND)', color:'#4ade80', note:'Moderate suppression of HGV' },
   ];
 
-  function seasonForMonth(m: number): { label: string; color: string } {
-    for (const b of SEASON_BANDS) {
-      if (b.months.includes(m)) return b;
-    }
-    return { label:'', color:'#94a3b8' };
-  }
-
   function exportCSV() {
     const header = ['Region','Vehicle Class','Annual Growth %','Base Year',...MONTH_LABELS,'Annual Avg MEF'].join(',');
     const rows = MEF_DATA.map(r => {
@@ -102,6 +107,48 @@ export default function SeasonalFactorsTable() {
     const a = document.createElement('a'); a.href=url; a.download='uganda_roads_seasonal_mef.csv'; a.click();
     URL.revokeObjectURL(url);
   }
+
+  // Table rows for the sortable MEF table — the 12 monthly factors are exploded
+  // into individually-keyed, individually-sortable columns (m1..m12).
+  const tableRows: MEFTableRow[] = useMemo(() => filtered.map(row => {
+    const avg = row.factors.reduce((s, v) => s + v, 0) / 12;
+    const r: any = { region: row.region, class: row.class, annualGrowthRate: row.annualGrowthRate, avg };
+    row.factors.forEach((v, i) => { r[`m${i + 1}`] = v; });
+    return r as MEFTableRow;
+  }), [filtered]);
+
+  const monthCell = (v: number) => (
+    <span style={{
+      display: 'inline-block', minWidth: 34, padding: '3px 4px', borderRadius: 4,
+      fontWeight: 700, fontFamily: 'monospace', fontSize: 9,
+      background: mefBg(v), color: mefColor(v),
+    }}>
+      {v.toFixed(2)}
+    </span>
+  );
+
+  const mefColumns: STColumn<MEFTableRow>[] = [
+    { key: 'region', label: 'Region' },
+    { key: 'class', label: 'Vehicle Class' },
+    {
+      key: 'annualGrowthRate', label: 'Growth %/yr', numeric: true,
+      render: r => <span style={{ color: '#00f5ff', fontWeight: 700 }}>{r.annualGrowthRate.toFixed(1)}%</span>,
+    },
+    ...MONTHS.map((m, i) => {
+      const k = `m${i + 1}` as keyof MEFTableRow & string;
+      const season = [2, 3, 4].includes(i) ? 'MAM' : [8, 9, 10].includes(i) ? 'OND' : [11, 0, 1].includes(i) ? 'DS1' : 'DS2';
+      return {
+        key: k,
+        label: `${m} (${season})`,
+        numeric: true,
+        render: (r: MEFTableRow) => monthCell(r[k] as number),
+      };
+    }),
+    {
+      key: 'avg', label: 'Annual Avg MEF', numeric: true,
+      render: r => <span style={{ color: 'rgba(148,163,184,0.7)', fontFamily: 'monospace' }}>{r.avg.toFixed(2)}</span>,
+    },
+  ];
 
   const BG = 'rgba(15,23,42,0.55)';
 
@@ -129,15 +176,15 @@ export default function SeasonalFactorsTable() {
 
         {/* Filters */}
         <div style={{ display:'flex', gap:8, flexWrap:'wrap', alignItems:'center' }}>
-          <select value={regionFilter} onChange={e=>setRegion(e.target.value)}
+          <SearchableSelect value={regionFilter} onChange={setRegion}
             style={{ fontSize:10, padding:'5px 8px', borderRadius:6, background:'rgba(15,23,42,0.7)', border:'1px solid rgba(148,163,184,0.18)', color:'#e2eaf4' }}>
             <option value="All">All Regions</option>
             {regions.map(r=><option key={r} value={r}>{r}</option>)}
-          </select>
-          <select value={classFilter} onChange={e=>setClass(e.target.value)}
+          </SearchableSelect>
+          <SearchableSelect value={classFilter} onChange={setClass}
             style={{ fontSize:10, padding:'5px 8px', borderRadius:6, background:'rgba(15,23,42,0.7)', border:'1px solid rgba(148,163,184,0.18)', color:'#e2eaf4' }}>
             {classes.map(c=><option key={c} value={c}>{c==='All'?'All Vehicle Classes':c}</option>)}
-          </select>
+          </SearchableSelect>
         </div>
       </div>
 
@@ -153,57 +200,13 @@ export default function SeasonalFactorsTable() {
       </div>
 
       {/* Heatmap table */}
-      <div style={{ overflowX:'auto', borderRadius:10, border:'1px solid rgba(255,255,255,0.06)' }}>
-        <table style={{ fontSize:9.5, borderCollapse:'collapse', minWidth:900, width:'100%' }}>
-          <thead style={{ position:'sticky', top:0, background:'rgba(15,23,42,0.97)', zIndex:2 }}>
-            <tr style={{ borderBottom:'1px solid rgba(148,163,184,0.15)' }}>
-              <th style={{ ...TH2, minWidth:140 }}>Region</th>
-              <th style={{ ...TH2, minWidth:100 }}>Vehicle Class</th>
-              <th style={{ ...TH2 }}>Growth %/yr</th>
-              {MONTHS.map((m, i) => {
-                const s = seasonForMonth(i);
-                return (
-                  <th key={m} style={{ ...TH2, textAlign:'center', minWidth:50,
-                    borderBottom: `2px solid ${s.color}55` }}>
-                    <div>{m}</div>
-                    <div style={{ fontSize:7, color:s.color, marginTop:1 }}>
-                      {[2,3,4].includes(i)?'MAM':[8,9,10].includes(i)?'OND':[11,0,1].includes(i)?'DS1':'DS2'}
-                    </div>
-                  </th>
-                );
-              })}
-              <th style={{ ...TH2, textAlign:'center' }}>Avg</th>
-            </tr>
-          </thead>
-          <tbody>
-            {(filtered.length > 0 ? filtered : MEF_DATA.slice(0,1)).map((row, i) => {
-              const avg = (row.factors.reduce((s,v)=>s+v,0)/12).toFixed(2);
-              return (
-                <tr key={`${row.region}-${row.class}`} style={{ background: i%2===0?'rgba(15,23,42,0.3)':'transparent',
-                  borderBottom:'1px solid rgba(255,255,255,0.03)' }}>
-                  <td style={{ padding:'6px 10px', color:'#d4dde8', fontWeight:600 }}>{row.region}</td>
-                  <td style={{ padding:'6px 10px', color:'#94a3b8' }}>{row.class}</td>
-                  <td style={{ padding:'6px 10px', color:'#00f5ff', fontWeight:700, textAlign:'center' }}>
-                    {row.annualGrowthRate.toFixed(1)}%
-                  </td>
-                  {row.factors.map((v, j) => (
-                    <td key={j} style={{
-                      padding:'6px 8px', textAlign:'center', fontWeight:700,
-                      fontFamily:'monospace', fontSize:9,
-                      background: mefBg(v), color: mefColor(v),
-                    }}>
-                      {v.toFixed(2)}
-                    </td>
-                  ))}
-                  <td style={{ padding:'6px 8px', textAlign:'center', color:'rgba(148,163,184,0.7)', fontFamily:'monospace' }}>
-                    {avg}
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
+      <SortableFilterableTable
+        columns={mefColumns}
+        rows={tableRows}
+        accent="#00f5ff"
+        exportName="uganda-roads-seasonal-mef-filtered"
+        emptyText="No MEF data available for this Region / Vehicle Class combination."
+      />
 
       {/* Interpretation note */}
       <div style={{ background:BG, backdropFilter:'blur(20px)', borderRadius:10, border:'1px solid rgba(255,255,255,0.06)', padding:'12px 14px', fontSize:9, color:'rgba(148,163,184,0.55)', lineHeight:1.6 }}>
@@ -216,9 +219,3 @@ export default function SeasonalFactorsTable() {
     </div>
   );
 }
-
-const TH2: React.CSSProperties = {
-  textAlign: 'left', padding: '7px 8px',
-  color: '#94a3b8', fontWeight: 700, whiteSpace: 'nowrap',
-  fontSize: 9, borderBottom: '1px solid rgba(148,163,184,0.15)',
-};

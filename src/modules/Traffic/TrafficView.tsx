@@ -4,8 +4,10 @@ import {
   Tooltip, LineChart, Line, Cell,
 } from 'recharts';
 import { TrendingUp, Truck } from 'lucide-react';
-import { loadPlatformAnalytics, type PlatformAnalytics } from '../../data/platformData';
+import { loadPlatformAnalytics, type PlatformAnalytics, type RegionTraffic } from '../../data/platformData';
 import { NEON, REGION_NEON, Bar3D, GlowDefs, Chart3DWrap, TT_NEON, TICK, AX_LINE } from '../../lib/chart3d';
+import { SortableFilterableTable, type STColumn } from '../../shared/SortableFilterableTable';
+import { AadtHeatCell, NullableCell, NULL_ZERO_STYLE } from '../../shared/tableFormatting';
 
 export default function TrafficView() {
   const [analytics, setAnalytics] = useState<PlatformAnalytics | null>(null);
@@ -35,6 +37,38 @@ export default function TrafficView() {
 
   const growth = a?.trafficGrowth ?? [];
 
+  const regionCols: STColumn<RegionTraffic>[] = [
+    {
+      key: 'region', label: 'Region',
+      render: (r) => (
+        <div className="flex items-center gap-2">
+          <span className="w-2.5 h-2.5 rounded-full inline-block" style={{ background: REGION_NEON[r.region] ?? '#64748b' }} />
+          <span className="text-slate-200 font-semibold">{r.region}</span>
+        </div>
+      ),
+    },
+    {
+      key: 'network_weighted_motorised_aadt', label: 'Motorised AADT', numeric: true,
+      render: (r) => <AadtHeatCell value={Math.round(r.network_weighted_motorised_aadt)} />,
+    },
+    {
+      key: 'network_weighted_non_motorised_aadt', label: 'Non-Motorised AADT', numeric: true,
+      render: (r) => (
+        <NullableCell value={r.network_weighted_non_motorised_aadt}>
+          {Math.round(r.network_weighted_non_motorised_aadt ?? 0).toLocaleString()}
+        </NullableCell>
+      ),
+    },
+    {
+      key: 'covered_length_km', label: 'Covered Length (km)', numeric: true,
+      render: (r) => <NullableCell value={r.covered_length_km}>{Math.round(r.covered_length_km).toLocaleString()}</NullableCell>,
+    },
+    {
+      key: 'total_vehicle_km', label: 'Vehicle-km (M)', numeric: true,
+      render: (r) => <NullableCell value={r.total_vehicle_km}>{(r.total_vehicle_km / 1e6).toFixed(0)}</NullableCell>,
+    },
+  ];
+
   return (
     <div className="flex-1 overflow-y-auto p-5 space-y-5 animate-fade-in">
 
@@ -53,13 +87,17 @@ export default function TrafficView() {
       {/* ── KPIs ── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { label:'Network AADT (2025)', value: a ? Math.round(a.trafficYears.find(t=>t.year===2025)?.network_weighted_motorised_aadt??2562).toLocaleString() : '2,562', sub:'Motorised vehicles/day', color:'text-purple-400' },
-          { label:'Growth 2017→2025',    value: a ? `+${(((a.trafficYears.find(t=>t.year===2025)?.network_weighted_motorised_aadt??2562)/(a.trafficYears.find(t=>t.year===2017)?.network_weighted_motorised_aadt??1733)-1)*100).toFixed(1)}%` : '+47.9%', sub:'Motorised AADT growth', color:'text-green-400' },
-          { label:'Vehicle-km/year (2025)', value: a ? `${((a.trafficYears.find(t=>t.year===2025)?.total_vehicle_km??0)/1e9).toFixed(1)}B` : '19.2B', sub:'Total vehicle-km on network', color:'text-blue-400' },
-          { label:'Highest Region (2025)', value: regionData[0]?.region ?? 'Central', sub:`${regionData[0]?.AADT.toLocaleString() ?? ''} AADT`, color:'text-amber-400' },
+          { label:'Network AADT (2025)', value: a ? Math.round(a.trafficYears.find(t=>t.year===2025)?.network_weighted_motorised_aadt ?? 0).toLocaleString() : null, sub:'Motorised vehicles/day', color:'text-purple-400' },
+          { label:'Growth 2017→2025',    value: a && a.trafficYears.find(t=>t.year===2025) && a.trafficYears.find(t=>t.year===2017)
+              ? `+${(((a.trafficYears.find(t=>t.year===2025)!.network_weighted_motorised_aadt)/(a.trafficYears.find(t=>t.year===2017)!.network_weighted_motorised_aadt)-1)*100).toFixed(1)}%`
+              : null, sub:'Motorised AADT growth', color:'text-green-400' },
+          { label:'Vehicle-km/year (2025)', value: a ? `${((a.trafficYears.find(t=>t.year===2025)?.total_vehicle_km??0)/1e9).toFixed(1)}B` : null, sub:'Total vehicle-km on network', color:'text-blue-400' },
+          { label:'Highest Region (2025)', value: regionData[0]?.region ?? null, sub: regionData[0] ? `${regionData[0].AADT.toLocaleString()} AADT` : '', color:'text-amber-400' },
         ].map(kpi => (
           <div key={kpi.label} className="bms-card">
-            <div className={`text-xl font-black ${kpi.color}`}>{kpi.value}</div>
+            {kpi.value != null
+              ? <div className={`text-xl font-black ${kpi.color}`}>{kpi.value}</div>
+              : <span style={NULL_ZERO_STYLE}>No data</span>}
             <div className="text-xs font-semibold text-slate-300 mt-1">{kpi.label}</div>
             <div className="text-[10px] text-slate-500">{kpi.sub}</div>
           </div>
@@ -166,33 +204,14 @@ export default function TrafficView() {
         <div className="text-sm font-bold text-white mb-4 flex items-center gap-2">
           <TrendingUp size={16} className="text-blue-400"/> Detailed Region Summary (2025)
         </div>
-        <div className="overflow-x-auto">
-          <table className="w-full text-xs">
-            <thead>
-              <tr className="border-b border-slate-700">
-                {['Region','Motorised AADT','Non-Motorised AADT','Covered Length (km)','Vehicle-km (M)'].map(h => (
-                  <th key={h} className="text-left py-2 px-3 text-[10px] font-semibold text-slate-500 uppercase tracking-wide">{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {(a?.regionTraffic2025 ?? []).sort((a,b) => b.network_weighted_motorised_aadt - a.network_weighted_motorised_aadt).map(r => (
-                <tr key={r.region} className="border-b border-slate-800 hover:bg-slate-800/40">
-                  <td className="py-2.5 px-3">
-                    <div className="flex items-center gap-2">
-                      <span className="w-2.5 h-2.5 rounded-full" style={{ background: REGION_NEON[r.region] ?? '#64748b'}}/>
-                      <span className="text-slate-200 font-semibold">{r.region}</span>
-                    </div>
-                  </td>
-                  <td className="py-2.5 px-3 text-blue-400 font-mono">{Math.round(r.network_weighted_motorised_aadt).toLocaleString()}</td>
-                  <td className="py-2.5 px-3 text-slate-400 font-mono">{Math.round(r.network_weighted_non_motorised_aadt ?? 0).toLocaleString()}</td>
-                  <td className="py-2.5 px-3 text-slate-300 font-mono">{Math.round(r.covered_length_km).toLocaleString()}</td>
-                  <td className="py-2.5 px-3 text-slate-300 font-mono">{(r.total_vehicle_km/1e6).toFixed(0)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <SortableFilterableTable
+          columns={regionCols}
+          rows={a?.regionTraffic2025 ?? []}
+          accent="#4d9fff"
+          exportName="traffic-region-summary-2025"
+          initialSort="network_weighted_motorised_aadt"
+          emptyText="No region traffic data available."
+        />
         <div className="mt-3 text-[10px] text-slate-600">
           Sources: Traffic_2017,2020.xlsx · Traffic_2020-2021.xlsx · Length-weighted aggregation per maintenance region
         </div>
