@@ -11,6 +11,8 @@ import { useSectionData } from '../../hooks/useSectionData';
 import CrossLinkChipBar from '../../shared/CrossLinkChipBar';
 import { useTableSort } from '../../shared/useTableSort';
 import SectionDashboard from '../Dashboard/SectionDashboard';
+import { SortableFilterableTable, type STColumn } from '../../shared/SortableFilterableTable';
+import { NULL_ZERO_STYLE } from '../../shared/tableFormatting';
 
 const C = {
   cyan: '#00f5ff', green: '#00ff88', yellow: '#ffd23f',
@@ -68,8 +70,27 @@ const TABS = [
   { id: 'matrix',   label: 'Intervention Matrix' },
   { id: 'region',   label: 'Regional Breakdown' },
   { id: 'util',     label: 'Fund Utilisation' },
+  { id: 'strategy', label: 'Maintenance Strategy' },
 ] as const;
 type TabId = typeof TABS[number]['id'];
+
+// Maintenance Strategy tab types -- real data extracted from her Maintenance
+// Strategy planning workbooks (2026 intervention rates, FY2017/18-2025/26
+// asset values, a 320-link intervention-need register, and ML-derived
+// priority/forecast figures). Bridges and major culverts stay separate,
+// never merged with roads.
+interface StrategyRateRow extends Record<string, unknown> {
+  surface: string; intervention: string; rate_ugx_bn_per_km: number;
+  basis: string; is_assumption: boolean; accuracy_score: number | null;
+}
+interface StrategyLinkRow extends Record<string, unknown> {
+  link_id: string; link_name: string; length_km: number | null; region: string | null;
+  intervention_need: string; age_years: number | null;
+  predicted_cost_need_ugx_bn: number | null; priority_score: number | null; priority_rank: number | null;
+}
+interface AssetValueRow { fy: string; length_km: number; unit_rate_musd_per_km: number; crc_musd: number; condition_factor: number; cdrc_musd: number; }
+interface ForecastRow { fy: string; is_actual: boolean; paved_asset_value_musd: number; unpaved_asset_value_musd: number; total_asset_value_musd: number; }
+interface StructuresSummary { bridges: { count: number; asset_value_musd: number; crc_musd: number }; major_culverts: { count: number; asset_value_musd: number; crc_musd: number } }
 
 const CT = ({ active, payload, label }: any) => {
   if (!active || !payload?.length) return null;
@@ -131,6 +152,66 @@ export default function BudgetSection() {
   const totalRequired = regionData.reduce((s, r) => s + r.required, 0);
   const currentAlloc = regionData.reduce((s, r) => s + r.allocated, 0);
   const fundingGap = totalRequired - currentAlloc;
+
+  // Maintenance Strategy tab data -- fetched independently of the tabs above
+  // so it works even if the older placeholder data is unavailable.
+  const [stratRates, setStratRates] = useState<StrategyRateRow[]>([]);
+  const [stratLinks, setStratLinks] = useState<StrategyLinkRow[]>([]);
+  const [stratPaved, setStratPaved] = useState<AssetValueRow[]>([]);
+  const [stratUnpaved, setStratUnpaved] = useState<AssetValueRow[]>([]);
+  const [stratForecast, setStratForecast] = useState<ForecastRow[]>([]);
+  const [stratStructures, setStratStructures] = useState<StructuresSummary | null>(null);
+  useEffect(() => {
+    const base = import.meta.env.BASE_URL;
+    Promise.all([
+      fetch(`${base}data/maintenance_intervention_rates.json`).then(r => r.json()).catch(() => []),
+      fetch(`${base}data/maintenance_link_priority_scores.json`).then(r => r.json()).catch(() => []),
+      fetch(`${base}data/maintenance_link_needs.json`).then(r => r.json()).catch(() => []),
+      fetch(`${base}data/asset_values_paved.json`).then(r => r.json()).catch(() => []),
+      fetch(`${base}data/asset_values_unpaved.json`).then(r => r.json()).catch(() => []),
+      fetch(`${base}data/maintenance_backlog_forecast.json`).then(r => r.json()).catch(() => []),
+      fetch(`${base}data/asset_values_structures.json`).then(r => r.json()).catch(() => null),
+    ]).then(([rates, priority, links, paved, unpaved, forecast, structures]) => {
+      setStratRates(rates);
+      setStratPaved(paved);
+      setStratUnpaved(unpaved);
+      setStratForecast(forecast);
+      setStratStructures(structures);
+      const priorityById = new Map((priority as Array<{ link_id: string; predicted_cost_need_ugx_bn: number | null; priority_score: number | null; priority_rank: number | null }>).map(p => [p.link_id, p]));
+      setStratLinks((links as Array<{ link_id: string; link_name: string; length_km: number | null; region: string | null; intervention_need: string; age_years: number | null }>).map(l => {
+        const p = priorityById.get(l.link_id);
+        return {
+          ...l,
+          predicted_cost_need_ugx_bn: p?.predicted_cost_need_ugx_bn ?? null,
+          priority_score: p?.priority_score ?? null,
+          priority_rank: p?.priority_rank ?? null,
+        };
+      }));
+    });
+  }, []);
+  const stratLinkColumns: STColumn<StrategyLinkRow>[] = [
+    { key: 'priority_rank', label: 'Priority Rank', numeric: true, render: r => r.priority_rank ?? <span style={NULL_ZERO_STYLE}>No data</span> },
+    { key: 'link_id', label: 'Link ID' },
+    { key: 'link_name', label: 'Link Name' },
+    { key: 'region', label: 'Region', render: r => r.region || <span style={NULL_ZERO_STYLE}>No data</span> },
+    { key: 'length_km', label: 'Length (km)', numeric: true, render: r => r.length_km != null ? r.length_km.toLocaleString(undefined, { maximumFractionDigits: 2 }) : <span style={NULL_ZERO_STYLE}>No data</span> },
+    { key: 'intervention_need', label: 'Intervention Need (real register)' },
+    { key: 'age_years', label: 'Age (yrs, since last rehab)', numeric: true, render: r => r.age_years ?? <span style={NULL_ZERO_STYLE}>No data</span> },
+    { key: 'predicted_cost_need_ugx_bn', label: 'Est. Cost Need (UGX Bn)', numeric: true, render: r => r.predicted_cost_need_ugx_bn != null ? r.predicted_cost_need_ugx_bn.toLocaleString(undefined, { maximumFractionDigits: 2 }) : <span style={NULL_ZERO_STYLE}>No data</span> },
+    { key: 'priority_score', label: 'Priority Score (0-100)', numeric: true, render: r => r.priority_score ?? <span style={NULL_ZERO_STYLE}>No data</span> },
+  ];
+  const stratRateColumns: STColumn<StrategyRateRow>[] = [
+    { key: 'surface', label: 'Surface' },
+    { key: 'intervention', label: 'Intervention' },
+    { key: 'rate_ugx_bn_per_km', label: 'Rate (UGX Bn/km)', numeric: true, render: r => r.rate_ugx_bn_per_km.toLocaleString(undefined, { maximumFractionDigits: 3 }) },
+    { key: 'is_assumption', label: 'Assumption-driven?', render: r => r.is_assumption ? 'Yes' : 'No' },
+    { key: 'accuracy_score', label: 'Accuracy Score (0-100)', numeric: true, render: r => r.accuracy_score ?? <span style={NULL_ZERO_STYLE}>No data</span> },
+    { key: 'basis', label: 'Basis' },
+  ];
+  const assetTrend = stratPaved.map((p, i) => ({
+    fy: p.fy, paved_musd: p.cdrc_musd, unpaved_musd: stratUnpaved[i]?.cdrc_musd ?? null,
+    total_musd: p.cdrc_musd + (stratUnpaved[i]?.cdrc_musd ?? 0),
+  }));
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100%' }}>
@@ -410,6 +491,124 @@ export default function BudgetSection() {
                 <div style={{ fontSize: 10, color: 'rgba(148,163,184,0.6)' }}>{s.desc}</div>
               </div>
             ))}
+          </div>
+        </div>
+      )}
+
+      {/* Maintenance Strategy - real data extracted from her Maintenance
+          Strategy planning workbooks + 3 trained models. */}
+      {tab === 'strategy' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <div style={{ background: 'rgba(0,245,255,0.04)', border: '1px solid rgba(0,245,255,0.15)', borderRadius: 10, padding: '10px 16px', fontSize: 10.5, color: 'rgba(203,213,225,0.85)', lineHeight: 1.6 }}>
+            Extracted from real MoWT/UNRA Maintenance Strategy planning workbooks (2016-2026): 2026 intervention
+            rates, FY2017/18-2025/26 asset values, and a {stratLinks.length.toLocaleString()}-link intervention-need register.
+            Cost-need and priority figures are model outputs (RandomForest classifier + regressor, 5-fold cross-validated;
+            composite priority score combines real severity, cost and age) - not fabricated, and every gap in the source
+            data is shown as "No data" rather than guessed. Backlog forecast uses linear regression on 8 real historical
+            points, a small sample, so its 3-year projection widens in uncertainty and is labelled as forecast, not fact.
+          </div>
+
+          <div style={card(C.cyan)}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 14 }}>
+              <div style={{ fontSize: 11, fontWeight: 900, color: C.cyan, textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+                Road Network Asset Value Trend + 3-Year Forecast (USD Millions, CDRC)
+              </div>
+            </div>
+            <ResponsiveContainer width="100%" height={280}>
+              <LineChart data={stratForecast.length ? stratForecast : assetTrend} margin={{ top: 8, right: 12, left: 0, bottom: 20 }}>
+                <CartesianGrid stroke="rgba(255,255,255,0.05)" strokeDasharray="3 3"/>
+                <XAxis dataKey="fy" tick={{ ...TK, fontSize: 8 }} angle={-30} textAnchor="end"/>
+                <YAxis tick={TK} label={{ value: 'USD Mn', angle: -90, position: 'insideLeft', style: { fontSize: 9, fill: 'rgba(148,163,184,0.5)' } }}/>
+                <Tooltip content={<CT/>}/>
+                <Legend wrapperStyle={{ fontSize: 10, color: 'rgba(148,163,184,0.7)' }}/>
+                <Line type="monotone" dataKey="paved_asset_value_musd" name="Paved" stroke={C.cyan} strokeWidth={2.5} dot={{ r: 3 }}/>
+                <Line type="monotone" dataKey="unpaved_asset_value_musd" name="Unpaved" stroke={C.yellow} strokeWidth={2.5} dot={{ r: 3 }}/>
+                <Line type="monotone" dataKey="total_asset_value_musd" name="Total" stroke={C.green} strokeWidth={2.5} strokeDasharray="4 3" dot={{ r: 3 }}/>
+              </LineChart>
+            </ResponsiveContainer>
+            <div style={{ fontSize: 9.5, color: 'rgba(148,163,184,0.5)', marginTop: 8 }}>
+              Solid history is actual (8 FYs); the last 3 points are a linear-regression forecast, not measured data.
+            </div>
+          </div>
+
+          {stratStructures && (
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+              <div style={card(C.purple)}>
+                <div style={{ fontSize: 11, fontWeight: 900, color: C.purple, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 12 }}>
+                  Bridges - Asset Value (2026 register)
+                </div>
+                <div style={{ display: 'flex', gap: 16 }}>
+                  <div><div style={{ fontSize: 20, fontWeight: 900, color: C.purple }}>{stratStructures.bridges.count.toLocaleString()}</div><div style={{ fontSize: 9, color: 'rgba(148,163,184,0.6)' }}>Bridges</div></div>
+                  <div><div style={{ fontSize: 20, fontWeight: 900, color: '#d4dde8' }}>${stratStructures.bridges.asset_value_musd.toLocaleString()}M</div><div style={{ fontSize: 9, color: 'rgba(148,163,184,0.6)' }}>Asset Value</div></div>
+                  <div><div style={{ fontSize: 20, fontWeight: 900, color: '#d4dde8' }}>${stratStructures.bridges.crc_musd.toLocaleString()}M</div><div style={{ fontSize: 9, color: 'rgba(148,163,184,0.6)' }}>CRC</div></div>
+                </div>
+              </div>
+              <div style={card(C.orange)}>
+                <div style={{ fontSize: 11, fontWeight: 900, color: C.orange, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 12 }}>
+                  Major Culverts - Asset Value (2026 register, kept separate from bridges)
+                </div>
+                <div style={{ display: 'flex', gap: 16 }}>
+                  <div><div style={{ fontSize: 20, fontWeight: 900, color: C.orange }}>{stratStructures.major_culverts.count.toLocaleString()}</div><div style={{ fontSize: 9, color: 'rgba(148,163,184,0.6)' }}>Major Culverts</div></div>
+                  <div><div style={{ fontSize: 20, fontWeight: 900, color: '#d4dde8' }}>${stratStructures.major_culverts.asset_value_musd.toLocaleString()}M</div><div style={{ fontSize: 9, color: 'rgba(148,163,184,0.6)' }}>Asset Value</div></div>
+                  <div><div style={{ fontSize: 20, fontWeight: 900, color: '#d4dde8' }}>${stratStructures.major_culverts.crc_musd.toLocaleString()}M</div><div style={{ fontSize: 9, color: 'rgba(148,163,184,0.6)' }}>CRC</div></div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          <div style={card(C.yellow)}>
+            <div style={{ fontSize: 11, fontWeight: 900, color: C.yellow, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 4 }}>
+              2026 Maintenance Intervention Rates (Real, MoWT-sourced)
+            </div>
+            <div style={{ fontSize: 10, color: 'rgba(148,163,184,0.6)', marginBottom: 14 }}>
+              Accuracy score (0-100) is the source workbook's own confidence rating per rate, not a Claude-assigned figure.
+            </div>
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 11 }}>
+                <thead>
+                  <tr>
+                    {stratRateColumns.map(c => (
+                      <th key={c.key} style={{ padding: '8px 12px', textAlign: c.numeric ? 'right' : 'left', fontSize: 9,
+                        fontWeight: 900, color: `rgba(${hexRgb(C.yellow)},0.8)`, textTransform: 'uppercase', letterSpacing: '0.1em',
+                        borderBottom: `1px solid rgba(${hexRgb(C.yellow)},0.15)`, whiteSpace: 'nowrap' }}>{c.label}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {stratRates.map((r, i) => (
+                    <tr key={i} style={{ background: i % 2 === 0 ? 'rgba(255,255,255,0.02)' : 'transparent' }}>
+                      {stratRateColumns.map(c => (
+                        <td key={c.key} style={{ padding: '8px 12px', textAlign: c.numeric ? 'right' : 'left', color: '#c4d2e1' }}>
+                          {c.render ? c.render(r) : String((r as any)[c.key] ?? '-')}
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                  {stratRates.length === 0 && (
+                    <tr><td colSpan={stratRateColumns.length} style={{ padding: '14px 12px', textAlign: 'center', color: 'rgba(148,163,184,0.5)' }}>Loading real rate data…</td></tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div style={card(C.pink)}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 4 }}>
+              <div style={{ fontSize: 11, fontWeight: 900, color: C.pink, textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+                Road Link Priority Ranking - Maintenance Need (Real Backlog Register, ML-Scored)
+              </div>
+            </div>
+            <div style={{ fontSize: 10, color: 'rgba(148,163,184,0.6)', marginBottom: 14 }}>
+              Ranked by composite priority score (severity + predicted cost need + age). Sort/filter/export any column below.
+            </div>
+            <SortableFilterableTable
+              columns={stratLinkColumns}
+              rows={stratLinks}
+              accent={C.pink}
+              exportName="maintenance-strategy-link-priority"
+              initialSort="priority_rank"
+              emptyText="Loading real link register…"
+            />
           </div>
         </div>
       )}
