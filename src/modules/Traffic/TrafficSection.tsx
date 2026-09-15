@@ -673,7 +673,6 @@ export default function TrafficSection() {
     { id: 'map'      as const, label: 'Traffic Map',        icon: <MapIcon size={13}/> },
     { id: 'counts'   as const, label: 'Counts & Analysis',  icon: <Table2 size={13}/> },
     { id: 'trends'   as const, label: 'Trends & Risk',      icon: <TrendingUp size={13}/> },
-    { id: 'stations' as const, label: 'Station Directory',  icon: <BarChart3 size={13}/> },
   ];
   const COUNTS_TABS = [
     { id: 'linxclass'       as const, label: 'Link × Class Table'       },
