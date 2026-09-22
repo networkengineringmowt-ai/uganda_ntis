@@ -149,13 +149,13 @@ export const QUERY_LIBRARY: Record<string, string> = {
   Q21: `-- RMS system overview (non-DB query — platform summary, NDPIV FY25/26 official figures)
   SELECT 'Road Management System' AS module,
     21302 AS total_network_km, 6405 AS paved_km, 14897 AS unpaved_km,
-    30.1 AS paved_pct, 1013 AS mapped_links, 1019 AS total_structures,
+    30.1 AS paved_pct, 1022 AS mapped_links, 998 AS total_structures,
     9 AS oprc_lots, 25 AS atc_stations, 6 AS maintenance_regions, 23 AS maintenance_stations`,
 
-  Q22: `-- National Case Studies reference (non-DB query — platform knowledge)
-  SELECT 'National RMS Case Studies' AS source,
+  Q22: `-- Global case studies reference (non-DB query — platform knowledge)
+  SELECT 'Global RMS Case Studies' AS source,
     'TANROADS,KeNHA,RTDA,SANRAL,Highways England,Austroads,NZTA,FHWA,NHAI,Trafikverket,RWS,MLIT,DNIT,GHA,ERA' AS agencies,
-    'See RMS > National Case Studies tab for full analysis' AS navigation`,
+    'See RMS > Global Case Studies tab for full analysis' AS navigation`,
 
   Q23: `-- International standards reference
   SELECT 'Standards' AS category,
@@ -171,3 +171,7 @@ export const QUERY_LIBRARY: Record<string, string> = {
     (5,'Monitoring & Reporting: dashboards, KPIs, this platform, annual reports')
   ) AS tiers(tier, description)`,
 };
+
+
+
+
