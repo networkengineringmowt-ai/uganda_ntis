@@ -126,13 +126,13 @@ async function _load(): Promise<NetworkStats> {
 export function useNetworkStats(): NetworkStats {
   const [stats, setStats] = useState<NetworkStats>(
     _cache ?? {
-      totalKm: 21160, officialKm: OFFICIAL_NETWORK_KM, totalLinks: 1013,
+      totalKm: 21160, officialKm: OFFICIAL_NETWORK_KM, totalLinks: 1022,
       pavedKm: 6405, unpavedKm: 14897, pavedPct: 30.1,
       classKm: { A: 2615, B: 2863, C: 15537, M: 145 },
       classLinks: { A: 0, B: 0, C: 0, M: 0 },
       regionKm: { Central: 4760, Eastern: 2775, 'North Eastern': 2716, Northern: 4595, Southern: 3546, Western: 2768 },
       regionLinks: {},
-      totalBridges: 483,
+      totalBridges: 546,
       dataVintage: 'DNR GIS / NDPIV FY25-26',
       loaded: !!_cache,
     }
@@ -151,13 +151,13 @@ export function useNetworkStats(): NetworkStats {
 /** Sync accessor — returns defaults if not yet loaded. Safe to call outside React. */
 export function getNetworkStats(): NetworkStats {
   return _cache ?? {
-    totalKm: 21160, officialKm: OFFICIAL_NETWORK_KM, totalLinks: 1013,
+    totalKm: 21160, officialKm: OFFICIAL_NETWORK_KM, totalLinks: 1022,
     pavedKm: 6405, unpavedKm: 14897, pavedPct: 30.1,
     classKm: { A: 2615, B: 2863, C: 15537, M: 145 },
     classLinks: {},
     regionKm: { Central: 4760, Eastern: 2775, 'North Eastern': 2716, Northern: 4595, Southern: 3546, Western: 2768 },
     regionLinks: {},
-    totalBridges: 483,
+    totalBridges: 546,
     dataVintage: 'DNR GIS Jun 2025',
     loaded: false,
   };
@@ -165,3 +165,4 @@ export function getNetworkStats(): NetworkStats {
 
 // Preload on module import so data is ready by the time components mount
 _load().catch(() => null);
+
