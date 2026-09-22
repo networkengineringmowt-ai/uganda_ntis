@@ -89,7 +89,7 @@ export const LINK_ID_STRUCTURE = {
     notation: 'Decimal km stored in chainage_f/chainage_t fields, e.g. 32.23 km from datum',
     datum: 'Defined at each road origin (typically at major town or border)',
   },
-  totalLinks: 1013,
+  totalLinks: 1022,
   totalLength: 21160,
 };
 
@@ -235,3 +235,5 @@ To look up a specific road or link, say:
   "What is the condition of road A002?"
   "List all links in Northern Region"
 `;
+
+
